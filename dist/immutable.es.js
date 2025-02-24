@@ -24,94 +24,82 @@
  */
 // Used for setting prototype methods that IE8 chokes on.
 var DELETE = 'delete';
-
 // Constants describing the size of trie nodes.
 var SHIFT = 5; // Resulted in best performance after ______?
 var SIZE = 1 << SHIFT;
 var MASK = SIZE - 1;
-
 // A consistent shared value representing "not set" which equals nothing other
 // than itself, and nothing that could be provided externally.
 var NOT_SET = {};
-
 // Boolean references, Rough equivalent of `bool &`.
 function MakeRef() {
-  return { value: false };
+    return { value: false };
 }
-
 function SetRef(ref) {
-  if (ref) {
-    ref.value = true;
-  }
+    if (ref) {
+        ref.value = true;
+    }
 }
-
 // A function which returns a value representing an "owner" for transient writes
 // to tries. The return value will only ever equal itself, and will not equal
 // the return of any subsequent call of this function.
-function OwnerID() {}
-
+function OwnerID() { }
 function ensureSize(iter) {
-  if (iter.size === undefined) {
-    iter.size = iter.__iterate(returnTrue);
-  }
-  return iter.size;
-}
-
-function wrapIndex(iter, index) {
-  // This implements "is array index" which the ECMAString spec defines as:
-  //
-  //     A String property name P is an array index if and only if
-  //     ToString(ToUint32(P)) is equal to P and ToUint32(P) is not equal
-  //     to 2^32−1.
-  //
-  // http://www.ecma-international.org/ecma-262/6.0/#sec-array-exotic-objects
-  if (typeof index !== 'number') {
-    var uint32Index = index >>> 0; // N >>> 0 is shorthand for ToUint32
-    if ('' + uint32Index !== index || uint32Index === 4294967295) {
-      return NaN;
+    // @ts-expect-error size should exists on Collection
+    if (iter.size === undefined) {
+        // @ts-expect-error size should exists on Collection, __iterate does exist on Collection
+        iter.size = iter.__iterate(returnTrue);
     }
-    index = uint32Index;
-  }
-  return index < 0 ? ensureSize(iter) + index : index;
+    // @ts-expect-error size should exists on Collection
+    return iter.size;
 }
-
+function wrapIndex(iter, index) {
+    // This implements "is array index" which the ECMAString spec defines as:
+    //
+    //     A String property name P is an array index if and only if
+    //     ToString(ToUint32(P)) is equal to P and ToUint32(P) is not equal
+    //     to 2^32−1.
+    //
+    // http://www.ecma-international.org/ecma-262/6.0/#sec-array-exotic-objects
+    if (typeof index !== 'number') {
+        var uint32Index = index >>> 0; // N >>> 0 is shorthand for ToUint32
+        if ('' + uint32Index !== index || uint32Index === 4294967295) {
+            return NaN;
+        }
+        index = uint32Index;
+    }
+    return index < 0 ? ensureSize(iter) + index : index;
+}
 function returnTrue() {
-  return true;
+    return true;
 }
-
 function wholeSlice(begin, end, size) {
-  return (
-    ((begin === 0 && !isNeg(begin)) ||
-      (size !== undefined && begin <= -size)) &&
-    (end === undefined || (size !== undefined && end >= size))
-  );
+    return (((begin === 0 && !isNeg(begin)) ||
+        (size !== undefined && begin <= -size)) &&
+        (end === undefined || (size !== undefined && end >= size)));
 }
-
 function resolveBegin(begin, size) {
-  return resolveIndex(begin, size, 0);
+    return resolveIndex(begin, size, 0);
 }
-
 function resolveEnd(end, size) {
-  return resolveIndex(end, size, size);
+    return resolveIndex(end, size, size);
 }
-
 function resolveIndex(index, size, defaultIndex) {
-  // Sanitize indices using this shorthand for ToInt32(argument)
-  // http://www.ecma-international.org/ecma-262/6.0/#sec-toint32
-  return index === undefined
-    ? defaultIndex
-    : isNeg(index)
-      ? size === Infinity
-        ? size
-        : Math.max(0, size + index) | 0
-      : size === undefined || size === index
-        ? index
-        : Math.min(size, index) | 0;
+    // Sanitize indices using this shorthand for ToInt32(argument)
+    // http://www.ecma-international.org/ecma-262/6.0/#sec-toint32
+    return index === undefined
+        ? defaultIndex
+        : isNeg(index)
+            ? size === Infinity
+                ? size
+                : Math.max(0, size + index) | 0
+            : size === undefined || size === index
+                ? index
+                : Math.min(size, index) | 0;
 }
-
 function isNeg(value) {
-  // Account for -0 which is negative, but not less than 0.
-  return value < 0 || (value === 0 && 1 / value === -Infinity);
+    // Account for -0 which is negative, but not less than 0.
+    return value < 0 || (value === 0 && 1 / value === -Infinity);
 }
 
 // Note: value is unchanged to not break immutable-devtools.
@@ -282,21 +270,6 @@ function isImmutable(maybeImmutable) {
 }
 
 var IS_ORDERED_SYMBOL = '@@__IMMUTABLE_ORDERED__@@';
-/**
- * True if `maybeOrdered` is a Collection where iteration order is well
- * defined. True for Collection.Indexed as well as OrderedMap and OrderedSet.
- *
- * ```js
- * import { isOrdered, Map, OrderedMap, List, Set } from 'immutable';
- *
- * isOrdered([]); // false
- * isOrdered({}); // false
- * isOrdered(Map()); // false
- * isOrdered(OrderedMap()); // true
- * isOrdered(List()); // true
- * isOrdered(Set()); // false
- * ```
- */
 function isOrdered(maybeOrdered) {
     return Boolean(maybeOrdered &&
         // @ts-expect-error: maybeOrdered is typed as `{}`, need to change in 6.0 to `maybeOrdered && typeof maybeOrdered === 'object' && IS_ORDERED_SYMBOL in maybeOrdered`
@@ -389,22 +362,24 @@ function isKeysIterable(maybeIterable) {
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 
 function isArrayLike(value) {
-  if (Array.isArray(value) || typeof value === 'string') {
-    return true;
-  }
-
-  return (
-    value &&
-    typeof value === 'object' &&
-    Number.isInteger(value.length) &&
-    value.length >= 0 &&
-    (value.length === 0
-      ? // Only {length: 0} is considered Array-like.
-        Object.keys(value).length === 1
-      : // An object is only Array-like if it has a property where the last value
-        // in the array-like may be found (which could be undefined).
-        value.hasOwnProperty(value.length - 1))
-  );
+    if (Array.isArray(value) || typeof value === 'string') {
+        return true;
+    }
+    // @ts-expect-error "Type 'unknown' is not assignable to type 'boolean'" : convert to Boolean
+    return (value &&
+        typeof value === 'object' &&
+        // @ts-expect-error check that `'length' in value &&`
+        Number.isInteger(value.length) &&
+        // @ts-expect-error check that `'length' in value &&`
+        value.length >= 0 &&
+        // @ts-expect-error check that `'length' in value &&`
+        (value.length === 0
+            ? // Only {length: 0} is considered Array-like.
+                Object.keys(value).length === 1
+            : // An object is only Array-like if it has a property where the last value
+                // in the array-like may be found (which could be undefined).
+                // @ts-expect-error check that `'length' in value &&`
+                value.hasOwnProperty(value.length - 1)));
 }
 
 var Seq = /*@__PURE__*/(function (Collection) {
@@ -2149,63 +2124,55 @@ function defaultComparator(a, b) {
 
 // http://jsperf.com/copy-array-inline
 function arrCopy(arr, offset) {
-  offset = offset || 0;
-  var len = Math.max(0, arr.length - offset);
-  var newArr = new Array(len);
-  for (var ii = 0; ii < len; ii++) {
-    newArr[ii] = arr[ii + offset];
-  }
-  return newArr;
+    offset = offset || 0;
+    var len = Math.max(0, arr.length - offset);
+    var newArr = new Array(len);
+    for (var ii = 0; ii < len; ii++) {
+        // @ts-expect-error We may want to guard for undefined values with `if (arr[ii + offset] !== undefined`, but ths should not happen by design
+        newArr[ii] = arr[ii + offset];
+    }
+    return newArr;
 }
 
 function invariant(condition, error) {
-  if (!condition) { throw new Error(error); }
+    if (!condition)
+        { throw new Error(error); }
 }
 
 function assertNotInfinite(size) {
-  invariant(
-    size !== Infinity,
-    'Cannot perform this action with an infinite size.'
-  );
+    invariant(size !== Infinity, 'Cannot perform this action with an infinite size.');
 }
 
 function coerceKeyPath(keyPath) {
-  if (isArrayLike(keyPath) && typeof keyPath !== 'string') {
-    return keyPath;
-  }
-  if (isOrdered(keyPath)) {
-    return keyPath.toArray();
-  }
-  throw new TypeError(
-    'Invalid keyPath: expected Ordered Collection or Array: ' + keyPath
-  );
+    if (isArrayLike(keyPath) && typeof keyPath !== 'string') {
+        return keyPath;
+    }
+    if (isOrdered(keyPath)) {
+        return keyPath.toArray();
+    }
+    throw new TypeError('Invalid keyPath: expected Ordered Collection or Array: ' + keyPath);
 }
 
 var toString = Object.prototype.toString;
-
 function isPlainObject(value) {
-  // The base prototype's toString deals with Argument objects and native namespaces like Math
-  if (
-    !value ||
-    typeof value !== 'object' ||
-    toString.call(value) !== '[object Object]'
-  ) {
-    return false;
-  }
-
-  var proto = Object.getPrototypeOf(value);
-  if (proto === null) {
-    return true;
-  }
-
-  // Iteratively going up the prototype chain is needed for cross-realm environments (differing contexts, iframes, etc)
-  var parentProto = proto;
-  var nextProto = Object.getPrototypeOf(proto);
-  while (nextProto !== null) {
-    parentProto = nextProto;
-    nextProto = Object.getPrototypeOf(parentProto);
-  }
-  return parentProto === proto;
+    // The base prototype's toString deals with Argument objects and native namespaces like Math
+    if (!value ||
+        typeof value !== 'object' ||
+        toString.call(value) !== '[object Object]') {
+        return false;
+    }
+    var proto = Object.getPrototypeOf(value);
+    if (proto === null) {
+        return true;
+    }
+    // Iteratively going up the prototype chain is needed for cross-realm environments (differing contexts, iframes, etc)
+    var parentProto = proto;
+    var nextProto = Object.getPrototypeOf(proto);
+    while (nextProto !== null) {
+        parentProto = nextProto;
+        nextProto = Object.getPrototypeOf(parentProto);
+    }
+    return parentProto === proto;
 }
 
 /**
@@ -2213,22 +2180,21 @@ function isPlainObject(value) {
  * provided by Immutable.js or a plain Array or Object.
  */
 function isDataStructure(value) {
-  return (
-    typeof value === 'object' &&
-    (isImmutable(value) || Array.isArray(value) || isPlainObject(value))
-  );
+    return (typeof value === 'object' &&
+        (isImmutable(value) || Array.isArray(value) || isPlainObject(value)));
 }
 
 /**
  * Converts a value to a string, adding quotes if a string was provided.
  */
 function quoteString(value) {
-  try {
-    return typeof value === 'string' ? JSON.stringify(value) : String(value);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (_ignoreError) {
-    return JSON.stringify(value);
-  }
+    try {
+        return typeof value === 'string' ? JSON.stringify(value) : String(value);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    }
+    catch (_ignoreError) {
+        return JSON.stringify(value);
+    }
 }
 
 function has(collection, key) {
@@ -2248,16 +2214,16 @@ function get(collection, key, notSetValue) {
 }
 
 function shallowCopy(from) {
-  if (Array.isArray(from)) {
-    return arrCopy(from);
-  }
-  var to = {};
-  for (var key in from) {
-    if (hasOwnProperty.call(from, key)) {
-      to[key] = from[key];
+    if (Array.isArray(from)) {
+        return arrCopy(from);
     }
-  }
-  return to;
+    var to = {};
+    for (var key in from) {
+        if (hasOwnProperty.call(from, key)) {
+            to[key] = from[key];
+        }
+    }
+    return to;
 }
 
 function remove(collection, key) {
@@ -4463,83 +4429,89 @@ function isOrderedSet(maybeOrderedSet) {
 }
 
 function deepEqual(a, b) {
-  if (a === b) {
-    return true;
-  }
-
-  if (
-    !isCollection(b) ||
-    (a.size !== undefined && b.size !== undefined && a.size !== b.size) ||
-    (a.__hash !== undefined &&
-      b.__hash !== undefined &&
-      a.__hash !== b.__hash) ||
-    isKeyed(a) !== isKeyed(b) ||
-    isIndexed(a) !== isIndexed(b) ||
-    isOrdered(a) !== isOrdered(b)
-  ) {
-    return false;
-  }
-
-  if (a.size === 0 && b.size === 0) {
-    return true;
-  }
-
-  var notAssociative = !isAssociative(a);
-
-  if (isOrdered(a)) {
-    var entries = a.entries();
-    return (
-      b.every(function (v, k) {
-        var entry = entries.next().value;
-        return entry && is(entry[1], v) && (notAssociative || is(entry[0], k));
-      }) && entries.next().done
-    );
-  }
-
-  var flipped = false;
-
-  if (a.size === undefined) {
-    if (b.size === undefined) {
-      if (typeof a.cacheResult === 'function') {
-        a.cacheResult();
-      }
-    } else {
-      flipped = true;
-      var _ = a;
-      a = b;
-      b = _;
+    if (a === b) {
+        return true;
     }
-  }
-
-  var allEqual = true;
-  var bSize = b.__iterate(function (v, k) {
-    if (
-      notAssociative
-        ? !a.has(v)
-        : flipped
-          ? !is(v, a.get(k, NOT_SET))
-          : !is(a.get(k, NOT_SET), v)
-    ) {
-      allEqual = false;
-      return false;
+    if (!isCollection(b) ||
+        // @ts-expect-error size should exists on Collection
+        (a.size !== undefined && b.size !== undefined && a.size !== b.size) ||
+        // @ts-expect-error __hash exists on Collection
+        (a.__hash !== undefined &&
+            // @ts-expect-error __hash exists on Collection
+            b.__hash !== undefined &&
+            // @ts-expect-error __hash exists on Collection
+            a.__hash !== b.__hash) ||
+        isKeyed(a) !== isKeyed(b) ||
+        isIndexed(a) !== isIndexed(b) ||
+        // @ts-expect-error Range extends Collection, which implements [Symbol.iterator], so it is valid
+        isOrdered(a) !== isOrdered(b)) {
+        return false;
     }
-  });
-
-  return allEqual && a.size === bSize;
+    // @ts-expect-error size should exists on Collection
+    if (a.size === 0 && b.size === 0) {
+        return true;
+    }
+    var notAssociative = !isAssociative(a);
+    // @ts-expect-error Range extends Collection, which implements [Symbol.iterator], so it is valid
+    if (isOrdered(a)) {
+        var entries = a.entries();
+        // @ts-expect-error need to cast as boolean
+        return (b.every(function (v, k) {
+            var entry = entries.next().value;
+            return entry && is(entry[1], v) && (notAssociative || is(entry[0], k));
+        }) && entries.next().done);
+    }
+    var flipped = false;
+    if (a.size === undefined) {
+        // @ts-expect-error size should exists on Collection
+        if (b.size === undefined) {
+            if (typeof a.cacheResult === 'function') {
+                a.cacheResult();
+            }
+        }
+        else {
+            flipped = true;
+            var _ = a;
+            a = b;
+            b = _;
+        }
+    }
+    var allEqual = true;
+    var bSize = 
+    // @ts-expect-error b is Range | Repeat | Collection<unknown, unknown> as it may have been flipped, and __iterate is valid
+    b.__iterate(function (v, k) {
+        if (notAssociative
+            ? // @ts-expect-error has exists on Collection
+                !a.has(v)
+            : flipped
+                ? // @ts-expect-error type of `get` does not "catch" the version with `notSetValue`
+                    !is(v, a.get(k, NOT_SET))
+                : // @ts-expect-error type of `get` does not "catch" the version with `notSetValue`
+                    !is(a.get(k, NOT_SET), v)) {
+            allEqual = false;
+            return false;
+        }
+    });
+    return (allEqual &&
+        // @ts-expect-error size should exists on Collection
+        a.size === bSize);
 }
 
 /**
  * Contributes additional methods to a constructor
  */
-function mixin(ctor, methods) {
-  var keyCopier = function (key) {
-    ctor.prototype[key] = methods[key];
-  };
-  Object.keys(methods).forEach(keyCopier);
-  // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
-  Object.getOwnPropertySymbols &&
-    Object.getOwnPropertySymbols(methods).forEach(keyCopier);
-  return ctor;
+function mixin(ctor, 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+methods) {
+    var keyCopier = function (key) {
+        // @ts-expect-error how to handle symbol ?
+        ctor.prototype[key] = methods[key];
+    };
+    Object.keys(methods).forEach(keyCopier);
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
+    Object.getOwnPropertySymbols &&
+        Object.getOwnPropertySymbols(methods).forEach(keyCopier);
+    return ctor;
 }
 
 function toJS(value) {
