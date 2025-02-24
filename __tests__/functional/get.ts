@@ -33,20 +33,4 @@ describe('get', () => {
       )
     ).toBe('XX');
   });
-
-  // should work, but "has" does not work here
-  //   it('for class objects', () => {
-  //     class Dog {
-  //       name: string;
-
-  //       constructor(name: string) {
-  //         this.name = name;
-  //       }
-  //     }
-
-  //     const dog = new Dog('Rex');
-
-  //     expect(get(dog, 'name')).toBe('Rex');
-  //     expect(get(dog, 'color')).toBeUndefined();
-  //   })
 });
