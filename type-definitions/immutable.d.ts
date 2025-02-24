@@ -1697,7 +1697,7 @@ declare namespace Immutable {
   function OrderedMap<K, V>(collection?: Iterable<[K, V]>): OrderedMap<K, V>;
   function OrderedMap<V>(obj: { [key: string]: V }): OrderedMap<string, V>;
 
-  interface OrderedMap<K, V> extends Map<K, V> {
+  interface OrderedMap<K, V> extends Map<K, V>, OrderedCollection<[K, V]> {
     /**
      * The number of entries in this OrderedMap.
      */
@@ -2182,7 +2182,7 @@ declare namespace Immutable {
     collection?: Iterable<T> | ArrayLike<T>
   ): OrderedSet<T>;
 
-  interface OrderedSet<T> extends Set<T> {
+  interface OrderedSet<T> extends Set<T>, OrderedCollection<T> {
     /**
      * The number of items in this OrderedSet.
      */
@@ -3916,7 +3916,7 @@ declare namespace Immutable {
       collection?: Iterable<T> | ArrayLike<T>
     ): Collection.Indexed<T>;
 
-    interface Indexed<T> extends Collection<number, T> {
+    interface Indexed<T> extends Collection<number, T>, OrderedCollection<T> {
       /**
        * Deeply converts this Indexed collection to equivalent native JavaScript Array.
        */
@@ -5342,6 +5342,20 @@ declare namespace Immutable {
   }
 
   /**
+   * Interface representing all oredered collections.
+   * This includes `List`, `Stack`, `Map`, `OrderedMap`, `Set`, and `OrderedSet`.
+   * return of `isOrdered()` return true in that case.
+   */
+  interface OrderedCollection<T> {
+    /**
+     * Shallowly converts this collection to an Array.
+     */
+    toArray(): Array<T>;
+
+    [Symbol.iterator](): IterableIterator<T>;
+  }
+
+  /**
    * Deeply converts plain JS objects and arrays to Immutable Maps and Lists.
    *
    * `fromJS` will convert Arrays and [array-like objects][2] to a List, and
@@ -5604,7 +5618,12 @@ declare namespace Immutable {
    * isOrdered(Set()); // false
    * ```
    */
-  function isOrdered(maybeOrdered: unknown): boolean;
+  function isOrdered<T>(
+    maybeOrdered: Iterable<T>
+  ): maybeOrdered is OrderedCollection<T>;
+  function isOrdered(
+    maybeOrdered: unknown
+  ): maybeOrdered is OrderedCollection<unknown>;
 
   /**
    * True if `maybeValue` is a JavaScript Object which has *both* `equals()`
