@@ -1,4 +1,12 @@
-import { fromJS, is, List, Map, OrderedMap, Record } from 'immutable';
+import {
+  fromJS,
+  is,
+  List,
+  Map,
+  OrderedMap,
+  Record,
+  type Collection,
+} from 'immutable';
 import * as jasmineCheck from 'jasmine-check';
 
 jasmineCheck.install();
@@ -114,15 +122,25 @@ describe('Conversion', () => {
   });
 
   it('Converts deep JSON with custom conversion', () => {
-    const seq = fromJS(js, function (this, key, sequence) {
-      if (key === 'point') {
-        // @ts-expect-error -- to convert to real typing
-        return new Point(sequence);
+    const seq = fromJS(
+      js,
+      function (
+        this: typeof js,
+        key: PropertyKey,
+        sequence:
+          | Collection.Keyed<string, unknown>
+          | Collection.Indexed<unknown>
+      ) {
+        if (key === 'point') {
+          // @ts-expect-error -- to convert to real typing
+          return new Point(sequence);
+        }
+        // @ts-expect-error unknown any type
+        return Array.isArray(this[key])
+          ? sequence.toList()
+          : sequence.toOrderedMap();
       }
-      return Array.isArray(this[key])
-        ? sequence.toList()
-        : sequence.toOrderedMap();
-    });
+    );
     expect(seq).toEqual(immutableOrderedData);
     expect(seq.toString()).toEqual(immutableOrderedDataString);
   });
@@ -136,6 +154,7 @@ describe('Conversion', () => {
       function (this: typeof js, key: any, sequence, keypath) {
         expect(arguments.length).toBe(3);
         paths.push(keypath);
+        // @ts-expect-error unknown any type
         return Array.isArray(this[key])
           ? sequence.toList()
           : sequence.toOrderedMap();
@@ -196,10 +215,15 @@ describe('Conversion', () => {
     expect(fromJS('string')).toEqual('string');
   });
 
-  check.it('toJS isomorphic value', { maxSize: 30 }, [gen.JSONValue], (v) => {
-    const imm = fromJS(v);
-    expect(imm && imm.toJS ? imm.toJS() : imm).toEqual(v);
-  });
+  check.it(
+    'toJS isomorphic value',
+    { maxSize: 30 },
+    [gen.JSONValue],
+    (v: object) => {
+      const imm = fromJS(v);
+      expect(imm && imm.toJS ? imm.toJS() : imm).toEqual(v);
+    }
+  );
 
   it('Explicitly convert values to string using String constructor', () => {
     expect(() => fromJS({ foo: Symbol('bar') }) + '').not.toThrow();

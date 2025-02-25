@@ -5,24 +5,28 @@ import invariant from '../src/utils/invariant';
 jasmineCheck.install();
 
 describe('KeyedSeq', () => {
-  check.it('it iterates equivalently', [gen.array(gen.int)], (ints) => {
-    const seq = Seq(ints);
-    const keyed = seq.toKeyedSeq();
+  check.it(
+    'it iterates equivalently',
+    [gen.array(gen.int)],
+    (ints: Array<number>) => {
+      const seq = Seq(ints);
+      const keyed = seq.toKeyedSeq();
 
-    const seqEntries = seq.entries();
-    const keyedEntries = keyed.entries();
+      const seqEntries = seq.entries();
+      const keyedEntries = keyed.entries();
 
-    let seqStep;
-    let keyedStep;
-    do {
-      seqStep = seqEntries.next();
-      keyedStep = keyedEntries.next();
-      expect(keyedStep).toEqual(seqStep);
-    } while (!seqStep.done);
-  });
+      let seqStep;
+      let keyedStep;
+      do {
+        seqStep = seqEntries.next();
+        keyedStep = keyedEntries.next();
+        expect(keyedStep).toEqual(seqStep);
+      } while (!seqStep.done);
+    }
+  );
 
   it('maintains keys', () => {
-    const isEven = (x) => x % 2 === 0;
+    const isEven = (x: number): boolean => x % 2 === 0;
     const seq = Range(0, 100);
 
     // This is what we expect for IndexedSequences
