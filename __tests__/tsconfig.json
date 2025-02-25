@@ -1,5 +1,6 @@
 {
   "extends": "../tsconfig.json",
+  "include": ["./"],
   "compilerOptions": {
     // TODO remove those "false" value that make the code less strict
     "noImplicitAny": false,

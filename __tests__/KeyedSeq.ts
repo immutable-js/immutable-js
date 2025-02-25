@@ -6,7 +6,7 @@ import invariant from '../src/utils/invariant';
 describe('KeyedSeq', () => {
   it('iterates equivalently', () => {
     fc.assert(
-      fc.property(fc.array(fc.integer()), (ints) => {
+      fc.property(fc.array(fc.integer()), (ints: Array<number>) => {
         const seq = Seq(ints);
         const keyed = seq.toKeyedSeq();
 
@@ -25,7 +25,7 @@ describe('KeyedSeq', () => {
   });
 
   it('maintains keys', () => {
-    const isEven = (x) => x % 2 === 0;
+    const isEven = (x: number): boolean => x % 2 === 0;
     const seq = Range(0, 100);
 
     // This is what we expect for IndexedSequences
