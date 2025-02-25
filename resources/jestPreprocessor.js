@@ -3,11 +3,11 @@ const makeSynchronous = require('make-synchronous');
 
 const TYPESCRIPT_OPTIONS = {
   noEmitOnError: true,
-  target: typescript.ScriptTarget.ES2015,
+  target: typescript.ScriptTarget.ES2022,
   module: typescript.ModuleKind.CommonJS,
-  strictNullChecks: true,
   sourceMap: true,
   inlineSourceMap: true,
+  esModuleInterop: true,
 };
 
 function transpileTypeScript(src, path) {

@@ -42,7 +42,7 @@ describe('isValueObject', () => {
         this.v = val;
       }
 
-      equals(other) {
+      equals(other: MyValueType) {
         return Boolean(other && this.v === other.v);
       }
 
