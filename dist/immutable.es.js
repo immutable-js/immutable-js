@@ -2198,19 +2198,23 @@ function quoteString(value) {
 }
 
 function has(collection, key) {
-  return isImmutable(collection)
-    ? collection.has(key)
-    : isDataStructure(collection) && hasOwnProperty.call(collection, key);
+    return isImmutable(collection)
+        ? // @ts-expect-error key might be a number or symbol, which is not handled be Record key type
+            collection.has(key)
+        : isDataStructure(collection) && hasOwnProperty.call(collection, key);
 }
 
 function get(collection, key, notSetValue) {
-  return isImmutable(collection)
-    ? collection.get(key, notSetValue)
-    : !has(collection, key)
-      ? notSetValue
-      : typeof collection.get === 'function'
-        ? collection.get(key)
-        : collection[key];
+    return isImmutable(collection)
+        ? collection.get(key, notSetValue)
+        : !has(collection, key)
+            ? notSetValue
+            : // @ts-expect-error weird "get" here,
+                typeof collection.get === 'function'
+                    ? // @ts-expect-error weird "get" here,
+                        collection.get(key)
+                    : // @ts-expect-error key is unknown here,
+                        collection[key];
 }
 
 function shallowCopy(from) {
@@ -4928,15 +4932,16 @@ var Range = /*@__PURE__*/(function (IndexedSeq) {
 var EMPTY_RANGE;
 
 function getIn$1(collection, searchKeyPath, notSetValue) {
-  var keyPath = coerceKeyPath(searchKeyPath);
-  var i = 0;
-  while (i !== keyPath.length) {
-    collection = get(collection, keyPath[i++], NOT_SET);
-    if (collection === NOT_SET) {
-      return notSetValue;
+    var keyPath = coerceKeyPath(searchKeyPath);
+    var i = 0;
+    while (i !== keyPath.length) {
+        // @ts-expect-error keyPath[i++] can not be undefined by design
+        collection = get(collection, keyPath[i++], NOT_SET);
+        if (collection === NOT_SET) {
+            return notSetValue;
+        }
     }
-  }
-  return collection;
+    return collection;
 }
 
 function getIn(searchKeyPath, notSetValue) {
@@ -4944,7 +4949,7 @@ function getIn(searchKeyPath, notSetValue) {
 }
 
 function hasIn$1(collection, keyPath) {
-  return getIn$1(collection, keyPath, NOT_SET) !== NOT_SET;
+    return getIn$1(collection, keyPath, NOT_SET) !== NOT_SET;
 }
 
 function hasIn(searchKeyPath) {
