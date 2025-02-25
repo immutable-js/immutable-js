@@ -1,6 +1,6 @@
 export default function invariant(
-  condition: boolean,
+  condition: unknown,
   error: string
-): asserts condition is true {
+): asserts condition {
   if (!condition) throw new Error(error);
 }
