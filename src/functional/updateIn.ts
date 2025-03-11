@@ -1,5 +1,5 @@
 import { isImmutable } from '../predicates/isImmutable';
-import coerceKeyPath, { type KeyPath } from '../utils/coerceKeyPath';
+import coerceKeyPath from '../utils/coerceKeyPath';
 import isDataStructure from '../utils/isDataStructure';
 import quoteString from '../utils/quoteString';
 import { NOT_SET } from '../TrieUtils';
@@ -7,9 +7,11 @@ import { emptyMap } from '../Map';
 import { get } from './get';
 import { remove } from './remove';
 import { set } from './set';
-import type { Collection } from '../../type-definitions/immutable';
+import type { KeyPath, update } from '../../type-definitions/immutable';
 
 type UpdaterFunction = (value: unknown) => unknown;
+
+type UpdateTypeParameters = Parameters<typeof update>;
 
 /**
  * Returns a copy of the collection with the value at key path set to the
@@ -27,27 +29,26 @@ type UpdaterFunction = (value: unknown) => unknown;
  * console.log(original) // { x: { y: { z: 123 }}}
  * ```
  */
-export function updateIn<K, V, C extends Collection<K, V>>(
+export function updateIn<C extends UpdateTypeParameters[0]>(
   collection: C,
-  keyPath: KeyPath<K>,
-  updater: UpdaterFunction
+  keyPath: KeyPath<UpdateTypeParameters[1]>,
+  updater: UpdateTypeParameters[2]
 ): C;
-export function updateIn<K, V, C extends Collection<K, V>>(
-  collection: Collection<K, V>,
-  keyPath: KeyPath<unknown>,
-  notSetValue: V,
-  updater: UpdaterFunction
-): C;
-export function updateIn<K, V, C extends Collection<K, V>>(
+export function updateIn<C extends UpdateTypeParameters[0]>(
   collection: C,
-  keyPath: KeyPath<K>,
-  notSetValue: V | UpdaterFunction,
-  updater?: UpdaterFunction
+  keyPath: KeyPath<UpdateTypeParameters[1]>,
+  notSetValue: UpdateTypeParameters[2],
+  updater: UpdateTypeParameters[3]
+): C;
+export function updateIn<C extends UpdateTypeParameters[0]>(
+  collection: C,
+  keyPath: KeyPath<UpdateTypeParameters[1]>,
+  notSetValue: UpdateTypeParameters[2],
+  updater?: UpdateTypeParameters[3]
 ): C {
   if (!updater) {
     // handle the fact that `notSetValue` is optional here, in that case `updater` is the updater function
     updater = notSetValue as UpdaterFunction;
-    // @ts-expect-error notSetValue mixed type
     notSetValue = undefined;
   }
   const updatedValue = updateInDeeply(
@@ -62,13 +63,13 @@ export function updateIn<K, V, C extends Collection<K, V>>(
   return updatedValue === NOT_SET ? notSetValue : updatedValue;
 }
 
-function updateInDeeply<K, V, C extends Collection<K, V>>(
+function updateInDeeply<C extends UpdateTypeParameters[0]>(
   inImmutable: boolean,
   existing: C,
-  keyPath: ArrayLike<K>,
+  keyPath: ArrayLike<UpdateTypeParameters[1]>,
   i: number,
-  notSetValue: V,
-  updater: UpdaterFunction
+  notSetValue: UpdateTypeParameters[2],
+  updater: UpdateTypeParameters[3]
 ): C {
   const wasNotSet = existing === NOT_SET;
   if (i === keyPath.length) {
@@ -86,6 +87,13 @@ function updateInDeeply<K, V, C extends Collection<K, V>>(
     );
   }
   const key = keyPath[i];
+
+  if (typeof key === 'undefined') {
+    throw new TypeError(
+      'Index can not be undefined in updateIn(). This should not happen'
+    );
+  }
+
   const nextExisting = wasNotSet ? NOT_SET : get(existing, key, NOT_SET);
   const nextUpdated = updateInDeeply(
     nextExisting === NOT_SET ? inImmutable : isImmutable(nextExisting),
