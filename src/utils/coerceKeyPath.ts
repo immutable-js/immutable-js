@@ -1,10 +1,8 @@
-import type { OrderedCollection } from '../../type-definitions/immutable';
+import type { KeyPath } from '../../type-definitions/immutable';
 import { isOrdered } from '../predicates/isOrdered';
 import isArrayLike from './isArrayLike';
 
-export default function coerceKeyPath<I>(
-  keyPath: OrderedCollection<I> | ArrayLike<I>
-): ArrayLike<I> {
+export default function coerceKeyPath<K>(keyPath: KeyPath<K>): ArrayLike<K> {
   if (isArrayLike(keyPath) && typeof keyPath !== 'string') {
     return keyPath;
   }
