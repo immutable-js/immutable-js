@@ -172,6 +172,12 @@ declare namespace Immutable {
   export type Comparator<T> = (left: T, right: T) => PairSorting | number;
 
   /**
+   * @ignore
+   *
+   */
+  export type KeyPath<K> = OrderedCollection<K> | ArrayLike<K>;
+
+  /**
    * Lists are ordered indexed dense collections, much like a JavaScript
    * Array.
    *
@@ -5731,6 +5737,11 @@ declare namespace Immutable {
     notSetValue: NSV
   ): V | NSV;
 
+  /** @ignore */
+  type GetType = typeof get;
+  /** @ignore */
+  type GetTypeParameters = Parameters<GetType>;
+
   /**
    * Returns true if the key is defined in the provided collection.
    *
@@ -5900,6 +5911,11 @@ declare namespace Immutable {
     updater: (value: V | NSV) => V
   ): { [key: string]: V };
 
+  /** @ignore */
+  type UpdateType = typeof update;
+  /** @ignore */
+  type UpdateTypeParameters = Parameters<UpdateType>;
+
   /**
    * Returns the value at the provided key path starting at the provided
    * collection, or notSetValue if the key path is not defined.
@@ -5915,10 +5931,13 @@ declare namespace Immutable {
    * ```
    */
   function getIn(
-    collection: unknown,
-    keyPath: Iterable<unknown>,
-    notSetValue?: unknown
-  ): unknown;
+    collection: GetTypeParameters[0],
+    keyPath: KeyPath<GetTypeParameters[1]>,
+    notSetValue?: GetTypeParameters[2]
+  ): ReturnType<GetType>;
+
+  /** @ignore */
+  type GetInParameters = Parameters<typeof getIn>;
 
   /**
    * Returns true if the key path is defined in the provided collection.
@@ -5933,7 +5952,10 @@ declare namespace Immutable {
    * hasIn({ x: { y: { z: 123 }}}, ['x', 'q', 'p']) // false
    * ```
    */
-  function hasIn(collection: unknown, keyPath: Iterable<unknown>): boolean;
+  function hasIn(
+    collection: GetInParameters[0],
+    keyPath: GetInParameters[1]
+  ): boolean;
 
   /**
    * Returns a copy of the collection with the value at the key path removed.
@@ -5987,16 +6009,16 @@ declare namespace Immutable {
    * console.log(original) // { x: { y: { z: 123 }}}
    * ```
    */
-  function updateIn<C>(
+  function updateIn<C extends UpdateTypeParameters[0]>(
     collection: C,
-    keyPath: Iterable<unknown>,
-    updater: (value: unknown) => unknown
+    keyPath: KeyPath<UpdateTypeParameters[1]>,
+    updater: UpdateTypeParameters[2]
   ): C;
-  function updateIn<C>(
+  function updateIn<C extends UpdateTypeParameters[0]>(
     collection: C,
-    keyPath: Iterable<unknown>,
-    notSetValue: unknown,
-    updater: (value: unknown) => unknown
+    keyPath: KeyPath<UpdateTypeParameters[1]>,
+    notSetValue: UpdateTypeParameters[2],
+    updater: UpdateTypeParameters[3]
   ): C;
 
   /**

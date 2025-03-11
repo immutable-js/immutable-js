@@ -19,9 +19,10 @@ import isDataStructure from '../utils/isDataStructure';
  * has({ x: 123, y: 456 }, 'z') // false
  * ```
  */
-export function has(collection: object, key: PropertyKey): boolean {
+export function has(collection: object, key: unknown): boolean {
   return isImmutable(collection)
     ? // @ts-expect-error key might be a number or symbol, which is not handled be Record key type
       collection.has(key)
-    : isDataStructure(collection) && hasOwnProperty.call(collection, key);
+    : // @ts-expect-error key might be anything else than PropertyKey, and will return false in that case but runtime is OK
+      isDataStructure(collection) && hasOwnProperty.call(collection, key);
 }
