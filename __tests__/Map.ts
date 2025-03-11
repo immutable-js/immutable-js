@@ -449,7 +449,7 @@ describe('Map', () => {
 
   it('uses toString on keys and values', () => {
     class A extends Record({ x: null as number | null }) {
-      toString() {
+      override toString() {
         return this.x;
       }
     }

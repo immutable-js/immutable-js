@@ -44,10 +44,14 @@ describe('hash', () => {
 
   const genValue = gen.oneOf([gen.string, gen.int]);
 
-  check.it('generates unsigned 31-bit integers', [genValue], (value) => {
-    const hashVal = hash(value);
-    expect(Number.isInteger(hashVal)).toBe(true);
-    expect(hashVal).toBeGreaterThan(-(2 ** 31));
-    expect(hashVal).toBeLessThan(2 ** 31);
-  });
+  check.it(
+    'generates unsigned 31-bit integers',
+    [genValue],
+    (value: Array<string | number>) => {
+      const hashVal = hash(value);
+      expect(Number.isInteger(hashVal)).toBe(true);
+      expect(hashVal).toBeGreaterThan(-(2 ** 31));
+      expect(hashVal).toBeLessThan(2 ** 31);
+    }
+  );
 });

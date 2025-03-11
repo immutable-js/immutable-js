@@ -1,27 +1,32 @@
 import { Range, Seq } from 'immutable';
 import * as jasmineCheck from 'jasmine-check';
+import invariant from '../src/utils/invariant';
 
 jasmineCheck.install();
 
 describe('KeyedSeq', () => {
-  check.it('it iterates equivalently', [gen.array(gen.int)], (ints) => {
-    const seq = Seq(ints);
-    const keyed = seq.toKeyedSeq();
+  check.it(
+    'it iterates equivalently',
+    [gen.array(gen.int)],
+    (ints: Array<number>) => {
+      const seq = Seq(ints);
+      const keyed = seq.toKeyedSeq();
 
-    const seqEntries = seq.entries();
-    const keyedEntries = keyed.entries();
+      const seqEntries = seq.entries();
+      const keyedEntries = keyed.entries();
 
-    let seqStep;
-    let keyedStep;
-    do {
-      seqStep = seqEntries.next();
-      keyedStep = keyedEntries.next();
-      expect(keyedStep).toEqual(seqStep);
-    } while (!seqStep.done);
-  });
+      let seqStep;
+      let keyedStep;
+      do {
+        seqStep = seqEntries.next();
+        keyedStep = keyedEntries.next();
+        expect(keyedStep).toEqual(seqStep);
+      } while (!seqStep.done);
+    }
+  );
 
   it('maintains keys', () => {
-    const isEven = (x) => x % 2 === 0;
+    const isEven = (x: number): boolean => x % 2 === 0;
     const seq = Range(0, 100);
 
     // This is what we expect for IndexedSequences
@@ -36,6 +41,10 @@ describe('KeyedSeq', () => {
     const [indexed0, indexed1] = seq
       .partition(isEven)
       .map((part) => part.skip(10).take(5));
+
+    invariant(indexed0, 'indexed0 is not undefined');
+    invariant(indexed1, 'indexed0 is not undefined');
+
     expect(indexed0.entrySeq().toArray()).toEqual([
       [0, 21],
       [1, 23],
@@ -64,6 +73,10 @@ describe('KeyedSeq', () => {
     const [keyed0, keyed1] = keyed
       .partition(isEven)
       .map((part) => part.skip(10).take(5));
+
+    invariant(keyed0, 'keyed0 is not undefined');
+    invariant(keyed1, 'keyed1 is not undefined');
+
     expect(keyed0.entrySeq().toArray()).toEqual([
       [21, 21],
       [23, 23],

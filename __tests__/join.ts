@@ -36,7 +36,7 @@ describe('join', () => {
   check.it(
     'behaves the same as Array.join',
     [gen.array(gen.primitive), gen.primitive],
-    (array, joiner) => {
+    (array: Array<string>, joiner: string) => {
       expect(Seq(array).join(joiner)).toBe(array.join(joiner));
     }
   );
