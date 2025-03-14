@@ -1,5 +1,6 @@
 import { fromJS, List, Map, Range, Seq, Set } from 'immutable';
 import * as jasmineCheck from 'jasmine-check';
+import { create as createSeed } from 'random-seed';
 
 jasmineCheck.install();
 
@@ -1009,6 +1010,31 @@ describe('List', () => {
         const v2 = v1.slice(zeroishValue, zeroishValue);
         expect(v2.size).toBe(0);
       });
+    });
+  });
+
+  describe('when shuffling', () => {
+    const list = List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+
+    it('should work when empty', () => {
+      expect(List().shuffle()).toStrictEqual(List());
+    });
+    it('should work with Math.random', () => {
+      expect(list.shuffle().sort()).toStrictEqual(list);
+    });
+    it('should work with a pseudo random number generator', () => {
+      const seed = createSeed('lorem ipsum');
+      const random = () => seed.random();
+
+      expect(list.shuffle(random)).toStrictEqual(
+        List.of(5, 2, 4, 7, 6, 3, 10, 1, 9, 8)
+      );
+      expect(list.shuffle(random)).toStrictEqual(
+        List.of(1, 6, 2, 3, 9, 7, 4, 10, 5, 8)
+      );
+      expect(list.shuffle(random)).toStrictEqual(
+        List.of(6, 1, 8, 10, 9, 5, 4, 7, 3, 2)
+      );
     });
   });
 

@@ -140,6 +140,22 @@ export class List extends IndexedCollection {
     return setListBounds(this, 1);
   }
 
+  shuffle(random = Math.random) {
+    return this.withMutations((mutable) => {
+      let current = mutable.size,
+        destination,
+        tmp;
+
+      while (current) {
+        destination = Math.floor(random() * current--);
+
+        tmp = mutable.get(destination);
+        mutable.set(destination, mutable.get(current));
+        mutable.set(current, tmp);
+      }
+    });
+  }
+
   // @pragma Composition
 
   concat(/*...collections*/) {
