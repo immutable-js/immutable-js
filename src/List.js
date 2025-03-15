@@ -142,9 +142,10 @@ export class List extends IndexedCollection {
 
   shuffle(random = Math.random) {
     return this.withMutations((mutable) => {
-      let current = mutable.size,
-        destination,
-        tmp;
+      // implementation of the Fisher-Yates shuffle: https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
+      let current = mutable.size;
+      let destination;
+      let tmp;
 
       while (current) {
         destination = Math.floor(random() * current--);
