@@ -758,6 +758,14 @@ declare namespace Immutable {
       zipper: (...values: Array<unknown>) => Z,
       ...collections: Array<Collection<unknown, unknown>>
     ): List<Z>;
+
+    /**
+     * Returns a new List with its values shuffled thanks to the
+     * [Fisher–Yates](https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle)
+     * algorithm.
+     * It uses Math.random, but you can provide your own random number generator.
+     */
+    shuffle(random?: () => number): this;
   }
 
   /**
