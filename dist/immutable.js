@@ -3475,6 +3475,25 @@
         return setListBounds(this, 1);
       };
 
+      List.prototype.shuffle = function shuffle (random) {
+        if ( random === void 0 ) random = Math.random;
+
+        return this.withMutations(function (mutable) {
+          // implementation of the Fisher-Yates shuffle: https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
+          var current = mutable.size;
+          var destination;
+          var tmp;
+
+          while (current) {
+            destination = Math.floor(random() * current--);
+
+            tmp = mutable.get(destination);
+            mutable.set(destination, mutable.get(current));
+            mutable.set(current, tmp);
+          }
+        });
+      };
+
       // @pragma Composition
 
       List.prototype.concat = function concat (/*...collections*/) {
