@@ -196,7 +196,6 @@ describe('updateIn', () => {
         m,
         ['a', 'b', 'z'],
         Map<string, number>(),
-        // @ts-expect-error -- updateIn should handle the `notSetValue` parameter
         (map: Map<string, number>) => map.set('d', 20)
       )
     ).toEqual({ a: { b: { c: 10, z: Map({ d: 20 }) } } });
@@ -222,7 +221,6 @@ describe('updateIn', () => {
 
   it('update with notSetValue when non-existing key in raw JS', () => {
     const m = { a: { b: { c: 10 } } };
-    // @ts-expect-error -- updateIn should handle the `notSetValue` parameter
     expect(updateIn(m, ['x'], 100, (map: number) => map + 1)).toEqual({
       a: { b: { c: 10 } },
       x: 101,
