@@ -32,7 +32,6 @@ describe('updateIn', () => {
   it('deep edit in raw JS', () => {
     const m = { a: { b: { c: [10] } } };
     expect(
-      // @ts-expect-error -- `updateIn` should copy the comportment of `getIn`
       updateIn(m, ['a', 'b', 'c', 0], (value: number) => value * 2)
     ).toEqual({
       a: { b: { c: [20] } },
