@@ -61,7 +61,9 @@ describe('getIn', () => {
     expect(getIn(m, ['a', 'b', 'd', 'x'])).toEqual(undefined);
     expect(getIn(m, ['a', 'b', 'd', 'x'], 123)).toEqual(123);
 
+    // @ts-expect-error -- unexpected value
     expect(getIn('a', ['length'])).toEqual(undefined);
+    // @ts-expect-error -- unexpected value
     expect(getIn(new Date(), ['getDate'])).toEqual(undefined);
   });
 
