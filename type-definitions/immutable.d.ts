@@ -6048,17 +6048,83 @@ declare namespace Immutable {
    * console.log(original) // { x: { y: { z: 123 }}}
    * ```
    */
-  function updateIn<C>(
+  function updateIn<K extends PropertyKey, V, C extends Collection<K, V>>(
     collection: C,
-    keyPath: Iterable<unknown>,
-    updater: (value: unknown) => unknown
+    keyPath: KeyPath<K>,
+    updater: (
+      value: RetrievePath<C, Array<K>> | undefined
+    ) => unknown | undefined
   ): C;
-  function updateIn<C>(
+  function updateIn<K extends PropertyKey, V, C extends Collection<K, V>, NSV>(
     collection: C,
-    keyPath: Iterable<unknown>,
-    notSetValue: unknown,
-    updater: (value: unknown) => unknown
+    keyPath: KeyPath<K>,
+    notSetValue: NSV,
+    updater: (value: RetrievePath<C, Array<K>> | NSV) => unknown
   ): C;
+  function updateIn<
+    TProps extends object,
+    C extends Record<TProps>,
+    K extends keyof TProps,
+  >(
+    record: C,
+    keyPath: KeyPath<K>,
+    updater: (value: RetrievePath<C, Array<K>>) => unknown
+  ): C;
+  function updateIn<
+    TProps extends object,
+    C extends Record<TProps>,
+    K extends keyof TProps,
+    NSV,
+  >(
+    record: C,
+    keyPath: KeyPath<K>,
+    notSetValue: NSV,
+    updater: (value: RetrievePath<C, Array<K>> | NSV) => unknown
+  ): C;
+  function updateIn<K extends PropertyKey, V, C extends Array<V>>(
+    collection: Array<V>,
+    keyPath: KeyPath<string | number>,
+    updater: (
+      value: RetrievePath<C, Array<K>> | undefined
+    ) => unknown | undefined
+  ): Array<V>;
+  function updateIn<K extends PropertyKey, V, C extends Array<V>, NSV>(
+    collection: Array<V>,
+    keyPath: KeyPath<K>,
+    notSetValue: NSV,
+    updater: (value: RetrievePath<C, Array<K>> | NSV) => unknown
+  ): Array<V>;
+  function updateIn<K extends PropertyKey, C>(
+    object: C,
+    keyPath: KeyPath<K>,
+    updater: (value: RetrievePath<C, Array<K>>) => unknown
+  ): C;
+  function updateIn<K extends PropertyKey, C, NSV>(
+    object: C,
+    keyPath: KeyPath<K>,
+    notSetValue: NSV,
+    updater: (value: RetrievePath<C, Array<K>> | NSV) => unknown
+  ): C;
+  function updateIn<
+    K extends PropertyKey,
+    V,
+    C extends { [key: PropertyKey]: V },
+  >(
+    collection: C,
+    keyPath: KeyPath<K>,
+    updater: (value: RetrievePath<C, Array<K>>) => unknown
+  ): { [key: PropertyKey]: V };
+  function updateIn<
+    K extends PropertyKey,
+    V,
+    C extends { [key: PropertyKey]: V },
+    NSV,
+  >(
+    collection: C,
+    keyPath: KeyPath<K>,
+    notSetValue: NSV,
+    updater: (value: RetrievePath<C, Array<K>> | NSV) => unknown
+  ): { [key: PropertyKey]: V };
 
   /**
    * Returns a copy of the collection with the remaining collections merged in.
