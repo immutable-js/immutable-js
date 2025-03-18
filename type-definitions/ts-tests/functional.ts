@@ -21,14 +21,23 @@ test('get', () => {
   expect(get({ x: 10, y: 20 }, 'z', 'missing')).type.toBe<number | 'missing'>();
 });
 
-test.only('getIn', () => {
+test('getIn', () => {
   expect(getIn('a', ['length'])).type.toBe<never>();
 
   expect(getIn([1, 2, 3], [0])).type.toBe<number>();
 
+  // first parameter type is Array<number> so we can not detect that the number will be invalid
+  expect(getIn([1, 2, 3], [99])).type.toBe<number>();
+
+  // We do not handle List in getIn TS type yet (hard to convert to a tuple)
+  expect(getIn([1, 2, 3], List([0]))).type.toBe<unknown>();
+
   expect(getIn([1, 2, 3], [0], 'a')).type.toBe<number>();
 
   expect(getIn(List([1, 2, 3]), [0])).type.toBe<number>();
+
+  // first parameter type is Array<number> so we can not detect that the number will be invalid
+  expect(getIn(List([1, 2, 3]), [99])).type.toBe<number>();
 
   expect(getIn(List([1, 2, 3]), ['a'])).type.toBe<never>();
 

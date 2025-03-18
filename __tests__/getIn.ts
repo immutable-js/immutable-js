@@ -26,7 +26,7 @@ describe('getIn', () => {
     expect(() => Map().getIn('abc')).toThrow(
       'Invalid keyPath: expected Ordered Collection or Array: abc'
     );
-    // @ts-expect-error 'abc' is not an array-like
+    // TODO: should expect error
     expect(() => getIn(Map(), 'abc')).toThrow(
       'Invalid keyPath: expected Ordered Collection or Array: abc'
     );

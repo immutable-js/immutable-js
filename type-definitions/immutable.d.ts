@@ -5937,15 +5937,24 @@ declare namespace Immutable {
    * getIn({ x: { y: { z: 123 }}}, ['x', 'q', 'p'], 'ifNotSet') // 'ifNotSet'
    * ```
    */
-  function getIn<const P extends ReadonlyArray<PropertyKey>, C>(
+  function getIn<C, const P extends ReadonlyArray<PropertyKey>>(
     object: C,
     keyPath: [...P]
   ): RetrievePath<C, P>;
-  function getIn<const P extends ReadonlyArray<PropertyKey>, C, NSV>(
+  function getIn<C, const P extends KeyPath<unknown>>(
+    object: C,
+    keyPath: P
+  ): unknown;
+  function getIn<C, const P extends ReadonlyArray<PropertyKey>, NSV>(
     collection: C,
     keyPath: [...P],
     notSetValue: NSV
   ): RetrievePath<C, P> extends never ? NSV : RetrievePath<C, P>;
+  function getIn<C, const P extends KeyPath<unknown>, NSV>(
+    object: C,
+    keyPath: P,
+    notSetValue: NSV
+  ): unknown;
 
   /**
    * Returns true if the key path is defined in the provided collection.
