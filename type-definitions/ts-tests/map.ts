@@ -89,7 +89,7 @@ test('#getIn', () => {
 
   expect(result).type.toBeNumber();
 
-  expect(Map({ a: 4, b: true }).getIn(['a'])).type.toBeNumber();
+  expect(Map({ a: 4, b: true }).getIn(['a'] as const)).type.toBeNumber();
 
   expect(
     Map({ a: Map({ b: Map({ c: Map({ d: 4 }) }) }) }).getIn([
@@ -97,13 +97,13 @@ test('#getIn', () => {
       'b',
       'c',
       'd',
-    ])
+    ] as const)
   ).type.toBeNumber();
 
-  expect(Map({ a: [1] }).getIn(['a', 0])).type.toBeNumber();
+  expect(Map({ a: [1] }).getIn(['a', 0] as const)).type.toBeNumber();
 
   // currently `RetrievePathReducer` does not work with anything else than `MapOf`
-  expect(Map({ a: List([1]) }).getIn(['a', 0])).type.toBeNumber();
+  expect(Map({ a: List([1]) }).getIn(['a', 0] as const)).type.toBeNumber();
 });
 
 test('#set', () => {

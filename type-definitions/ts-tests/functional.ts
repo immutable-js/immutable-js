@@ -43,29 +43,31 @@ test('getIn', () => {
 
   expect(getIn(List([1, 2, 3]), ['a'], 'missing')).type.toBe<'missing'>();
 
-  expect(getIn({ x: 10, y: 20 }, ['x'])).type.toBe<number>();
+  expect(getIn({ x: 10, y: 20 }, ['x'] as const)).type.toBe<number>();
 
   expect(getIn({ x: 10, y: 20 }, ['z'], 'missing')).type.toBe<'missing'>();
 
-  expect(getIn({ x: { y: 20 } }, ['x'])).type.toBe<{ y: number }>();
+  expect(getIn({ x: { y: 20 } }, ['x'] as const)).type.toBe<{ y: number }>();
 
-  expect(getIn({ x: { y: 20 } }, ['z'])).type.toBe<never>();
+  expect(getIn({ x: { y: 20 } }, ['z'] as const)).type.toBe<never>();
 
-  expect(getIn({ x: { y: 20 } }, ['x', 'y'])).type.toBe<number>();
+  expect(getIn({ x: { y: 20 } }, ['x', 'y'] as const)).type.toBe<number>();
 
-  expect(getIn({ x: Map({ y: 20 }) }, ['x', 'y'])).type.toBe<number>();
+  expect(getIn({ x: Map({ y: 20 }) }, ['x', 'y'] as const)).type.toBe<number>();
 
-  expect(getIn(Map({ x: Map({ y: 20 }) }), ['x', 'y'])).type.toBe<number>();
+  expect(
+    getIn(Map({ x: Map({ y: 20 }) }), ['x', 'y'] as const)
+  ).type.toBe<number>();
 
   const o = Map({ x: List([Map({ y: 20 })]) });
 
   expect(getIn(o, ['x', 'y'])).type.toBe<never>();
 
-  expect(getIn(o, ['x'])).type.toBe<List<MapOf<{ y: number }>>>();
+  expect(getIn(o, ['x'] as const)).type.toBe<List<MapOf<{ y: number }>>>();
 
-  expect(getIn(o, ['x', 0])).type.toBe<MapOf<{ y: number }>>();
+  expect(getIn(o, ['x', 0] as const)).type.toBe<MapOf<{ y: number }>>();
 
-  expect(getIn(o, ['x', 0, 'y'])).type.toBe<number>();
+  expect(getIn(o, ['x', 0, 'y'] as const)).type.toBe<number>();
 });
 
 test('has', () => {
