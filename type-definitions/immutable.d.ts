@@ -875,10 +875,7 @@ declare namespace Immutable {
     get<K extends keyof R>(key: K, notSetValue?: unknown): R[K];
     get<NSV>(key: unknown, notSetValue: NSV): NSV;
 
-    // TODO `<const P extends ...>` can be used after dropping support for TypeScript 4.x
-    // reference: https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-0.html#const-type-parameters
-    // after this change, `as const` assertions can be remove from the type tests
-    getIn<P extends ReadonlyArray<PropertyKey>>(
+    getIn<const P extends ReadonlyArray<PropertyKey>>(
       searchKeyPath: [...P],
       notSetValue?: unknown
     ): RetrievePath<R, P>;
@@ -910,8 +907,14 @@ declare namespace Immutable {
   // Loosely based off of this work.
   // https://github.com/immutable-js/immutable-js/issues/1462#issuecomment-584123268
 
-  /** @ignore */
-  type GetMapType<S> = S extends MapOf<infer T> ? T : S;
+  /**
+   * @ignore
+   * Convert an immutable type to the equivalent plain TS type
+   * - MapOf -> object
+   * - List -> Array
+   */
+  type GetNativeType<S> =
+    S extends MapOf<infer T> ? T : S extends List<infer I> ? Array<I> : S;
 
   /** @ignore */
   type Head<T extends ReadonlyArray<unknown>> = T extends [
@@ -931,11 +934,18 @@ declare namespace Immutable {
     T,
     C,
     L extends ReadonlyArray<unknown>,
-  > = C extends keyof GetMapType<T>
-    ? L extends []
-      ? GetMapType<T>[C]
-      : RetrievePathReducer<GetMapType<T>[C], Head<L>, Tail<L>>
-    : never;
+    NT = GetNativeType<T>,
+  > =
+    // we can not retrieve a path from a primitive type
+    T extends string | number | boolean | null | undefined
+      ? never
+      : C extends keyof NT
+        ? L extends [] // L extends [] means we are at the end of the path, lets return the current type
+          ? NT[C]
+          : // we are not at the end of the path, lets continue with the next key
+            RetrievePathReducer<NT[C], Head<L>, Tail<L>>
+        : // C is not a "key" of NT, so the path is invalid
+          never;
 
   /** @ignore */
   type RetrievePath<R, P extends ReadonlyArray<PropertyKey>> = P extends []
@@ -5927,43 +5937,15 @@ declare namespace Immutable {
    * getIn({ x: { y: { z: 123 }}}, ['x', 'q', 'p'], 'ifNotSet') // 'ifNotSet'
    * ```
    */
-  function getIn<K, V>(
-    collection: Collection<K, V>,
-    keyPath: KeyPath<K>
-  ): V | undefined;
-  function getIn<K, V, NSV>(
-    collection: Collection<K, V>,
-    keyPath: KeyPath<K>,
-    notSetValue: NSV
-  ): V | NSV;
-  function getIn<TProps extends object, K extends keyof TProps>(
-    record: Record<TProps>,
-    keyPath: KeyPath<K>,
-    notSetValue: unknown
-  ): TProps[K];
-  function getIn<K, V>(
-    collection: Array<V>,
-    keyPath: KeyPath<K>
-  ): V | undefined;
-  function getIn<K, V, NSV>(
-    collection: Array<V>,
-    keyPath: KeyPath<K>,
-    notSetValue: NSV
-  ): V | NSV;
-  function getIn<C extends object, K extends keyof C>(
+  function getIn<const P extends ReadonlyArray<PropertyKey>, C>(
     object: C,
-    keyPath: KeyPath<K>,
-    notSetValue: unknown
-  ): C[K];
-  function getIn<K, V>(
-    collection: { [key: PropertyKey]: V },
-    keyPath: KeyPath<K>
-  ): V | undefined;
-  function getIn<K, V, NSV>(
-    collection: { [key: PropertyKey]: V },
-    keyPath: KeyPath<K>,
+    keyPath: [...P]
+  ): RetrievePath<C, P>;
+  function getIn<const P extends ReadonlyArray<PropertyKey>, C, NSV>(
+    collection: C,
+    keyPath: [...P],
     notSetValue: NSV
-  ): V | NSV;
+  ): RetrievePath<C, P> extends never ? NSV : RetrievePath<C, P>;
 
   /**
    * Returns true if the key path is defined in the provided collection.
@@ -6010,7 +5992,8 @@ declare namespace Immutable {
    * console.log(original) // { x: { y: { z: 123 }}}
    * ```
    */
-  function removeIn<C>(collection: C, keyPath: Iterable<unknown>): C;
+
+  function removeIn<C>(collection: C, keyPath: KeyPath<unknown>): C;
 
   /**
    * Returns a copy of the collection with the value at the key path set to the
@@ -6029,7 +6012,7 @@ declare namespace Immutable {
    */
   function setIn<C>(
     collection: C,
-    keyPath: Iterable<unknown>,
+    keyPath: KeyPath<unknown>,
     value: unknown
   ): C;
 

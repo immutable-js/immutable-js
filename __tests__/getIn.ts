@@ -26,7 +26,7 @@ describe('getIn', () => {
     expect(() => Map().getIn('abc')).toThrow(
       'Invalid keyPath: expected Ordered Collection or Array: abc'
     );
-    // TODO: should expect error
+    // @ts-expect-error 'abc' is not an array-like
     expect(() => getIn(Map(), 'abc')).toThrow(
       'Invalid keyPath: expected Ordered Collection or Array: abc'
     );
@@ -61,9 +61,7 @@ describe('getIn', () => {
     expect(getIn(m, ['a', 'b', 'd', 'x'])).toEqual(undefined);
     expect(getIn(m, ['a', 'b', 'd', 'x'], 123)).toEqual(123);
 
-    // @ts-expect-error -- unexpected value
     expect(getIn('a', ['length'])).toEqual(undefined);
-    // @ts-expect-error -- unexpected value
     expect(getIn(new Date(), ['getDate'])).toEqual(undefined);
   });
 
