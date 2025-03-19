@@ -5,10 +5,8 @@ on:
     branches:
       - main
       - 5.x
-  pull_request:
-    branches:
-      - main
-      - 5.x
+      - 6.x
+  pull_request: ~
 
 jobs:
   lint:
