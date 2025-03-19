@@ -1,5 +1,15 @@
 import { expect, test } from 'tstyche';
-import { get, has, set, remove, update } from 'immutable';
+import {
+  get,
+  getIn,
+  has,
+  set,
+  remove,
+  update,
+  Map,
+  List,
+  MapOf,
+} from 'immutable';
 
 test('get', () => {
   expect(get([1, 2, 3], 0)).type.toBe<number | undefined>();
@@ -9,6 +19,63 @@ test('get', () => {
   expect(get({ x: 10, y: 20 }, 'x')).type.toBe<number | undefined>();
 
   expect(get({ x: 10, y: 20 }, 'z', 'missing')).type.toBe<number | 'missing'>();
+});
+
+test('getIn', () => {
+  expect(getIn('a', ['length' as const])).type.toBe<never>();
+
+  expect(getIn([1, 2, 3], [0])).type.toBe<number>();
+
+  // first parameter type is Array<number> so we can not detect that the number will be invalid
+  expect(getIn([1, 2, 3], [99])).type.toBe<number>();
+
+  // We do not handle List in getIn TS type yet (hard to convert to a tuple)
+  expect(getIn([1, 2, 3], List([0]))).type.toBe<unknown>();
+
+  expect(getIn([1, 2, 3], [0], 'a' as const)).type.toBe<number>();
+
+  expect(getIn(List([1, 2, 3]), [0])).type.toBe<number>();
+
+  // first parameter type is Array<number> so we can not detect that the number will be invalid
+  expect(getIn(List([1, 2, 3]), [99])).type.toBe<number>();
+
+  expect(getIn(List([1, 2, 3]), ['a' as const])).type.toBe<never>();
+
+  expect(
+    getIn(List([1, 2, 3]), ['a' as const], 'missing')
+  ).type.toBe<'missing'>();
+
+  expect(getIn({ x: 10, y: 20 }, ['x' as const])).type.toBe<number>();
+
+  expect(
+    getIn({ x: 10, y: 20 }, ['z' as const], 'missing')
+  ).type.toBe<'missing'>();
+
+  expect(getIn({ x: { y: 20 } }, ['x' as const])).type.toBe<{ y: number }>();
+
+  expect(getIn({ x: { y: 20 } }, ['z' as const])).type.toBe<never>();
+
+  expect(
+    getIn({ x: { y: 20 } }, ['x' as const, 'y' as const])
+  ).type.toBe<number>();
+
+  expect(
+    getIn({ x: Map({ y: 20 }) }, ['x' as const, 'y' as const])
+  ).type.toBe<number>();
+
+  expect(
+    getIn(Map({ x: Map({ y: 20 }) }), ['x' as const, 'y' as const])
+  ).type.toBe<number>();
+
+  const o = Map({ x: List([Map({ y: 20 })]) });
+
+  expect(getIn(o, ['x' as const, 'y' as const])).type.toBe<never>();
+
+  expect(getIn(o, ['x' as const])).type.toBe<List<MapOf<{ y: number }>>>();
+
+  expect(getIn(o, ['x' as const, 0])).type.toBe<MapOf<{ y: number }>>();
+
+  expect(getIn(o, ['x' as const, 0, 'y' as const])).type.toBe<number>();
 });
 
 test('has', () => {
