@@ -126,7 +126,7 @@ collections in your [Flowtype](https://flowtype.org/) or [TypeScript](https://ty
 advantage of type generics, error detection, and auto-complete in your IDE.
 
 Installing `immutable` via npm brings with it type definitions for Flow (v0.55.0 or higher)
-and TypeScript (v4.5 or higher), so you shouldn't need to do anything at all!
+and TypeScript (v5.0 or higher), so you shouldn't need to do anything at all!
 
 #### Using TypeScript with Immutable.js v4+
 

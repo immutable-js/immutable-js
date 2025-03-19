@@ -89,20 +89,20 @@ test('#getIn', () => {
 
   expect(result).type.toBeNumber();
 
-  expect(Map({ a: 4, b: true }).getIn(['a' as const])).type.toBeNumber();
+  expect(Map({ a: 4, b: true }).getIn(['a'])).type.toBeNumber();
 
   expect(
     Map({ a: Map({ b: Map({ c: Map({ d: 4 }) }) }) }).getIn([
-      'a' as const,
-      'b' as const,
-      'c' as const,
-      'd' as const,
+      'a',
+      'b',
+      'c',
+      'd',
     ])
   ).type.toBeNumber();
 
-  expect(Map({ a: [1] }).getIn(['a' as const, 0])).type.toBeNumber();
+  expect(Map({ a: [1] }).getIn(['a', 0])).type.toBeNumber();
 
-  expect(Map({ a: List([1]) }).getIn(['a' as const, 0])).type.toBeNumber();
+  expect(Map({ a: List([1]) }).getIn(['a', 0])).type.toBeNumber();
 });
 
 test('#set', () => {
