@@ -172,6 +172,13 @@ declare namespace Immutable {
   export type Comparator<T> = (left: T, right: T) => PairSorting | number;
 
   /**
+   * @ignore
+   *
+   * KeyPath allowed for `xxxIn` methods
+   */
+  export type KeyPath<K> = OrderedCollection<K> | ArrayLike<K>;
+
+  /**
    * Lists are ordered indexed dense collections, much like a JavaScript
    * Array.
    *
@@ -873,7 +880,7 @@ declare namespace Immutable {
     // TODO `<const P extends ...>` can be used after dropping support for TypeScript 4.x
     // reference: https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-0.html#const-type-parameters
     // after this change, `as const` assertions can be remove from the type tests
-    getIn<P extends ReadonlyArray<string | number | symbol>>(
+    getIn<P extends ReadonlyArray<PropertyKey>>(
       searchKeyPath: [...P],
       notSetValue?: unknown
     ): RetrievePath<R, P>;
@@ -905,8 +912,14 @@ declare namespace Immutable {
   // Loosely based off of this work.
   // https://github.com/immutable-js/immutable-js/issues/1462#issuecomment-584123268
 
-  /** @ignore */
-  type GetMapType<S> = S extends MapOf<infer T> ? T : S;
+  /**
+   * @ignore
+   * Convert an immutable type to the equivalent plain TS type
+   * - MapOf -> object
+   * - List -> Array
+   */
+  type GetNativeType<S> =
+    S extends MapOf<infer T> ? T : S extends List<infer I> ? Array<I> : S;
 
   /** @ignore */
   type Head<T extends ReadonlyArray<unknown>> = T extends [
@@ -915,28 +928,32 @@ declare namespace Immutable {
   ]
     ? H
     : never;
-
   /** @ignore */
   type Tail<T extends ReadonlyArray<unknown>> = T extends [unknown, ...infer I]
     ? I
     : Array<never>;
-
   /** @ignore */
   type RetrievePathReducer<
     T,
     C,
     L extends ReadonlyArray<unknown>,
-  > = C extends keyof GetMapType<T>
-    ? L extends []
-      ? GetMapType<T>[C]
-      : RetrievePathReducer<GetMapType<T>[C], Head<L>, Tail<L>>
-    : never;
+    NT = GetNativeType<T>,
+  > =
+    // we can not retrieve a path from a primitive type
+    T extends string | number | boolean | null | undefined
+      ? never
+      : C extends keyof NT
+        ? L extends [] // L extends [] means we are at the end of the path, lets return the current type
+          ? NT[C]
+          : // we are not at the end of the path, lets continue with the next key
+            RetrievePathReducer<NT[C], Head<L>, Tail<L>>
+        : // C is not a "key" of NT, so the path is invalid
+          never;
 
   /** @ignore */
-  type RetrievePath<
-    R,
-    P extends ReadonlyArray<string | number | symbol>,
-  > = P extends [] ? P : RetrievePathReducer<R, Head<P>, Tail<P>>;
+  type RetrievePath<R, P extends ReadonlyArray<PropertyKey>> = P extends []
+    ? P
+    : RetrievePathReducer<R, Head<P>, Tail<P>>;
 
   interface Map<K, V> extends Collection.Keyed<K, V> {
     /**
@@ -5908,6 +5925,9 @@ declare namespace Immutable {
     updater: (value: V | NSV) => V
   ): { [key: string]: V };
 
+  // TODO `<const P extends ...>` can be used after dropping support for TypeScript 4.x
+  // reference: https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-0.html#const-type-parameters
+  // after this change, `as const` assertions can be remove from the type tests
   /**
    * Returns the value at the provided key path starting at the provided
    * collection, or notSetValue if the key path is not defined.
@@ -5922,10 +5942,20 @@ declare namespace Immutable {
    * getIn({ x: { y: { z: 123 }}}, ['x', 'q', 'p'], 'ifNotSet') // 'ifNotSet'
    * ```
    */
-  function getIn(
-    collection: unknown,
-    keyPath: Iterable<unknown>,
-    notSetValue?: unknown
+  function getIn<C, P extends ReadonlyArray<PropertyKey>>(
+    object: C,
+    keyPath: [...P]
+  ): RetrievePath<C, P>;
+  function getIn<C, P extends KeyPath<unknown>>(object: C, keyPath: P): unknown;
+  function getIn<C, P extends ReadonlyArray<PropertyKey>, NSV>(
+    collection: C,
+    keyPath: [...P],
+    notSetValue: NSV
+  ): RetrievePath<C, P> extends never ? NSV : RetrievePath<C, P>;
+  function getIn<C, P extends KeyPath<unknown>, NSV>(
+    object: C,
+    keyPath: P,
+    notSetValue: NSV
   ): unknown;
 
   /**
