@@ -172,6 +172,13 @@ declare namespace Immutable {
   export type Comparator<T> = (left: T, right: T) => PairSorting | number;
 
   /**
+   * @ignore
+   *
+   * KeyPath allowed for `xxxIn` methods
+   */
+  export type KeyPath<K> = OrderedCollection<K> | ArrayLike<K>;
+
+  /**
    * Lists are ordered indexed dense collections, much like a JavaScript
    * Array.
    *
@@ -758,6 +765,14 @@ declare namespace Immutable {
       zipper: (...values: Array<unknown>) => Z,
       ...collections: Array<Collection<unknown, unknown>>
     ): List<Z>;
+
+    /**
+     * Returns a new List with its values shuffled thanks to the
+     * [Fisher–Yates](https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle)
+     * algorithm.
+     * It uses Math.random, but you can provide your own random number generator.
+     */
+    shuffle(random?: () => number): this;
   }
 
   /**
@@ -865,7 +880,7 @@ declare namespace Immutable {
     // TODO `<const P extends ...>` can be used after dropping support for TypeScript 4.x
     // reference: https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-0.html#const-type-parameters
     // after this change, `as const` assertions can be remove from the type tests
-    getIn<P extends ReadonlyArray<string | number | symbol>>(
+    getIn<P extends ReadonlyArray<PropertyKey>>(
       searchKeyPath: [...P],
       notSetValue?: unknown
     ): RetrievePath<R, P>;
@@ -897,8 +912,14 @@ declare namespace Immutable {
   // Loosely based off of this work.
   // https://github.com/immutable-js/immutable-js/issues/1462#issuecomment-584123268
 
-  /** @ignore */
-  type GetMapType<S> = S extends MapOf<infer T> ? T : S;
+  /**
+   * @ignore
+   * Convert an immutable type to the equivalent plain TS type
+   * - MapOf -> object
+   * - List -> Array
+   */
+  type GetNativeType<S> =
+    S extends MapOf<infer T> ? T : S extends List<infer I> ? Array<I> : S;
 
   /** @ignore */
   type Head<T extends ReadonlyArray<unknown>> = T extends [
@@ -907,28 +928,32 @@ declare namespace Immutable {
   ]
     ? H
     : never;
-
   /** @ignore */
   type Tail<T extends ReadonlyArray<unknown>> = T extends [unknown, ...infer I]
     ? I
     : Array<never>;
-
   /** @ignore */
   type RetrievePathReducer<
     T,
     C,
     L extends ReadonlyArray<unknown>,
-  > = C extends keyof GetMapType<T>
-    ? L extends []
-      ? GetMapType<T>[C]
-      : RetrievePathReducer<GetMapType<T>[C], Head<L>, Tail<L>>
-    : never;
+    NT = GetNativeType<T>,
+  > =
+    // we can not retrieve a path from a primitive type
+    T extends string | number | boolean | null | undefined
+      ? never
+      : C extends keyof NT
+        ? L extends [] // L extends [] means we are at the end of the path, lets return the current type
+          ? NT[C]
+          : // we are not at the end of the path, lets continue with the next key
+            RetrievePathReducer<NT[C], Head<L>, Tail<L>>
+        : // C is not a "key" of NT, so the path is invalid
+          never;
 
   /** @ignore */
-  type RetrievePath<
-    R,
-    P extends ReadonlyArray<string | number | symbol>,
-  > = P extends [] ? P : RetrievePathReducer<R, Head<P>, Tail<P>>;
+  type RetrievePath<R, P extends ReadonlyArray<PropertyKey>> = P extends []
+    ? P
+    : RetrievePathReducer<R, Head<P>, Tail<P>>;
 
   interface Map<K, V> extends Collection.Keyed<K, V> {
     /**
@@ -1697,7 +1722,7 @@ declare namespace Immutable {
   function OrderedMap<K, V>(collection?: Iterable<[K, V]>): OrderedMap<K, V>;
   function OrderedMap<V>(obj: { [key: string]: V }): OrderedMap<string, V>;
 
-  interface OrderedMap<K, V> extends Map<K, V> {
+  interface OrderedMap<K, V> extends Map<K, V>, OrderedCollection<[K, V]> {
     /**
      * The number of entries in this OrderedMap.
      */
@@ -2182,7 +2207,7 @@ declare namespace Immutable {
     collection?: Iterable<T> | ArrayLike<T>
   ): OrderedSet<T>;
 
-  interface OrderedSet<T> extends Set<T> {
+  interface OrderedSet<T> extends Set<T>, OrderedCollection<T> {
     /**
      * The number of items in this OrderedSet.
      */
@@ -3916,7 +3941,7 @@ declare namespace Immutable {
       collection?: Iterable<T> | ArrayLike<T>
     ): Collection.Indexed<T>;
 
-    interface Indexed<T> extends Collection<number, T> {
+    interface Indexed<T> extends Collection<number, T>, OrderedCollection<T> {
       /**
        * Deeply converts this Indexed collection to equivalent native JavaScript Array.
        */
@@ -5342,6 +5367,20 @@ declare namespace Immutable {
   }
 
   /**
+   * Interface representing all oredered collections.
+   * This includes `List`, `Stack`, `Map`, `OrderedMap`, `Set`, and `OrderedSet`.
+   * return of `isOrdered()` return true in that case.
+   */
+  interface OrderedCollection<T> {
+    /**
+     * Shallowly converts this collection to an Array.
+     */
+    toArray(): Array<T>;
+
+    [Symbol.iterator](): IterableIterator<T>;
+  }
+
+  /**
    * Deeply converts plain JS objects and arrays to Immutable Maps and Lists.
    *
    * `fromJS` will convert Arrays and [array-like objects][2] to a List, and
@@ -5604,7 +5643,12 @@ declare namespace Immutable {
    * isOrdered(Set()); // false
    * ```
    */
-  function isOrdered(maybeOrdered: unknown): boolean;
+  function isOrdered<T>(
+    maybeOrdered: Iterable<T>
+  ): maybeOrdered is OrderedCollection<T>;
+  function isOrdered(
+    maybeOrdered: unknown
+  ): maybeOrdered is OrderedCollection<unknown>;
 
   /**
    * True if `maybeValue` is a JavaScript Object which has *both* `equals()`
@@ -5881,6 +5925,9 @@ declare namespace Immutable {
     updater: (value: V | NSV) => V
   ): { [key: string]: V };
 
+  // TODO `<const P extends ...>` can be used after dropping support for TypeScript 4.x
+  // reference: https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-0.html#const-type-parameters
+  // after this change, `as const` assertions can be remove from the type tests
   /**
    * Returns the value at the provided key path starting at the provided
    * collection, or notSetValue if the key path is not defined.
@@ -5895,10 +5942,20 @@ declare namespace Immutable {
    * getIn({ x: { y: { z: 123 }}}, ['x', 'q', 'p'], 'ifNotSet') // 'ifNotSet'
    * ```
    */
-  function getIn(
-    collection: unknown,
-    keyPath: Iterable<unknown>,
-    notSetValue?: unknown
+  function getIn<C, P extends ReadonlyArray<PropertyKey>>(
+    object: C,
+    keyPath: [...P]
+  ): RetrievePath<C, P>;
+  function getIn<C, P extends KeyPath<unknown>>(object: C, keyPath: P): unknown;
+  function getIn<C, P extends ReadonlyArray<PropertyKey>, NSV>(
+    collection: C,
+    keyPath: [...P],
+    notSetValue: NSV
+  ): RetrievePath<C, P> extends never ? NSV : RetrievePath<C, P>;
+  function getIn<C, P extends KeyPath<unknown>, NSV>(
+    object: C,
+    keyPath: P,
+    notSetValue: NSV
   ): unknown;
 
   /**

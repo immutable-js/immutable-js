@@ -8,8 +8,10 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+- Add shuffle to list [#2066](https://github.com/immutable-js/immutable-js/pull/2066) by [@mazerty](https://github.com/mazerty)
 - Fix #1915 "Converting a Seq to a list causes RangeError (max call size exceeded)" by @alexvictoor in [#2038](https://github.com/immutable-js/immutable-js/pull/2038)
 - fix: proper Typescript typings for Seq.concat() [#2040](https://github.com/immutable-js/immutable-js/pull/2040) by [@alexvictoor](https://github.com/alexvictoor)
+- Fix Uncaught "TypeError: keyPath.slice is not a function" for ArrayLike method [#2065](https://github.com/immutable-js/immutable-js/pull/2065) by [@jdeniau](https://github.com/jdeniau)
 
 ### Internal
 
@@ -113,9 +115,9 @@ Now the Map is typed like this:
 
 ```ts
 MapOf<{
-    length: number;
-    1: string;
-}>
+  length: number;
+  1: string;
+}>;
 ```
 
 and the return type of `m.get('length')` is typed as `number`.

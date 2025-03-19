@@ -139,6 +139,23 @@ export class ListImpl extends IndexedCollectionImpl {
     return setListBounds(this, 1);
   }
 
+  shuffle(random = Math.random) {
+    return this.withMutations((mutable) => {
+      // implementation of the Fisher-Yates shuffle: https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
+      let current = mutable.size;
+      let destination;
+      let tmp;
+
+      while (current) {
+        destination = Math.floor(random() * current--);
+
+        tmp = mutable.get(destination);
+        mutable.set(destination, mutable.get(current));
+        mutable.set(current, tmp);
+      }
+    });
+  }
+
   // @pragma Composition
 
   concat(/*...collections*/) {

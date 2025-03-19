@@ -72,6 +72,54 @@ describe('updateIn', () => {
     );
   });
 
+  it('handle ArrayLike objects that are nor Array not immutable Collection', () => {
+    class CustomArrayLike<T> implements ArrayLike<T> {
+      readonly length: number;
+      [n: number]: T;
+
+      constructor(...values: Array<T>) {
+        this.length = values.length;
+
+        for (let i = 0; i < values.length; i++) {
+          this[i] = values[i];
+        }
+      }
+
+      // Define other methods if needed, but do not include the `slice` method
+      // For example, you can define a method to set values
+      set(index: number, value: T): void {
+        if (index < 0 || index >= this.length) {
+          throw new RangeError('Index out of bounds');
+        }
+
+        this[index] = value;
+      }
+
+      // Define a method to get values
+      get(index: number): T {
+        if (index < 0 || index >= this.length) {
+          throw new RangeError('Index out of bounds');
+        }
+
+        return this[index];
+      }
+    }
+
+    // create an ArrayLike
+    const customArray = new CustomArrayLike<number>(10, 20);
+
+    // code that works perfectly
+    expect(
+      // @ts-expect-error -- `updateIn` keypath type should be `OrderedCollection<K> | ArrayLike<K>;
+      updateIn({ 10: { 20: 'a' } }, customArray, (v) => `${v.toUpperCase()}`)
+    ).toEqual({ 10: { 20: 'A' } });
+
+    expect(() =>
+      // @ts-expect-error -- `updateIn` keypath type should be `OrderedCollection<K> | ArrayLike<K>;
+      updateIn({ 10: 'a' }, customArray, (v) => `${v.toUpperCase()}`)
+    ).toThrow('Cannot update within non-data-structure value in path [10]: a');
+  });
+
   it('identity with notSetValue is still identity', () => {
     const m = Map({ a: { b: { c: 10 } } });
     expect(m.updateIn(['x'], 100, (id) => id)).toEqual(m);
@@ -159,7 +207,9 @@ describe('updateIn', () => {
     const m = fromJS({ a: { b: { c: 10 } } });
     expect(() => {
       m.updateIn(['a', 'b', 'c', 'd'], () => 20).toJS();
-    }).toThrow();
+    }).toThrow(
+      'Cannot update within non-data-structure value in path ["a","b","c"]: 10'
+    );
   });
 
   it('update with notSetValue when non-existing key', () => {
