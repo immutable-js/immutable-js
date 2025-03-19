@@ -6,8 +6,8 @@ import { isIndexed } from '../predicates/isIndexed';
 import { isAssociative } from '../predicates/isAssociative';
 import { isOrdered } from '../predicates/isOrdered';
 import type { Collection } from '../../type-definitions/immutable';
-import type { Repeat } from '../Repeat';
-import type { Range } from '../Range';
+import type { RepeatImpl as Repeat } from '../Repeat';
+import type { RangeImpl as Range } from '../Range';
 
 export default function deepEqual(
   a: Range | Repeat | Collection<unknown, unknown>,

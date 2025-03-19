@@ -595,7 +595,7 @@ export function skipWhileFactory(collection, predicate, context, useKeys) {
   return skipSequence;
 }
 
-class ConcatSeq extends Seq {
+class ConcatSeq extends SeqImpl {
   constructor(iterables) {
     this._wrappedIterables = iterables.flatMap((iterable) => {
       if (iterable._wrappedIterables) {
