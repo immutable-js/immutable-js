@@ -5970,23 +5970,11 @@ declare namespace Immutable {
    * hasIn({ x: { y: { z: 123 }}}, ['x', 'q', 'p']) // false
    * ```
    */
-  function hasIn<K, V>(
-    collection: Collection<K, V>,
-    keyPath: KeyPath<K>
-  ): boolean;
-  function hasIn<TProps extends object, K extends keyof TProps>(
-    record: Record<TProps>,
-    keyPath: K
-  ): boolean;
-  function hasIn<K, V>(collection: Array<V>, keyPath: KeyPath<K>): boolean;
-  function hasIn<C extends object, K extends keyof C>(
-    object: C,
-    keyPath: KeyPath<K>
-  ): C[K];
-  function hasIn<K, V>(
-    collection: { [key: PropertyKey]: V },
-    keyPath: KeyPath<K>
-  ): boolean;
+  function hasIn(
+    collection: string | boolean | number,
+    keyPath: KeyPath<unknown>
+  ): never;
+  function hasIn<K>(collection: unknown, keyPath: KeyPath<K>): boolean;
 
   /**
    * Returns a copy of the collection with the value at the key path removed.

@@ -3,6 +3,7 @@ import {
   get,
   getIn,
   has,
+  hasIn,
   set,
   remove,
   update,
@@ -82,6 +83,51 @@ test('has', () => {
   expect(has([1, 2, 3], 0)).type.toBeBoolean();
 
   expect(has({ x: 10, y: 20 }, 'x')).type.toBeBoolean();
+});
+
+test('hasIn', () => {
+  expect(hasIn('a', ['length' as const])).type.toBe<never>();
+
+  expect(hasIn(123, [])).type.toBe<never>();
+
+  expect(hasIn(true, [])).type.toBe<never>();
+
+  expect(hasIn([1, 2, 3], [0])).type.toBe<boolean>();
+
+  // first parameter type is Array<number> so we can not detect that the number will be invalid
+  expect(hasIn([1, 2, 3], [99])).type.toBe<boolean>();
+
+  // We do not handle List in hasIn TS type yet (hard to convert to a tuple)
+  expect(hasIn([1, 2, 3], List([0]))).type.toBe<boolean>();
+
+  expect(hasIn(List([1, 2, 3]), [0])).type.toBe<boolean>();
+
+  // first parameter type is Array<number> so we can not detect that the number will be invalid
+  expect(hasIn(List([1, 2, 3]), [99])).type.toBe<boolean>();
+
+  expect(hasIn(List([1, 2, 3]), ['a' as const])).type.toBe<boolean>();
+
+  expect(hasIn({ x: 10, y: 20 }, ['x' as const])).type.toBe<boolean>();
+
+  expect(hasIn({ x: { y: 20 } }, ['z' as const])).type.toBe<boolean>();
+
+  expect(
+    hasIn({ x: { y: 20 } }, ['x' as const, 'y' as const])
+  ).type.toBe<boolean>();
+
+  expect(
+    hasIn({ x: Map({ y: 20 }) }, ['x' as const, 'y' as const])
+  ).type.toBe<boolean>();
+
+  expect(
+    hasIn(Map({ x: Map({ y: 20 }) }), ['x' as const, 'y' as const])
+  ).type.toBe<boolean>();
+
+  const o = Map({ x: List([Map({ y: 20 })]) });
+
+  expect(hasIn(o, ['x' as const, 'y' as const])).type.toBe<boolean>();
+
+  expect(hasIn(o, ['x' as const, 0, 'y' as const])).type.toBe<boolean>();
 });
 
 test('set', () => {
