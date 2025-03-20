@@ -127,7 +127,7 @@ declare namespace Immutable {
         : T extends Collection.Keyed<infer KeyedKey, infer V>
           ? // convert KeyedCollection to DeepCopy plain JS object
             {
-              [key in KeyedKey extends string | number | symbol
+              [key in KeyedKey extends PropertyKey
                 ? KeyedKey
                 : string]: V extends object ? unknown : V;
             }
@@ -853,9 +853,7 @@ declare namespace Immutable {
    * not altered.
    */
   function Map<K, V>(collection?: Iterable<[K, V]>): Map<K, V>;
-  function Map<R extends { [key in string | number | symbol]: unknown }>(
-    obj: R
-  ): MapOf<R>;
+  function Map<R extends { [key in PropertyKey]: unknown }>(obj: R): MapOf<R>;
   function Map<V>(obj: { [key: string]: V }): Map<string, V>;
   function Map<K extends string | symbol, V>(obj: { [P in K]?: V }): Map<K, V>;
 
@@ -864,7 +862,7 @@ declare namespace Immutable {
    *
    * @ignore
    */
-  interface MapOf<R extends { [key in string | number | symbol]: unknown }>
+  interface MapOf<R extends { [key in PropertyKey]: unknown }>
     extends Map<keyof R, R[keyof R]> {
     /**
      * Returns the value associated with the provided key, or notSetValue if
@@ -3155,14 +3153,14 @@ declare namespace Immutable {
        *
        * Converts keys to Strings.
        */
-      toJS(): { [key in string | number | symbol]: DeepCopy<V> };
+      toJS(): { [key in PropertyKey]: DeepCopy<V> };
 
       /**
        * Shallowly converts this Keyed Seq to equivalent native JavaScript Object.
        *
        * Converts keys to Strings.
        */
-      toJSON(): { [key in string | number | symbol]: V };
+      toJSON(): { [key in PropertyKey]: V };
 
       /**
        * Shallowly converts this collection to an Array.
@@ -3763,14 +3761,14 @@ declare namespace Immutable {
        *
        * Converts keys to Strings.
        */
-      toJS(): { [key in string | number | symbol]: DeepCopy<V> };
+      toJS(): { [key in PropertyKey]: DeepCopy<V> };
 
       /**
        * Shallowly converts this Keyed collection to equivalent native JavaScript Object.
        *
        * Converts keys to Strings.
        */
-      toJSON(): { [key in string | number | symbol]: V };
+      toJSON(): { [key in PropertyKey]: V };
 
       /**
        * Shallowly converts this collection to an Array.
@@ -4520,9 +4518,7 @@ declare namespace Immutable {
      * `Collection.Indexed`, and `Collection.Set` become `Array`, while
      * `Collection.Keyed` become `Object`, converting keys to Strings.
      */
-    toJS():
-      | Array<DeepCopy<V>>
-      | { [key in string | number | symbol]: DeepCopy<V> };
+    toJS(): Array<DeepCopy<V>> | { [key in PropertyKey]: DeepCopy<V> };
 
     /**
      * Shallowly converts this Collection to equivalent native JavaScript Array or Object.
@@ -4530,7 +4526,7 @@ declare namespace Immutable {
      * `Collection.Indexed`, and `Collection.Set` become `Array`, while
      * `Collection.Keyed` become `Object`, converting keys to Strings.
      */
-    toJSON(): Array<V> | { [key in string | number | symbol]: V };
+    toJSON(): Array<V> | { [key in PropertyKey]: V };
 
     /**
      * Shallowly converts this collection to an Array.
@@ -5749,9 +5745,12 @@ declare namespace Immutable {
     key: K,
     notSetValue: unknown
   ): C[K];
-  function get<V>(collection: { [key: string]: V }, key: string): V | undefined;
+  function get<V>(
+    collection: { [key: PropertyKey]: V },
+    key: string
+  ): V | undefined;
   function get<V, NSV>(
-    collection: { [key: string]: V },
+    collection: { [key: PropertyKey]: V },
     key: string,
     notSetValue: NSV
   ): V | NSV;
@@ -5971,7 +5970,11 @@ declare namespace Immutable {
    * hasIn({ x: { y: { z: 123 }}}, ['x', 'q', 'p']) // false
    * ```
    */
-  function hasIn(collection: unknown, keyPath: Iterable<unknown>): boolean;
+  function hasIn(
+    collection: string | boolean | number,
+    keyPath: KeyPath<unknown>
+  ): never;
+  function hasIn<K>(collection: unknown, keyPath: KeyPath<K>): boolean;
 
   /**
    * Returns a copy of the collection with the value at the key path removed.
@@ -6025,17 +6028,83 @@ declare namespace Immutable {
    * console.log(original) // { x: { y: { z: 123 }}}
    * ```
    */
-  function updateIn<C>(
+  function updateIn<K extends PropertyKey, V, C extends Collection<K, V>>(
     collection: C,
-    keyPath: Iterable<unknown>,
-    updater: (value: unknown) => unknown
+    keyPath: KeyPath<K>,
+    updater: (
+      value: RetrievePath<C, Array<K>> | undefined
+    ) => unknown | undefined
   ): C;
-  function updateIn<C>(
+  function updateIn<K extends PropertyKey, V, C extends Collection<K, V>, NSV>(
     collection: C,
-    keyPath: Iterable<unknown>,
-    notSetValue: unknown,
-    updater: (value: unknown) => unknown
+    keyPath: KeyPath<K>,
+    notSetValue: NSV,
+    updater: (value: RetrievePath<C, Array<K>> | NSV) => unknown
   ): C;
+  function updateIn<
+    TProps extends object,
+    C extends Record<TProps>,
+    K extends keyof TProps,
+  >(
+    record: C,
+    keyPath: KeyPath<K>,
+    updater: (value: RetrievePath<C, Array<K>>) => unknown
+  ): C;
+  function updateIn<
+    TProps extends object,
+    C extends Record<TProps>,
+    K extends keyof TProps,
+    NSV,
+  >(
+    record: C,
+    keyPath: KeyPath<K>,
+    notSetValue: NSV,
+    updater: (value: RetrievePath<C, Array<K>> | NSV) => unknown
+  ): C;
+  function updateIn<K extends PropertyKey, V, C extends Array<V>>(
+    collection: Array<V>,
+    keyPath: KeyPath<string | number>,
+    updater: (
+      value: RetrievePath<C, Array<K>> | undefined
+    ) => unknown | undefined
+  ): Array<V>;
+  function updateIn<K extends PropertyKey, V, C extends Array<V>, NSV>(
+    collection: Array<V>,
+    keyPath: KeyPath<K>,
+    notSetValue: NSV,
+    updater: (value: RetrievePath<C, Array<K>> | NSV) => unknown
+  ): Array<V>;
+  function updateIn<K extends PropertyKey, C>(
+    object: C,
+    keyPath: KeyPath<K>,
+    updater: (value: RetrievePath<C, Array<K>>) => unknown
+  ): C;
+  function updateIn<K extends PropertyKey, C, NSV>(
+    object: C,
+    keyPath: KeyPath<K>,
+    notSetValue: NSV,
+    updater: (value: RetrievePath<C, Array<K>> | NSV) => unknown
+  ): C;
+  function updateIn<
+    K extends PropertyKey,
+    V,
+    C extends { [key: PropertyKey]: V },
+  >(
+    collection: C,
+    keyPath: KeyPath<K>,
+    updater: (value: RetrievePath<C, Array<K>>) => unknown
+  ): { [key: PropertyKey]: V };
+  function updateIn<
+    K extends PropertyKey,
+    V,
+    C extends { [key: PropertyKey]: V },
+    NSV,
+  >(
+    collection: C,
+    keyPath: KeyPath<K>,
+    notSetValue: NSV,
+    updater: (value: RetrievePath<C, Array<K>> | NSV) => unknown
+  ): { [key: PropertyKey]: V };
 
   /**
    * Returns a copy of the collection with the remaining collections merged in.
