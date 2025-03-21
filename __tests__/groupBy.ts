@@ -34,15 +34,15 @@ describe('groupBy', () => {
       const grouped = col.groupBy((v) => v);
 
       // all groupBy should be instance of Map
-      expect(grouped).toBeInstanceOf(Map);
+      expect(Map.isMap(grouped)).toBe(true);
 
       // ordered objects should be instance of OrderedMap
       expect(isOrdered(col)).toBe(constructorIsOrdered);
       expect(isOrdered(grouped)).toBe(constructorIsOrdered);
       if (constructorIsOrdered) {
-        expect(grouped).toBeInstanceOf(OrderedMap);
+        expect(OrderedMap.isOrderedMap(grouped)).toBe(true);
       } else {
-        expect(grouped).not.toBeInstanceOf(OrderedMap);
+        expect(OrderedMap.isOrderedMap(grouped)).toBe(false);
       }
     }
   );

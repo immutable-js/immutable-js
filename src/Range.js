@@ -1,5 +1,5 @@
 import { wrapIndex, wholeSlice, resolveBegin, resolveEnd } from './TrieUtils';
-import { IndexedSeq } from './Seq';
+import { IndexedSeqImpl } from './Seq';
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 
 import invariant from './utils/invariant';
@@ -10,38 +10,33 @@ import deepEqual from './utils/deepEqual';
  * (exclusive), by step, where start defaults to 0, step to 1, and end to
  * infinity. When start is equal to end, returns empty list.
  */
-export class Range extends IndexedSeq {
-  constructor(start, end, step = 1) {
-    if (!(this instanceof Range)) {
-      // eslint-disable-next-line no-constructor-return
-      return new Range(start, end, step);
-    }
-    invariant(step !== 0, 'Cannot step a Range by 0');
-    invariant(
-      start !== undefined,
-      'You must define a start value when using Range'
-    );
-    invariant(
-      end !== undefined,
-      'You must define an end value when using Range'
-    );
+export const Range = (start, end, step = 1) => {
+  invariant(step !== 0, 'Cannot step a Range by 0');
+  invariant(
+    start !== undefined,
+    'You must define a start value when using Range'
+  );
+  invariant(end !== undefined, 'You must define an end value when using Range');
 
-    step = Math.abs(step);
-    if (end < start) {
-      step = -step;
+  step = Math.abs(step);
+  if (end < start) {
+    step = -step;
+  }
+  const size = Math.max(0, Math.ceil((end - start) / step - 1) + 1);
+  if (size === 0) {
+    if (!EMPTY_RANGE) {
+      EMPTY_RANGE = new RangeImpl(start, end, step, 0);
     }
+    return EMPTY_RANGE;
+  }
+  return new RangeImpl(start, end, step, size);
+};
+export class RangeImpl extends IndexedSeqImpl {
+  constructor(start, end, step, size) {
     this._start = start;
     this._end = end;
     this._step = step;
-    this.size = Math.max(0, Math.ceil((end - start) / step - 1) + 1);
-    if (this.size === 0) {
-      if (EMPTY_RANGE) {
-        // eslint-disable-next-line no-constructor-return
-        return EMPTY_RANGE;
-      }
-      // eslint-disable-next-line @typescript-eslint/no-this-alias
-      EMPTY_RANGE = this;
-    }
+    this.size = size;
   }
 
   toString() {
