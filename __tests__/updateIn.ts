@@ -109,13 +109,17 @@ describe('updateIn', () => {
 
     // code that works perfectly
     expect(
-      // @ts-expect-error -- `updateIn` keypath type should be `OrderedCollection<K> | ArrayLike<K>;
-      updateIn({ 10: { 20: 'a' } }, customArray, (v) => `${v.toUpperCase()}`)
+      updateIn({ 10: { 20: 'a' } }, customArray, (v) =>
+        // @ts-expect-error -- `updateIn` keypath type should be `OrderedCollection<K> | ArrayLike<K>;
+        typeof v === 'string' ? v.toUpperCase() : v
+      )
     ).toEqual({ 10: { 20: 'A' } });
 
     expect(() =>
-      // @ts-expect-error -- `updateIn` keypath type should be `OrderedCollection<K> | ArrayLike<K>;
-      updateIn({ 10: 'a' }, customArray, (v) => `${v.toUpperCase()}`)
+      updateIn({ 10: 'a' }, customArray, (v) =>
+        // @ts-expect-error -- `updateIn` keypath type should be `OrderedCollection<K> | ArrayLike<K>;
+        typeof v === 'string' ? v.toUpperCase() : v
+      )
     ).toThrow('Cannot update within non-data-structure value in path [10]: a');
   });
 
