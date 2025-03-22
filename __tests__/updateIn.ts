@@ -32,7 +32,6 @@ describe('updateIn', () => {
   it('deep edit in raw JS', () => {
     const m = { a: { b: { c: [10] } } };
     expect(
-      // @ts-expect-error -- `updateIn` should copy the comportment of `getIn`
       updateIn(m, ['a', 'b', 'c', 0], (value: number) => value * 2)
     ).toEqual({
       a: { b: { c: [20] } },
@@ -110,13 +109,17 @@ describe('updateIn', () => {
 
     // code that works perfectly
     expect(
-      // @ts-expect-error -- `updateIn` keypath type should be `OrderedCollection<K> | ArrayLike<K>;
-      updateIn({ 10: { 20: 'a' } }, customArray, (v) => `${v.toUpperCase()}`)
+      updateIn({ 10: { 20: 'a' } }, customArray, (v) =>
+        // @ts-expect-error -- `updateIn` keypath type should be `OrderedCollection<K> | ArrayLike<K>;
+        typeof v === 'string' ? v.toUpperCase() : v
+      )
     ).toEqual({ 10: { 20: 'A' } });
 
     expect(() =>
-      // @ts-expect-error -- `updateIn` keypath type should be `OrderedCollection<K> | ArrayLike<K>;
-      updateIn({ 10: 'a' }, customArray, (v) => `${v.toUpperCase()}`)
+      updateIn({ 10: 'a' }, customArray, (v) =>
+        // @ts-expect-error -- `updateIn` keypath type should be `OrderedCollection<K> | ArrayLike<K>;
+        typeof v === 'string' ? v.toUpperCase() : v
+      )
     ).toThrow('Cannot update within non-data-structure value in path [10]: a');
   });
 
@@ -197,7 +200,6 @@ describe('updateIn', () => {
         m,
         ['a', 'b', 'z'],
         Map<string, number>(),
-        // @ts-expect-error -- updateIn should handle the `notSetValue` parameter
         (map: Map<string, number>) => map.set('d', 20)
       )
     ).toEqual({ a: { b: { c: 10, z: Map({ d: 20 }) } } });
@@ -223,7 +225,6 @@ describe('updateIn', () => {
 
   it('update with notSetValue when non-existing key in raw JS', () => {
     const m = { a: { b: { c: 10 } } };
-    // @ts-expect-error -- updateIn should handle the `notSetValue` parameter
     expect(updateIn(m, ['x'], 100, (map: number) => map + 1)).toEqual({
       a: { b: { c: 10 } },
       x: 101,

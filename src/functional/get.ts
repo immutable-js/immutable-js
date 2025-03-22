@@ -11,7 +11,8 @@ import { has } from './has';
  *
  * <!-- runkit:activate -->
  * ```js
- * const { get } = require('immutable')
+ * import { get } from 'immutable';
+ *
  * get([ 'dog', 'frog', 'cat' ], 1) // 'frog'
  * get({ x: 123, y: 456 }, 'x') // 123
  * get({ x: 123, y: 456 }, 'z', 'ifNotSet') // 'ifNotSet'
@@ -47,6 +48,11 @@ export function get<V, NSV>(
   collection: { [key: string]: V },
   key: string,
   notSetValue: NSV
+): V | NSV;
+export function get<K extends PropertyKey, V, NSV>(
+  collection: Collection<K, V> | Array<V> | { [key: string]: V },
+  key: K,
+  notSetValue?: NSV
 ): V | NSV;
 export function get<K extends PropertyKey, V, NSV>(
   collection: Collection<K, V> | Array<V> | { [key: string]: V },

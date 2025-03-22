@@ -9,8 +9,9 @@ Dates are formatted as YYYY-MM-DD.
 ## Unreleased
 
 - Add shuffle to list [#2066](https://github.com/immutable-js/immutable-js/pull/2066) by [@mazerty](https://github.com/mazerty)
+- TypeScript: Better getIn `RetrievePath` [#2070](https://github.com/immutable-js/immutable-js/pull/2070) by [@jdeniau](https://github.com/jdeniau)
 - Fix #1915 "Converting a Seq to a list causes RangeError (max call size exceeded)" by @alexvictoor in [#2038](https://github.com/immutable-js/immutable-js/pull/2038)
-- fix: proper Typescript typings for Seq.concat() [#2040](https://github.com/immutable-js/immutable-js/pull/2040) by [@alexvictoor](https://github.com/alexvictoor)
+- TypeScript: Fix proper typings for Seq.concat() [#2040](https://github.com/immutable-js/immutable-js/pull/2040) by [@alexvictoor](https://github.com/alexvictoor)
 - Fix Uncaught "TypeError: keyPath.slice is not a function" for ArrayLike method [#2065](https://github.com/immutable-js/immutable-js/pull/2065) by [@jdeniau](https://github.com/jdeniau)
 
 ### Internal
@@ -19,6 +20,7 @@ Dates are formatted as YYYY-MM-DD.
 - Upgrade to rollup 4 [#2049](https://github.com/immutable-js/immutable-js/pull/2049) by [@jdeniau](https://github.com/jdeniau)
 - Start migrating codebase to TypeScript without any runtime change nor .d.ts change:
   - allow TS files to be compiled in src dir [#2054](https://github.com/immutable-js/immutable-js/pull/2054) by [@jdeniau](https://github.com/jdeniau)
+- add exception for code that should not happen in updateIn [#2074](https://github.com/immutable-js/immutable-js/pull/2074) by [@jdeniau](https://github.com/jdeniau)
 
 ## [5.0.3]
 
