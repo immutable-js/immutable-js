@@ -2197,11 +2197,29 @@ function quoteString(value) {
     }
 }
 
+/**
+ * Returns true if the key is defined in the provided collection.
+ *
+ * A functional alternative to `collection.has(key)` which will also work with
+ * plain Objects and Arrays as an alternative for
+ * `collection.hasOwnProperty(key)`.
+ *
+ * <!-- runkit:activate -->
+ * ```js
+ * import { has } from 'immutable';
+ *
+ * has([ 'dog', 'frog', 'cat' ], 2) // true
+ * has([ 'dog', 'frog', 'cat' ], 5) // false
+ * has({ x: 123, y: 456 }, 'x') // true
+ * has({ x: 123, y: 456 }, 'z') // false
+ * ```
+ */
 function has(collection, key) {
     return isImmutable(collection)
         ? // @ts-expect-error key might be a number or symbol, which is not handled be Record key type
             collection.has(key)
-        : isDataStructure(collection) && hasOwnProperty.call(collection, key);
+        : // @ts-expect-error key might be anything else than PropertyKey, and will return false in that case but runtime is OK
+            isDataStructure(collection) && hasOwnProperty.call(collection, key);
 }
 
 function get(collection, key, notSetValue) {
@@ -2231,129 +2249,137 @@ function shallowCopy(from) {
 }
 
 function remove(collection, key) {
-  if (!isDataStructure(collection)) {
-    throw new TypeError(
-      'Cannot update non-data-structure value: ' + collection
-    );
-  }
-  if (isImmutable(collection)) {
-    if (!collection.remove) {
-      throw new TypeError(
-        'Cannot update immutable value without .remove() method: ' + collection
-      );
+    if (!isDataStructure(collection)) {
+        throw new TypeError('Cannot update non-data-structure value: ' + collection);
     }
-    return collection.remove(key);
-  }
-  if (!hasOwnProperty.call(collection, key)) {
-    return collection;
-  }
-  var collectionCopy = shallowCopy(collection);
-  if (Array.isArray(collectionCopy)) {
-    collectionCopy.splice(key, 1);
-  } else {
-    delete collectionCopy[key];
-  }
-  return collectionCopy;
+    if (isImmutable(collection)) {
+        // @ts-expect-error weird "remove" here,
+        if (!collection.remove) {
+            throw new TypeError('Cannot update immutable value without .remove() method: ' + collection);
+        }
+        // @ts-expect-error weird "remove" here,
+        return collection.remove(key);
+    }
+    if (!hasOwnProperty.call(collection, key)) {
+        return collection;
+    }
+    var collectionCopy = shallowCopy(collection);
+    if (Array.isArray(collectionCopy)) {
+        // @ts-expect-error assert that key is a number here
+        collectionCopy.splice(key, 1);
+    }
+    else {
+        delete collectionCopy[key];
+    }
+    return collectionCopy;
 }
 
 function set(collection, key, value) {
-  if (!isDataStructure(collection)) {
-    throw new TypeError(
-      'Cannot update non-data-structure value: ' + collection
-    );
-  }
-  if (isImmutable(collection)) {
-    if (!collection.set) {
-      throw new TypeError(
-        'Cannot update immutable value without .set() method: ' + collection
-      );
+    if (!isDataStructure(collection)) {
+        throw new TypeError('Cannot update non-data-structure value: ' + collection);
     }
-    return collection.set(key, value);
-  }
-  if (hasOwnProperty.call(collection, key) && value === collection[key]) {
-    return collection;
-  }
-  var collectionCopy = shallowCopy(collection);
-  collectionCopy[key] = value;
-  return collectionCopy;
+    if (isImmutable(collection)) {
+        // @ts-expect-error weird "set" here,
+        if (!collection.set) {
+            throw new TypeError('Cannot update immutable value without .set() method: ' + collection);
+        }
+        // @ts-expect-error weird "set" here,
+        return collection.set(key, value);
+    }
+    // @ts-expect-error mix of key and string here. Probably need a more fine type here
+    if (hasOwnProperty.call(collection, key) && value === collection[key]) {
+        return collection;
+    }
+    var collectionCopy = shallowCopy(collection);
+    // @ts-expect-error mix of key and string here. Probably need a more fine type here
+    collectionCopy[key] = value;
+    return collectionCopy;
 }
 
 function updateIn$1(collection, keyPath, notSetValue, updater) {
-  if (!updater) {
-    updater = notSetValue;
-    notSetValue = undefined;
-  }
-  var updatedValue = updateInDeeply(
-    isImmutable(collection),
-    collection,
-    coerceKeyPath(keyPath),
-    0,
-    notSetValue,
-    updater
-  );
-  return updatedValue === NOT_SET ? notSetValue : updatedValue;
+    if (!updater) {
+        // handle the fact that `notSetValue` is optional here, in that case `updater` is the updater function
+        // @ts-expect-error updater is a function here
+        updater = notSetValue;
+        notSetValue = undefined;
+    }
+    var updatedValue = updateInDeeply(isImmutable(collection), 
+    // @ts-expect-error type issues with Record and mixed types
+    collection, coerceKeyPath(keyPath), 0, notSetValue, updater);
+    // @ts-expect-error mixed return type
+    return updatedValue === NOT_SET ? notSetValue : updatedValue;
+}
+function updateInDeeply(inImmutable, existing, keyPath, i, notSetValue, updater) {
+    var wasNotSet = existing === NOT_SET;
+    if (i === keyPath.length) {
+        var existingValue = wasNotSet ? notSetValue : existing;
+        // @ts-expect-error mixed type with optional value
+        var newValue = updater(existingValue);
+        // @ts-expect-error mixed type
+        return newValue === existingValue ? existing : newValue;
+    }
+    if (!wasNotSet && !isDataStructure(existing)) {
+        throw new TypeError('Cannot update within non-data-structure value in path [' +
+            Array.from(keyPath).slice(0, i).map(quoteString) +
+            ']: ' +
+            existing);
+    }
+    var key = keyPath[i];
+    if (typeof key === 'undefined') {
+        throw new TypeError('Index can not be undefined in updateIn(). This should not happen');
+    }
+    var nextExisting = wasNotSet ? NOT_SET : get(existing, key, NOT_SET);
+    var nextUpdated = updateInDeeply(nextExisting === NOT_SET ? inImmutable : isImmutable(nextExisting), 
+    // @ts-expect-error mixed type
+    nextExisting, keyPath, i + 1, notSetValue, updater);
+    return nextUpdated === nextExisting
+        ? existing
+        : nextUpdated === NOT_SET
+            ? remove(existing, key)
+            : set(wasNotSet ? (inImmutable ? emptyMap() : {}) : existing, key, nextUpdated);
 }
 
-function updateInDeeply(
-  inImmutable,
-  existing,
-  keyPath,
-  i,
-  notSetValue,
-  updater
-) {
-  var wasNotSet = existing === NOT_SET;
-  if (i === keyPath.length) {
-    var existingValue = wasNotSet ? notSetValue : existing;
-    var newValue = updater(existingValue);
-    return newValue === existingValue ? existing : newValue;
-  }
-  if (!wasNotSet && !isDataStructure(existing)) {
-    throw new TypeError(
-      'Cannot update within non-data-structure value in path [' +
-        Array.from(keyPath).slice(0, i).map(quoteString) +
-        ']: ' +
-        existing
-    );
-  }
-  var key = keyPath[i];
-
-  if (typeof key === 'undefined') {
-    throw new TypeError(
-      'Index can not be undefined in updateIn(). This should not happen'
-    );
-  }
-
-  var nextExisting = wasNotSet ? NOT_SET : get(existing, key, NOT_SET);
-  var nextUpdated = updateInDeeply(
-    nextExisting === NOT_SET ? inImmutable : isImmutable(nextExisting),
-    nextExisting,
-    keyPath,
-    i + 1,
-    notSetValue,
-    updater
-  );
-  return nextUpdated === nextExisting
-    ? existing
-    : nextUpdated === NOT_SET
-      ? remove(existing, key)
-      : set(
-          wasNotSet ? (inImmutable ? emptyMap() : {}) : existing,
-          key,
-          nextUpdated
-        );
-}
-
+/**
+ * Returns a copy of the collection with the value at the key path set to the
+ * provided value.
+ *
+ * A functional alternative to `collection.setIn(keypath)` which will also
+ * work with plain Objects and Arrays.
+ *
+ * <!-- runkit:activate -->
+ * ```js
+ * import { setIn } from 'immutable';
+ *
+ * const original = { x: { y: { z: 123 }}}
+ * setIn(original, ['x', 'y', 'z'], 456) // { x: { y: { z: 456 }}}
+ * console.log(original) // { x: { y: { z: 123 }}}
+ * ```
+ */
 function setIn$1(collection, keyPath, value) {
-  return updateIn$1(collection, keyPath, NOT_SET, function () { return value; });
+    return updateIn$1(collection, keyPath, NOT_SET, function () { return value; });
 }
 
 function setIn(keyPath, v) {
   return setIn$1(this, keyPath, v);
 }
 
+/**
+ * Returns a copy of the collection with the value at the key path removed.
+ *
+ * A functional alternative to `collection.removeIn(keypath)` which will also
+ * work with plain Objects and Arrays.
+ *
+ * <!-- runkit:activate -->
+ * ```js
+ * import { removeIn } from 'immutable';
+ *
+ * const original = { x: { y: { z: 123 }}}
+ * removeIn(original, ['x', 'y', 'z']) // { x: { y: {}}}
+ * console.log(original) // { x: { y: { z: 123 }}}
+ * ```
+ */
 function removeIn(collection, keyPath) {
-  return updateIn$1(collection, keyPath, function () { return NOT_SET; });
+    return updateIn$1(collection, keyPath, function () { return NOT_SET; });
 }
 
 function deleteIn(keyPath) {
@@ -2361,7 +2387,9 @@ function deleteIn(keyPath) {
 }
 
 function update$1(collection, key, notSetValue, updater) {
-  return updateIn$1(collection, [key], notSetValue, updater);
+    return updateIn$1(
+    // @ts-expect-error Index signature for type string is missing in type V[]
+    collection, [key], notSetValue, updater);
 }
 
 function update(key, notSetValue, updater) {
@@ -4957,6 +4985,21 @@ var Range = /*@__PURE__*/(function (IndexedSeq) {
 
 var EMPTY_RANGE;
 
+/**
+ * Returns the value at the provided key path starting at the provided
+ * collection, or notSetValue if the key path is not defined.
+ *
+ * A functional alternative to `collection.getIn(keypath)` which will also
+ * work with plain Objects and Arrays.
+ *
+ * <!-- runkit:activate -->
+ * ```js
+ * import { getIn } from 'immutable';
+ *
+ * getIn({ x: { y: { z: 123 }}}, ['x', 'y', 'z']) // 123
+ * getIn({ x: { y: { z: 123 }}}, ['x', 'q', 'p'], 'ifNotSet') // 'ifNotSet'
+ * ```
+ */
 function getIn$1(collection, searchKeyPath, notSetValue) {
     var keyPath = coerceKeyPath(searchKeyPath);
     var i = 0;
@@ -4974,6 +5017,20 @@ function getIn(searchKeyPath, notSetValue) {
   return getIn$1(this, searchKeyPath, notSetValue);
 }
 
+/**
+ * Returns true if the key path is defined in the provided collection.
+ *
+ * A functional alternative to `collection.hasIn(keypath)` which will also
+ * work with plain Objects and Arrays.
+ *
+ * <!-- runkit:activate -->
+ * ```js
+ * import { hasIn } from 'immutable';
+ *
+ * hasIn({ x: { y: { z: 123 }}}, ['x', 'y', 'z']) // true
+ * hasIn({ x: { y: { z: 123 }}}, ['x', 'q', 'p']) // false
+ * ```
+ */
 function hasIn$1(collection, keyPath) {
     return getIn$1(collection, keyPath, NOT_SET) !== NOT_SET;
 }
