@@ -2,7 +2,6 @@ import { isImmutable } from '../predicates/isImmutable';
 import coerceKeyPath from '../utils/coerceKeyPath';
 import isDataStructure from '../utils/isDataStructure';
 import quoteString from '../utils/quoteString';
-import { NOT_SET } from '../TrieUtils';
 import { emptyMap } from '../Map';
 import { get } from './get';
 import { remove } from './remove';
@@ -21,7 +20,7 @@ export function updateIn(collection, keyPath, notSetValue, updater) {
     notSetValue,
     updater
   );
-  return updatedValue === NOT_SET ? notSetValue : updatedValue;
+  return updatedValue;
 }
 
 function updateInDeeply(
@@ -32,12 +31,8 @@ function updateInDeeply(
   notSetValue,
   updater
 ) {
-  const wasNotSet = existing === NOT_SET;
-  if (i === keyPath.length) {
-    const existingValue = wasNotSet ? notSetValue : existing;
-    const newValue = updater(existingValue);
-    return newValue === existingValue ? existing : newValue;
-  }
+  const wasNotSet = existing === notSetValue;
+  if (i === keyPath.length) return updater(wasNotSet ? notSetValue : existing);
   if (!wasNotSet && !isDataStructure(existing)) {
     throw new TypeError(
       'Cannot update within non-data-structure value in path [' +
@@ -47,9 +42,11 @@ function updateInDeeply(
     );
   }
   const key = keyPath[i];
-  const nextExisting = wasNotSet ? NOT_SET : get(existing, key, NOT_SET);
+  const nextExisting = wasNotSet
+    ? notSetValue
+    : get(existing, key, notSetValue);
   const nextUpdated = updateInDeeply(
-    nextExisting === NOT_SET ? inImmutable : isImmutable(nextExisting),
+    nextExisting === notSetValue ? inImmutable : isImmutable(nextExisting),
     nextExisting,
     keyPath,
     i + 1,
@@ -58,7 +55,7 @@ function updateInDeeply(
   );
   return nextUpdated === nextExisting
     ? existing
-    : nextUpdated === NOT_SET
+    : nextUpdated === notSetValue
       ? remove(existing, key)
       : set(
           wasNotSet ? (inImmutable ? emptyMap() : {}) : existing,

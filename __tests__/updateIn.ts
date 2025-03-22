@@ -38,6 +38,14 @@ describe('updateIn', () => {
     });
   });
 
+  it('remove in raw JS', () => {
+    const m = { a: { b: { c: 10 } } };
+    const NOT_SET = { NOT_SET: true };
+    expect(updateIn(m, ['a', 'b', 'c'], NOT_SET, () => NOT_SET)).toEqual({
+      a: { b: {} },
+    });
+  });
+
   it('deep edit throws without list or array-like', () => {
     // @ts-expect-error -- test that runtime does throw
     expect(() => Map().updateIn(undefined, (x) => x)).toThrow(
