@@ -2323,6 +2323,13 @@
         );
       }
       var key = keyPath[i];
+
+      if (typeof key === 'undefined') {
+        throw new TypeError(
+          'Index can not be undefined in updateIn(). This should not happen'
+        );
+      }
+
       var nextExisting = wasNotSet ? NOT_SET : get(existing, key, NOT_SET);
       var nextUpdated = updateInDeeply(
         nextExisting === NOT_SET ? inImmutable : isImmutable(nextExisting),
