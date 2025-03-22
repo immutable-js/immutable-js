@@ -3,6 +3,7 @@ import { babel } from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
 import terser from '@rollup/plugin-terser';
+import resolve from '@rollup/plugin-node-resolve';
 import copyright from './copyright.mjs';
 
 const SRC_DIR = path.resolve('src');
@@ -14,6 +15,9 @@ export default [
   {
     input: path.join(SRC_DIR, 'Immutable.js'),
     plugins: [
+      resolve({
+        extensions,
+      }),
       commonjs(),
       json(),
       babel({ extensions, babelHelpers: 'bundled' }),
