@@ -47,6 +47,13 @@ function updateInDeeply(
     );
   }
   const key = keyPath[i];
+
+  if (typeof key === 'undefined') {
+    throw new TypeError(
+      'Index can not be undefined in updateIn(). This should not happen'
+    );
+  }
+
   const nextExisting = wasNotSet ? NOT_SET : get(existing, key, NOT_SET);
   const nextUpdated = updateInDeeply(
     nextExisting === NOT_SET ? inImmutable : isImmutable(nextExisting),
