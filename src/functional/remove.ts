@@ -38,6 +38,13 @@ export function remove<
   C extends { [key: PropertyKey]: unknown },
   K extends keyof C,
 >(collection: C, key: K): C;
+export function remove<
+  K extends PropertyKey,
+  C extends
+    | Collection<K, unknown>
+    | Array<unknown>
+    | { [key: PropertyKey]: unknown },
+>(collection: C, key: K): C;
 export function remove<K extends PropertyKey>(
   collection:
     | Collection<K, unknown>
