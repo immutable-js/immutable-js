@@ -153,6 +153,20 @@ describe('updateIn', () => {
     });
   });
 
+  it('deep set with numeric key 1', () => {
+    const m = fromJS({ a: { b: 1 } });
+    expect(m.updateIn(['a', 'c', 0], () => 20).toJS()).toEqual({
+      a: { b: 1, c: [20] },
+    });
+  });
+
+  it('deep set with numeric key 2', () => {
+    const m = fromJS({});
+    expect(m.updateIn(['a', 0], () => 20).toJS()).toEqual({
+      a: [20],
+    });
+  });
+
   it('deep push', () => {
     const m = fromJS({ a: { b: [1, 2, 3] } });
     expect(
