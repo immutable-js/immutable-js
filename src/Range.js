@@ -33,6 +33,8 @@ export const Range = (start, end, step = 1) => {
 };
 export class RangeImpl extends IndexedSeqImpl {
   constructor(start, end, step, size) {
+    super();
+
     this._start = start;
     this._end = end;
     this._step = step;

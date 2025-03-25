@@ -22,6 +22,8 @@ export const Repeat = (value, times) => {
 
 export class RepeatImpl extends IndexedSeqImpl {
   constructor(value, size) {
+    super();
+
     this._value = value;
     this.size = size;
   }
