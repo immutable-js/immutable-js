@@ -69,9 +69,9 @@ export class RangeImpl extends IndexedSeqImpl {
     begin = resolveBegin(begin, this.size);
     end = resolveEnd(end, this.size);
     if (end <= begin) {
-      return new Range(0, 0);
+      return Range(0, 0);
     }
-    return new Range(
+    return Range(
       this.get(begin, this._end),
       this.get(end, this._end),
       this._step
