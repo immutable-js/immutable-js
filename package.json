@@ -68,7 +68,7 @@
     "build": "run-s build:*",
     "build:clean": "rimraf dist",
     "build:dist": "rollup -c ./resources/rollup-config.mjs",
-    "build:types": "cpy ./type-definitions/immutable.* dist",
+    "build:types": "cpy \"./type-definitions/immutable.*\" dist",
     "build:prepare": "./resources/prepare-dist.sh",
     "build:stats": "node ./resources/dist-stats.mjs",
     "website:build": "cd website && next build && next-sitemap",
