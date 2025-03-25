@@ -45,17 +45,9 @@ export class Range extends IndexedSeq {
   }
 
   toString() {
-    if (this.size === 0) {
-      return 'Range []';
-    }
-    return (
-      'Range [ ' +
-      this._start +
-      '...' +
-      this._end +
-      (this._step !== 1 ? ' by ' + this._step : '') +
-      ' ]'
-    );
+    return this.size === 0
+      ? 'Range []'
+      : `Range [ ${this._start}...${this._end}${this._step !== 1 ? ' by ' + this._step : ''} ]`;
   }
 
   get(index, notSetValue) {
