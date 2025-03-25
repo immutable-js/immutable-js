@@ -8,6 +8,8 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+## 5.1.0
+
 - Add shuffle to list [#2066](https://github.com/immutable-js/immutable-js/pull/2066) by [@mazerty](https://github.com/mazerty)
 - TypeScript: Better getIn `RetrievePath` [#2070](https://github.com/immutable-js/immutable-js/pull/2070) by [@jdeniau](https://github.com/jdeniau)
 - Fix #1915 "Converting a Seq to a list causes RangeError (max call size exceeded)" by @alexvictoor in [#2038](https://github.com/immutable-js/immutable-js/pull/2038)
