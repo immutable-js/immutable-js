@@ -8,6 +8,10 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+## 5.1.1
+
+- Fix type copying
+
 ## 5.1.0
 
 - Add shuffle to list [#2066](https://github.com/immutable-js/immutable-js/pull/2066) by [@mazerty](https://github.com/mazerty)
