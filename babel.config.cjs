@@ -14,7 +14,7 @@ module.exports = function (api) {
     [
       '@babel/env',
       {
-        targets: { browsers: ['last 2 versions', 'ie >= 10'] },
+        targets: { browsers: ['last 2 versions', 'not dead'] },
       },
     ],
     ['@babel/preset-typescript', { allowDeclareFields: true }],
