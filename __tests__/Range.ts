@@ -212,4 +212,11 @@ describe('Range', () => {
         .toArray()
     ).toEqual([1, 2]);
   });
+
+  it('toString', () => {
+    expect(Range(0, 0).toString()).toBe('Range []');
+    expect(Range(0, 3).toString()).toBe('Range [ 0...3 ]');
+    expect(Range(0, 10, 2).toString()).toBe('Range [ 0...10 by 2 ]');
+    expect(Range(10, 0, -2).toString()).toBe('Range [ 10...0 by -2 ]');
+  });
 });
