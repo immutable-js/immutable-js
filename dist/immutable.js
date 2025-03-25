@@ -4890,17 +4890,9 @@
       Range.prototype.constructor = Range;
 
       Range.prototype.toString = function toString () {
-        if (this.size === 0) {
-          return 'Range []';
-        }
-        return (
-          'Range [ ' +
-          this._start +
-          '...' +
-          this._end +
-          (this._step !== 1 ? ' by ' + this._step : '') +
-          ' ]'
-        );
+        return this.size === 0
+          ? 'Range []'
+          : ("Range [ " + (this._start) + "..." + (this._end) + (this._step !== 1 ? ' by ' + this._step : '') + " ]");
       };
 
       Range.prototype.get = function get (index, notSetValue) {
