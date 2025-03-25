@@ -47,7 +47,7 @@ export class RepeatImpl extends IndexedSeqImpl {
     const size = this.size;
     return wholeSlice(begin, end, size)
       ? this
-      : new Repeat(
+      : new RepeatImpl(
           this._value,
           resolveEnd(end, size) - resolveBegin(begin, size)
         );
