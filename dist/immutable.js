@@ -6223,7 +6223,7 @@
       return isIndexed(v) ? v.toList() : isKeyed(v) ? v.toMap() : v.toSet();
     }
 
-    var version = "5.0.3";
+    var version = "5.1.0";
 
     // Note: Iterable is deprecated
     var Iterable = Collection;
