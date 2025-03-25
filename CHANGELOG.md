@@ -8,6 +8,8 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+## 5.1.0
+
 - Add shuffle to list [#2066](https://github.com/immutable-js/immutable-js/pull/2066) by [@mazerty](https://github.com/mazerty)
 - TypeScript: Better getIn `RetrievePath` [#2070](https://github.com/immutable-js/immutable-js/pull/2070) by [@jdeniau](https://github.com/jdeniau)
 - Fix #1915 "Converting a Seq to a list causes RangeError (max call size exceeded)" by @alexvictoor in [#2038](https://github.com/immutable-js/immutable-js/pull/2038)
@@ -21,6 +23,7 @@ Dates are formatted as YYYY-MM-DD.
 - Start migrating codebase to TypeScript without any runtime change nor .d.ts change:
   - allow TS files to be compiled in src dir [#2054](https://github.com/immutable-js/immutable-js/pull/2054) by [@jdeniau](https://github.com/jdeniau)
 - add exception for code that should not happen in updateIn [#2074](https://github.com/immutable-js/immutable-js/pull/2074) by [@jdeniau](https://github.com/jdeniau)
+- Reformat Range.toString for readability [#2075](https://github.com/immutable-js/immutable-js/pull/2075) by [@Ustin.Vaskin](https://github.com/ustinvaskin)
 
 ## [5.0.3]
 
