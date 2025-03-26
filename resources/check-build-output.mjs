@@ -1,10 +1,11 @@
-const fs = require('node:fs');
+import fs from 'node:fs';
+import path from 'node:path';
 
 const packageJsonContent = JSON.parse(fs.readFileSync('package.json', 'utf8'));
 
 // remove "dist/" prefix from the file names
-const distPrefix = 'dist/';
-const removeDistPrefix = (file) => file.replace(distPrefix, '');
+const distPrefix = 'dist';
+const removeDistPrefix = (file) => path.basename(file);
 
 const expectedFiles = [
   removeDistPrefix(packageJsonContent.main),
