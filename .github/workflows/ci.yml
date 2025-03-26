@@ -61,10 +61,21 @@ jobs:
           path: ~/.npm
           key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.OS }}-node-
-      - run: npm ci
-      - run: npm run build
-      - run: npm run test:unit
-      - run: npm run test:types -- --target 5.0,current
+      - name: 'Install dependencies'
+        run: npm ci
+
+      - name: 'Build JS files'
+        run: npm run build
+
+      - name: 'Ensure all files are builded'
+        run: npm run check-build-output
+
+      - name: 'Run unit tests'
+        run: npm run test:unit
+
+      - name: 'Test types'
+        run: npm run test:types -- --target 5.0,current
+
       - run: npx size-limit
       - run: npm run check-git-clean
 

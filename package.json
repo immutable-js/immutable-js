@@ -1,6 +1,6 @@
 {
   "name": "immutable",
-  "version": "5.1.0",
+  "version": "5.1.1",
   "description": "Immutable Data Collections",
   "license": "MIT",
   "homepage": "https://immutable-js.com",
@@ -68,11 +68,12 @@
     "build": "run-s build:*",
     "build:clean": "rimraf dist",
     "build:dist": "rollup -c ./resources/rollup-config.mjs",
-    "build:types": "cpy ./type-definitions/immutable.* dist",
+    "build:types": "cpy \"./type-definitions/immutable.*\" dist",
     "build:prepare": "./resources/prepare-dist.sh",
     "build:stats": "node ./resources/dist-stats.mjs",
     "website:build": "cd website && next build && next-sitemap",
     "website:dev": "cd website && next dev",
+    "check-build-output": "node ./resources/check-build-output.cjs",
     "check-git-clean": "./resources/check-git-clean.sh",
     "benchmark": "node ./resources/benchmark.js",
     "publish": "echo 'ONLY PUBLISH VIA CI'; exit 1;"
