@@ -1,7 +1,5 @@
 import { List, Range, Seq } from 'immutable';
-import * as jasmineCheck from 'jasmine-check';
-
-jasmineCheck.install();
+import fc from 'fast-check';
 
 describe('slice', () => {
   it('slices a sequence', () => {
@@ -227,53 +225,53 @@ describe('slice', () => {
     expect(iterTail.next()).toEqual({ value: undefined, done: true });
   });
 
-  check.it(
-    'works like Array.prototype.slice',
-    [
-      gen.int,
-      gen.array(gen.oneOf([gen.int, gen.undefined]), {
-        minSize: 0,
-        maxSize: 3,
-      }),
-    ],
-    (valuesLen, args) => {
-      const a = Range(0, valuesLen).toArray();
-      const v = List(a);
-      const slicedV = v.slice.apply(v, args);
-      const slicedA = a.slice.apply(a, args);
-      expect(slicedV.toArray()).toEqual(slicedA);
-    }
-  );
+  it('works like Array.prototype.slice', () => {
+    fc.assert(
+      fc.property(
+        fc.integer({ min: -1000, max: 1000 }),
+        fc.sparseArray(fc.integer({ min: -1000, max: 1000 }), { maxLength: 3 }),
+        (valuesLen, args) => {
+          const a = Range(0, valuesLen).toArray();
+          const v = List(a);
+          const slicedV = v.slice.apply(v, args);
+          const slicedA = a.slice.apply(a, args);
+          expect(slicedV.toArray()).toEqual(slicedA);
+        }
+      )
+    );
+  });
 
-  check.it(
-    'works like Array.prototype.slice on sparse array input',
-    [
-      gen.array(gen.array([gen.posInt, gen.int])),
-      gen.array(gen.oneOf([gen.int, gen.undefined]), {
-        minSize: 0,
-        maxSize: 3,
-      }),
-    ],
-    (entries, args) => {
-      const a: Array<number> = [];
-      entries.forEach((entry) => (a[entry[0]] = entry[1]));
-      const s = Seq(a);
-      const slicedS = s.slice.apply(s, args);
-      const slicedA = a.slice.apply(a, args);
-      expect(slicedS.toArray()).toEqual(slicedA);
-    }
-  );
+  it('works like Array.prototype.slice on sparse array input', () => {
+    fc.assert(
+      fc.property(
+        fc.array(fc.tuple(fc.nat(1000), fc.integer({ min: -1000, max: 1000 }))),
+        fc.sparseArray(fc.integer({ min: -1000, max: 1000 }), { maxLength: 3 }),
+        (entries, args) => {
+          const a: Array<number> = [];
+          entries.forEach((entry) => (a[entry[0]] = entry[1]));
+          const s = Seq(a);
+          const slicedS = s.slice.apply(s, args);
+          const slicedA = a.slice.apply(a, args);
+          expect(slicedS.toArray()).toEqual(slicedA);
+        }
+      )
+    );
+  });
 
   describe('take', () => {
-    check.it(
-      'takes the first n from a list',
-      [gen.int, gen.posInt],
-      (len, num) => {
-        const a = Range(0, len).toArray();
-        const v = List(a);
-        expect(v.take(num).toArray()).toEqual(a.slice(0, num));
-      }
-    );
+    it('takes the first n from a list', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: -1000, max: 1000 }),
+          fc.nat(1000),
+          (len, num) => {
+            const a = Range(0, len).toArray();
+            const v = List(a);
+            expect(v.take(num).toArray()).toEqual(a.slice(0, num));
+          }
+        )
+      );
+    });
 
     it('creates an immutable stable sequence', () => {
       const seq = Seq([1, 2, 3, 4, 5, 6]);

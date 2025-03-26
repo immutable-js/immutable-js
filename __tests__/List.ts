@@ -1,8 +1,6 @@
 import { fromJS, List, Map, Range, Seq, Set } from 'immutable';
-import * as jasmineCheck from 'jasmine-check';
+import fc from 'fast-check';
 import { create as createSeed } from 'random-seed';
-
-jasmineCheck.install();
 
 function arrayOfSize(s: number) {
   const a = new Array(s);
@@ -402,24 +400,23 @@ describe('List', () => {
     expect(v1.toArray()).toEqual(['a', 'b', 'c', 'd', 'e', 'f']);
   });
 
-  check.it(
-    'pushes multiple values to the end',
-    { maxSize: 2000 },
-    [gen.posInt, gen.posInt],
-    (s1, s2) => {
-      const a1 = arrayOfSize(s1);
-      const a2 = arrayOfSize(s2);
+  it('pushes multiple values to the end', () => {
+    fc.assert(
+      fc.property(fc.nat(100), fc.nat(100), (s1, s2) => {
+        const a1 = arrayOfSize(s1);
+        const a2 = arrayOfSize(s2);
 
-      const v1 = List(a1);
-      const v3 = v1.push.apply(v1, a2);
+        const v1 = List(a1);
+        const v3 = v1.push.apply(v1, a2);
 
-      const a3 = a1.slice();
-      a3.push.apply(a3, a2);
+        const a3 = a1.slice();
+        a3.push.apply(a3, a2);
 
-      expect(v3.size).toEqual(a3.length);
-      expect(v3.toArray()).toEqual(a3);
-    }
-  );
+        expect(v3.size).toEqual(a3.length);
+        expect(v3.toArray()).toEqual(a3);
+      })
+    );
+  });
 
   it('pop removes the highest index, decrementing size', () => {
     let v = List.of('a', 'b', 'c').pop();
@@ -436,43 +433,41 @@ describe('List', () => {
     expect(v.last()).toBe('X');
   });
 
-  check.it(
-    'pop removes the highest index, just like array',
-    { maxSize: 2000 },
-    [gen.posInt],
-    (len) => {
-      const a = arrayOfSize(len);
-      let v = List(a);
+  it('pop removes the highest index, just like array', () => {
+    fc.assert(
+      fc.property(fc.nat(100), (len) => {
+        const a = arrayOfSize(len);
+        let v = List(a);
 
-      while (a.length) {
+        while (a.length) {
+          expect(v.size).toBe(a.length);
+          expect(v.toArray()).toEqual(a);
+          v = v.pop();
+          a.pop();
+        }
         expect(v.size).toBe(a.length);
         expect(v.toArray()).toEqual(a);
-        v = v.pop();
-        a.pop();
-      }
-      expect(v.size).toBe(a.length);
-      expect(v.toArray()).toEqual(a);
-    }
-  );
+      })
+    );
+  });
 
-  check.it(
-    'push adds the next highest index, just like array',
-    { maxSize: 2000 },
-    [gen.posInt],
-    (len) => {
-      const a: Array<number> = [];
-      let v = List();
+  it('push adds the next highest index, just like array', () => {
+    fc.assert(
+      fc.property(fc.nat(100), (len) => {
+        const a: Array<number> = [];
+        let v = List();
 
-      for (let ii = 0; ii < len; ii++) {
+        for (let ii = 0; ii < len; ii++) {
+          expect(v.size).toBe(a.length);
+          expect(v.toArray()).toEqual(a);
+          v = v.push(ii);
+          a.push(ii);
+        }
         expect(v.size).toBe(a.length);
         expect(v.toArray()).toEqual(a);
-        v = v.push(ii);
-        a.push(ii);
-      }
-      expect(v.size).toBe(a.length);
-      expect(v.toArray()).toEqual(a);
-    }
-  );
+      })
+    );
+  });
 
   it('allows popping an empty list', () => {
     let v = List.of('a').pop();
@@ -509,24 +504,23 @@ describe('List', () => {
     expect(v.toArray()).toEqual(['x', 'y', 'z', 'a', 'b', 'c']);
   });
 
-  check.it(
-    'unshifts multiple values to the front',
-    { maxSize: 2000 },
-    [gen.posInt, gen.posInt],
-    (s1, s2) => {
-      const a1 = arrayOfSize(s1);
-      const a2 = arrayOfSize(s2);
+  it('unshifts multiple values to the front', () => {
+    fc.assert(
+      fc.property(fc.nat(100), fc.nat(100), (s1, s2) => {
+        const a1 = arrayOfSize(s1);
+        const a2 = arrayOfSize(s2);
 
-      const v1 = List(a1);
-      const v3 = v1.unshift.apply(v1, a2);
+        const v1 = List(a1);
+        const v3 = v1.unshift.apply(v1, a2);
 
-      const a3 = a1.slice();
-      a3.unshift.apply(a3, a2);
+        const a3 = a1.slice();
+        a3.unshift.apply(a3, a2);
 
-      expect(v3.size).toEqual(a3.length);
-      expect(v3.toArray()).toEqual(a3);
-    }
-  );
+        expect(v3.size).toEqual(a3.length);
+        expect(v3.toArray()).toEqual(a3);
+      })
+    );
+  });
 
   it('finds values using indexOf', () => {
     const v = List.of('a', 'b', 'c', 'b', 'a');
@@ -1039,35 +1033,43 @@ describe('List', () => {
   });
 
   describe('Iterator', () => {
-    const pInt = gen.posInt;
+    const pInt = fc.nat(100);
 
-    check.it('iterates through List', [pInt, pInt], (start, len) => {
-      const l1 = Range(0, start + len).toList();
-      const l2: List<number> = l1.slice(start, start + len);
-      expect(l2.size).toBe(len);
-      const valueIter = l2.values();
-      const keyIter = l2.keys();
-      const entryIter = l2.entries();
-      for (let ii = 0; ii < len; ii++) {
-        expect(valueIter.next().value).toBe(start + ii);
-        expect(keyIter.next().value).toBe(ii);
-        expect(entryIter.next().value).toEqual([ii, start + ii]);
-      }
+    it('iterates through List', () => {
+      fc.assert(
+        fc.property(pInt, pInt, (start, len) => {
+          const l1 = Range(0, start + len).toList();
+          const l2: List<number> = l1.slice(start, start + len);
+          expect(l2.size).toBe(len);
+          const valueIter = l2.values();
+          const keyIter = l2.keys();
+          const entryIter = l2.entries();
+          for (let ii = 0; ii < len; ii++) {
+            expect(valueIter.next().value).toBe(start + ii);
+            expect(keyIter.next().value).toBe(ii);
+            expect(entryIter.next().value).toEqual([ii, start + ii]);
+          }
+        })
+      );
     });
 
-    check.it('iterates through List in reverse', [pInt, pInt], (start, len) => {
-      const l1 = Range(0, start + len).toList();
-      const l2: List<number> = l1.slice(start, start + len);
-      const s = l2.toSeq().reverse(); // impl calls List.__iterator(REVERSE)
-      expect(s.size).toBe(len);
-      const valueIter = s.values();
-      const keyIter = s.keys();
-      const entryIter = s.entries();
-      for (let ii = 0; ii < len; ii++) {
-        expect(valueIter.next().value).toBe(start + len - 1 - ii);
-        expect(keyIter.next().value).toBe(ii);
-        expect(entryIter.next().value).toEqual([ii, start + len - 1 - ii]);
-      }
+    it('iterates through List in reverse', () => {
+      fc.assert(
+        fc.property(pInt, pInt, (start, len) => {
+          const l1 = Range(0, start + len).toList();
+          const l2: List<number> = l1.slice(start, start + len);
+          const s = l2.toSeq().reverse(); // impl calls List.__iterator(REVERSE)
+          expect(s.size).toBe(len);
+          const valueIter = s.values();
+          const keyIter = s.keys();
+          const entryIter = s.entries();
+          for (let ii = 0; ii < len; ii++) {
+            expect(valueIter.next().value).toBe(start + len - 1 - ii);
+            expect(keyIter.next().value).toBe(ii);
+            expect(entryIter.next().value).toEqual([ii, start + len - 1 - ii]);
+          }
+        })
+      );
     });
   });
 });

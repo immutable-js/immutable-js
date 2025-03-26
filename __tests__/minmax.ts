@@ -1,12 +1,10 @@
 import { is, Seq } from 'immutable';
-import * as jasmineCheck from 'jasmine-check';
+import fc from 'fast-check';
 
-jasmineCheck.install();
-
-const genHeterogeneousishArray = gen.oneOf([
-  gen.array(gen.oneOf([gen.string, gen.undefined])),
-  gen.array(gen.oneOf([gen.int, gen.NaN])),
-]);
+const genHeterogeneousishArray = fc.oneof(
+  fc.sparseArray(fc.string()),
+  fc.array(fc.oneof(fc.integer(), fc.constant(NaN)))
+);
 
 describe('max', () => {
   it('returns max in a sequence', () => {
@@ -53,8 +51,14 @@ describe('max', () => {
     expect(is(2, Seq([-1, -2, null, 1, 2]).max())).toBe(true);
   });
 
-  check.it('is not dependent on order', [genHeterogeneousishArray], (vals) => {
-    expect(is(Seq(shuffle(vals.slice())).max(), Seq(vals).max())).toEqual(true);
+  it('is not dependent on order', () => {
+    fc.assert(
+      fc.property(genHeterogeneousishArray, (vals) => {
+        expect(is(Seq(shuffle(vals.slice())).max(), Seq(vals).max())).toEqual(
+          true
+        );
+      })
+    );
   });
 });
 
@@ -92,8 +96,14 @@ describe('min', () => {
     ).toBe(family.get(2));
   });
 
-  check.it('is not dependent on order', [genHeterogeneousishArray], (vals) => {
-    expect(is(Seq(shuffle(vals.slice())).min(), Seq(vals).min())).toEqual(true);
+  it('is not dependent on order', () => {
+    fc.assert(
+      fc.property(genHeterogeneousishArray, (vals) => {
+        expect(is(Seq(shuffle(vals.slice())).min(), Seq(vals).min())).toEqual(
+          true
+        );
+      })
+    );
   });
 });
 

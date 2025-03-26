@@ -1,7 +1,5 @@
 import { fromJS, is, List, Map, OrderedMap, Record } from 'immutable';
-import * as jasmineCheck from 'jasmine-check';
-
-jasmineCheck.install();
+import fc from 'fast-check';
 
 describe('Conversion', () => {
   // Note: order of keys based on Map's hashing order
@@ -192,9 +190,14 @@ describe('Conversion', () => {
     expect(fromJS('string')).toEqual('string');
   });
 
-  check.it('toJS isomorphic value', { maxSize: 30 }, [gen.JSONValue], (v) => {
-    const imm = fromJS(v);
-    expect(imm && imm.toJS ? imm.toJS() : imm).toEqual(v);
+  it('toJS isomorphic value', () => {
+    fc.assert(
+      fc.property(fc.jsonValue(), (v) => {
+        const imm = fromJS(v);
+        expect(imm && imm.toJS ? imm.toJS() : imm).toEqual(v);
+      }),
+      { numRuns: 30 }
+    );
   });
 
   it('Explicitly convert values to string using String constructor', () => {
