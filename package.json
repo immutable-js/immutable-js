@@ -73,7 +73,7 @@
     "build:stats": "node ./resources/dist-stats.mjs",
     "website:build": "cd website && next build && next-sitemap",
     "website:dev": "cd website && next dev",
-    "check-build-output": "node ./resources/check-build-output.cjs",
+    "check-build-output": "node ./resources/check-build-output.mjs",
     "check-git-clean": "./resources/check-git-clean.sh",
     "benchmark": "node ./resources/benchmark.js",
     "publish": "echo 'ONLY PUBLISH VIA CI'; exit 1;"
