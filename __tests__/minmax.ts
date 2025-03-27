@@ -55,7 +55,10 @@ describe('max', () => {
     fc.assert(
       fc.property(genHeterogeneousishArray, (vals) => {
         expect(
-          is(Seq(shuffle(vals.slice())).max(), Seq<number | string>(vals).max())
+          is(
+            Seq<string | number>(shuffle(vals.slice())).max(),
+            Seq<number | string>(vals).max()
+          )
         ).toEqual(true);
       })
     );
@@ -100,14 +103,17 @@ describe('min', () => {
     fc.assert(
       fc.property(genHeterogeneousishArray, (vals) => {
         expect(
-          is(Seq(shuffle(vals.slice())).min(), Seq<string | number>(vals).min())
+          is(
+            Seq<string | number>(shuffle(vals.slice())).min(),
+            Seq<string | number>(vals).min()
+          )
         ).toEqual(true);
       })
     );
   });
 });
 
-function shuffle(array) {
+function shuffle<A extends Array<unknown>>(array: A): A {
   let m = array.length;
   let t;
   let i;
