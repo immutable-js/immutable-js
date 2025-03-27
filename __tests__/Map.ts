@@ -1,7 +1,5 @@
 import { fromJS, is, List, Map, Range, Record, Seq } from 'immutable';
-import * as jasmineCheck from 'jasmine-check';
-
-jasmineCheck.install();
+import fc from 'fast-check';
 
 describe('Map', () => {
   it('converts from object', () => {
@@ -197,14 +195,18 @@ describe('Map', () => {
     expect(m5.get('c')).toBe('Canary');
   });
 
-  check.it('deletes down to empty map', [gen.posInt], (size) => {
-    let m = Range(0, size).toMap();
-    expect(m.size).toBe(size);
-    for (let ii = size - 1; ii >= 0; ii--) {
-      m = m.remove(ii);
-      expect(m.size).toBe(ii);
-    }
-    expect(m).toBe(Map());
+  it('deletes down to empty map', () => {
+    fc.assert(
+      fc.property(fc.nat(100), (size) => {
+        let m = Range(0, size).toMap();
+        expect(m.size).toBe(size);
+        for (let ii = size - 1; ii >= 0; ii--) {
+          m = m.remove(ii);
+          expect(m.size).toBe(ii);
+        }
+        expect(m).toBe(Map());
+      })
+    );
   });
 
   it('can map many items', () => {
@@ -330,75 +332,94 @@ describe('Map', () => {
     expect(k.get(1)).toBe('b');
   });
 
-  check.it(
-    'works like an object',
-    { maxSize: 50 },
-    [gen.object(gen.JSONPrimitive)],
-    (obj) => {
-      let map = Map(obj);
-      Object.keys(obj).forEach((key) => {
-        expect(map.get(key)).toBe(obj[key]);
-        expect(map.has(key)).toBe(true);
-      });
-      Object.keys(obj).forEach((key) => {
-        expect(map.get(key)).toBe(obj[key]);
-        expect(map.has(key)).toBe(true);
-        map = map.remove(key);
-        expect(map.get(key)).toBe(undefined);
-        expect(map.has(key)).toBe(false);
-      });
-    }
-  );
-
-  check.it('sets', { maxSize: 5000 }, [gen.posInt], (len) => {
-    let map = Map();
-    for (let ii = 0; ii < len; ii++) {
-      expect(map.size).toBe(ii);
-      map = map.set('' + ii, ii);
-    }
-    expect(map.size).toBe(len);
-    expect(is(map.toSet(), Range(0, len).toSet())).toBe(true);
+  it('works like an object', () => {
+    fc.assert(
+      fc.property(fc.object({ maxKeys: 50 }), (obj) => {
+        let map = Map(obj);
+        Object.keys(obj).forEach((key) => {
+          expect(map.get(key)).toBe(obj[key]);
+          expect(map.has(key)).toBe(true);
+        });
+        Object.keys(obj).forEach((key) => {
+          expect(map.get(key)).toBe(obj[key]);
+          expect(map.has(key)).toBe(true);
+          map = map.remove(key);
+          expect(map.get(key)).toBe(undefined);
+          expect(map.has(key)).toBe(false);
+        });
+      })
+    );
   });
 
-  check.it('has and get', { maxSize: 5000 }, [gen.posInt], (len) => {
-    const map = Range(0, len)
-      .toKeyedSeq()
-      .mapKeys((x) => '' + x)
-      .toMap();
-    for (let ii = 0; ii < len; ii++) {
-      expect(map.get('' + ii)).toBe(ii);
-      expect(map.has('' + ii)).toBe(true);
-    }
+  it('sets', () => {
+    fc.assert(
+      fc.property(fc.nat(100), (len) => {
+        let map = Map();
+        for (let ii = 0; ii < len; ii++) {
+          expect(map.size).toBe(ii);
+          map = map.set('' + ii, ii);
+        }
+        expect(map.size).toBe(len);
+        expect(is(map.toSet(), Range(0, len).toSet())).toBe(true);
+      })
+    );
   });
 
-  check.it('deletes', { maxSize: 5000 }, [gen.posInt], (len) => {
-    let map = Range(0, len).toMap();
-    for (let ii = 0; ii < len; ii++) {
-      expect(map.size).toBe(len - ii);
-      map = map.remove(ii);
-    }
-    expect(map.size).toBe(0);
-    expect(map.toObject()).toEqual({});
+  it('has and get', () => {
+    fc.assert(
+      fc.property(fc.nat(100), (len) => {
+        const map = Range(0, len)
+          .toKeyedSeq()
+          .mapKeys((x) => '' + x)
+          .toMap();
+        for (let ii = 0; ii < len; ii++) {
+          expect(map.get('' + ii)).toBe(ii);
+          expect(map.has('' + ii)).toBe(true);
+        }
+      })
+    );
   });
 
-  check.it('deletes from transient', { maxSize: 5000 }, [gen.posInt], (len) => {
-    const map = Range(0, len).toMap().asMutable();
-    for (let ii = 0; ii < len; ii++) {
-      expect(map.size).toBe(len - ii);
-      map.remove(ii);
-    }
-    expect(map.size).toBe(0);
-    expect(map.toObject()).toEqual({});
+  it('deletes', () => {
+    fc.assert(
+      fc.property(fc.nat(100), (len) => {
+        let map = Range(0, len).toMap();
+        for (let ii = 0; ii < len; ii++) {
+          expect(map.size).toBe(len - ii);
+          map = map.remove(ii);
+        }
+        expect(map.size).toBe(0);
+        expect(map.toObject()).toEqual({});
+      })
+    );
   });
 
-  check.it('iterates through all entries', [gen.posInt], (len) => {
-    const v = Range(0, len).toMap();
-    const a = v.toArray();
-    const iter = v.entries();
-    for (let ii = 0; ii < len; ii++) {
-      delete a[iter.next().value[0]];
-    }
-    expect(a).toEqual(new Array(len));
+  it('deletes from transient', () => {
+    fc.assert(
+      fc.property(fc.nat(100), (len) => {
+        const map = Range(0, len).toMap().asMutable();
+        for (let ii = 0; ii < len; ii++) {
+          expect(map.size).toBe(len - ii);
+          map.remove(ii);
+        }
+        expect(map.size).toBe(0);
+        expect(map.toObject()).toEqual({});
+      })
+    );
+  });
+
+  it('iterates through all entries', () => {
+    fc.assert(
+      fc.property(fc.nat(100), (len) => {
+        const v = Range(0, len).toMap();
+        const a = v.toArray();
+        const iter = v.entries();
+        for (let ii = 0; ii < len; ii++) {
+          delete a[iter.next().value[0]];
+        }
+        expect(a).toEqual(new Array(len));
+      })
+    );
   });
 
   it('allows chained mutations', () => {

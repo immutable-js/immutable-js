@@ -1,7 +1,5 @@
 import { Seq, Stack } from 'immutable';
-import * as jasmineCheck from 'jasmine-check';
-
-jasmineCheck.install();
+import fc from 'fast-check';
 
 function arrayOfSize(s) {
   const a = new Array(s);
@@ -133,62 +131,59 @@ describe('Stack', () => {
     expect(s.toArray()).toEqual(['b', 'c']);
   });
 
-  check.it(
-    'shift removes the lowest index, just like array',
-    { maxSize: 2000 },
-    [gen.posInt],
-    (len) => {
-      const a = arrayOfSize(len);
-      let s = Stack(a);
+  it('shift removes the lowest index, just like array', () => {
+    fc.assert(
+      fc.property(fc.nat(100), (len) => {
+        const a = arrayOfSize(len);
+        let s = Stack(a);
 
-      while (a.length) {
+        while (a.length) {
+          expect(s.size).toBe(a.length);
+          expect(s.toArray()).toEqual(a);
+          s = s.shift();
+          a.shift();
+        }
         expect(s.size).toBe(a.length);
         expect(s.toArray()).toEqual(a);
-        s = s.shift();
-        a.shift();
-      }
-      expect(s.size).toBe(a.length);
-      expect(s.toArray()).toEqual(a);
-    }
-  );
+      })
+    );
+  });
 
-  check.it(
-    'unshift adds the next lowest index, just like array',
-    { maxSize: 2000 },
-    [gen.posInt],
-    (len) => {
-      const a: Array<number> = [];
-      let s = Stack();
+  it('unshift adds the next lowest index, just like array', () => {
+    fc.assert(
+      fc.property(fc.nat(100), (len) => {
+        const a: Array<number> = [];
+        let s = Stack();
 
-      for (let ii = 0; ii < len; ii++) {
+        for (let ii = 0; ii < len; ii++) {
+          expect(s.size).toBe(a.length);
+          expect(s.toArray()).toEqual(a);
+          s = s.unshift(ii);
+          a.unshift(ii);
+        }
         expect(s.size).toBe(a.length);
         expect(s.toArray()).toEqual(a);
-        s = s.unshift(ii);
-        a.unshift(ii);
-      }
-      expect(s.size).toBe(a.length);
-      expect(s.toArray()).toEqual(a);
-    }
-  );
+      })
+    );
+  });
 
-  check.it(
-    'unshifts multiple values to the front',
-    { maxSize: 2000 },
-    [gen.posInt, gen.posInt],
-    (size1: number, size2: number) => {
-      const a1 = arrayOfSize(size1);
-      const a2 = arrayOfSize(size2);
+  it('unshifts multiple values to the front', () => {
+    fc.assert(
+      fc.property(fc.nat(100), fc.nat(100), (size1: number, size2: number) => {
+        const a1 = arrayOfSize(size1);
+        const a2 = arrayOfSize(size2);
 
-      const s1 = Stack(a1);
-      const s3 = s1.unshift.apply(s1, a2);
+        const s1 = Stack(a1);
+        const s3 = s1.unshift.apply(s1, a2);
 
-      const a3 = a1.slice();
-      a3.unshift.apply(a3, a2);
+        const a3 = a1.slice();
+        a3.unshift.apply(a3, a2);
 
-      expect(s3.size).toEqual(a3.length);
-      expect(s3.toArray()).toEqual(a3);
-    }
-  );
+        expect(s3.size).toEqual(a3.length);
+        expect(s3.toArray()).toEqual(a3);
+      })
+    );
+  });
 
   it('finds values using indexOf', () => {
     const s = Stack.of('a', 'b', 'c', 'b', 'a');

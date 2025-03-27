@@ -1,7 +1,5 @@
 import { Seq } from 'immutable';
-import * as jasmineCheck from 'jasmine-check';
-
-jasmineCheck.install();
+import fc from 'fast-check';
 
 describe('join', () => {
   it('string-joins sequences with commas by default', () => {
@@ -33,11 +31,21 @@ describe('join', () => {
     expect(Seq(a).join()).toBe(a.join());
   });
 
-  check.it(
-    'behaves the same as Array.join',
-    [gen.array(gen.primitive), gen.primitive],
-    (array, joiner) => {
-      expect(Seq(array).join(joiner)).toBe(array.join(joiner));
-    }
+  const genPrimitive = fc.oneof(
+    fc.string(),
+    fc.integer(),
+    fc.boolean(),
+    fc.constant(null),
+    fc.constant(undefined),
+    fc.constant(NaN)
   );
+
+  it('behaves the same as Array.join', () => {
+    fc.assert(
+      fc.property(fc.array(genPrimitive), genPrimitive, (array, joiner) => {
+        // @ts-expect-error unexpected values for typescript joiner, but valid at runtime despite the unexpected errors
+        expect(Seq(array).join(joiner)).toBe(array.join(joiner));
+      })
+    );
+  });
 });

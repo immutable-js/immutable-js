@@ -1,7 +1,5 @@
 import { Range } from 'immutable';
-import * as jasmineCheck from 'jasmine-check';
-
-jasmineCheck.install();
+import fc from 'fast-check';
 
 describe('Range', () => {
   it('fixed range', () => {
@@ -72,33 +70,43 @@ describe('Range', () => {
     expect(v.toArray()).toEqual([]);
   });
 
-  check.it('includes first, excludes last', [gen.int, gen.int], (from, to) => {
-    const isIncreasing = to >= from;
-    const size = isIncreasing ? to - from : from - to;
-    const r = Range(from, to);
-    const a = r.toArray();
-    expect(r.size).toBe(size);
-    expect(a.length).toBe(size);
-    expect(r.get(0)).toBe(size ? from : undefined);
-    expect(a[0]).toBe(size ? from : undefined);
-    const last = to + (isIncreasing ? -1 : 1);
-    expect(r.last()).toBe(size ? last : undefined);
-    if (size) {
-      expect(a[a.length - 1]).toBe(last);
-    }
+  const shrinkInt = fc.integer({ min: -1000, max: 1000 });
+
+  it('includes first, excludes last', () => {
+    fc.assert(
+      fc.property(shrinkInt, shrinkInt, (from, to) => {
+        const isIncreasing = to >= from;
+        const size = isIncreasing ? to - from : from - to;
+        const r = Range(from, to);
+        const a = r.toArray();
+        expect(r.size).toBe(size);
+        expect(a.length).toBe(size);
+        expect(r.get(0)).toBe(size ? from : undefined);
+        expect(a[0]).toBe(size ? from : undefined);
+        const last = to + (isIncreasing ? -1 : 1);
+        expect(r.last()).toBe(size ? last : undefined);
+        if (size) {
+          expect(a[a.length - 1]).toBe(last);
+        }
+      })
+    );
   });
 
-  const shrinkInt = gen.int.alwaysShrink();
-
-  check.it(
-    'slices the same as array slices',
-    [shrinkInt, shrinkInt, shrinkInt, shrinkInt],
-    (from, to, begin, end) => {
-      const r = Range(from, to);
-      const a = r.toArray();
-      expect(r.slice(begin, end).toArray()).toEqual(a.slice(begin, end));
-    }
-  );
+  it('slices the same as array slices', () => {
+    fc.assert(
+      fc.property(
+        shrinkInt,
+        shrinkInt,
+        shrinkInt,
+        shrinkInt,
+        (from, to, begin, end) => {
+          const r = Range(from, to);
+          const a = r.toArray();
+          expect(r.slice(begin, end).toArray()).toEqual(a.slice(begin, end));
+        }
+      )
+    );
+  });
 
   it('slices range', () => {
     const v = Range(1, 11, 2);

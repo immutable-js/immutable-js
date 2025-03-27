@@ -1,23 +1,25 @@
 import { Range, Seq } from 'immutable';
-import * as jasmineCheck from 'jasmine-check';
-
-jasmineCheck.install();
+import fc from 'fast-check';
 
 describe('KeyedSeq', () => {
-  check.it('it iterates equivalently', [gen.array(gen.int)], (ints) => {
-    const seq = Seq(ints);
-    const keyed = seq.toKeyedSeq();
+  it('it iterates equivalently', () => {
+    fc.assert(
+      fc.property(fc.array(fc.integer()), (ints) => {
+        const seq = Seq(ints);
+        const keyed = seq.toKeyedSeq();
 
-    const seqEntries = seq.entries();
-    const keyedEntries = keyed.entries();
+        const seqEntries = seq.entries();
+        const keyedEntries = keyed.entries();
 
-    let seqStep;
-    let keyedStep;
-    do {
-      seqStep = seqEntries.next();
-      keyedStep = keyedEntries.next();
-      expect(keyedStep).toEqual(seqStep);
-    } while (!seqStep.done);
+        let seqStep;
+        let keyedStep;
+        do {
+          seqStep = seqEntries.next();
+          keyedStep = keyedEntries.next();
+          expect(keyedStep).toEqual(seqStep);
+        } while (!seqStep.done);
+      })
+    );
   });
 
   it('maintains keys', () => {

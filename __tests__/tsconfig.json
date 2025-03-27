@@ -8,8 +8,7 @@
     "moduleResolution": "node",
     "skipLibCheck": true,
     "paths": {
-      "immutable": ["../type-definitions/immutable.d.ts"],
-      "jasmine-check": ["../resources/jasmine-check.d.ts"]
+      "immutable": ["../type-definitions/immutable.d.ts"]
     }
   }
 }
