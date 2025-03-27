@@ -1,4 +1,5 @@
 import { List, OrderedMap, Range, Seq } from 'immutable';
+import { describe, expect, it } from 'vitest';
 
 describe('sort', () => {
   it('sorts a sequence', () => {

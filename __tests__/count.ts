@@ -1,4 +1,5 @@
 import { Range, Seq } from 'immutable';
+import { describe, expect, it } from 'vitest';
 
 describe('count', () => {
   it('counts sequences with known lengths', () => {

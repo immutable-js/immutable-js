@@ -1,3 +1,4 @@
+import { describe, it } from 'vitest';
 /* global Immutable */
 describe('toJS', () => {
   const array32 = [];

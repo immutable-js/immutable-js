@@ -1,4 +1,5 @@
 import { update } from 'immutable';
+import { describe, expect, it } from 'vitest';
 
 describe('update', () => {
   it('for immutable structure', () => {

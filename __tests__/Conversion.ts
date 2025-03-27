@@ -1,4 +1,5 @@
 import { fromJS, is, List, Map, OrderedMap, Record } from 'immutable';
+import { describe, expect, it } from 'vitest';
 import fc, { type JsonValue } from 'fast-check';
 
 describe('Conversion', () => {

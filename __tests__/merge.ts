@@ -8,6 +8,7 @@ import {
   Record,
   Set,
 } from 'immutable';
+import { describe, expect, it } from 'vitest';
 
 describe('merge', () => {
   it('merges two maps', () => {

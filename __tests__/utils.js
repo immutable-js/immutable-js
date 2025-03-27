@@ -1,7 +1,7 @@
 /**
- * @jest-environment jsdom
+ * @vitest-environment jsdom
  */
-
+import { describe, expect, it } from 'vitest';
 import { List, isPlainObject } from 'immutable';
 
 describe('Utils', () => {

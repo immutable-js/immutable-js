@@ -1,4 +1,5 @@
 import { fromJS, is, List, Map, Range, Record, Seq } from 'immutable';
+import { describe, expect, it, vi } from 'vitest';
 import fc from 'fast-check';
 
 describe('Map', () => {
@@ -110,7 +111,7 @@ describe('Map', () => {
 
   it('iterates values', () => {
     const m = Map({ a: 'A', b: 'B', c: 'C' });
-    const iterator = jest.fn();
+    const iterator = vi.fn();
     m.forEach(iterator);
     expect(iterator.mock.calls).toEqual([
       ['A', 'a', m],

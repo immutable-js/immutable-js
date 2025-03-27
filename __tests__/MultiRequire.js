@@ -1,8 +1,9 @@
 import * as Immutable1 from '../src/Immutable';
+import { describe, expect, it, vi } from 'vitest';
 
-jest.resetModules();
+vi.resetModules();
 
-const Immutable2 = jest.requireActual('../src/Immutable');
+const Immutable2 = await vi.importActual('../src/Immutable');
 
 describe('MultiRequire', () => {
   it('might require two different instances of Immutable', () => {

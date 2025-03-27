@@ -1,4 +1,5 @@
 import { isKeyed, List, Map, Record, Seq } from 'immutable';
+import { describe, expect, it } from 'vitest';
 
 describe('Record', () => {
   it('defines a constructor', () => {

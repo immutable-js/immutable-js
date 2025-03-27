@@ -1,4 +1,5 @@
 import { fromJS, hasIn, List, Map } from 'immutable';
+import { describe, expect, it } from 'vitest';
 
 describe('hasIn', () => {
   it('deep has', () => {

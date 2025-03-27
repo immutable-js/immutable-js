@@ -1,4 +1,5 @@
 import { Seq, Stack } from 'immutable';
+import { describe, expect, it } from 'vitest';
 import fc from 'fast-check';
 
 function arrayOfSize(s) {

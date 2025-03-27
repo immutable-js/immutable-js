@@ -1,4 +1,5 @@
 import { set } from 'immutable';
+import { describe, expect, it } from 'vitest';
 
 describe('set', () => {
   it('for immutable structure', () => {

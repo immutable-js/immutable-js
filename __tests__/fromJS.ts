@@ -1,5 +1,5 @@
 import { runInNewContext } from 'vm';
-
+import { describe, expect, it } from 'vitest';
 import { List, Map, Set, isCollection, fromJS } from 'immutable';
 
 describe('fromJS', () => {

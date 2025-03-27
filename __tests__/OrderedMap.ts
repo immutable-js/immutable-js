@@ -1,4 +1,5 @@
 import { OrderedMap, Range, Seq } from 'immutable';
+import { describe, expect, it } from 'vitest';
 
 describe('OrderedMap', () => {
   it('converts from object', () => {

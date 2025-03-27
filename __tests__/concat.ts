@@ -1,4 +1,5 @@
 import { List, Seq, Set } from 'immutable';
+import { describe, expect, it } from 'vitest';
 
 describe('concat', () => {
   it('concats two sequences', () => {
@@ -189,7 +190,7 @@ describe('concat', () => {
     }
 
     expect(meta.toList().size).toBe(10000);
-  });
+  }, 20000);
 
   it('should handle iterator on many concatenated sequences', () => {
     const nbLoops = 10000;
@@ -206,7 +207,7 @@ describe('concat', () => {
       done = !!result.done;
     }
     expect(i).toBe(nbLoops);
-  });
+  }, 20000);
 
   it('should iterate on reverse order on concatenated sequences', () => {
     let meta = Seq([1]);

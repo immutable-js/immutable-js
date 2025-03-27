@@ -1,3 +1,5 @@
+import { describe, it } from 'vitest';
+
 /* global Immutable */
 describe('List', function () {
   describe('builds from array', function () {

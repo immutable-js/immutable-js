@@ -8,6 +8,7 @@ import {
   Seq,
   Set,
 } from 'immutable';
+import { describe, expect, it } from 'vitest';
 
 describe('Issue #1175', () => {
   it('invalid hashCode() response should not infinitly recurse', () => {
@@ -128,9 +129,11 @@ describe('Issue #1643', () => {
 });
 
 describe('Issue #1785', () => {
-  const emptyRecord = Record({})();
+  it('merge() should not return undefined', () => {
+    const emptyRecord = Record({})();
 
-  expect(emptyRecord.merge({ id: 1 })).toBe(emptyRecord);
+    expect(emptyRecord.merge({ id: 1 })).toBe(emptyRecord);
+  });
 });
 
 describe('Issue #1475', () => {

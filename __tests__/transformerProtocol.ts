@@ -1,5 +1,6 @@
 import * as t from 'transducers-js';
 import { List, Map, Set, Stack } from 'immutable';
+import { describe, expect, it } from 'vitest';
 
 describe('Transformer Protocol', () => {
   it('transduces Stack without initial values', () => {

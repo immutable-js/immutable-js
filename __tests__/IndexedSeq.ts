@@ -1,4 +1,5 @@
 import { Seq } from 'immutable';
+import { describe, expect, it } from 'vitest';
 
 describe('IndexedSequence', () => {
   it('maintains skipped offset', () => {

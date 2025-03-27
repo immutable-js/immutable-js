@@ -9,6 +9,7 @@ import {
   setIn,
   updateIn,
 } from 'immutable';
+import { describe, expect, it } from 'vitest';
 
 describe('updateIn', () => {
   it('deep edit', () => {

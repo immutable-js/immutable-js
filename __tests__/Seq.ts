@@ -1,4 +1,5 @@
 import { isCollection, isIndexed, isKeyed, Seq } from 'immutable';
+import { describe, expect, it } from 'vitest';
 
 describe('Seq', () => {
   it('returns undefined if empty and first is called without default argument', () => {

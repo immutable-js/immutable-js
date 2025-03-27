@@ -1,4 +1,5 @@
 import { Repeat } from 'immutable';
+import { describe, expect, it } from 'vitest';
 
 describe('Repeat', () => {
   it('fixed repeat', () => {
