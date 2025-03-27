@@ -110,7 +110,7 @@ describe('zip', () => {
     check.it(
       'is always the size of the longest sequence',
       [gen.array(gen.posInt).notEmpty()],
-      (lengths) => {
+      (lengths: Array<number>) => {
         const ranges = lengths.map((l) => Range(0, l));
         const first = ranges.shift();
         const zipped = first.zipAll.apply(first, ranges);
