@@ -1,7 +1,4 @@
 import { Collection, fromJS, List, Range, Seq } from 'immutable';
-import * as jasmineCheck from 'jasmine-check';
-
-jasmineCheck.install();
 
 describe('flatten', () => {
   it('flattens sequences one level deep', () => {

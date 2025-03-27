@@ -1,8 +1,5 @@
 import * as t from 'transducers-js';
 import { List, Map, Set, Stack } from 'immutable';
-import * as jasmineCheck from 'jasmine-check';
-
-jasmineCheck.install();
 
 describe('Transformer Protocol', () => {
   it('transduces Stack without initial values', () => {

@@ -1,7 +1,4 @@
 import { Seq } from 'immutable';
-import * as jasmineCheck from 'jasmine-check';
-
-jasmineCheck.install();
 
 describe('IndexedSequence', () => {
   it('maintains skipped offset', () => {

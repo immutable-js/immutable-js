@@ -1,7 +1,5 @@
 import { hash } from 'immutable';
-import * as jasmineCheck from 'jasmine-check';
-
-jasmineCheck.install();
+import fc from 'fast-check';
 
 describe('hash', () => {
   it('stable hash of well known values', () => {
@@ -42,12 +40,16 @@ describe('hash', () => {
     expect(hash(funA)).not.toBe(hash(funB));
   });
 
-  const genValue = gen.oneOf([gen.string, gen.int]);
+  const genValue = fc.oneof(fc.string(), fc.integer());
 
-  check.it('generates unsigned 31-bit integers', [genValue], (value) => {
-    const hashVal = hash(value);
-    expect(Number.isInteger(hashVal)).toBe(true);
-    expect(hashVal).toBeGreaterThan(-(2 ** 31));
-    expect(hashVal).toBeLessThan(2 ** 31);
+  it('generates unsigned 31-bit integers', () => {
+    fc.assert(
+      fc.property(genValue, (value) => {
+        const hashVal = hash(value);
+        expect(Number.isInteger(hashVal)).toBe(true);
+        expect(hashVal).toBeGreaterThan(-(2 ** 31));
+        expect(hashVal).toBeLessThan(2 ** 31);
+      })
+    );
   });
 });

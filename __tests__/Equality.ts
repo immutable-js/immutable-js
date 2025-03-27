@@ -1,7 +1,5 @@
 import { is, List, Map, Seq, Set } from 'immutable';
-import * as jasmineCheck from 'jasmine-check';
-
-jasmineCheck.install();
+import fc from 'fast-check';
 
 describe('Equality', () => {
   function expectIs(left, right) {
@@ -119,32 +117,37 @@ describe('Equality', () => {
     expectIs(list, listShorter);
   });
 
-  const genSimpleVal = gen.oneOf(['A', 1]);
+  const genSimpleVal = fc.oneof(fc.constant('A'), fc.constant(1));
 
-  const genVal = gen.oneOf([
-    gen.array(genSimpleVal, { minSize: 0, maxSize: 4 }).then(List),
-    gen.array(genSimpleVal, { minSize: 0, maxSize: 4 }).then(Set),
-    gen
-      .array(gen.array(genSimpleVal, { size: 2 }), {
-        minSize: 0,
-        maxSize: 4,
+  const genVal = fc.oneof(
+    fc.array(genSimpleVal, { minLength: 0, maxLength: 4 }).map(List),
+    fc.array(genSimpleVal, { minLength: 0, maxLength: 4 }).map(Set),
+    fc
+      .array(fc.array(genSimpleVal, { minLength: 2, maxLength: 2 }), {
+        minLength: 0,
+        maxLength: 4,
       })
-      .then(Map),
-  ]);
-
-  check.it(
-    'has symmetric equality',
-    { times: 1000 },
-    [genVal, genVal],
-    (a, b) => {
-      expect(is(a, b)).toBe(is(b, a));
-    }
+      .map(Map)
   );
 
-  check.it('has hash equality', { times: 1000 }, [genVal, genVal], (a, b) => {
-    if (is(a, b)) {
-      expect(a.hashCode()).toBe(b.hashCode());
-    }
+  it('has symmetric equality', () => {
+    fc.assert(
+      fc.property(genVal, genVal, (a, b) => {
+        expect(is(a, b)).toBe(is(b, a));
+      }),
+      { numRuns: 1000 }
+    );
+  });
+
+  it('has hash symmetry', () => {
+    fc.assert(
+      fc.property(genVal, genVal, (a, b) => {
+        if (is(a, b)) {
+          expect(a.hashCode()).toBe(b.hashCode());
+        }
+      }),
+      { numRuns: 1000 }
+    );
   });
 
   describe('hash', () => {

@@ -1,7 +1,5 @@
 import { List, Range, Seq } from 'immutable';
-import * as jasmineCheck from 'jasmine-check';
-
-jasmineCheck.install();
+import fc from 'fast-check';
 
 describe('splice', () => {
   it('splices a sequence only removing elements', () => {
@@ -48,15 +46,19 @@ describe('splice', () => {
     expect(v.splice(-18, 0, 0).toList().toArray()).toEqual(a);
   });
 
-  check.it(
-    'has the same behavior as array splice',
-    [gen.array(gen.int), gen.array(gen.oneOf([gen.int, gen.undefined]))],
-    (values, args) => {
-      const v = List(values);
-      const a = values.slice(); // clone
-      const splicedV = v.splice.apply(v, args); // persistent
-      a.splice.apply(a, args); // mutative
-      expect(splicedV.toArray()).toEqual(a);
-    }
-  );
+  it('has the same behavior as array splice', () => {
+    fc.assert(
+      fc.property(
+        fc.array(fc.integer()),
+        fc.array(fc.sparseArray(fc.integer())),
+        (values, args) => {
+          const v = List(values);
+          const a = values.slice(); // clone
+          const splicedV = v.splice.apply(v, args); // persistent
+          a.splice.apply(a, args); // mutative
+          expect(splicedV.toArray()).toEqual(a);
+        }
+      )
+    );
+  });
 });
