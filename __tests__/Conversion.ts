@@ -1,5 +1,5 @@
 import { fromJS, is, List, Map, OrderedMap, Record } from 'immutable';
-import fc from 'fast-check';
+import fc, { type JsonValue } from 'fast-check';
 
 describe('Conversion', () => {
   // Note: order of keys based on Map's hashing order
@@ -192,9 +192,12 @@ describe('Conversion', () => {
 
   it('toJS isomorphic value', () => {
     fc.assert(
-      fc.property(fc.jsonValue(), (v) => {
+      fc.property(fc.jsonValue(), (v: JsonValue) => {
         const imm = fromJS(v);
-        expect(imm && imm.toJS ? imm.toJS() : imm).toEqual(v);
+        expect(
+          // @ts-expect-error Property 'toJS' does not exist on type '{}'.ts(2339)
+          imm && imm.toJS ? imm.toJS() : imm
+        ).toEqual(v);
       }),
       { numRuns: 30 }
     );

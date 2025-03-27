@@ -1,5 +1,6 @@
 import { List, Range, Seq } from 'immutable';
 import fc from 'fast-check';
+import { expectToBeDefined } from './ts-utils';
 
 describe('zip', () => {
   it('zips lists into a list of tuples', () => {
@@ -56,6 +57,7 @@ describe('zip', () => {
       fc.property(fc.array(fc.nat(), { minLength: 1 }), (lengths) => {
         const ranges = lengths.map((l) => Range(0, l));
         const first = ranges.shift();
+        expectToBeDefined(first);
         const zipped = first.zip.apply(first, ranges);
         const shortestLength = Math.min.apply(Math, lengths);
         expect(zipped.size).toBe(shortestLength);
@@ -110,6 +112,7 @@ describe('zip', () => {
         fc.property(fc.array(fc.nat(), { minLength: 1 }), (lengths) => {
           const ranges = lengths.map((l) => Range(0, l));
           const first = ranges.shift();
+          expectToBeDefined(first);
           const zipped = first.zipAll.apply(first, ranges);
           const longestLength = Math.max.apply(Math, lengths);
           expect(zipped.size).toBe(longestLength);

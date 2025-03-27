@@ -54,9 +54,9 @@ describe('max', () => {
   it('is not dependent on order', () => {
     fc.assert(
       fc.property(genHeterogeneousishArray, (vals) => {
-        expect(is(Seq(shuffle(vals.slice())).max(), Seq(vals).max())).toEqual(
-          true
-        );
+        expect(
+          is(Seq(shuffle(vals.slice())).max(), Seq<number | string>(vals).max())
+        ).toEqual(true);
       })
     );
   });
@@ -99,9 +99,9 @@ describe('min', () => {
   it('is not dependent on order', () => {
     fc.assert(
       fc.property(genHeterogeneousishArray, (vals) => {
-        expect(is(Seq(shuffle(vals.slice())).min(), Seq(vals).min())).toEqual(
-          true
-        );
+        expect(
+          is(Seq(shuffle(vals.slice())).min(), Seq<string | number>(vals).min())
+        ).toEqual(true);
       })
     );
   });

@@ -43,6 +43,7 @@ describe('join', () => {
   it('behaves the same as Array.join', () => {
     fc.assert(
       fc.property(fc.array(genPrimitive), genPrimitive, (array, joiner) => {
+        // @ts-expect-error unexpected values for typescript joiner, but valid at runtime despite the unexpected errors
         expect(Seq(array).join(joiner)).toBe(array.join(joiner));
       })
     );
