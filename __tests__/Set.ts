@@ -1,4 +1,5 @@
 import { fromJS, is, List, Map, OrderedSet, Seq, Set } from 'immutable';
+import { describe, expect, it, vi } from 'vitest';
 
 describe('Set', () => {
   it('accepts array of values', () => {
@@ -138,7 +139,7 @@ describe('Set', () => {
 
   it('iterates values', () => {
     const s = Set([1, 2, 3]);
-    const iterator = jest.fn();
+    const iterator = vi.fn();
     s.forEach(iterator);
     expect(iterator.mock.calls).toEqual([
       [1, 1, s],

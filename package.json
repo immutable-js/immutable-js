@@ -56,7 +56,7 @@
   },
   "scripts": {
     "test": "run-s format lint type-check build test:*",
-    "test:unit": "jest",
+    "test:unit": "vitest",
     "test:types": "tstyche",
     "format": "npm run lint:format -- --write",
     "lint": "run-s lint:*",
@@ -91,7 +91,6 @@
     "@rollup/plugin-typescript": "^12.1.2",
     "@size-limit/esbuild-why": "^11.2.0",
     "@size-limit/preset-small-lib": "^11.2.0",
-    "@types/jest": "^29.0.0",
     "@types/prismjs": "^1.26.3",
     "@types/random-seed": "0.3.5",
     "@types/react": "17.0.11",
@@ -106,8 +105,6 @@
     "fast-check": "^4.0.0",
     "flow-bin": "0.160.0",
     "globals": "^15.15.0",
-    "jest": "^29.0.0",
-    "jest-environment-jsdom": "^29.6.4",
     "make-synchronous": "0.1.1",
     "marked": "^11.2.0",
     "marked-highlight": "^2.1.0",
@@ -127,7 +124,8 @@
     "tslib": "^2.8.1",
     "tstyche": "^3.5",
     "typescript": "5.7",
-    "typescript-eslint": "^8.24.0"
+    "typescript-eslint": "^8.24.0",
+    "vitest": "^3.0.9"
   },
   "size-limit": [
     {

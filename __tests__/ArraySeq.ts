@@ -1,4 +1,5 @@
 import { Seq } from 'immutable';
+import { describe, expect, it } from 'vitest';
 
 describe('ArraySequence', () => {
   it('every is true when predicate is true for all entries', () => {

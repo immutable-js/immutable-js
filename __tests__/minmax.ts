@@ -1,4 +1,5 @@
 import { is, Seq } from 'immutable';
+import { describe, expect, it } from 'vitest';
 import fc from 'fast-check';
 
 const genHeterogeneousishArray = fc.oneof(

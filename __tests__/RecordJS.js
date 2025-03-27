@@ -1,4 +1,5 @@
 import { Record } from 'immutable';
+import { describe, expect, it } from 'vitest';
 
 describe('Record', () => {
   it('defines a record factory', () => {

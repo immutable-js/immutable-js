@@ -11,12 +11,13 @@ import {
   Seq,
   Set as ISet,
 } from 'immutable';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 
 describe('partition', () => {
-  let isOdd: jest.Mock<unknown, [x: number]>;
+  let isOdd: Mock<(x: number) => number>;
 
   beforeEach(() => {
-    isOdd = jest.fn((x) => x % 2);
+    isOdd = vi.fn((x) => x % 2);
   });
 
   it('partitions keyed sequence', () => {

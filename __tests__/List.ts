@@ -1,4 +1,5 @@
 import { fromJS, List, Map, Range, Seq, Set } from 'immutable';
+import { describe, expect, it } from 'vitest';
 import fc from 'fast-check';
 import { create as createSeed } from 'random-seed';
 

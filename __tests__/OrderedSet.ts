@@ -1,4 +1,5 @@
 import { OrderedSet, Map } from 'immutable';
+import { describe, expect, it } from 'vitest';
 
 describe('OrderedSet', () => {
   it('provides initial values in a mixed order', () => {

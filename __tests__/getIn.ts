@@ -1,4 +1,5 @@
 import { fromJS, getIn, List, Map } from 'immutable';
+import { describe, expect, it } from 'vitest';
 
 describe('getIn', () => {
   it('deep get', () => {

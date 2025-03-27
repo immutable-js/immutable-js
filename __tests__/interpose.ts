@@ -1,4 +1,5 @@
 import { Range } from 'immutable';
+import { describe, expect, it } from 'vitest';
 
 describe('interpose', () => {
   it('separates with a value', () => {

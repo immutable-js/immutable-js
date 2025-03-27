@@ -1,4 +1,5 @@
 import { Collection, fromJS, List, Range, Seq } from 'immutable';
+import { describe, expect, it } from 'vitest';
 
 describe('flatten', () => {
   it('flattens sequences one level deep', () => {

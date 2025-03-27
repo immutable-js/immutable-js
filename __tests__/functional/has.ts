@@ -1,4 +1,5 @@
 import { has, Map, List, Range } from 'immutable';
+import { describe, expect, it } from 'vitest';
 
 describe('has', () => {
   it('for immutable structure', () => {

@@ -1,4 +1,5 @@
 import { Range } from 'immutable';
+import { describe, expect, it } from 'vitest';
 
 describe('get', () => {
   it('gets any index', () => {

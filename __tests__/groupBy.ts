@@ -9,6 +9,7 @@ import {
   Set,
   Stack,
 } from 'immutable';
+import { describe, expect, it } from 'vitest';
 
 describe('groupBy', () => {
   it.each`

@@ -1,4 +1,5 @@
 import { List, Range, Seq } from 'immutable';
+import { describe, expect, it } from 'vitest';
 import fc from 'fast-check';
 import { expectToBeDefined } from './ts-utils';
 
