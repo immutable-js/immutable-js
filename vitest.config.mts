@@ -16,7 +16,12 @@ export default defineConfig({
   ],
   test: {
     alias: {
-      immutable: new URL('./src/Immutable.js', import.meta.url).pathname,
+      immutable: new URL(
+        process.env.CI
+          ? './dist/immutable.js' // Point to the built file in CI
+          : './src/Immutable.js',
+        import.meta.url
+      ).pathname,
     },
     include: ['__tests__/**/*.(ts|js)'],
     exclude: ['__tests__/ts-utils.ts'],
