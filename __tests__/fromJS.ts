@@ -64,6 +64,7 @@ describe('fromJS', () => {
     expect(isCollection(fromJS({}))).toBe(true);
   });
 
+  // eslint-disable-next-line vitest/expect-expect
   it('is iterable inside of a vm', () => {
     runInNewContext(
       `
