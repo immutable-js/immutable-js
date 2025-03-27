@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-unresolved
 import { defineConfig } from 'vitest/config';
 import typescript from '@rollup/plugin-typescript';
 import buble from '@rollup/plugin-buble';

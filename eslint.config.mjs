@@ -1,6 +1,6 @@
 import pluginJs from '@eslint/js';
 import globals from 'globals';
-import pluginJest from 'eslint-plugin-jest';
+import vitest from '@vitest/eslint-plugin';
 import importPlugin from 'eslint-plugin-import';
 import pluginReact from 'eslint-plugin-react';
 // eslint-disable-next-line import/no-unresolved
@@ -101,13 +101,17 @@ export default tseslint.config(
   },
 
   {
-    // TODO might be handled by config jest
     files: ['__tests__/**/*', 'perf/*'],
-    plugins: { jest: pluginJest },
-    languageOptions: {
-      globals: pluginJest.environments.globals.globals,
-    },
+    plugins: { vitest },
     rules: {
+      ...vitest.configs.recommended.rules,
+      'vitest/expect-expect': [
+        'error',
+        {
+          assertFunctionNames: ['expect', 'expectIs', 'expectIsNot'],
+          additionalTestBlockFunctions: [],
+        },
+      ],
       'import/no-unresolved': [
         'error',
         {
@@ -117,9 +121,9 @@ export default tseslint.config(
     },
   },
   {
-    //   // TODO might be handled by config jest
-    //   files: ['perf/*'],
+    files: ['perf/*'],
     rules: {
+      'vitest/expect-expect': 'off',
       //     'no-undef': 'off',
       'no-redeclare': 'off',
       'no-var': 'off',

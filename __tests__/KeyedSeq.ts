@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import fc from 'fast-check';
 
 describe('KeyedSeq', () => {
-  it('it iterates equivalently', () => {
+  it('iterates equivalently', () => {
     fc.assert(
       fc.property(fc.array(fc.integer()), (ints) => {
         const seq = Seq(ints);

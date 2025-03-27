@@ -35,7 +35,7 @@ describe('Issue #1188', () => {
   });
 });
 
-describe('Issue #1220 : Seq.rest() throws an exception when invoked on a single item sequence ', () => {
+describe('Issue #1220 : Seq.rest() throws an exception when invoked on a single item sequence', () => {
   it('should be iterable', () => {
     // Helper for this test
     const ITERATOR_SYMBOL =
@@ -123,7 +123,7 @@ describe('Issue #1643', () => {
 
     it(`Collection#hashCode() should handle objects that return ${label} for valueOf`, () => {
       const set = Set().add(new MyClass());
-      set.hashCode();
+      expect(() => set.hashCode()).not.toThrow();
     });
   });
 });

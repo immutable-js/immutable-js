@@ -105,7 +105,7 @@ describe('List', function () {
   });
 
   describe('some', function () {
-    it('100 000 items ', () => {
+    it('100 000 items', () => {
       const list = Immutable.List();
       for (let i = 0; i < 100000; i++) {
         list.push(i);
