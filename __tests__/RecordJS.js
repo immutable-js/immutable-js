@@ -1,3 +1,4 @@
+import { describe, expect, it } from '@jest/globals';
 import { Record } from 'immutable';
 
 describe('Record', () => {
@@ -42,7 +43,7 @@ describe('Record', () => {
     const t2 = t.set('b', 200);
 
     expect(Record.isRecord(t)).toBe(true);
-    expect(t instanceof Alphabet).toBe(true);
+    expect(t).toBeInstanceOf(Alphabet);
     expect(t.soup()).toBe(6);
     expect(t2.soup()).toBe(204);
 

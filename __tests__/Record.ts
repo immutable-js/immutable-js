@@ -1,3 +1,4 @@
+import { describe, expect, it } from '@jest/globals';
 import { isKeyed, List, Map, Record, Seq } from 'immutable';
 
 describe('Record', () => {
@@ -78,7 +79,7 @@ describe('Record', () => {
     const MyType = Record({ a: 1, b: 2, c: 3 });
     const t1 = MyType({ a: 10 });
     const t2 = MyType({ a: 10, b: 2 });
-    expect(t1.equals(t2));
+    expect(t1.equals(t2)).toBe(true);
   });
 
   it('if compared against undefined or null should return false', () => {

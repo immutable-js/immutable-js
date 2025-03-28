@@ -1,3 +1,4 @@
+import { describe, expect, it } from '@jest/globals';
 import { fromJS, is, List, Map, OrderedMap, Record } from 'immutable';
 import fc, { type JsonValue } from 'fast-check';
 

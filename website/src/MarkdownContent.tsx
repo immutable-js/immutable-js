@@ -8,6 +8,7 @@ type Props = {
   className?: string;
 };
 
+// eslint-disable-next-line prefer-arrow-callback
 export const MarkdownContent = memo<Props>(function MarkdownContent({
   contents,
   className,

@@ -1,3 +1,4 @@
+import { describe, expect, it } from '@jest/globals';
 import { fromJS, List, Map, Range, Seq, Set } from 'immutable';
 import fc from 'fast-check';
 import { create as createSeed } from 'random-seed';
