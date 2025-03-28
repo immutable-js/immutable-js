@@ -1,3 +1,4 @@
+import { describe, expect, it } from '@jest/globals';
 import {
   Collection,
   Map,
@@ -40,8 +41,10 @@ describe('groupBy', () => {
       expect(isOrdered(col)).toBe(constructorIsOrdered);
       expect(isOrdered(grouped)).toBe(constructorIsOrdered);
       if (constructorIsOrdered) {
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(grouped).toBeInstanceOf(OrderedMap);
       } else {
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(grouped).not.toBeInstanceOf(OrderedMap);
       }
     }

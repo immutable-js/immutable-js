@@ -1,3 +1,4 @@
+import { describe, expect, it } from '@jest/globals';
 import { Range } from 'immutable';
 import fc from 'fast-check';
 
@@ -86,6 +87,7 @@ describe('Range', () => {
         const last = to + (isIncreasing ? -1 : 1);
         expect(r.last()).toBe(size ? last : undefined);
         if (size) {
+          // eslint-disable-next-line jest/no-conditional-expect
           expect(a[a.length - 1]).toBe(last);
         }
       })

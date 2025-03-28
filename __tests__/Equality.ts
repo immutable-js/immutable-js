@@ -1,3 +1,4 @@
+import { describe, expect, it } from '@jest/globals';
 import { is, List, Map, Seq, Set } from 'immutable';
 import fc from 'fast-check';
 
@@ -143,6 +144,7 @@ describe('Equality', () => {
     fc.assert(
       fc.property(genVal, genVal, (a, b) => {
         if (is(a, b)) {
+          // eslint-disable-next-line jest/no-conditional-expect
           expect(a.hashCode()).toBe(b.hashCode());
         }
       }),

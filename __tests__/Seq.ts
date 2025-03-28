@@ -1,3 +1,4 @@
+import { describe, expect, it } from '@jest/globals';
 import { isCollection, isIndexed, isKeyed, Seq } from 'immutable';
 
 describe('Seq', () => {

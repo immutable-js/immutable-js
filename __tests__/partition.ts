@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import {
   isAssociative,
   isIndexed,
@@ -13,7 +14,7 @@ import {
 } from 'immutable';
 
 describe('partition', () => {
-  let isOdd: jest.Mock<unknown, [x: number]>;
+  let isOdd: jest.Mock<(x: number) => number>;
 
   beforeEach(() => {
     isOdd = jest.fn((x) => x % 2);

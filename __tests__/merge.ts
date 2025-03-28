@@ -1,3 +1,4 @@
+import { describe, expect, it } from '@jest/globals';
 import {
   fromJS,
   List,
@@ -34,7 +35,7 @@ describe('merge', () => {
     const m1 = Map({ a: 1, b: 2, c: 3 });
     const m2 = Map({ d: 10, b: 20, e: 30 });
     // @ts-expect-error -- test that runtime does throw
-    expect(() => m1.mergeWith(1, m2)).toThrowError(TypeError);
+    expect(() => m1.mergeWith(1, m2)).toThrow(TypeError);
   });
 
   it('provides key as the third argument of merge function', () => {

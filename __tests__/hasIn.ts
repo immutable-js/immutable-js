@@ -1,3 +1,4 @@
+import { describe, expect, it } from '@jest/globals';
 import { fromJS, hasIn, List, Map } from 'immutable';
 
 describe('hasIn', () => {
