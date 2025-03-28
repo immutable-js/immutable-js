@@ -1,3 +1,4 @@
+import { describe, expect, it } from '@jest/globals';
 import { OrderedSet, Map } from 'immutable';
 
 describe('OrderedSet', () => {

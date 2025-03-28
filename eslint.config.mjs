@@ -18,7 +18,16 @@ export default tseslint.config(
       'website/.next/',
     ],
   },
-  { languageOptions: { globals: globals.browser } },
+  {
+    languageOptions: {
+      globals: globals.browser,
+
+      // parserOptions: {
+      //   projectService: true,
+      //   tsconfigRootDir: import.meta.dirname,
+      // },
+    },
+  },
   pluginJs.configs.recommended,
   importPlugin.flatConfigs.recommended,
   importPlugin.flatConfigs.typescript,
@@ -103,13 +112,24 @@ export default tseslint.config(
   },
 
   {
-    // TODO might be handled by config jest
     files: ['__tests__/**/*', 'perf/*'],
-    plugins: { jest: pluginJest },
     languageOptions: {
       globals: pluginJest.environments.globals.globals,
     },
+    ...pluginJest.configs['flat/recommended'],
+    ...pluginJest.configs['flat/style'],
+    plugins: { jest: pluginJest },
     rules: {
+      ...pluginJest.configs['flat/recommended'].rules,
+      // TODO activate style rules later
+      // ...pluginJest.configs['jest/style'].rules,
+      'jest/expect-expect': [
+        'error',
+        {
+          assertFunctionNames: ['expect', 'expectIs', 'expectIsNot'],
+          additionalTestBlockFunctions: [],
+        },
+      ],
       'import/no-unresolved': [
         'error',
         {
@@ -119,10 +139,9 @@ export default tseslint.config(
     },
   },
   {
-    //   // TODO might be handled by config jest
-    //   files: ['perf/*'],
+    files: ['perf/*'],
     rules: {
-      //     'no-undef': 'off',
+      'jest/expect-expect': 'off',
       'no-redeclare': 'off',
       'no-var': 'off',
       'prefer-arrow-callback': 'off',

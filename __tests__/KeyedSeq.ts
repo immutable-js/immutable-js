@@ -1,8 +1,9 @@
+import { describe, expect, it } from '@jest/globals';
 import { Range, Seq } from 'immutable';
 import fc from 'fast-check';
 
 describe('KeyedSeq', () => {
-  it('it iterates equivalently', () => {
+  it('iterates equivalently', () => {
     fc.assert(
       fc.property(fc.array(fc.integer()), (ints) => {
         const seq = Seq(ints);

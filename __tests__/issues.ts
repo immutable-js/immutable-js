@@ -1,3 +1,4 @@
+import { describe, expect, it } from '@jest/globals';
 import {
   fromJS,
   List,
@@ -34,7 +35,7 @@ describe('Issue #1188', () => {
   });
 });
 
-describe('Issue #1220 : Seq.rest() throws an exception when invoked on a single item sequence ', () => {
+describe('Issue #1220 : Seq.rest() throws an exception when invoked on a single item sequence', () => {
   it('should be iterable', () => {
     // Helper for this test
     const ITERATOR_SYMBOL =
@@ -122,15 +123,17 @@ describe('Issue #1643', () => {
 
     it(`Collection#hashCode() should handle objects that return ${label} for valueOf`, () => {
       const set = Set().add(new MyClass());
-      set.hashCode();
+      expect(() => set.hashCode()).not.toThrow();
     });
   });
 });
 
 describe('Issue #1785', () => {
-  const emptyRecord = Record({})();
+  it('merge() should not return undefined', () => {
+    const emptyRecord = Record({})();
 
-  expect(emptyRecord.merge({ id: 1 })).toBe(emptyRecord);
+    expect(emptyRecord.merge({ id: 1 })).toBe(emptyRecord);
+  });
 });
 
 describe('Issue #1475', () => {

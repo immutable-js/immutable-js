@@ -1,5 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
 import { runInNewContext } from 'vm';
-
 import { List, Map, Set, isCollection, fromJS } from 'immutable';
 
 describe('fromJS', () => {
@@ -64,6 +64,7 @@ describe('fromJS', () => {
     expect(isCollection(fromJS({}))).toBe(true);
   });
 
+  // eslint-disable-next-line jest/expect-expect
   it('is iterable inside of a vm', () => {
     runInNewContext(
       `

@@ -1,3 +1,4 @@
+import { describe, expect, it } from '@jest/globals';
 import { List, Range, Seq } from 'immutable';
 import fc from 'fast-check';
 

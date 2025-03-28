@@ -1,3 +1,4 @@
+import { describe, expect, it } from '@jest/globals';
 import { Collection, fromJS, List, Range, Seq } from 'immutable';
 
 describe('flatten', () => {
