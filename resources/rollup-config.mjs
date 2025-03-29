@@ -46,7 +46,7 @@ export default [
       {
         banner: copyright,
         name: 'Immutable',
-        file: path.join(DIST_DIR, 'immutable.es.js'),
+        file: path.join(DIST_DIR, 'immutable.mjs'),
         format: 'es',
         sourcemap: false,
       },
