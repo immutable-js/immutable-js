@@ -9,7 +9,10 @@ export const ITERATOR_SYMBOL = REAL_ITERATOR_SYMBOL || FAUX_ITERATOR_SYMBOL;
 
 export class Iterator {
   constructor(next) {
-    this.next = next;
+    if (next) {
+      // Map extends Iterator and has a `next` method, do not erase it in that case. We could have checked `if (next && !this.next)` too.
+      this.next = next;
+    }
   }
 
   toString() {
