@@ -83,6 +83,11 @@
     "trailingComma": "es5"
   },
   "devDependencies": {
+    "@codemirror/commands": "^6.8.1",
+    "@codemirror/lang-javascript": "^6.2.3",
+    "@codemirror/state": "^6.5.2",
+    "@codemirror/theme-one-dark": "^6.1.2",
+    "@codemirror/view": "^6.36.5",
     "@eslint/js": "^9.20.0",
     "@jest/globals": "^29.7.0",
     "@rollup/plugin-buble": "1.0.3",
@@ -96,6 +101,7 @@
     "@types/random-seed": "0.3.5",
     "@types/react": "17.0.11",
     "benchmark": "2.1.4",
+    "codemirror": "^6.0.1",
     "colors": "1.4.0",
     "cpy-cli": "^5.0.0",
     "eslint": "^9.20.1",
