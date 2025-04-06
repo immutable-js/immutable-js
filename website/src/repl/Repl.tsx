@@ -1,12 +1,12 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
-import './JSRepl.css';
 import { Editor } from './Editor';
 import FormatterOutput from './FormatterOutput';
+import './repl.css';
 
 type Props = { defaultValue: string };
 
-function JSRepl({ defaultValue }: Props): JSX.Element {
+function Repl({ defaultValue }: Props): JSX.Element {
   const [code, setCode] = useState<string>(defaultValue);
   const [output, setOutput] = useState<{
     header: Array<unknown>;
@@ -156,4 +156,4 @@ function JSRepl({ defaultValue }: Props): JSX.Element {
   );
 }
 
-export default JSRepl;
+export default Repl;

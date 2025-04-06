@@ -4,7 +4,7 @@ import { getTypeDefs } from '../../static/getTypeDefs';
 import { DocSearch } from '../../DocSearch';
 import { SideBar } from '../../Sidebar';
 import { getSidebarLinks } from '../../getSidebarLinks';
-import JSRepl from '../../JSRepl/JSRepl';
+import Repl from '../../repl/Repl';
 
 export async function generateStaticParams() {
   return [...getVersions().map((version) => ({ version }))];
@@ -30,7 +30,7 @@ export default function OverviewDocPage() {
         <DocSearch />
         <h1>Playgroud ({version})</h1>
 
-        <JSRepl
+        <Repl
           defaultValue={`const upperFirst = (str) => str.charAt(0).toUpperCase() + str.slice(1);
             
 List(['apple', 'banana', 'coconut'])
