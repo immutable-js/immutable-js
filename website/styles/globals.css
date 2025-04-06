@@ -195,6 +195,12 @@ a.try-it {
   position: relative;
 }
 
+@media only screen and (max-width: 1024px) {
+  .pageBody {
+    padding: 0;
+  }
+}
+
 .contents {
   margin: 0 auto;
   max-width: 1024px;
@@ -202,6 +208,10 @@ a.try-it {
   position: relative;
   display: flex;
   flex-direction: row-reverse;
+}
+
+.contents > .docContents {
+  flex-grow: 1;
 }
 
 img {
