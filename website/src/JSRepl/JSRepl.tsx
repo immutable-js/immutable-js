@@ -8,7 +8,10 @@ type Props = { defaultValue: string };
 
 function JSRepl({ defaultValue }: Props): JSX.Element {
   const [code, setCode] = useState<string>(defaultValue);
-  const [output, setOutput] = useState<string>('');
+  const [output, setOutput] = useState<{
+    header: Array<unknown>;
+    body?: Array<unknown>;
+  }>({ header: [] });
   const workerRef = useRef<Worker | null>(null);
 
   useEffect(() => {
@@ -124,7 +127,7 @@ function JSRepl({ defaultValue }: Props): JSX.Element {
       workerRef.current.postMessage(code);
       workerRef.current.onmessage = (event) => {
         if (event.data.error) {
-          setOutput('Error: ' + event.data.error);
+          setOutput({ header: ['div', 'Error: ' + event.data.error] });
         } else {
           setOutput(event.data.output);
         }
