@@ -4,7 +4,8 @@ import { EditorView, keymap } from '@codemirror/view';
 import { defaultKeymap, indentWithTab } from '@codemirror/commands';
 import { EditorState } from '@codemirror/state';
 import { javascript } from '@codemirror/lang-javascript';
-import { oneDark } from '@codemirror/theme-one-dark';
+// TODO activate this when we have a dark mode
+// import { oneDark } from '@codemirror/theme-one-dark';
 
 type Props = {
   value: string;

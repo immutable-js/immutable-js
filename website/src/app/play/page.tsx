@@ -4,7 +4,7 @@ import { getTypeDefs } from '../../static/getTypeDefs';
 import { DocSearch } from '../../DocSearch';
 import { SideBar } from '../../Sidebar';
 import { getSidebarLinks } from '../../getSidebarLinks';
-import Repl from '../../repl/Repl';
+import dynamic from 'next/dynamic';
 
 export async function generateStaticParams() {
   return [...getVersions().map((version) => ({ version }))];
@@ -15,6 +15,8 @@ export async function generateMetadata(): Promise<Metadata> {
     title: `Playground — Immutable.js`,
   };
 }
+
+const ReplNoSSR = dynamic(() => import('../../repl/Repl'), { ssr: false });
 
 export default function OverviewDocPage() {
   const versions = getVersions();
@@ -30,7 +32,7 @@ export default function OverviewDocPage() {
         <DocSearch />
         <h1>Playgroud ({version})</h1>
 
-        <Repl
+        <ReplNoSSR
           defaultValue={`const upperFirst = (str) => str.charAt(0).toUpperCase() + str.slice(1);
             
 List(['apple', 'banana', 'coconut'])
