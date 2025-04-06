@@ -109,6 +109,7 @@ export function HeaderLinks({
   return (
     <div className="links">
       <DocsDropdown versions={versions} currentVersion={currentVersion} />
+      <Link href="/play">Playground</Link>
       <a
         href="https://stackoverflow.com/questions/tagged/immutable.js?sort=votes"
         target="_blank"
