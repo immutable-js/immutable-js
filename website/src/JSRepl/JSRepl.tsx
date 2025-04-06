@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './JSRepl.css';
 import { Editor } from './Editor';
+import FormatterOutput from './FormatterOutput';
 
 type Props = { defaultValue: string };
 
@@ -12,7 +13,7 @@ function JSRepl({ defaultValue }: Props): JSX.Element {
 
   useEffect(() => {
     const workerScript = `
-    importScripts('https://cdn.jsdelivr.net/npm/immutable@5.1.1');
+    importScripts('https://cdn.jsdelivr.net/npm/immutable@5.1.1', 'https://cdn.jsdelivr.net/npm/immutable-devtools@0.1.5');
 
       // extract all Immutable exports to have them available in the worker automatically
       const {
@@ -65,6 +66,26 @@ function JSRepl({ defaultValue }: Props): JSX.Element {
         updateIn,
       } = Immutable;
 
+      immutableDevTools(Immutable);
+
+      // hack to get the formatters from immutable-devtools as they are not exported, but they modify the "global" variable
+      const immutableFormaters = globalThis.devtoolsFormatters;
+
+      // console.log(immutableFormaters)
+
+      function normalizeResult(result) {
+        const formatter = immutableFormaters.find((formatter) => formatter.header(result));
+  
+        if (!formatter) {
+          return undefined;
+        }
+        
+        return {
+          header: formatter.header(result),
+          body: formatter.hasBody(result) ? formatter.body(result) : undefined,
+        }
+      }
+      
       self.onmessage = function(event) {
         let timeoutId = setTimeout(() => {
           self.postMessage({ error: "Execution timed out" });
@@ -74,8 +95,10 @@ function JSRepl({ defaultValue }: Props): JSX.Element {
         try {
           const result = eval(event.data);
           clearTimeout(timeoutId);
-          self.postMessage({ output: String(result) });
+
+          self.postMessage({ output: normalizeResult(result) });
         } catch (error) {
+         console.log(error);
           clearTimeout(timeoutId);
           self.postMessage({ error: String(error) });
         }
@@ -103,7 +126,7 @@ function JSRepl({ defaultValue }: Props): JSX.Element {
         if (event.data.error) {
           setOutput('Error: ' + event.data.error);
         } else {
-          setOutput('Output: ' + event.data.output);
+          setOutput(event.data.output);
         }
       };
     }
@@ -123,7 +146,9 @@ function JSRepl({ defaultValue }: Props): JSX.Element {
         </button>
       </div>
 
-      <pre id="output">{output}</pre>
+      <pre id="output">
+        <FormatterOutput output={output} />
+      </pre>
     </div>
   );
 }

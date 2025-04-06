@@ -78,7 +78,20 @@ export default function Test({ params }: { params: { version: string } }) {
             </div>
 
             <Doc content="List<T>(collection?: Iterable<T> | ArrayLike<T>): List<T>" />
-            <JSRepl defaultValue={`List([ 'apple', 'banana', 'coconut' ])`} />
+            {/* <JSRepl defaultValue={`List([ 'apple', 'banana', 'coconut' ])`} /> */}
+            <JSRepl
+              defaultValue={`List([ 
+  'apple',
+  'banana',
+  8,
+  null,
+  undefined,
+  {"a": "A"},
+  new Date(),
+  // Symbol('a'),
+  // function() { return 1; },
+])`}
+            />
 
             <section>
               <h4 className="infoHeader">Discussion</h4>
@@ -101,7 +114,8 @@ export default function Test({ params }: { params: { version: string } }) {
             <Doc content="push(...values: Array<T>): List<T>" />
 
             <JSRepl
-              defaultValue={`List([ 'apple', 'banana', 'coconut' ]).push('dragonfruit')`}
+              defaultValue={`List([ 'apple', 'banana', 'coconut' ])
+  .push('dragonfruit')`}
             />
 
             {/* <h2>Sandpack</h2>
