@@ -8,6 +8,10 @@ body {
   --header-bg-color: #6dbcdb;
   --body-color: #626466;
   --code-block-bg-color: #f4f4f4;
+  --code-block-color: #484a4c;
+
+  background-color: #ffffff;
+  color: var(--body-color);
 
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-text-size-adjust: 100%;
@@ -15,6 +19,21 @@ body {
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-color-scheme: dark) {
+  html,
+  body {
+    --link-color: #79a6f6;
+    --link-hover-color: #5683d4;
+    --header-color: #e0e0e0;
+    --header-bg-color: #2b3a42;
+    --body-color: #c0c0c0;
+    --code-block-bg-color: #2e2e2e;
+    --code-block-color: #d1d5da;
+
+    background-color: #121212;
+  }
 }
 
 body,
@@ -65,8 +84,8 @@ a:hover {
 pre,
 code {
   font-family: 'Fira Mono', Menlo, monospace;
-  background: #f9f8f7;
-  color: #484a4c;
+  background: var(--code-block-bg-color);
+  color: var(--code-block-color);
   font-size: 0.9375em;
   letter-spacing: -0.015em;
 }
