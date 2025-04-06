@@ -46,10 +46,5 @@ export function Editor({ value, onChange }: Props): JSX.Element {
     };
   }, []);
 
-  return (
-    <div
-      style={{ border: '1px solid var(--code-block-bg-color)' }}
-      ref={editor}
-    ></div>
-  );
+  return <div className="repl-editor" ref={editor}></div>;
 }

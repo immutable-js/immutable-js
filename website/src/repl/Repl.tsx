@@ -140,9 +140,7 @@ function Repl({ defaultValue }: Props): JSX.Element {
       <h4>Live example</h4>
 
       <div className="repl-editor-container">
-        <div style={{ flex: 1 }}>
-          <Editor value={code} onChange={setCode} />
-        </div>
+        <Editor value={code} onChange={setCode} />
 
         <button type="button" onClick={runCode}>
           Run
