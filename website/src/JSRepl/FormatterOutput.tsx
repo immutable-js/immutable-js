@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react';
  * immutable-devtools is a console custom formatter.
  * Console formatters does use jsonml format.
  * {@see https://firefox-source-docs.mozilla.org/devtools-user/custom_formatters/index.html} for a documentation from the Firefox team.
- * The `jsonml-to-react-element` package can convert jsonml to HTML / React elements.
+ * The `jsonml-html` package can convert jsonml to HTML.
  */
 type Props = {
   output: {
