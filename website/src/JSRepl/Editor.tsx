@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { basicSetup } from 'codemirror';
 import { EditorView, keymap } from '@codemirror/view';
-import { defaultKeymap } from '@codemirror/commands';
+import { defaultKeymap, indentWithTab } from '@codemirror/commands';
 import { EditorState } from '@codemirror/state';
 import { javascript } from '@codemirror/lang-javascript';
 import { oneDark } from '@codemirror/theme-one-dark';
@@ -26,8 +26,9 @@ export function Editor({ value, onChange }: Props): JSX.Element {
       doc: value,
       extensions: [
         basicSetup,
-        keymap.of([...defaultKeymap]),
+        keymap.of([...defaultKeymap, indentWithTab]),
         javascript(),
+        // TODO activate this when we have a dark mode
         // oneDark,
 
         onUpdate,

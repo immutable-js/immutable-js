@@ -139,7 +139,7 @@ function JSRepl({ defaultValue }: Props): JSX.Element {
     <div className="js-repl">
       <h4>Live example</h4>
 
-      <div style={{ display: 'flex', gap: '8px' }}>
+      <div className="repl-editor-container">
         <div style={{ flex: 1 }}>
           <Editor value={code} onChange={setCode} />
         </div>
