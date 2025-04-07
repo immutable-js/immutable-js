@@ -32,12 +32,35 @@ export default function OverviewDocPage() {
         <DocSearch />
         <h1>Playgroud ({version})</h1>
 
+        {/*
+Debug with:
+
+List([
+  'apple',
+  'banana',
+  'coconut',
+  123,
+  null,
+  undefined,
+  new Date()
+])
+  .push('dragonfruit')
+  .map((fruit) => upperFirst(fruit))
+
+*/}
+
         <ReplNoSSR
-          defaultValue={`const upperFirst = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+          defaultValue={`const upperFirst = (str) => typeof str === 'string'
+  ? str.charAt(0).toUpperCase() + str.slice(1)
+  : str;
             
-List(['apple', 'banana', 'coconut'])
-    .push('dragonfruit')
-    .map((fruit) => upperFirst(fruit))
+List([
+  'apple',
+  'banana',
+  'coconut',
+])
+  .push('dragonfruit')
+  .map((fruit) => upperFirst(fruit))
 `}
         />
       </div>

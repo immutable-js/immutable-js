@@ -1,5 +1,9 @@
 @import url('//code.cdn.mozilla.net/fonts/fira.css');
 
+:root {
+  color-scheme: light dark;
+}
+
 html,
 body {
   --link-color: #4183c4;

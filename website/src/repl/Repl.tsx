@@ -16,7 +16,7 @@ function Repl({ defaultValue }: Props): JSX.Element {
 
   useEffect(() => {
     const workerScript = `
-    importScripts('https://cdn.jsdelivr.net/npm/immutable@5.1.1', 'https://cdn.jsdelivr.net/npm/immutable-devtools@0.1.5');
+    importScripts('https://cdn.jsdelivr.net/npm/immutable@5.1.1', 'https://cdn.jsdelivr.net/npm/@jdeniau/immutable-devtools@0.2.0');
 
       // extract all Immutable exports to have them available in the worker automatically
       const {
