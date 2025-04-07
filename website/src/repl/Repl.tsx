@@ -1,5 +1,6 @@
 'use client';
-import React, { useEffect, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
+import React, { useEffect, useRef, useState, type JSX } from 'react';
 import { Editor } from './Editor';
 import FormatterOutput from './FormatterOutput';
 import './repl.css';
@@ -154,4 +155,6 @@ function Repl({ defaultValue }: Props): JSX.Element {
   );
 }
 
-export default Repl;
+export default dynamic(() => Promise.resolve(Repl), {
+  ssr: false,
+});

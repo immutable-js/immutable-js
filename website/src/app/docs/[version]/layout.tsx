@@ -3,13 +3,14 @@ import { ImmutableConsole } from '../../../ImmutableConsole';
 import { getVersions } from '../../../static/getVersions';
 import { getVersionFromParams } from '../../getVersionFromParams';
 
-export default function VersionLayout({
-  children,
-  params,
-}: {
+export default async function VersionLayout(props: {
   children: React.ReactNode;
-  params: { version: string };
+  params: Promise<{ version: string }>;
 }) {
+  const params = await props.params;
+
+  const { children } = props;
+
   const versions = getVersions();
 
   const version = getVersionFromParams(params);

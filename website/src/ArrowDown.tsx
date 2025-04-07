@@ -1,3 +1,5 @@
+import type { JSX } from 'react';
+
 export function ArrowDown({ isActive }: { isActive: boolean }): JSX.Element {
   return (
     <svg
