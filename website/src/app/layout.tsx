@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import React from 'react';
 import '../../styles/globals.css';
+import '../../styles/prism-theme.css';
 
 export const metadata: Metadata = {
   title: 'Immutable.js',

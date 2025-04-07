@@ -2,10 +2,11 @@ import { useEffect, useRef } from 'react';
 import { basicSetup } from 'codemirror';
 import { EditorView, keymap } from '@codemirror/view';
 import { defaultKeymap, indentWithTab } from '@codemirror/commands';
-import { EditorState } from '@codemirror/state';
+import { EditorState, Extension } from '@codemirror/state';
 import { javascript } from '@codemirror/lang-javascript';
 // TODO activate this when we have a dark mode
-// import { oneDark } from '@codemirror/theme-one-dark';
+import { oneDark } from '@codemirror/theme-one-dark';
+import useDarkMode from '../useDarkMode';
 
 type Props = {
   value: string;
@@ -14,6 +15,7 @@ type Props = {
 
 export function Editor({ value, onChange }: Props): JSX.Element {
   const editor = useRef<HTMLDivElement>(null);
+  const darkMode = useDarkMode();
 
   const onUpdate = EditorView.updateListener.of((v) => {
     onChange(v.state.doc.toString());
@@ -29,11 +31,13 @@ export function Editor({ value, onChange }: Props): JSX.Element {
         basicSetup,
         keymap.of([...defaultKeymap, indentWithTab]),
         javascript(),
-        // TODO activate this when we have a dark mode
-        // oneDark,
+        darkMode ? oneDark : undefined,
 
         onUpdate,
-      ],
+      ].filter(
+        (value: Extension | undefined): value is Extension =>
+          typeof value !== 'undefined'
+      ),
     });
 
     const view = new EditorView({
@@ -44,7 +48,7 @@ export function Editor({ value, onChange }: Props): JSX.Element {
     return () => {
       view.destroy();
     };
-  }, []);
+  }, [darkMode]);
 
   return <div className="repl-editor" ref={editor}></div>;
 }

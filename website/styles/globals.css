@@ -1,5 +1,9 @@
 @import url('//code.cdn.mozilla.net/fonts/fira.css');
 
+:root {
+  color-scheme: light dark;
+}
+
 html,
 body {
   --link-color: #4183c4;
@@ -8,6 +12,10 @@ body {
   --header-bg-color: #6dbcdb;
   --body-color: #626466;
   --code-block-bg-color: #f4f4f4;
+  --code-block-color: #484a4c;
+
+  background-color: #ffffff;
+  color: var(--body-color);
 
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-text-size-adjust: 100%;
@@ -15,6 +23,21 @@ body {
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-color-scheme: dark) {
+  html,
+  body {
+    --link-color: #79a6f6;
+    --link-hover-color: #5683d4;
+    --header-color: #e0e0e0;
+    --header-bg-color: #2b3a42;
+    --body-color: #c0c0c0;
+    --code-block-bg-color: #2e2e2e;
+    --code-block-color: #d1d5da;
+
+    background-color: #121212;
+  }
 }
 
 body,
@@ -65,8 +88,8 @@ a:hover {
 pre,
 code {
   font-family: 'Fira Mono', Menlo, monospace;
-  background: #f9f8f7;
-  color: #484a4c;
+  background: var(--code-block-bg-color);
+  color: var(--code-block-color);
   font-size: 0.9375em;
   letter-spacing: -0.015em;
 }
@@ -110,67 +133,6 @@ blockquote > :last-child {
 
 .t.blockParams {
   padding-left: 2ch;
-}
-
-/* TODO: not random colors */
-
-.token.punctuation,
-.token.ignore,
-.t.interfaceDef,
-.t.member,
-.t.callSig {
-  color: #808890;
-}
-
-.token.function,
-.token.class-name,
-.token.qualifier,
-.t.fnQualifier,
-.t.fnName {
-  color: #32308e;
-}
-
-.token.primitive,
-.t.primitive {
-  color: #922;
-}
-
-.token.number,
-.t.typeParam {
-  color: #905;
-}
-
-.t.typeQualifier,
-.t.typeName {
-  color: #013679;
-}
-
-.t.param {
-  color: #945277;
-}
-
-.t.memberName {
-  color: teal;
-}
-
-.token.block-keyword,
-.token.keyword,
-.t.keyword {
-  color: #a51;
-}
-
-.token.string,
-.token.regex {
-  color: #df5050;
-}
-
-.token.operator {
-  color: #a67f59;
-}
-
-.token.comment {
-  color: #998;
-  font-style: italic;
 }
 
 a.try-it {
@@ -458,6 +420,16 @@ img {
   color: #141420;
 }
 
+@media (prefers-color-scheme: dark) {
+  .toolBar {
+    color: #bbb;
+  }
+
+  .toolBar .selected {
+    color: #fff;
+  }
+}
+
 @media only screen and (max-width: 680px) {
   .toolBar {
     display: none;
@@ -547,7 +519,7 @@ img {
 }
 
 .typeHeader {
-  color: #555;
+  color: light-dark(#555, #fff);
   font-size: 1.5em;
   font-weight: normal;
   margin: 1rem 0;
@@ -560,7 +532,7 @@ img {
 }
 
 .infoHeader {
-  color: #555;
+  color: light-dark(#555, #fff);
   font-size: 10px;
   letter-spacing: 0.25ch;
   line-height: 16px;
