@@ -420,6 +420,16 @@ img {
   color: #141420;
 }
 
+@media (prefers-color-scheme: dark) {
+  .toolBar {
+    color: #bbb;
+  }
+
+  .toolBar .selected {
+    color: #fff;
+  }
+}
+
 @media only screen and (max-width: 680px) {
   .toolBar {
     display: none;
@@ -509,7 +519,7 @@ img {
 }
 
 .typeHeader {
-  color: #555;
+  color: light-dark(#555, #fff);
   font-size: 1.5em;
   font-weight: normal;
   margin: 1rem 0;
@@ -522,7 +532,7 @@ img {
 }
 
 .infoHeader {
-  color: #555;
+  color: light-dark(#555, #fff);
   font-size: 10px;
   letter-spacing: 0.25ch;
   line-height: 16px;
