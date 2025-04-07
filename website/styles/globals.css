@@ -131,67 +131,6 @@ blockquote > :last-child {
   padding-left: 2ch;
 }
 
-/* TODO: not random colors */
-
-.token.punctuation,
-.token.ignore,
-.t.interfaceDef,
-.t.member,
-.t.callSig {
-  color: #808890;
-}
-
-.token.function,
-.token.class-name,
-.token.qualifier,
-.t.fnQualifier,
-.t.fnName {
-  color: #32308e;
-}
-
-.token.primitive,
-.t.primitive {
-  color: #922;
-}
-
-.token.number,
-.t.typeParam {
-  color: #905;
-}
-
-.t.typeQualifier,
-.t.typeName {
-  color: #013679;
-}
-
-.t.param {
-  color: #945277;
-}
-
-.t.memberName {
-  color: teal;
-}
-
-.token.block-keyword,
-.token.keyword,
-.t.keyword {
-  color: #a51;
-}
-
-.token.string,
-.token.regex {
-  color: #df5050;
-}
-
-.token.operator {
-  color: #a67f59;
-}
-
-.token.comment {
-  color: #998;
-  font-style: italic;
-}
-
 a.try-it {
   position: absolute;
   cursor: pointer;
