@@ -1,0 +1,29 @@
+import Repl from '@/repl/Repl.tsx';
+
+Like `mergeDeep()`, but when two non-collections or incompatible
+collections are encountered at the same key, it uses the `merger` function
+to determine the resulting value. Collections are considered incompatible
+if they fall into separate categories between keyed, indexed, and set-like.
+
+A functional alternative to `collection.mergeDeepWith()` which will also
+work with plain Objects and Arrays.
+
+```js
+import { mergeDeepWith } from 'immutable';
+const original = { x: { y: 123 } };
+
+mergeDeepWith((oldVal, newVal) => oldVal + newVal, original, { x: { y: 456 } }); // { x: { y: 579 }}
+
+console.log(original); // { x: { y: 123 }}
+```
+
+```
+const original = { x: { y: 123 } };
+
+mergeDeepWith((oldVal, newVal) => oldVal + newVal, original, { x: { y: 456 } });
+```
+
+<Repl
+  defaultValue={`List([1, 2, 3])
+`}
+/>
