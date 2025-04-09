@@ -1,0 +1,31 @@
+import Repl from '@/repl/Repl.tsx';
+
+# mergeDeep()
+
+Like [`merge()`](<../merge()>), but when two compatible collections are encountered with
+the same key, it merges them as well, recursing deeply through the nested
+data. Two collections are considered to be compatible (and thus will be
+merged together) if they both fall into one of three categories: keyed
+(e.g., [`Map`](../Map)s, [`Record`](../Record)s, and objects), indexed (e.g., [`List`](../List)s and
+arrays), or set-like (e.g., [`Set`](../Set)s). If they fall into separate
+categories, [`mergeDeep`](<../mergeDeep()>) will replace the existing collection with the
+collection being merged in. This behavior can be customized by using
+[`mergeDeepWith()`](<../mergeDeepWith()>).
+
+<Signature code={`mergeDeep(collection, ...collections)`} />
+
+Note: Indexed and set-like collections are merged using
+`concat()`/`union()` and therefore do not recurse.
+
+A functional alternative to `collection.mergeDeep()` which will also work
+with plain Objects and Arrays.
+
+<Repl defaultValue={`List(['a', 'b', 'c'])`} />
+
+// TODO this should be in the repl but it does have an error
+
+```js
+const original = { x: { y: 123 } };
+mergeDeep(original, { x: { z: 456 } }); // { x: { y: 123, z: 456 }}
+console.log(original); // { x: { y: 123 }}
+```

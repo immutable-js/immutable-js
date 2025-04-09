@@ -65,7 +65,7 @@ function Repl({ defaultValue, onRun }: Props): JSX.Element {
         </button>
       </div>
 
-      <pre id="output">
+      <pre className="repl-output">
         <FormatterOutput output={output} />
       </pre>
     </div>
