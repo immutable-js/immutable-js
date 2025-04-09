@@ -1,7 +1,8 @@
+import { SideBar } from '@/Sidebar';
+import { DocSearch } from '@/DocSearch';
 import { DocHeader } from '../../../DocHeader';
 import { ImmutableConsole } from '../../../ImmutableConsole';
 import { getVersions } from '../../../static/getVersions';
-import { getVersionFromParams } from '../../getVersionFromParams';
 
 export default async function VersionLayout(props: {
   children: React.ReactNode;
@@ -15,14 +16,25 @@ export default async function VersionLayout(props: {
 
   const version = 'v5';
 
+  // TODO get the real links from the file list
+  const sidebarLinks = [
+    { label: 'List', url: `/docs/${version}/List` },
+    { label: 'mergeDeep()', url: `/docs/${version}/mergeDeep()` },
+    { label: 'mergeDeepWith()', url: `/docs/${version}/mergeDeepWith()` },
+  ];
+
   return (
     <div>
       <ImmutableConsole version={version} />
       <DocHeader versions={versions} currentVersion={version} />
       <div className="pageBody">
         <div className="contents">
-          <div>sidebar</div>
-          <div className="docContents">{children}</div>
+          <SideBar links={sidebarLinks} />
+
+          <div className="docContents">
+            <DocSearch />
+            {children}
+          </div>
         </div>
       </div>
     </div>

@@ -64,6 +64,18 @@ h6 {
   color: var(--header-color);
 }
 
+h1 {
+  color: light-dark(#555, #fff);
+  font-size: 1.5em;
+  margin: 1rem 0;
+  font-weight: bold;
+}
+
+h1.mainTitle {
+  font-size: 2em;
+  margin: 1.34rem 0;
+}
+
 h2 {
   margin: 4rem 0 1rem;
 }
@@ -76,7 +88,8 @@ h4 {
   margin: 1rem 0 0;
 }
 
-a {
+a,
+a > code {
   color: var(--link-color);
   text-decoration: none;
 }
@@ -116,6 +129,7 @@ blockquote > :last-child {
 
 /* Markdown */
 
+pre > code,
 .codeBlock {
   -webkit-overflow-scrolling: touch;
   background: var(--code-block-bg-color);
@@ -174,6 +188,7 @@ a.try-it {
 
 .contents > .docContents {
   flex-grow: 1;
+  max-width: calc(1024px - 340px); /* contents width minus sidebar */
 }
 
 img {
@@ -516,14 +531,6 @@ img {
 
 .t a:hover {
   background-color: rgba(112, 170, 220, 0.2);
-}
-
-.typeHeader {
-  color: light-dark(#555, #fff);
-  font-size: 1.5em;
-  font-weight: normal;
-  margin: 1rem 0;
-  font-weight: bold;
 }
 
 .interfaceMember {
