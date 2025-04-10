@@ -34,9 +34,9 @@ test('Factory', () => {
 
   expect(point).type.toBe<PointClass>();
 
-  expect(point.x).type.toBeNumber();
+  expect(point.x).type.toBe<number>();
 
-  expect(point.y).type.toBeNumber();
+  expect(point.y).type.toBe<number>();
 
   expect(point.setX(10)).type.toBe<PointClass>();
 
@@ -50,7 +50,7 @@ test('Factory', () => {
 test('.getDescriptiveName', () => {
   const PointXY = Record({ x: 0, y: 0 });
 
-  expect(Record.getDescriptiveName(PointXY())).type.toBeString();
+  expect(Record.getDescriptiveName(PointXY())).type.toBe<string>();
 
   expect(Record.getDescriptiveName({})).type.toRaiseError();
 });

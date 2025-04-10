@@ -80,9 +80,9 @@ test('getIn', () => {
 });
 
 test('has', () => {
-  expect(has([1, 2, 3], 0)).type.toBeBoolean();
+  expect(has([1, 2, 3], 0)).type.toBe<boolean>();
 
-  expect(has({ x: 10, y: 20 }, 'x')).type.toBeBoolean();
+  expect(has({ x: 10, y: 20 }, 'x')).type.toBe<boolean>();
 });
 
 test('hasIn', () => {
