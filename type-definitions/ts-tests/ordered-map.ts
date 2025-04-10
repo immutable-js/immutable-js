@@ -108,7 +108,7 @@ test('#clear', () => {
 });
 
 test('#update', () => {
-  expect(OrderedMap().update((v) => 1)).type.toBeNumber();
+  expect(OrderedMap().update((v) => 1)).type.toBe<number>();
 
   expect(
     OrderedMap<number, number>().update(

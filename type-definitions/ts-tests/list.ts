@@ -179,7 +179,7 @@ test('#shift', () => {
 });
 
 test('#update', () => {
-  expect(List().update((v) => 1)).type.toBeNumber();
+  expect(List().update((v) => 1)).type.toBe<number>();
 
   expect(
     List<number>().update((v: List<string> | undefined) => v)
@@ -398,6 +398,6 @@ test('for of loops', () => {
   const list = List([1, 2, 3, 4]);
 
   for (const val of list) {
-    expect(val).type.toBeNumber();
+    expect(val).type.toBe<number>();
   }
 });
