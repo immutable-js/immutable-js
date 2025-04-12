@@ -27,9 +27,27 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         />
       );
     },
+    MemberLabel: ({ label, alias }: { label: string; alias?: string }) => {
+      return (
+        <div id={label}>
+          <h3 className="memberLabel">
+            <a className="anchor" href={`#${label}`}>
+              {label}
+              <span className="anchorLink">§</span>
+            </a>
+          </h3>
+          {alias && (
+            <>
+              <h4 className="infoHeader">
+                Alias: <code>{alias}</code>
+              </h4>
+            </>
+          )}
+        </div>
+      );
+    },
     Signature: ({ code }) => {
       const language = 'ts';
-      console.log(code);
       const html = Prism.highlight(
         String(code).trim(),
         Prism.languages[language],

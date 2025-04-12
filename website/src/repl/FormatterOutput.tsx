@@ -8,17 +8,19 @@ import { useEffect, useRef, type JSX } from 'react';
  * The `jsonml-html` package can convert jsonml to HTML.
  */
 type Props = {
-  output: {
-    header: Array<unknown>;
-    body?: Array<unknown>;
-  };
+  output:
+    | undefined
+    | {
+        header: Array<unknown>;
+        body?: Array<unknown>;
+      };
 };
 
 export default function FormatterOutput({ output }: Props): JSX.Element {
   const header = useRef<HTMLDivElement>(null);
   const body = useRef<HTMLDivElement>(null);
 
-  const htmlHeader = toHTML(output.header);
+  const htmlHeader = output ? toHTML(output.header) : undefined;
 
   useEffect(() => {
     if (header.current && htmlHeader) {
@@ -26,13 +28,17 @@ export default function FormatterOutput({ output }: Props): JSX.Element {
     }
   }, [htmlHeader]);
 
-  const htmlBody = output.body ? toHTML(output.body) : null;
+  const htmlBody = output?.body ? toHTML(output.body) : null;
 
   useEffect(() => {
     if (body.current) {
       body.current.replaceChildren(htmlBody ?? '');
     }
   }, [htmlBody]);
+
+  if (!output) {
+    return <div>[No output]</div>;
+  }
 
   return (
     <>

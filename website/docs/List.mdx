@@ -1,0 +1,393 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# List
+
+Lists are ordered indexed dense collections, much like a JavaScript Array.
+
+<Signature code={`type List<T> extends Collection.Indexed<T>`} />
+
+Lists are immutable and fully persistent with O(log32 N) gets and sets, and O(1) push and pop.
+
+Lists implement Deque, with efficient addition and removal from both the end (<CodeLink to="push" />, <CodeLink to="pop" />) and beginning (<CodeLink to="unshift" />, <CodeLink to="shift" />).
+
+Unlike a JavaScript Array, there is no distinction between an "unset" index and an index set to undefined. <CodeLink to="forEach">List#forEach</CodeLink> visits all indices from 0 to size, regardless of whether they were explicitly defined.
+
+## Construction
+
+<MemberLabel label="List()" />
+
+Create a new immutable List containing the values of the provided collection-like.
+
+<Signature code={`List<T>(collection?: Iterable<T> | ArrayLike<T>): List<T>`} />
+
+Note: <CodeLink to="List" /> is a factory function and not a class, and does not use the `new` keyword during construction.
+
+<Repl imports={['List', 'Set']} defaultValue={`List()`} />
+
+<Repl
+  defaultValue={`const plainArray = [ 1, 2, 3, 4 ]
+List(plainArray)`}
+/>
+
+<Repl
+  defaultValue={`const plainSet = Set([ 1, 2, 3, 4 ])
+List(plainSet)`}
+/>
+
+<Repl
+  defaultValue={`const arrayIterator = [ 1, 2, 3, 4 ][Symbol.iterator]()
+List(arrayIterator)`}
+/>
+
+## Static methods
+
+<MemberLabel label="List.isList()" />
+
+<Signature code={`List.isList(value: any): boolean`} />
+
+<MemberLabel label="List.of()" />
+
+<Signature code={`List.of<T>(...values: Array<T>): List<T>`} />
+
+## Members
+
+<MemberLabel label="size" />
+
+The number of items in this List.
+
+<Signature code={`size: number`} />
+
+## Persistent changes
+
+<MemberLabel label="set()" />
+
+Returns a new List which includes value at index. If index already exists in this List, it will be replaced.
+
+<Signature code={`set(index: number, value: T): List<T>`} />
+
+index may be a negative number, which indexes back from the end of the List. `v.set(-1, "value")` sets the last item in the List.
+
+If index larger than `size`, the returned List's `size` will be large enough to include the index.
+
+<Repl
+  defaultValue={`const originalList = List([ 0 ]);
+// List [ 0 ]
+originalList.set(1, 1);
+// List [ 0, 1 ]
+originalList.set(0, 'overwritten');
+// List [ "overwritten" ]
+originalList.set(2, 2);
+// List [ 0, undefined, 2 ]
+
+List().set(50000, 'value').size;
+// 50001
+`} />
+
+Note: `set` can be used in <CodeLink to="withMutations()">withMutations</CodeLink>.
+
+<MemberLabel label="delete()" alias="remove()" />
+
+Returns a new List which excludes this `index` and with a size 1 less than this List. Values at indices above `index` are shifted down by 1 to fill the position.
+
+This is synonymous with `list.splice(index, 1)`.
+
+`index` may be a negative number, which indexes back from the end of the List. `v.delete(-1)` deletes the last item in the List.
+
+Note: `delete` cannot be safely used in IE8
+
+<Repl defaultValue={`List([ 0, 1, 2, 3, 4 ]).delete(0);`} />
+
+Since `delete()` re-indexes values, it produces a complete copy, which has `O(N)` complexity.
+
+Note: `delete` _cannot_ be used in <CodeLink to="withMutations()">withMutations</CodeLink>.
+
+<MemberLabel label="insert()" />
+
+Returns a new List with `value` at `index` with a size 1 more than this List. Values at indices above `index` are shifted over by 1.
+
+<Signature code={`insert(index: number, value: T): List<T>`} />
+
+This is synonymous with `list.splice(index, 0, value)`.
+
+<Repl defaultValue={`List([ 0, 1, 2, 3, 4 ]).insert(6, 5)`} />
+
+Since `insert()` re-indexes values, it produces a complete copy, which has `O(N)` complexity.
+
+Note: `insert` _cannot_ be used in <CodeLink to="withMutations()">withMutations</CodeLink>.
+
+<MemberLabel label="clear()" />
+
+Returns a new List with 0 size and no values in constant time.
+
+<Signature code={`clear(): List<T>`} />
+
+<Repl defaultValue={`List([ 1, 2, 3, 4 ]).clear()`} />
+
+Note: `clear` can be used in <CodeLink to="withMutations()">withMutations</CodeLink>.
+
+<MemberLabel label="push()" />
+
+Returns a new List with the provided `values` appended, starting at this List's `size`.
+
+<Signature code={`push(...values: Array<T>): List<T>`} />
+
+<Repl defaultValue={`List([ 1, 2, 3, 4 ]).push(5)`} />
+
+Note: `push` can be used in <CodeLink to="withMutations()">withMutations</CodeLink>.
+
+<MemberLabel label="pop()" />
+
+Returns a new List with a size ones less than this List, excluding
+the last index in this List.
+
+<Signature code={`pop(): List<T>`} />
+
+Note: this differs from `Array#pop` because it returns a new List rather than the removed value. Use `last()` to get the last value
+in this List.
+
+<Repl defaultValue={`List([ 1, 2, 3, 4 ]).pop()`} />
+
+Note: `pop` can be used in <CodeLink to="withMutations()">withMutations</CodeLink>.
+
+<MemberLabel label="unshift()" />
+
+Returns a new List with the provided `values` prepended, shifting other values ahead to higher indices.
+
+<Signature code={`unshift(...values: Array<T>): List<T>`} />
+
+<Repl defaultValue={`List([ 2, 3, 4 ]).unshift(1)`} />
+
+Note: `unshift` can be used in <CodeLink to="withMutations()">withMutations</CodeLink>.
+
+<MemberLabel label="shift()" />
+
+<MemberLabel label="update()" />
+
+<MemberLabel label="setSize()" />
+
+## Deep persistent changes
+
+<MemberLabel label="setIn()" />
+
+<MemberLabel label="deleteIn()" />
+
+<MemberLabel label="updateIn()" />
+
+<MemberLabel label="mergeIn()" />
+
+<MemberLabel label="mergeDeepIn()" />
+
+## Transient changes
+
+<MemberLabel label="withMutations()" />
+
+<MemberLabel label="asMutable()" />
+
+<MemberLabel label="wasAltered()" />
+
+<MemberLabel label="asImmutable()" />
+
+## Sequence algorithms
+
+<MemberLabel label="concat()" />
+
+<MemberLabel label="map()" />
+
+<MemberLabel label="flatMap()" />
+
+<MemberLabel label="filter()" />
+
+<MemberLabel label="partition()" />
+
+<MemberLabel label="zip()" />
+
+<MemberLabel label="zipAll()" />
+
+<MemberLabel label="zipWith()" />
+
+<MemberLabel label="shuffle()" />
+
+<MemberLabel label="[Symbol.iterator]()" />
+
+<MemberLabel label="filterNot()" />
+
+<MemberLabel label="reverse()" />
+
+<MemberLabel label="sort()" />
+
+<MemberLabel label="sortBy()" />
+
+<MemberLabel label="groupBy()" />
+
+## Conversion to JavaScript types
+
+<MemberLabel label="toJS()" />
+
+<MemberLabel label="toJSON()" />
+
+<MemberLabel label="toArray()" />
+
+<MemberLabel label="toObject()" />
+
+## Reading values
+
+<MemberLabel label="get()" />
+
+<MemberLabel label="has()" />
+
+<MemberLabel label="includes()" />
+
+<MemberLabel label="first()" />
+
+<MemberLabel label="last()" />
+
+## Conversion to Seq
+
+<MemberLabel label="toSeq()" />
+
+<MemberLabel label="fromEntrySeq()" />
+
+<MemberLabel label="toKeyedSeq()" />
+
+<MemberLabel label="toIndexedSeq()" />
+
+<MemberLabel label="toSetSeq()" />
+
+## Combination
+
+<MemberLabel label="interpose()" />
+
+<MemberLabel label="interleave()" />
+
+<MemberLabel label="splice()" />
+
+<MemberLabel label="flatten()" />
+
+## Search for value
+
+<MemberLabel label="indexOf()" />
+
+<MemberLabel label="lastIndexOf()" />
+
+<MemberLabel label="findIndex()" />
+
+<MemberLabel label="findLastIndex()" />
+
+<MemberLabel label="find()" />
+
+<MemberLabel label="findLast()" />
+
+<MemberLabel label="findEntry()" />
+
+<MemberLabel label="findLastEntry()" />
+
+<MemberLabel label="findKey()" />
+
+<MemberLabel label="findLastKey()" />
+
+<MemberLabel label="keyOf()" />
+
+<MemberLabel label="lastKeyOf()" />
+
+<MemberLabel label="max()" />
+
+<MemberLabel label="maxBy()" />
+
+<MemberLabel label="min()" />
+
+<MemberLabel label="minBy()" />
+
+## Value equality
+
+<MemberLabel label="equals()" />
+
+<MemberLabel label="hashCode()" />
+
+## Reading deep values
+
+<MemberLabel label="getIn()" />
+
+<MemberLabel label="hasIn()" />
+
+## Conversion to Collections
+
+<MemberLabel label="toMap()" />
+
+<MemberLabel label="toOrderedMap()" />
+
+<MemberLabel label="toSet()" />
+
+<MemberLabel label="toOrderedSet()" />
+
+<MemberLabel label="toList()" />
+
+<MemberLabel label="toStack()" />
+
+## Iterators
+
+<MemberLabel label="keys()" />
+
+<MemberLabel label="values()" />
+
+<MemberLabel label="entries()" />
+
+## Collections (Seq)
+
+<MemberLabel label="keySeq()" />
+
+<MemberLabel label="valueSeq()" />
+
+<MemberLabel label="entrySeq()" />
+
+## Side effects
+
+<MemberLabel label="forEach()" />
+
+## Creating subsets
+
+<MemberLabel label="slice()" />
+
+<MemberLabel label="rest()" />
+
+<MemberLabel label="butLast()" />
+
+<MemberLabel label="skip()" />
+
+<MemberLabel label="skipLast()" />
+
+<MemberLabel label="skipWhile()" />
+
+<MemberLabel label="skipUntil()" />
+
+<MemberLabel label="take()" />
+
+<MemberLabel label="takeLast()" />
+
+<MemberLabel label="takeWhile()" />
+
+<MemberLabel label="takeUntil()" />
+
+## Reducing a value
+
+<MemberLabel label="reduce()" />
+
+<MemberLabel label="reduceRight()" />
+
+<MemberLabel label="every()" />
+
+<MemberLabel label="some()" />
+
+<MemberLabel label="join()" />
+
+<MemberLabel label="isEmpty()" />
+
+<MemberLabel label="count()" />
+
+<MemberLabel label="countBy()" />
+
+## Comparison
+
+<MemberLabel label="isSubset()" />
+
+<MemberLabel label="isSuperset()" />
