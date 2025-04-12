@@ -62,13 +62,13 @@ The number of items in this List.
 
 <MemberLabel label="set()" />
 
-Returns a new List which includes value at index. If index already exists in this List, it will be replaced.
+Returns a new List which includes `value` at `index`. If `index` already exists in this List, it will be replaced.
 
 <Signature code={`set(index: number, value: T): List<T>`} />
 
-index may be a negative number, which indexes back from the end of the List. `v.set(-1, "value")` sets the last item in the List.
+`index` may be a negative number, which indexes back from the end of the List. `v.set(-1, "value")` sets the last item in the List.
 
-If index larger than `size`, the returned List's `size` will be large enough to include the index.
+If `index` larger than <CodeLink to="size" />, the returned List's <CodeLink to="size" /> will be large enough to include the index.
 
 <Repl
   defaultValue={`const originalList = List([ 0 ]);
@@ -81,8 +81,7 @@ originalList.set(2, 2);
 // List [ 0, undefined, 2 ]
 
 List().set(50000, 'value').size;
-// 50001
-`} />
+// 50001`} />
 
 Note: `set` can be used in <CodeLink to="withMutations()">withMutations</CodeLink>.
 
@@ -92,9 +91,11 @@ Returns a new List which excludes this `index` and with a size 1 less than this 
 
 This is synonymous with `list.splice(index, 1)`.
 
+<Signature code={`delete(index: number): List<T>`} />
+
 `index` may be a negative number, which indexes back from the end of the List. `v.delete(-1)` deletes the last item in the List.
 
-Note: `delete` cannot be safely used in IE8
+Note: `delete` cannot be safely used in IE8.
 
 <Repl defaultValue={`List([ 0, 1, 2, 3, 4 ]).delete(0);`} />
 
@@ -138,8 +139,7 @@ Note: `push` can be used in <CodeLink to="withMutations()">withMutations</CodeLi
 
 <MemberLabel label="pop()" />
 
-Returns a new List with a size ones less than this List, excluding
-the last index in this List.
+Returns a new List with a size one less than this List, excluding the last index in this List.
 
 <Signature code={`pop(): List<T>`} />
 

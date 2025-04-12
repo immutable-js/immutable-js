@@ -38,9 +38,8 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
           </h3>
           {alias && (
             <>
-              <h4 className="infoHeader">
-                Alias: <code>{alias}</code>
-              </h4>
+              <h4 className="infoHeader">Alias:</h4>
+              <code>{alias}</code>
             </>
           )}
         </div>
