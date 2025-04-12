@@ -6,9 +6,13 @@ import FormatterOutput from './FormatterOutput';
 import './repl.css';
 import { Element, JsonMLElementList } from '../worker/jsonml-types';
 
-type Props = { defaultValue: string; onRun?: (code: string) => void };
+type Props = {
+  defaultValue: string;
+  onRun?: (code: string) => void;
+  imports?: Array<string>;
+};
 
-function Repl({ defaultValue, onRun }: Props): JSX.Element {
+function Repl({ defaultValue, onRun, imports }: Props): JSX.Element {
   const [code, setCode] = useState<string>(defaultValue);
   const [output, setOutput] = useState<JsonMLElementList | Element>([]);
   const workerRef = useRef<Worker | null>(null);
@@ -30,13 +34,17 @@ function Repl({ defaultValue, onRun }: Props): JSX.Element {
 
   const runCode = () => {
     if (workerRef.current) {
+      // ignore import statements as we do unpack all immutable data in the worker
+      // but it might be useful in the documentation
+      const cleanedCode = code; // .replace(/^import.*/m, '');
+
       // notify parent
       if (onRun) {
-        onRun(code);
+        onRun(cleanedCode);
       }
 
       // send message to worker
-      workerRef.current.postMessage(code);
+      workerRef.current.postMessage(cleanedCode);
       workerRef.current.onmessage = (event) => {
         if (event.data.error) {
           setOutput(['div', 'Error: ' + event.data.error]);
@@ -58,16 +66,26 @@ function Repl({ defaultValue, onRun }: Props): JSX.Element {
       <h4>Live example</h4>
 
       <div className="repl-editor-container">
-        <Editor value={code} onChange={setCode} />
+        <div className="repl-editor">
+          {imports && (
+            <Editor
+              value={`import { ${imports.join(', ')} } from 'immutable';`}
+            />
+          )}
+
+          <Editor value={code} onChange={setCode} />
+        </div>
 
         <button type="button" onClick={runCode}>
           Run
         </button>
       </div>
 
-      <pre className="repl-output">
-        <FormatterOutput output={output} />
-      </pre>
+      {output && (
+        <pre className="repl-output">
+          <FormatterOutput output={output} />
+        </pre>
+      )}
     </div>
   );
 }

@@ -87,8 +87,47 @@ self.onmessage = function (event) {
   }, 2000);
 
   try {
-    const result = eval(event.data);
+    // track globalThis variables to remove them later
+
+    // if (!globalThis.globalThisKeysBefore) {
+    //   globalThis.globalThisKeysBefore = [...Object.keys(globalThis)];
+    // }
+
+    const code = event.data;
+
+    // track const and let variables into global scope to record them
+
+    // it might make a userland code fail with a conflict.
+
+    // We might want to indicate the user in the REPL that they should not use let/const if they want to have the result returned
+
+    // code = code.replace(/^(const|let|var) /gm, '');
+
+    const result = eval(code);
+
+    // const globalThisKeys = Object.keys(globalThis).filter((key) => {
+
+    //   return !globalThisKeysBefore.includes(key) && key !== 'globalThisKeysBefore';
+
+    // });
+
+    // console.log(globalThisKeys)
+
     clearTimeout(timeoutId);
+
+    // TODO handle more than one result
+
+    // if (!result) {
+
+    //   // result = globalThis[globalThisKeys[0]];
+
+    //   result = globalThisKeys.map((key) => {
+
+    //     globalThis[key];
+
+    //   });
+
+    // }
 
     self.postMessage({ output: normalizeResult(immutableFormaters, result) });
   } catch (error) {
