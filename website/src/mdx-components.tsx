@@ -45,6 +45,14 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         </div>
       );
     },
+    See: ({ code }: { code: string }) => {
+      return (
+        <>
+          <h4>See</h4>
+          <code>{code}</code>
+        </>
+      );
+    },
     Signature: ({ code }) => {
       const language = 'ts';
       const html = Prism.highlight(

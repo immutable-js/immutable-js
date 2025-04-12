@@ -162,141 +162,754 @@ Note: `unshift` can be used in <CodeLink to="withMutations()">withMutations</Cod
 
 <MemberLabel label="shift()" />
 
+Returns a new List with a size one less than this List, excluding the first index in this List, shifting all other values to a lower index.
+
+<Signature code={`shift(): List<T>`} />
+
+Note: this differs from `Array#shift` because it returns a new List rather than the removed value. Use `first()` to get the first value in this List.
+
+<Repl defaultValue={`List([ 0, 1, 2, 3, 4 ]).shift()`} />
+
+Note: `shift` can be used in <CodeLink to="withMutations()">withMutations</CodeLink>.
+
 <MemberLabel label="update()" />
 
+Returns a new List with an updated value at `index` with the return value of calling `updater` with the existing value, or `notSetValue` if `index` was not set. If called with a single argument, `updater` is called with the List itself.
+
+<Signature
+  code={`update(index: number, notSetValue: T, updater: (value: T) => T): List<T>
+update(index: number, updater: (value: T | undefined) => T | undefined): List<T>
+update<R>(updater: (value: this) => R): R`}
+/>
+
+`index` may be a negative number, which indexes back from the end of the List. `v.update(-1)` updates the last item in the List.
+
+<Repl
+  defaultValue={`const list = List([ 'a', 'b', 'c' ])
+const result = list.update(2, val => val.toUpperCase())
+// List [ "a", "b", "C" ]`}
+/>
+
+This can be very useful as a way to "chain" a normal function into a sequence of methods. RxJS calls this "let" and lodash calls it "thru".
+
+For example, to sum a List after mapping and filtering:
+
+<Repl
+  defaultValue={`function sum(collection) {
+  return collection.reduce((sum, x) => sum + x, 0)
+}
+
+List([ 1, 2, 3 ])
+.map(x => x + 1)
+.filter(x => x % 2 === 0)
+.update(sum)`}
+/>
+
+Note: `update(index)` can be used in <CodeLink to="withMutations()">withMutations</CodeLink>.
+
 <MemberLabel label="setSize()" />
+
+Returns a new List with size `size`. If `size` is less than this List's size, the new List will exclude values at the higher indices. If `size` is greater than this List's size, the new List will have undefined values for the newly available indices.
+
+<Signature code={`setSize(size: number): List<T>`} />
+
+When building a new List and the final size is known up front, `setSize` used in conjunction with <CodeLink to="withMutations()">withMutations</CodeLink> may result in the more performant construction.
 
 ## Deep persistent changes
 
 <MemberLabel label="setIn()" />
 
-<MemberLabel label="deleteIn()" />
+Returns a new List having set `value` at this `keyPath`. If any keys in `keyPath` do not exist, a new immutable Map will be created at that key.
+
+<Signature
+  code={`setIn(keyPath: Iterable<unknown>, value: unknown): List<T>`}
+/>
+
+Index numbers are used as keys to determine the path to follow in the List.
+
+<Repl
+  defaultValue={`const list = List([ 0, 1, 2, List([ 3, 4 ])])
+list.setIn([3, 0], 999);
+// List [ 0, 1, 2, List [ 999, 4 ] ]`}
+/>
+
+Plain JavaScript Object or Arrays may be nested within an Immutable.js Collection, and setIn() can update those values as well, treating them immutably by creating new copies of those values with the changes applied.
+
+<Repl
+  defaultValue={`const list = List([ 0, 1, 2, { plain: 'object' }])
+list.setIn([3, 'plain'], 'value');
+// List([ 0, 1, 2, { plain: 'value' }])`}
+/>
+
+Note: `setIn` can be used in <CodeLink to="withMutations()">withMutations</CodeLink>.
+
+<MemberLabel label="deleteIn()" alias="removeIn()" />
+
+Returns a new List having removed the value at this `keyPath`. If any keys in `keyPath` do not exist, no change will occur.
+
+<Signature code={`deleteIn(keyPath: Iterable<unknown>): List<T>`} />
+
+<Repl
+  defaultValue={`const list = List([ 0, 1, 2, List([ 3, 4 ])])
+list.deleteIn([3, 0]);`}
+/>
+
+Plain JavaScript Object or Arrays may be nested within an Immutable.js Collection, and `removeIn()` can update those values as well, treating them immutably by creating new copies of those values with the changes applied.
+
+<Repl
+  defaultValue={`const list = List([ 0, 1, 2, { plain: 'object' }])
+list.removeIn([3, 'plain']);`}
+/>
+
+Note: `deleteIn` _cannot_ be safely used in <CodeLink to="withMutations()">withMutations</CodeLink>.
 
 <MemberLabel label="updateIn()" />
 
+<Signature
+  code={`updateIn(keyPath: Iterable<unknown>, notSetValue: unknown, updater: (value: unknown) => unknown): this
+updateIn(keyPath: Iterable<unknown>, updater: (value: unknown) => unknown): this`}
+/>
+
+Note: `updateIn` can be used in <CodeLink to="withMutations()">withMutations</CodeLink>.
+
 <MemberLabel label="mergeIn()" />
 
+<Signature
+  code={`mergeIn(keyPath: Iterable<unknown>, ...collections: Array<unknown>): this`}
+/>
+
+Note: `mergeIn` can be used in <CodeLink to="withMutations()">withMutations</CodeLink>.
+
 <MemberLabel label="mergeDeepIn()" />
+
+<Signature
+  code={`mergeDeepIn(keyPath: Iterable<unknown>, ...collections: Array<unknown>): this`}
+/>
+
+Note: `mergeDeepIn` can be used in <CodeLink to="withMutations()">withMutations</CodeLink>.
 
 ## Transient changes
 
 <MemberLabel label="withMutations()" />
 
+Note: Not all methods can be safely used on a mutable collection or within `withMutations`! Check the documentation for each method to see if it allows being used in `withMutations`.
+
+<Signature
+  code={`withMutations(mutator: (mutable: this) => unknown): List<T>`}
+/>
+
 <MemberLabel label="asMutable()" />
+
+An alternative API for withMutations()
+
+Note: Not all methods can be safely used on a mutable collection or within `withMutations`! Check the documentation for each method to see if it allows being used in `withMutations`.
+
+<Signature code={`asMutable(): List<T>`} />
+
+<See code={`Map#asMutable`} />
 
 <MemberLabel label="wasAltered()" />
 
+<Signature code={`wasAltered(): boolean`} />
+
+<See code={`Map#wasAltered`} />
+
 <MemberLabel label="asImmutable()" />
+
+<Signature code={`asImmutable(): this`} />
+
+<See code={`Map#asImmutable`} />
 
 ## Sequence algorithms
 
-<MemberLabel label="concat()" />
+<MemberLabel label="concat()" alias="merge()" />
+
+Returns a new List with other values or collections concatenated to this one.
+
+<Signature
+  code={`concat<C>(...valuesOrCollections: Array<Iterable<C> | C>): List<T | C>`}
+/>
+
+Note: `concat` can be used in <CodeLink to="withMutations()">withMutations</CodeLink>.
 
 <MemberLabel label="map()" />
 
+Returns a new List with values passed through a `mapper` function.
+
+<Signature
+  code={`map<M>(mapper: (value: T, key: number, iter: this) => M, context?: unknown): List<M>`}
+/>
+
+<Repl defaultValue={`List([ 1, 2 ]).map(x => 10 * x)`} />
+
+<MemberLabel label="mapKeys()" />
+
+Returns a new List with values passed through a `mapper` function.
+
+<Signature
+  code={`mapKeys<M>(mapper: (value: T, key: number, iter: this) => M, context?: unknown): List<M>`}
+/>
+
+<See code={`Collection.Keyed#mapKeys()`} />
+
+<MemberLabel label="mapEntries()" />
+
+Returns a new List with values passed through a `mapper` function.
+
+<Signature
+  code={`mapEntries<KM, VM>(mapper: (entry: [K, V], index: number, iter: this) => [KM, VM] | undefined, context?: unknown): List<[KM, VM]>`}
+/>
+
 <MemberLabel label="flatMap()" />
+
+Flat-maps the List, returning a new List.
+
+Similar to `list.map(...).flatten(true)`.
+
+<Signature
+  code={`flatMap<M>(mapper: (value: T, key: number, iter: this) => Iterable<M>, context?: unknown): List<M>`}
+/>
 
 <MemberLabel label="filter()" />
 
+Returns a new List with only the values for which the `predicate` function returns true.
+
+Note: `filter()` always returns a new instance, even if it results in not filtering out any values.
+
+<Signature
+  code={`filter<F extends T>(predicate: (value: T, index: number, iter: this) => value is F, context?: unknown): List<F>`}
+/>
+
 <MemberLabel label="partition()" />
+
+Returns a new List with the values for which the `predicate` function returns false and another for which is returns true.
+
+<Signature
+  code={`partition<F extends T, C>(predicate: (this: C, value: T, index: number, iter: this) => value is F, context?: C): [List<T>, List<F>]`}
+/>
 
 <MemberLabel label="zip()" />
 
+Returns a List "zipped" with the provided collection.
+
+Like `zipWith`, but using the default `zipper`: creating an `Array`.
+
+<Signature
+  code={`zip<U>(other: Collection<unknown, U>): List<[T, U]>
+zip<U, V>(other: Collection<unknown, U>, other2: Collection<unknown, V>): List<[T, U, V]>`}
+/>
+
+<Repl
+  defaultValue={`const a = List([ 1, 2, 3 ]);
+const b = List([ 4, 5, 6 ]);
+const c = a.zip(b); // List [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]`}
+/>
+
 <MemberLabel label="zipAll()" />
+
+Returns a List "zipped" with the provided collections.
+
+Unlike `zip`, `zipAll` continues zipping until the longest collection is exhausted. Missing values from shorter collections are filled with `undefined`.
+
+<Signature
+  code={`zipAll<U>(other: Collection<unknown, U>): List<[T, U]>
+zipAll<U, V>(other: Collection<unknown, U>, other2: Collection<unknown, V>): List<[T, U, V]>`}
+/>
+
+<Repl
+  defaultValue={`const a = List([ 1, 2 ]);
+const b = List([ 3, 4, 5 ]);
+const c = a.zipAll(b);`}
+/>
+
+Note: Since zipAll will return a collection as large as the largest input, some results may contain undefined values.
+TypeScript cannot account for these without cases (as of v2.5).
 
 <MemberLabel label="zipWith()" />
 
+Returns a List "zipped" with the provided collections by using a custom `zipper` function.
+
+<Signature
+  code={`zipWith<U, Z>(zipper: (value: T, otherValue: U) => Z, otherCollection: Collection<unknown, U>): List<Z>
+zipWith<U, V, Z>(zipper: (value: T, otherValue: U, thirdValue: V) => Z, otherCollection: Collection<unknown, U>, thirdCollection: Collection<unknown, V>): List<Z>
+zipWith<Z>(zipper: (...values: Array<unknown>) => Z, ...collections: Array<Collection<unknown, unknown>>): List<Z>`}
+/>
+
+<Repl
+  defaultValue={`const a = List([ 1, 2, 3 ]);
+const b = List([ 4, 5, 6 ]);
+const c = a.zipWith((a, b) => a + b, b);`}
+/>
+
 <MemberLabel label="shuffle()" />
 
-<MemberLabel label="[Symbol.iterator]()" />
+Returns a new List with its values shuffled thanks to the [Fisher–Yates](https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle) algorithm.
+It uses Math.random, but you can provide your own random number generator.
+
+<Signature code={`shuffle(random?: () => number): this`} />
 
 <MemberLabel label="filterNot()" />
 
+Returns a new List with only the values for which the `predicate` function returns false.
+
+<Signature
+  code={`filterNot(predicate: (value: T, index: number, iter: this) => boolean, context?: unknown): this`}
+/>
+
+<Repl defaultValue={`List([ 1, 2, 3 ]).filterNot(x => x % 2 === 0);`} />
+
+Note: `filterNot()` always returns a new instance, even if it results in not filtering out any values.
+
 <MemberLabel label="reverse()" />
+
+Returns a new List with the order of the values reversed.
+
+<Signature code={`reverse(): List<T>`} />
+
+<Repl defaultValue={`List([ 1, 2, 3 ]).reverse();`} />
 
 <MemberLabel label="sort()" />
 
+Returns List of the same type which includes the same entries, stably sorted by using a comparator.
+
+<Signature code={`sort(comparator?: (valueA, valueB) => number): List<T>`} />
+
+<Repl defaultValue={`List([ 3, 2, 1 ]).sort((a, b) => b - a);`} />
+
+If a comparator is not provided, a default comparator uses `<` and `>`.
+
+`comparator(valueA, valueB)`:
+
+- Returns `0` if the elements should not be swapped.
+- Returns `-1` (or any negative number) if `valueA` comes before `valueB`
+- Returns `1` (or any positive number) if `valueA` comes after `valueB`
+- Alternatively, can return a value of the `PairSorting` enum type
+- Is pure, i.e. it must always return the same value for the same pair of values.
+
+When sorting collections which have no defined order, their ordered equivalents will be returned. e.g. `map.sort()` returns `OrderedMap`.
+
+Note: `sort()` always returns a new instance, even if the original was already sorted.
+
+Note: This is always an eager operation.
+
 <MemberLabel label="sortBy()" />
 
+Like `sort`, but also accepts a `comparatorValueMapper` which allows for sorting by more sophisticated means:
+
+<Signature
+  code={`sortBy(comparatorValueMapper: (value: T, iter: this) => C, comparator?: (a, b) => number): List<T>`}
+/>
+
+<Repl
+  defaultValue={`const l = List([
+  { name: 'Bob', age: 30 },
+  { name: 'Max', age: 25 },
+  { name: 'Lili', age: 35 }
+]);
+l.sortBy(person => person.age);`}
+/>
+
+Note: `sortBy()` always returns a new instance, even if the original was already sorted.
+
+Note: This is always an eager operation.
+
 <MemberLabel label="groupBy()" />
+
+Returns a `Map` of `List` grouped by the return value of the `grouper` function.
+
+<Signature
+  code={`groupBy<G>(grouper: (value: T, index: number, iter: this) => G, context?: unknown): Map<G, List<T>>`}
+/>
+
+Note: This is not a lazy operation.
+
+<Repl
+  defaultValue={`const listOfMaps = List([
+  Map({ v: 0 }),
+  Map({ v: 1 }),
+  Map({ v: 1 }),
+  Map({ v: 0 }),
+  Map({ v: 2 })
+])
+const groupsOfMaps = listOfMaps.groupBy(x => x.get('v'))`}
+/>
 
 ## Conversion to JavaScript types
 
 <MemberLabel label="toJS()" />
 
+Deeply converts this List to a JavaScript Array.
+
+<Signature code={`toJS(): Array<DeepCopy<T>>`} />
+
 <MemberLabel label="toJSON()" />
+
+Shallowly converts this Indexed collection to equivalent native JavaScript Array.
+
+<Signature code={`toJSON(): Array<T>`} />
 
 <MemberLabel label="toArray()" />
 
+Shallowly converts this collection to an Array.
+
+<Signature code={`toArray(): Array<T>`} />
+
 <MemberLabel label="toObject()" />
+
+Shallowly converts this List to a JavaScript Object.
+
+<Signature code={`toObject(): { [key: string]: T }`} />
+
+Convert keys to strings.
 
 ## Reading values
 
 <MemberLabel label="get()" />
 
+Returns the value at `index`.
+
+<Signature code={`get(index: number): T`} />
+
+<Repl defaultValue={`List([ 1, 2, 3 ]).get(1);`} />
+
 <MemberLabel label="has()" />
 
-<MemberLabel label="includes()" />
+True if a key exists within this Collection, using Immutable.is to determine equality
+
+<Signature code={`has(key): boolean`} />
+
+<Repl defaultValue={`List([ 1, 2, 3 ]).has(1);`} />
+
+<MemberLabel label="includes()" alias="contains()" />
+
+True if a value exists within this `Collection`, using `Immutable.is` to determine equality.
+
+<Signature code={`includes(value: T): boolean`} />
+
+<Repl defaultValue={`List([ 1, 2, 3 ]).includes(1);`} />
 
 <MemberLabel label="first()" />
 
+Returns the first value in this collection.
+
+<Signature code={`first(): T`} />
+
+<Repl defaultValue={`List([ 1, 2, 3 ]).first();`} />
+
 <MemberLabel label="last()" />
+
+Returns the last value in this collection.
+
+<Signature code={`last(): T`} />
+
+<Repl defaultValue={`List([ 1, 2, 3 ]).last();`} />
 
 ## Conversion to Seq
 
 <MemberLabel label="toSeq()" />
 
+Converts this List to a Seq of the same kind (indexed).
+
+<Signature code={`toSeq(): Seq.Indexed<T>`} />
+
 <MemberLabel label="fromEntrySeq()" />
+
+If this is a collection of [key, value] entry tuples, it will return a Seq.Keyed of those entries.
+
+<Signature code={`fromEntrySeq(): List<T>`} />
 
 <MemberLabel label="toKeyedSeq()" />
 
+Returns a Seq.Keyed from this List where indices are treated as keys.
+
+This is useful if you want to operate on a List and preserve the [index, value] pairs.
+
+The returned Seq will have identical iteration order as this List.
+
+<Signature code={`toKeyedSeq(): Seq.Keyed<number, T>`} />
+
+<Repl
+  defaultValue={`const { Seq } = require('immutable')
+const indexedSeq = Seq([ 'A', 'B', 'C' ])
+// Seq [ "A", "B", "C" ]
+indexedSeq.filter(v => v === 'B')
+// Seq [ "B" ]
+const keyedSeq = indexedSeq.toKeyedSeq()
+// Seq { 0: "A", 1: "B", 2: "C" }
+keyedSeq.filter(v => v === 'B')
+// Seq { 1: "B" }`}
+/>
+
 <MemberLabel label="toIndexedSeq()" />
 
+Returns a Seq.Indexed of the values of this List, discarding keys.
+
+<Signature code={`toIndexedSeq(): Seq.Indexed<T>`} />
+
 <MemberLabel label="toSetSeq()" />
+
+Returns a Seq.Set of the values of this List, discarding keys.
+
+<Signature code={`toSetSeq(): Seq.Set<T>`} />
 
 ## Combination
 
 <MemberLabel label="interpose()" />
 
+Returns a new List with the separator inserted between each value in this List.
+
+<Signature code={`interpose(separator: T): List<T>`} />
+
+<Repl
+  defaultValue={`List([ 1, 2, 3 ]).interpose(0)
+/>
+
 <MemberLabel label="interleave()" />
+
+Returns a new List with the values from each collection interleaved.
+
+<Signature
+  code={`interleave(...collections: Array<Collection<unknown, T>>): List<T>`}
+/>
+
+The resulting Collection includes the first item from each, then the second from each, etc.
+
+<Repl
+  defaultValue={`List([ 1, 2, 3 ]).interleave(List([ 4, 5, 6 ]))
+/>
+
+The shortest Collection stops interleave.
+
+<Repl
+  defaultValue={`List([ 1, 2, 3 ]).interleave(List([ 4, 5 ]))
+/>
+
+Since `interleave()` re-indexes values, it produces a complete copy, which has `O(N)` complexity.
+
+Note: `interleave()` _cannot_ be used in <CodeLink to="withMutations()">withMutations</CodeLink>.
 
 <MemberLabel label="splice()" />
 
+Returns a new List by replacing a region of this List with new values. If values are not provided, it only skips the region to be removed.
+
+`index` may be a negative number, which indexes back from the end of the List. `s.splice(-2)` splices after the second to last item.
+
+<Signature
+  code={`splice(index: number, removeNum: number, ...values: Array<T>): List<T>`}
+/>
+
+<Repl
+  defaultValue={`List([ 'a', 'b', 'c', 'd' ]).splice(1, 2, 'q', 'r', 's')`}
+/>
+
+Since `splice()` re-indexes values, it produces a complete copy, which has `O(N)` complexity.
+
+Note: `splice` _cannot_ be used in <CodeLink to="withMutations()">withMutations</CodeLink>.
+
 <MemberLabel label="flatten()" />
+
+Returns a new flattened List, optionally only flattening to a particular depth.
+
+<Signature
+  code={`flatten(depth?: number): List<any>
+flatten(shallow?: boolean): List<any>`}
+/>
+
+<Repl
+  defaultValue={`List([ 1, List([ 2, 3 ]), List([ 4, 5, 6 ]) ]).flatten()`}
+/>
 
 ## Search for value
 
 <MemberLabel label="indexOf()" />
 
+Returns the first index at which a given value can be found in the Collection, or -1 if it is not present.
+
+<Signature code={`indexOf(value: T): number`} />
+
+<Repl defaultValue={`List([ 1, 2, 3, 4 ]).indexOf(3)`} />
+
 <MemberLabel label="lastIndexOf()" />
+
+Returns the last index at which a given value can be found in the Collection, or -1 if it is not present.
+
+<Signature code={`lastIndexOf(value: T): number`} />
+
+<Repl defaultValue={`List([ 1, 2, 3, 2, 4 ]).lastIndexOf(2)`} />
 
 <MemberLabel label="findIndex()" />
 
+Returns the first index in the Collection where a value satisfies the provided predicate function. Otherwise -1 is returned.
+
+<Signature
+  code={`findIndex(predicate: (value: T, index: number, iter: this) => boolean, context?: unknown): number`}
+/>
+
+<Repl defaultValue={`List([ 1, 2, 3, 4 ]).findIndex(x => x % 2 === 0)`} />
+
 <MemberLabel label="findLastIndex()" />
+
+Returns the last index in the Collection where a value satisfies the provided predicate function. Otherwise -1 is returned.
+
+<Signature
+  code={`findLastIndex(predicate: (value: T, index: number, iter: this) => boolean, context?: unknown): number`}
+/>
+
+<Repl
+  defaultValue={`List([ 1, 2, 3, 2, 4 ]).findLastIndex(x => x % 2 === 0)`}
+/>
 
 <MemberLabel label="find()" />
 
+Returns the first value for which the `predicate` function returns true.
+
+<Signature
+  code={`find(predicate: (value: T, index: number, iter: this) => boolean, context?: unknown): T | undefined`}
+/>
+
+<Repl defaultValue={`List([ 1, 2, 3, 4 ]).find(x => x % 2 === 0)`} />
+
 <MemberLabel label="findLast()" />
+
+Returns the last value for which the `predicate` function returns true.
+
+<Signature
+  code={`findLast(predicate: (value: T, index: number, iter: this) => boolean, context?: unknown): T | undefined`}
+/>
+
+<Repl defaultValue={`List([ 1, 2, 3, 2, 4 ]).findLast(x => x % 2 === 0)`} />
+
+Note: `predicate` will be called for each entry in reverse.
 
 <MemberLabel label="findEntry()" />
 
+Returns the first `[key, value]` entry for which the `predicate` function returns true.
+
+<Signature
+  code={`findEntry(predicate: (value: T, key: number, iter: this) => boolean, context?: unknown): [number, T] | undefined`}
+/>
+
+<Repl defaultValue={`List([ 1, 2, 3, 4 ]).findEntry(x => x % 2 === 0)`} />
+
 <MemberLabel label="findLastEntry()" />
+
+Returns the last `[key, value]` entry for which the `predicate` function returns true.
+
+<Signature
+  code={`findLastEntry(predicate: (value: T, key: number, iter: this) => boolean, context?: unknown): [number, T] | undefined`}
+/>
+
+<Repl
+  defaultValue={`List([ 1, 2, 3, 2, 4 ]).findLastEntry(x => x % 2 === 0)`}
+/>
+
+Note: `predicate` will be called for each entry in reverse.
 
 <MemberLabel label="findKey()" />
 
+Returns the first key for which the `predicate` function returns true.
+
+<Signature
+  code={`findKey(predicate: (value: T, key: number, iter: this) => boolean, context?: unknown): number | undefined`}
+/>
+
+<Repl defaultValue={`List([ 1, 2, 3, 4 ]).findKey(x => x % 2 === 0)`} />
+
 <MemberLabel label="findLastKey()" />
+
+Returns the last key for which the `predicate` function returns true.
+
+<Signature
+  code={`findLastKey(predicate: (value: T, key: number, iter: this) => boolean, context?: unknown): number | undefined`}
+/>
+
+<Repl defaultValue={`List([ 1, 2, 3, 2, 4 ]).findLastKey(x => x % 2 === 0)`} />
 
 <MemberLabel label="keyOf()" />
 
+Returns the key associated with the search value, or undefined.
+
+<Signature code={`keyOf(value: T): number | undefined`} />
+
+<Repl defaultValue={`List([ 1, 2, 3, 4 ]).keyOf(3)`} />
+
 <MemberLabel label="lastKeyOf()" />
+
+Returns the last key associated with the search value, or undefined.
+
+<Signature code={`lastKeyOf(value: T): number | undefined`} />
+
+<Repl defaultValue={`List([ 1, 2, 3, 2, 4 ]).lastKeyOf(2)`} />
 
 <MemberLabel label="max()" />
 
+Returns the maximum value in this collection. If any values are comparatively equal, the first one found will be returned.
+
+<Signature
+  code={`max(comparator?: (valueA: T, valueB: T) => number): T | undefined`}
+/>
+
+<Repl defaultValue={`List([ 1, 2, 3, 4 ]).max()`} />
+
+The comparator is used in the same way as <CodeLink to="Collection#sort()">Collection#sort</CodeLink>. If it is not provided, the default comparator is `>`.
+
+When two values are considered equivalent, the first encountered will be returned. Otherwise, `max` will operate independent of the order of input as long as the comparator is commutative. The default comparator `>` is commutative only when types do not differ.
+
+If `comparator` returns 0 and either value is NaN, undefined, or null, that value will be returned.
+
 <MemberLabel label="maxBy()" />
+
+Like `max()`, but also accepts a `comparatorValueMapper` which allows for comparing by more sophisticated means.
+
+<Signature
+  code={`maxBy<C>(
+  comparatorValueMapper: (value: T, key: number, iter: this) => C,
+  comparator?: (valueA: C, valueB: C) => number
+): T | undefined`}
+/>
+
+<Repl
+  defaultValue={`List([
+  { name: 'Bob', age: 30 },
+  { name: 'Max', age: 25 },
+  { name: 'Lili', age: 35 }
+]).maxBy(person => person.age)`}
+/>
 
 <MemberLabel label="min()" />
 
+Returns the minimum value in this collection. If any values are comparatively equal, the first one found will be returned.
+
+<Signature
+  code={`min(comparator?: (valueA: T, valueB: T) => number): T | undefined`}
+/>
+
+<Repl defaultValue={`List([ 1, 2, 3, 4 ]).min()`} />
+
+The comparator is used in the same way as <CodeLink to="Collection#sort()">Collection#sort</CodeLink>. If it is not provided, the default comparator is `<`.
+
+When two values are considered equivalent, the first encountered will be returned. Otherwise, `min` will operate independent of the order of input as long as the comparator is commutative. The default comparator `<` is commutative only when types do not differ.
+
+If `comparator` returns 0 and either value is NaN, undefined, or null, that value will be returned.
+
 <MemberLabel label="minBy()" />
+
+Like `min()`, but also accepts a `comparatorValueMapper` which allows for comparing by more sophisticated means.
+
+<Signature
+  code={`minBy<C>(
+  comparatorValueMapper: (value: T, key: number, iter: this) => C,
+  comparator?: (valueA: C, valueB: C) => number
+): T | undefined`}
+/>
+
+<Repl
+  defaultValue={`List([
+  { name: 'Bob', age: 30 },
+  { name: 'Max', age: 25 },
+  { name: 'Lili', age: 35 }
+]).minBy(person => person.age)`}
+/>
 
 ## Value equality
 
