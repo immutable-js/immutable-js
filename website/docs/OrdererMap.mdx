@@ -1,0 +1,49 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# OrderedMap
+
+A type of [`Map`](../Map/) that maintains the order of iteration according to when entries were set.
+
+<Signature code={`type OrderedMap<K, V> extends Map<K, V>`} />
+
+The iteration behavior of OrderedMap is the same as native ES6 Map and JavaScript Object.
+
+Note that `OrderedMap` are more expensive than non-ordered Map and may consume more memory. OrderedMap#set is amortized `O(log32 N)`, but not stable.
+
+Let's look at the following example to see the difference between `Map` and `OrderedMap`:
+
+<Repl defaultValue={`Map({a: 1, c: 3, b: 2})`} />
+
+The `b` key is re-located on the second position.
+
+<Repl defaultValue={`OrderedMap({a: 1, c: 3, b: 2})`} />
+
+The `b` key is still on the third position.
+
+## Similar API with `Map`
+
+`OrderedMap` has the exact same API as [`Map`](../Map/). The only new method is <CodeLink to="isOrderedMap">OrderedMap.isOrderedMap(maybeOrderedMap)</CodeLink> to check if a value is an `OrderedMap`.
+
+## Construction
+
+<MemberLabel label="OrderedMap()" />
+
+Creates a new Immutable OrderedMap.
+
+<Signature
+  code={`OrderedMap<K, V>(collection?: Iterable<[K, V]>): OrderedMap<K, V>
+OrderedMap<V>(obj: { [key: PropertyKey]: V }): OrderedMap<PropertyKey, V>`}
+/>
+
+Note: `OrderedMap` is a factory function and not a class, and does not use the `new` keyword during construction.
+
+<Repl defaultValue={`OrderedMap({ a: 1, b: 2 })`} />
+
+## Static Methods
+
+<MemberLabel label="OrderedMap.isOrderedMap()" />
+
+True if the provided value is an OrderedMap.
+
+<Signature code={`OrderedMap.isOrderedMap(maybeOrderedMap): boolean`} />

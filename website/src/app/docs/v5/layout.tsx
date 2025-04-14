@@ -19,6 +19,9 @@ export default async function VersionLayout(props: {
   // TODO get the real links from the file list
   const sidebarLinks = [
     { label: 'List', url: `/docs/${version}/List` },
+    { label: 'Map', url: `/docs/${version}/Map` },
+    { label: 'OrderedMap', url: `/docs/${version}/OrdererMap` },
+    { label: 'Set', url: `/docs/${version}/Set` },
     { label: 'mergeDeep()', url: `/docs/${version}/mergeDeep()` },
     { label: 'mergeDeepWith()', url: `/docs/${version}/mergeDeepWith()` },
   ];
