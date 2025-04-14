@@ -1,9 +1,59 @@
 import Repl from '@/repl/Repl.tsx';
 import CodeLink from '@/mdx-components/CodeLink.tsx';
 
+# Map
+
+Immutable Map is an unordered Collection.Keyed of (key, value) pairs with `O(log32 N)` gets and `O(log32 N)` persistent sets.
+
+<Signature code={`type Map<K, V> extends Collection.Keyed<K, V>`} />
+
+Iteration order of a Map is undefined, however is stable. Multiple iterations of the same Map will iterate in the same order.
+
+Map's keys can be of any type, and use `Immutable.is` to determine key equality. This allows the use of any value (including NaN) as a key.
+
+Because `Immutable.is` returns equality based on value semantics, and Immutable collections are treated as values, any Immutable collection may be used as a key.
+
+<Repl
+  imports={['Map', 'List']}
+  defaultValue={`Map().set(List([ 1 ]), 'listofone').get(List([ 1 ]))`}
+/>
+
+Any JavaScript object may be used as a key, however strict identity is used to evaluate key equality. Two similar looking objects will represent two different keys.
+
+Implemented by a hash-array mapped trie.
+
 ## Construction
 
 <MemberLabel label="Map()" />
+
+Create a new Immutable Map.
+
+<Signature
+  code={`Map<K, V>(collection?: Iterable<[K, V]>): Map<K, V>
+Map<K, V>(obj: { [key: PropertyKey]: V }): Map<PropertyKey, V>
+`}
+/>
+
+Created with the same key value pairs as the provided Collection.Keyed or JavaScript Object or expects a Collection of [K, V] tuple entries.
+
+Note: `Map` is a factory function and not a class, and does not use the `new` keyword during construction.
+
+<Repl defaultValue={`Map({ key: "value" })`} />
+
+<Repl defaultValue={`Map([ [ "key", "value" ] ])`} />
+
+Keep in mind, when using JS objects to construct Immutable Maps, that JavaScript Object properties are always strings, even if written in a quote-less shorthand, while Immutable Maps accept keys of any type.
+
+```js
+let obj = { 1: 'one' };
+Object.keys(obj); // [ "1" ]
+assert.equal(obj['1'], obj[1]); // "one" === "one"
+
+let map = Map(obj);
+assert.notEqual(map.get('1'), map.get(1)); // "one" !== undefined
+```
+
+Property access for JavaScript Objects first converts the key to a string, but since Immutable Map keys can be of any type the argument to `get()` is not altered.
 
 ## Static Methods
 
@@ -27,69 +77,561 @@ The number of entries in this Map.
 
 <MemberLabel label="set()" />
 
-<MemberLabel label="delete()" />
+Returns a new Map also containing the new key, value pair. If an equivalent key already exists in this Map, it will be replaced.
 
-<MemberLabel label="deleteAll()" />
+<Signature code={`set(key: K, value: V): Map<K, V>`} />
+
+<Repl defaultValue={`const originalMap = Map()
+const newerMap = originalMap.set('key', 'value')
+const newestMap = newerMap.set('key', 'newer value')
+
+originalMap
+// Map {}
+newerMap
+// Map { "key": "value" }
+newestMap
+// Map { "key": "newer value" }`} />
+
+Note: `set` can be used in `withMutations`.
+
+<MemberLabel label="delete()" alias="remove()" />
+
+Returns a new Map which excludes this `key`.
+
+<Signature code={`delete(key: K): Map<K, V>`} />
+
+Note: `delete` cannot be safely used in IE8, but is provided to mirror the ES6 collection API.
+
+<Repl
+  defaultValue={`const originalMap = Map({
+  key: 'value',
+  otherKey: 'other value'
+})
+// Map { "key": "value", "otherKey": "other value" }
+originalMap.delete('otherKey')`}
+/>
+
+Note: `delete` can be used in `withMutations`.
+
+<MemberLabel label="deleteAll()" alias="removeAll()" />
+
+Returns a new Map which excludes the provided `keys`.
+
+<Signature code={`deleteAll(keys: Iterable<K>): this`} />
+
+<Repl
+  defaultValue={`const names = Map({ a: "Aaron", b: "Barry", c: "Connor" })
+names.deleteAll([ 'a', 'c' ])`}
+/>
+
+Note: `deleteAll` can be used in `withMutations`.
 
 <MemberLabel label="clear()" />
 
+Returns a new Map containing no keys or values.
+
+<Signature code={`clear(): Map<K, V>`} />
+
+<Repl defaultValue={`Map({ key: 'value' }).clear()`} />
+
+Note: `clear` can be used in `withMutations`.
+
 <MemberLabel label="update()" />
 
-<MemberLabel label="merge()" />
+Returns a new Map having updated the value at this `key` with the return value of calling `updater` with the existing value.
+
+<Signature
+  code={`update(key: K, notSetValue: V, updater: (value: V) => V): Map<K, V>
+update(key: K, updater: (value: V | undefined) => V | undefined): Map<K, V>
+update<R>(updater: (value: this) => R): R`}
+/>
+
+Similar to: `map.set(key, updater(map.get(key)))`.
+
+<Repl
+  defaultValue={`const aMap = Map({ key: 'value' })
+const newMap = aMap.update('key', value => value + value)`}
+/>
+
+This is most commonly used to call methods on collections within a structure of data. For example, in order to `.push()` onto a nested `List`, `update` and `push` can be used together:
+
+<Repl
+  defaultValue={`const aMap = Map({ nestedList: List([ 1, 2, 3 ]) })
+const newMap = aMap.update('nestedList', list => list.push(4))`}
+/>
+
+When a `notSetValue` is provided, it is provided to the `updater` function when the value at the key does not exist in the Map.
+
+<Repl
+  defaultValue={`const aMap = Map({ key: 'value' })
+const newMap = aMap.update('noKey', 'no value', value => value + value)`}
+/>
+
+However, if the `updater` function returns the same value it was called with, then no change will occur. This is still true if `notSetValue` is provided.
+
+<Repl
+  defaultValue={`const aMap = Map({ apples: 10 })
+const newMap = aMap.update('oranges', 0, val => val)
+// Map { "apples": 10 }
+assert.strictEqual(newMap, aMap);`}
+/>
+
+For code using ES2015 or later, using `notSetValue` is discouraged in favor of function parameter default values. This helps to avoid any potential confusion with identify functions as described above.
+
+The previous example behaves differently when written with default values:
+
+<Repl
+  defaultValue={`const aMap = Map({ apples: 10 })
+const newMap = aMap.update('oranges', (val = 0) => val)`}
+/>
+
+If no key is provided, then the `updater` function return value is returned as well.
+
+<Repl
+  defaultValue={`const aMap = Map({ key: 'value' })
+const result = aMap.update(aMap => aMap.get('key'))
+// "value"`}
+/>
+
+This can be very useful as a way to "chain" a normal function into a sequence of methods. RxJS calls this "let" and lodash calls it "thru".
+
+For example, to sum the values in a Map:
+
+<Repl defaultValue={`function sum(collection) {
+  return collection.reduce((sum, x) => sum + x, 0)
+}
+
+Map({ x: 1, y: 2, z: 3 })
+.map(x => x + 1)
+.filter(x => x % 2 === 0)
+.update(sum)`} />
+
+Note: `update(key)` can be used in `withMutations`.
+
+<MemberLabel label="merge()" alias="concat()" />
+
+Returns a new Map resulting from merging the provided Collections (or JS objects) into this Map. In other words, this takes each entry of each collection and sets it on this Map.
+
+<Signature code={`merge(...collections): Map<K, V>`} />
+
+Note: Values provided to `merge` are shallowly converted before being merged. No nested values are altered.
+
+<Repl
+  defaultValue={`const one = Map({ a: 10, b: 20, c: 30 })
+const two = Map({ b: 40, a: 50, d: 60 })
+one.merge(two) // Map { "a": 50, "b": 40, "c": 30, "d": 60 }
+two.merge(one) // Map { "b": 20, "a": 10, "d": 60, "c": 30 }`}
+/>
+
+Note: `merge` can be used in `withMutations`.
 
 <MemberLabel label="mergeWith()" />
 
+Like `merge()`, `mergeWith()` returns a new Map resulting from merging the provided Collections (or JS objects) into this Map, but uses the `merger` function for dealing with conflicts.
+
+<Signature
+  code={`mergeWith(merger: (oldVal, newVal, key) => unknown, ...collections): Map<K, V>`}
+/>
+
+<Repl
+  defaultValue={`const one = Map({ a: 10, b: 20, c: 30 })
+const two = Map({ b: 40, a: 50, d: 60 })
+one.mergeWith((oldVal, newVal) => oldVal / newVal, two)
+// { "a": 0.2, "b": 0.5, "c": 30, "d": 60 }
+two.mergeWith((oldVal, newVal) => oldVal / newVal, one)
+// { "b": 2, "a": 5, "d": 60, "c": 30 }`}
+/>
+
+Note: `mergeWith` can be used in `withMutations`.
+
 <MemberLabel label="mergeDeep()" />
 
+Like `merge()`, but when two compatible collections are encountered with the same key, it merges them as well, recursing deeply through the nested data. Two collections are considered to be compatible (and thus will be merged together) if they both fall into one of three categories: keyed (e.g., `Map`s, `Record`s, and objects), indexed (e.g., `List`s and arrays), or set-like (e.g., `Set`s). If they fall into separate categories, `mergeDeep` will replace the existing collection with the collection being merged in. This behavior can be customized by using `mergeDeepWith()`.
+
+<Signature code={`mergeDeep(...collections): Map<K, V>`} />
+
+Note: Indexed and set-like collections are merged using `concat()`/`union()` and therefore do not recurse.
+
+<Repl
+  defaultValue={`const one = Map({ a: Map({ x: 10, y: 10 }), b: Map({ x: 20, y: 50 }) })
+const two = Map({ a: Map({ x: 2 }), b: Map({ y: 5 }), c: Map({ z: 3 }) })
+one.mergeDeep(two)`}
+/>
+
+Note: `mergeDeep` can be used in `withMutations`.
+
 <MemberLabel label="mergeDeepWith()" />
+
+Like `mergeDeep()`, but when two non-collections or incompatible collections are encountered at the same key, it uses the `merger` function to determine the resulting value. Collections are considered incompatible if they fall into separate categories between keyed, indexed, and set-like.
+
+<Signature
+  code={`mergeDeepWith(merger: (oldVal, newVal, key) => unknown, ...collections): Map<K, V>`}
+/>
+
+<Repl
+  defaultValue={`const one = Map({ a: Map({ x: 10, y: 10 }), b: Map({ x: 20, y: 50 }) })
+const two = Map({ a: Map({ x: 2 }), b: Map({ y: 5 }), c: Map({ z: 3 }) })
+one.mergeDeepWith((oldVal, newVal) => oldVal / newVal, two)`}
+/>
+
+Note: `mergeDeepWith` can be used in `withMutations`.
 
 ## Deep persistent changes
 
 <MemberLabel label="setIn()" />
 
-<MemberLabel label="deleteIn()" />
+Returns a new Map having set `value` at this `keyPath`. If any keys in `keyPath` do not exist, a new immutable Map will be created at that key.
+
+<Signature
+  code={`setIn(keyPath: Iterable<unknown>, value: unknown): Map<K, V>`}
+/>
+
+<Repl defaultValue={`const originalMap = Map({
+  subObject: Map({
+    subKey: 'subvalue',
+    subSubObject: Map({
+      subSubKey: 'subSubValue'
+    })
+  })
+})
+
+originalMap.setIn(
+['subObject', 'subSubObject', 'subSubKey'],
+'ha ha ha!'
+)`} />
+
+Plain JavaScript Object or Arrays may be nested within an Immutable.js Collection, and `setIn()` can update those values as well, treating them immutably by creating new copies of those values with the changes applied.
+
+<Repl defaultValue={`const originalMap = Map({
+  subObject: {
+    subKey: 'subvalue',
+    subSubObject: {
+      subSubKey: 'subSubValue'
+    }
+  }
+})
+
+originalMap.setIn(['subObject', 'subKey'], 'ha ha!')`} />
+
+If any key in the path exists but cannot be updated (such as a primitive like number or a custom Object like Date), an error will be thrown.
+
+Note: `setIn` can be used in `withMutations`.
+
+<MemberLabel label="deleteIn()" alias="removeIn()" />
+
+Returns a new Map having removed the value at this `keyPath`. If any keys in `keyPath` do not exist, no change will occur.
+
+<Signature code={`deleteIn(keyPath: Iterable<unknown>): Map<K, V>`} />
+
+Note: `deleteIn` can be used in `withMutations`.
 
 <MemberLabel label="updateIn()" />
 
+Returns a new Map having applied the `updater` to the entry found at the keyPath.
+
+<Signature
+  code={`updateIn(keyPath: Iterable<unknown>, notSetValue: unknown, updater: (value) => unknown): Map<K, V>`}
+/>
+
+This is most commonly used to call methods on collections nested within a structure of data. For example, in order to `.push()` onto a nested `List`, `updateIn` and `push` can be used together:
+
+<Repl
+  defaultValue={`const map = Map({ inMap: Map({ inList: List([ 1, 2, 3 ]) }) })
+const newMap = map.updateIn(['inMap', 'inList'], list => list.push(4))`}
+/>
+
+If any keys in `keyPath` do not exist, new Immutable `Map`s will be created at those keys. If the `keyPath` does not already contain a value, the `updater` function will be called with `notSetValue`, if provided, otherwise `undefined`.
+
+<Repl
+  defaultValue={`const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
+const newMap = map.updateIn(['a', 'b', 'c'], val => val * 2)`}
+/>
+
+If the `updater` function returns the same value it was called with, then no change will occur. This is still true if `notSetValue` is provided.
+
+<Repl
+  defaultValue={`const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
+const newMap = map.updateIn(['a', 'b', 'x'], 100, val => val)
+// Map { "a": Map { "b": Map { "c": 10 } } }
+assert.strictEqual(newMap, map)`}
+/>
+
+For code using ES2015 or later, using `notSetValue` is discouraged in favor of function parameter default values. This helps to avoid any potential confusion with identify functions as described above.
+
+The previous example behaves differently when written with default values:
+
+<Repl
+  defaultValue={`const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
+const newMap = map.updateIn(['a', 'b', 'x'], (val = 100) => val)`}
+/>
+
+Plain JavaScript Object or Arrays may be nested within an Immutable.js Collection, and updateIn() can update those values as well, treating them immutably by creating new copies of those values with the changes applied.
+
+<Repl
+  defaultValue={`const map = Map({ a: { b: { c: 10 } } })
+const newMap = map.updateIn(['a', 'b', 'c'], val => val * 2)`}
+/>
+
+If any key in the path exists but cannot be updated (such as a primitive like number or a custom Object like Date), an error will be thrown.
+
+Note: `updateIn` can be used in `withMutations`.
+
 <MemberLabel label="mergeIn()" />
 
+A combination of `updateIn` and `merge`, returning a new Map, but performing the merge at a point arrived at by following the keyPath. In other words, these two lines are equivalent:
+
+```js
+map.updateIn(['a', 'b', 'c'], (abc) => abc.merge(y));
+map.mergeIn(['a', 'b', 'c'], y);
+```
+
+<Signature
+  code={`mergeIn(keyPath: Iterable<unknown>, ...collections: Array<unknown>): Map<K, V>`}
+/>
+
+Note: `mergeIn` can be used in `withMutations`.
+
 <MemberLabel label="mergeDeepIn()" />
+
+A combination of `updateIn` and `mergeDeep`, returning a new Map, but performing the deep merge at a point arrived at by following the keyPath. In other words, these two lines are equivalent:
+
+```js
+map.updateIn(['a', 'b', 'c'], (abc) => abc.mergeDeep(y));
+map.mergeDeepIn(['a', 'b', 'c'], y);
+```
+
+<Signature
+  code={`mergeDeepIn(keyPath: Iterable<unknown>, ...collections: Array<unknown>): Map<K, V>`}
+/>
+
+Note: `mergeDeepIn` can be used in `withMutations`.
 
 ## Transient changes
 
 <MemberLabel label="withMutations()" />
 
+Every time you call one of the above functions, a new immutable Map is created. If a pure function calls a number of these to produce a final return value, then a penalty on performance and memory has been paid by creating all of the intermediate immutable Maps.
+
+If you need to apply a series of mutations to produce a new immutable Map, `withMutations()` creates a temporary mutable copy of the Map which can apply mutations in a highly performant manner. In fact, this is exactly how complex mutations like `merge` are done.
+
+<Signature
+  code={`withMutations(mutator: (mutable: this) => unknown): Map<K, V>`}
+/>
+
+As an example, this results in the creation of 2, not 4, new Maps:
+
+<Repl
+  defaultValue={`const map1 = Map()
+const map2 = map1.withMutations(map => {
+  map.set('a', 1).set('b', 2).set('c', 3)
+})
+assert.equal(map1.size, 0)
+assert.equal(map2.size, 3)`}
+/>
+
+Note: Not all methods can be used on a mutable collection or within `withMutations`! Read the documentation for each method to see if it is safe to use in `withMutations`.
+
 <MemberLabel label="asMutable()" />
+
+Another way to avoid creation of intermediate Immutable maps is to create a mutable copy of this collection. Mutable copies _always_ return `this`, and thus shouldn't be used for equality. Your function should never return a mutable copy of a collection, only use it internally to create a new collection.
+
+<Signature code={`asMutable(): this`} />
+
+If possible, use `withMutations` to work with temporary mutable copies as it provides an easier to use API and considers many common optimizations.
+
+Note: if the collection is already mutable, `asMutable` returns itself.
+
+Note: Not all methods can be used on a mutable collection or within `withMutations`! Read the documentation for each method to see if it allows being used in `withMutations`.
 
 <MemberLabel label="wasAltered()" />
 
+Returns true if this is a mutable copy (see `asMutable()`) and mutative alterations have been applied.
+
+<Signature code={`wasAltered(): boolean`} />
+
 <MemberLabel label="asImmutable()" />
+
+The yin to `asMutable`'s yang. Because it applies to mutable collections, this operation is _mutable_ and may return itself (though may not return itself, i.e. if the result is an empty collection). Once performed, the original mutable copy must no longer be mutated since it may be the immutable result.
+
+<Signature code={`asImmutable(): this`} />
+
+If possible, use `withMutations` to work with temporary mutable copies as it provides an easier to use API and considers many common optimizations.
 
 ## Sequence algorithms
 
 <MemberLabel label="map()" />
 
+Returns a new Map with values passed through a `mapper` function.
+
+<Signature
+  code={`map<M>(mapper: (value: V, key: K, iter: this) => M, context?: unknown): Map<K, M>`}
+/>
+
+<Repl defaultValue={`Map({ a: 1, b: 2 }).map(x => 10 * x)`} />
+
 <MemberLabel label="mapKeys()" />
+
+Returns a new Map with keys passed through a `mapper` function.
+
+<Signature
+  code={`mapKeys<M>(mapper: (key: K, value: V, iter: this) => M, context?: unknown): Map<M, V>`}
+/>
+
+<Repl defaultValue={`Map({ a: 1, b: 2 }).mapKeys(x => x.toUpperCase())`} />
 
 <MemberLabel label="mapEntries()" />
 
+Returns a new Map with entries ([key, value] tuples) passed through a `mapper` function.
+
+<Signature
+  code={`mapEntries<KM, VM>(mapper: (entry: [K, V], index: number, iter: this) => [KM, VM] | undefined, context?: unknown): Map<KM, VM>`}
+/>
+
+<Repl
+  defaultValue={`Map({ a: 1, b: 2 })
+  .mapEntries(([ k, v ]) => [ k.toUpperCase(), v * 2 ])`}
+/>
+
+Note: `mapEntries()` always returns a new instance, even if it produced the same entry at every step.
+
+If the mapper function returns `undefined`, then the entry will be filtered.
+
 <MemberLabel label="flatMap()" />
+
+Flat-maps the Map, returning a Map of the same type.
+
+Similar to `map(...).flatten(true)`.
+
+<Signature
+  code={`flatMap<KM, VM>(mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>, context?: unknown): Map<KM, VM>`}
+/>
 
 <MemberLabel label="filter()" />
 
-<MemberLabel label="partition()" />
+Returns a new Map with only the entries for which the `predicate` function returns true.
 
-<MemberLabel label="flip()" />
+<Signature
+  code={`filter(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): Map<K, V>`}
+/>
 
-<MemberLabel label="sort()" />
-
-<MemberLabel label="sortBy()" />
+Note: `filter()` always returns a new instance, even if it results in not filtering out any values.
 
 <MemberLabel label="filterNot()" />
 
+Returns a new Map with only the entries for which the `predicate` function returns false.
+
+<Signature
+  code={`filterNot(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): this`}
+/>
+
+<Repl
+  defaultValue={`Map({ a: 1, b: 2, c: 3, d: 4}).filterNot(x => x % 2 === 0)`}
+/>
+
+Note: `filterNot()` always returns a new instance, even if it results in not filtering out any values.
+
 <MemberLabel label="reverse()" />
 
+Returns a new Map with the order of the entries reversed.
+
+<Signature code={`reverse(): this`} />
+
+<MemberLabel label="partition()" />
+
+Returns a new Map with the entries partitioned into two Maps based on the `predicate` function.
+
+<Signature
+  code={`partition(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): [Map<K, V>, Map<K, V>]`}
+/>
+
+<Repl
+  defaultValue={`Map({ a: 1, b: 2, c: 3, d: 4}).partition(x => x % 2 === 0)`}
+/>
+
+<MemberLabel label="flip()" />
+
+Returns a new Map with the keys and values flipped.
+
+<Signature code={`flip(): Map<V, K>`} />
+
+<Repl defaultValue={`Map({ a: 1, b: 2, c: 3, d: 4}).flip()`} />
+
+<MemberLabel label="sort()" />
+
+Returns an OrderedMap of the same type which includes the same entries, stably sorted by using a `comparator`.
+
+<Signature code={`sort(comparator?: Comparator<V>): this & OrderedMap<K, V>`} />
+
+If a `comparator` is not provided, a default comparator uses `<` and `>`.
+
+`comparator(valueA, valueB)`:
+
+- Returns `0` if the elements should not be swapped.
+- Returns `-1` (or any negative number) if `valueA` comes before `valueB`
+- Returns `1` (or any positive number) if `valueA` comes after `valueB`
+- Alternatively, can return a value of the `PairSorting` enum type
+- Is pure, i.e. it must always return the same value for the same pair of values.
+
+<Repl
+  defaultValue={`Map({ "c": 3, "a": 1, "b": 2 }).sort((a, b) => {
+  if (a < b) { return -1; }
+  if (a > b) { return 1; }
+  if (a === b) { return 0; }
+});`}
+/>
+
+Note: `sort()` Always returns a new instance, even if the original was already sorted.
+
+Note: This is always an eager operation.
+
+<MemberLabel label="sortBy()" />
+
+Like `sort`, but also accepts a `comparatorValueMapper` which allows for sorting by more sophisticated means:
+
+<Signature
+  code={`sortBy<C>(
+    comparatorValueMapper: (value: V, key: K, iter: this) => C,
+    comparator?: (valueA: C, valueB: C) => number
+): OrderedMap<K, V>`}
+/>
+
+<Repl
+  defaultValue={`const beattles = Map({
+    John: { name: "Lennon" },
+    Paul: { name: "McCartney" },
+    George: { name: "Harrison" },
+    Ringo: { name: "Starr" },
+});
+beattles.sortBy(member => member.name);`}
+/>
+
+Note: `sortBy()` Always returns a new instance, even if the original was already sorted.
+
+Note: This is always an eager operation.
+
 <MemberLabel label="groupBy()" />
+
+Returns a `Map` of `Collection`, grouped by the return value of the `grouper` function.
+
+<Signature
+  code={`groupBy<G>(
+    grouper: (value: V, key: K, iter: this) => G,
+    context?: unknown
+  ): Map<G, this>`}
+/>
+
+Note: This is always an eager operation.
+
+<Repl
+  defaultValue={`const listOfMaps = List([
+  Map({ v: 0 }),
+  Map({ v: 1 }),
+  Map({ v: 1 }),
+  Map({ v: 0 }),
+  Map({ v: 2 })
+])
+const groupsOfMaps = listOfMaps.groupBy(x => x.get('v'))`}
+/>
 
 ## Conversion to JavaScript types
 
@@ -154,12 +696,6 @@ Returns an Seq.Indexed of the values of this Collection, discarding keys.
 Returns a Seq.Set of the values of this Collection, discarding keys.
 
 <Signature code={`toSetSeq(): Seq.Set<V>`} />
-
-## Sequence functions
-
-<MemberLabel label="concat()" />
-
-<MemberLabel label="[Symbol.iterator]()" />
 
 ## Value equality
 
@@ -244,16 +780,14 @@ Returns the value found by following a path of keys or indices through nested Co
 />
 
 <Repl
-  defaultValue={`const { Map } = require('immutable')
-const deepData = Map({ x: Map({ y: 123 }) });
+  defaultValue={`const deepData = Map({ x: Map({ y: 123 }) });
 deepData.getIn(['x', 'y']) // 123`}
 />
 
 Plain JavaScript Object or Arrays may be nested within an Immutable.js Collection, and getIn() can access those values as well:
 
 <Repl
-  defaultValue={`const { Map } = require('immutable')
-const deepData = Map({ x: { y: 123 } });
+  defaultValue={`const deepData = Map({ x: { y: 123 } });
 deepData.getIn(['x', 'y']) // 123`}
 />
 
@@ -306,9 +840,8 @@ Converts this Collection to a List, discarding keys.
 This is similar to `List(collection)`, but provided to allow for chained expressions. However, when called on `Map` or other keyed collections, `collection.toList()` discards the keys and creates a list of only the values, whereas `List(collection)` creates a list of entry tuples.
 
 <Repl
-  defaultValue={`const { Map, List } = require('immutable')
-var myMap = Map({ a: 'Apple', b: 'Banana' })
-List(myMap) // List [ [ "a", "Apple" ], [ "b", "Banana" ] ]
+  defaultValue={`var myMap = Map({ a: 'Apple', b: 'Banana' })
+export const listConstructor = List(myMap) // List [ [ "a", "Apple" ], [ "b", "Banana" ] ]
 myMap.toList() // List [ "Apple", "Banana" ]`}
 />
 
@@ -373,7 +906,10 @@ Returns a new Seq.Indexed of [key, value] tuples.
 The `sideEffect` is executed for every entry in the Collection.
 
 <Signature
-  code={`forEach(sideEffect: (value: V, key: K, iter: this) => unknown, context?: unknown): number`}
+  code={`forEach(
+    sideEffect: (value: V, key: K, iter: this) => unknown,
+    context?: unknown
+  ): number`}
 />
 
 Unlike `Array#forEach`, if any call of `sideEffect` returns `false`, the iteration will stop. Returns the number of entries iterated (including the last iteration which returned false).
@@ -502,8 +1038,11 @@ flatten(shallow?: boolean): Map<any, any>`}
 Reduces the Collection to a value by calling the `reducer` for every entry in the Collection and passing along the reduced value.
 
 <Signature
-  code={`reduce<R>(reducer: (reduction: R, value: V, key: K, iter: this) => R, initialReduction: R, context?: unknown): R
-reduce<R>(reducer: (reduction: V | R, value: V, key: K, iter: this) => R): R`}
+  code={`reduce<R>(
+    reducer: (reduction: R, value: V, key: K, iter: this) => R,
+    initialReduction?: R,
+    context?: unknown
+  ): R`}
 />
 
 If `initialReduction` is not provided, the first item in the Collection will be used.
@@ -513,18 +1052,24 @@ If `initialReduction` is not provided, the first item in the Collection will be 
 Reduces the Collection in reverse (from the right side).
 
 <Signature
-  code={`reduceRight<R>(reducer: (reduction: R, value: V, key: K, iter: this) => R, initialReduction: R, context?: unknown): R
-reduceRight<R>(reducer: (reduction: V | R, value: V, key: K, iter: this) => R): R`}
+  code={`reduceRight<R>(
+    reducer: (reduction: R, value: V, key: K, iter: this) => R,
+    initialReduction?: R,
+    context?: unknown
+  ): R`}
 />
 
-Note: Similar to this.reverse().reduce(), and provided for parity with `Array#reduceRight`.
+Note: Similar to `this.reverse().reduce()`, and provided for parity with `Array#reduceRight`.
 
 <MemberLabel label="every()" />
 
 True if `predicate` returns true for all entries in the Collection.
 
 <Signature
-  code={`every(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): boolean`}
+  code={`every(
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: unknown
+  ): boolean`}
 />
 
 <MemberLabel label="some()" />
@@ -532,14 +1077,17 @@ True if `predicate` returns true for all entries in the Collection.
 True if `predicate` returns true for any entry in the Collection.
 
 <Signature
-  code={`some(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): boolean`}
+  code={`some(
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: unknown
+  ): boolean`}
 />
 
 <MemberLabel label="join()" />
 
 Joins values together as a string, inserting a separator between each. The default separator is `","`.
 
-<Signature code={`join(separator?: string): string`} />
+<Signature code={`join(separator?: string = ','): string`} />
 
 <MemberLabel label="isEmpty()" />
 
@@ -567,7 +1115,10 @@ If `predicate` is provided, then this returns the count of entries in the Collec
 Returns a `Seq.Keyed` of counts, grouped by the return value of the `grouper` function.
 
 <Signature
-  code={`countBy<G>(grouper: (value: V, key: K, iter: this) => G, context?: unknown): Map<G, number>`}
+  code={`countBy<G>(
+    grouper: (value: V, key: K, iter: this) => G,
+    context?: unknown
+  ): Map<G, number>`}
 />
 
 Note: This is not a lazy operation.
@@ -579,7 +1130,10 @@ Note: This is not a lazy operation.
 Returns the first value for which the `predicate` function returns true.
 
 <Signature
-  code={`find(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): V | undefined`}
+  code={`find(
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: unknown
+  ): V | undefined`}
 />
 
 <Repl defaultValue={`Map({ a: 1, b: 2, c: 3, d: 4 }).find(x => x % 2 === 0)`} />
@@ -589,7 +1143,10 @@ Returns the first value for which the `predicate` function returns true.
 Returns the last value for which the `predicate` function returns true.
 
 <Signature
-  code={`findLast(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): V | undefined`}
+  code={`findLast(
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: unknown
+  ): V | undefined`}
 />
 
 <Repl
@@ -603,7 +1160,10 @@ Note: `predicate` will be called for each entry in reverse.
 Returns the first `[key, value]` entry for which the `predicate` function returns true.
 
 <Signature
-  code={`findEntry(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): [K, V] | undefined`}
+  code={`findEntry(
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: unknown
+  ): [K, V] | undefined`}
 />
 
 <Repl
@@ -615,7 +1175,10 @@ Returns the first `[key, value]` entry for which the `predicate` function return
 Returns the last `[key, value]` entry for which the `predicate` function returns true.
 
 <Signature
-  code={`findLastEntry(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): [K, V] | undefined`}
+  code={`findLastEntry(
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: unknown
+  ): [K, V] | undefined`}
 />
 
 <Repl
@@ -629,7 +1192,10 @@ Note: `predicate` will be called for each entry in reverse.
 Returns the first key for which the `predicate` function returns true.
 
 <Signature
-  code={`findKey(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): K | undefined`}
+  code={`findKey(
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: unknown
+  ): K | undefined`}
 />
 
 <Repl
@@ -641,7 +1207,10 @@ Returns the first key for which the `predicate` function returns true.
 Returns the last key for which the `predicate` function returns true.
 
 <Signature
-  code={`findLastKey(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): K | undefined`}
+  code={`findLastKey(
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: unknown
+  ): K | undefined`}
 />
 
 <Repl
@@ -723,9 +1292,9 @@ Like `min()`, but also accepts a `comparatorValueMapper` which allows for compar
 
 <Signature
   code={`minBy<C>(
-  comparatorValueMapper: (value: V, key: K, iter: this) => C,
-  comparator?: (valueA: C, valueB: C) => number
-): V | undefined`}
+    comparatorValueMapper: (value: V, key: K, iter: this) => C,
+    comparator?: (valueA: C, valueB: C) => number
+  ): V | undefined`}
 />
 
 <Repl
