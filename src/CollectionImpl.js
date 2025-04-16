@@ -5,6 +5,7 @@ import {
   KeyedCollectionImpl,
   SetCollectionImpl,
 } from './Collection';
+import CollectionProtoAssign from './CollectionProtoAssign';
 import { hash } from './Hash';
 import { is } from './is';
 import {
@@ -15,7 +16,6 @@ import {
   ITERATOR_SYMBOL,
 } from './Iterator';
 import { imul, smi } from './Math';
-import { IS_COLLECTION_SYMBOL } from './predicates/isCollection';
 import { IS_INDEXED_SYMBOL, isIndexed } from './predicates/isIndexed';
 import { IS_KEYED_SYMBOL, isKeyed } from './predicates/isKeyed';
 import { IS_ORDERED_SYMBOL, isOrdered } from './predicates/isOrdered';
@@ -497,16 +497,7 @@ mixin(CollectionImpl, {
   // abstract __iterator(type, reverse)
 });
 
-const CollectionPrototype = CollectionImpl.prototype;
-CollectionPrototype[IS_COLLECTION_SYMBOL] = true;
-CollectionPrototype[ITERATOR_SYMBOL] = CollectionPrototype.values;
-CollectionPrototype.toJSON = CollectionPrototype.toArray;
-CollectionPrototype.__toStringMapper = quoteString;
-CollectionPrototype.inspect = CollectionPrototype.toSource = function () {
-  return this.toString();
-};
-CollectionPrototype.chain = CollectionPrototype.flatMap;
-CollectionPrototype.contains = CollectionPrototype.includes;
+const CollectionPrototype = CollectionProtoAssign(CollectionImpl.prototype);
 
 mixin(KeyedCollectionImpl, {
   // ### More sequential methods

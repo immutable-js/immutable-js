@@ -14,6 +14,11 @@ const extensions = ['.ts', '.tsx', '.js', '.jsx'];
 export default [
   {
     input: path.join(SRC_DIR, 'Immutable.js'),
+    onLog: (level, log) => {
+      if (log.code === 'CIRCULAR_DEPENDENCY') {
+        console.log(log);
+      }
+    },
     plugins: [
       resolve({
         extensions,
