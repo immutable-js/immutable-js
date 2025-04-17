@@ -2,6 +2,20 @@ import { resolveBegin } from './TrieUtils';
 import { reify, zipWithFactory } from './Operations';
 import arrCopy from './utils/arrCopy';
 import { IndexedSeq } from './Seq';
+import assertNotInfinite from './utils/assertNotInfinite';
+
+function reduce(collection, reducer, reduction, context, useFirst, reverse) {
+  assertNotInfinite(collection.size);
+  collection.__iterate((v, k, c) => {
+    if (useFirst) {
+      useFirst = false;
+      reduction = v;
+    } else {
+      reduction = reducer.call(context, reduction, v, k, c);
+    }
+  }, reverse);
+  return reduction;
+}
 
 const collectionSplice = (collection, index, removeNum, args) => {
   const numArgs = typeof index === 'undefined'
@@ -34,4 +48,26 @@ const collectionInterleave = (collection, collections) => {
   return reify(collection, interleaved);
 }
 
-export { collectionSplice, collectionInterleave };
+const collectionReduce = (collection, reducer, initialReduction, context) => {
+  return reduce(
+    collection,
+    reducer,
+    initialReduction,
+    context,
+    (typeof initialReduction === 'undefined' && typeof context === 'undefined'),
+    false
+  );
+}
+
+function collectionReduceRight (collection, reducer, initialReduction, context) {
+  return reduce(
+    collection,
+    reducer,
+    initialReduction,
+    context,
+    typeof initialReduction === 'undefined' && typeof context === 'undefined',
+    true
+  );
+};
+
+export { collectionSplice, collectionInterleave, collectionReduce, collectionReduceRight };

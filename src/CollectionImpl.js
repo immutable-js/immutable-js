@@ -70,7 +70,7 @@ import { Set } from './Set';
 import { Stack } from './Stack';
 import { toJS } from './toJS';
 
-import { collectionSplice, collectionInterleave } from './manipulations';
+import { collectionSplice, collectionInterleave, collectionReduce, collectionReduceRight } from './manipulations';
 
 export { Collection, CollectionPrototype, IndexedCollectionPrototype };
 
@@ -232,24 +232,20 @@ mixin(CollectionImpl, {
   },
 
   reduce(reducer, initialReduction, context) {
-    return reduce(
+    return collectionReduce(
       this,
       reducer,
       initialReduction,
-      context,
-      arguments.length < 2,
-      false
+      context
     );
   },
 
   reduceRight(reducer, initialReduction, context) {
-    return reduce(
+    return collectionReduceRight(
       this,
       reducer,
       initialReduction,
-      context,
-      arguments.length < 2,
-      true
+      context
     );
   },
 
