@@ -1,7 +1,9 @@
 import { resolveBegin } from './TrieUtils';
-import { reify } from './Operations';
+import { reify, zipWithFactory } from './Operations';
+import arrCopy from './utils/arrCopy';
+import { IndexedSeq } from './Seq';
 
-function collectionSplice (collection, index, removeNum, args) {
+const collectionSplice = (collection, index, removeNum, args) => {
   const numArgs = typeof index === 'undefined'
     ? 0
     : (args.length ? 3 : (typeof removeNum === 'undefined' ? 1 : 2))  
@@ -22,4 +24,14 @@ function collectionSplice (collection, index, removeNum, args) {
   );
 }
 
-export { collectionSplice };
+const collectionInterleave = (collection, collections) => {
+  const collectionsJoined = [collection].concat(arrCopy(collections));
+  const zipped = zipWithFactory(collection.toSeq(), IndexedSeq.of, collectionsJoined);
+  const interleaved = zipped.flatten(true);
+  if (zipped.size) {
+    interleaved.size = zipped.size * collectionsJoined.length;
+  }
+  return reify(collection, interleaved);
+}
+
+export { collectionSplice, collectionInterleave };

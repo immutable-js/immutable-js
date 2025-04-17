@@ -70,7 +70,7 @@ import { Set } from './Set';
 import { Stack } from './Stack';
 import { toJS } from './toJS';
 
-import { collectionSplice } from './manipulations';
+import { collectionSplice, collectionInterleave } from './manipulations';
 
 export { Collection, CollectionPrototype, IndexedCollectionPrototype };
 
@@ -608,14 +608,8 @@ mixin(IndexedCollectionImpl, {
     return reify(this, interposeFactory(this, separator));
   },
 
-  interleave(/*...collections*/) {
-    const collections = [this].concat(arrCopy(arguments));
-    const zipped = zipWithFactory(this.toSeq(), IndexedSeq.of, collections);
-    const interleaved = zipped.flatten(true);
-    if (zipped.size) {
-      interleaved.size = zipped.size * collections.length;
-    }
-    return reify(this, interleaved);
+  interleave(...collections) {
+    return collectionInterleave(this, collections);
   },
 
   keySeq() {
