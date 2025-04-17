@@ -1,5 +1,5 @@
 import { resolveBegin } from './TrieUtils';
-import { reify, zipWithFactory } from './Operations';
+import { reify, filterFactory, zipWithFactory } from './Operations';
 import arrCopy from './utils/arrCopy';
 import { IndexedSeq } from './Seq';
 import assertNotInfinite from './utils/assertNotInfinite';
@@ -18,9 +18,14 @@ function reduce(collection, reducer, reduction, context, useFirst, reverse) {
 }
 
 const collectionSplice = (collection, index, removeNum, args) => {
-  const numArgs = typeof index === 'undefined'
-    ? 0
-    : (args.length ? 3 : (typeof removeNum === 'undefined' ? 1 : 2))  
+  const numArgs =
+    typeof index === 'undefined'
+      ? 0
+      : args.length
+        ? 3
+        : typeof removeNum === 'undefined'
+          ? 1
+          : 2;
   removeNum = Math.max(removeNum || 0, 0);
   if (numArgs === 0 || (numArgs === 2 && !removeNum)) {
     return collection;
@@ -33,20 +38,24 @@ const collectionSplice = (collection, index, removeNum, args) => {
   return reify(
     collection,
     numArgs === 1
-    ? spliced
-    : spliced.concat(args, collection.slice(index + removeNum))
+      ? spliced
+      : spliced.concat(args, collection.slice(index + removeNum))
   );
-}
+};
 
 const collectionInterleave = (collection, collections) => {
   const collectionsJoined = [collection].concat(arrCopy(collections));
-  const zipped = zipWithFactory(collection.toSeq(), IndexedSeq.of, collectionsJoined);
+  const zipped = zipWithFactory(
+    collection.toSeq(),
+    IndexedSeq.of,
+    collectionsJoined
+  );
   const interleaved = zipped.flatten(true);
   if (zipped.size) {
     interleaved.size = zipped.size * collectionsJoined.length;
   }
   return reify(collection, interleaved);
-}
+};
 
 const collectionReduce = (collection, reducer, initialReduction, context) => {
   return reduce(
@@ -54,12 +63,17 @@ const collectionReduce = (collection, reducer, initialReduction, context) => {
     reducer,
     initialReduction,
     context,
-    (typeof initialReduction === 'undefined' && typeof context === 'undefined'),
+    typeof initialReduction === 'undefined' && typeof context === 'undefined',
     false
   );
-}
+};
 
-function collectionReduceRight (collection, reducer, initialReduction, context) {
+const collectionReduceRight = (
+  collection,
+  reducer,
+  initialReduction,
+  context
+) => {
   return reduce(
     collection,
     reducer,
@@ -70,4 +84,26 @@ function collectionReduceRight (collection, reducer, initialReduction, context) 
   );
 };
 
-export { collectionSplice, collectionInterleave, collectionReduce, collectionReduceRight };
+const collectionFilter = (collection, predicate, context) => {
+  return reify(collection, filterFactory(collection, predicate, context, true));
+};
+
+const collectionFindEntry = (collection, predicate, context, notSetValue) => {
+  let found = notSetValue;
+  collection.__iterate((v, k, c) => {
+    if (predicate.call(context, v, k, c)) {
+      found = [k, v];
+      return false;
+    }
+  });
+  return found;
+};
+
+export {
+  collectionSplice,
+  collectionInterleave,
+  collectionReduce,
+  collectionReduceRight,
+  collectionFilter,
+  collectionFindEntry,
+};

@@ -19,7 +19,7 @@ import { imul, smi } from './Math';
 import { IS_INDEXED_SYMBOL, isIndexed } from './predicates/isIndexed';
 import { IS_KEYED_SYMBOL, isKeyed } from './predicates/isKeyed';
 import { IS_ORDERED_SYMBOL, isOrdered } from './predicates/isOrdered';
-import { ensureSize, resolveBegin, NOT_SET, returnTrue, wrapIndex } from './TrieUtils';
+import { ensureSize, NOT_SET, returnTrue, wrapIndex } from './TrieUtils';
 
 import arrCopy from './utils/arrCopy';
 import assertNotInfinite from './utils/assertNotInfinite';
@@ -59,18 +59,19 @@ import {
 import { OrderedMap } from './OrderedMap';
 import { OrderedSet } from './OrderedSet';
 import { Range } from './Range';
-import {
-  ArraySeq,
-  IndexedSeq,
-  IndexedSeqImpl,
-  KeyedSeqImpl,
-  SetSeqImpl,
-} from './Seq';
+import { ArraySeq, IndexedSeqImpl, KeyedSeqImpl, SetSeqImpl } from './Seq';
 import { Set } from './Set';
 import { Stack } from './Stack';
 import { toJS } from './toJS';
 
-import { collectionSplice, collectionInterleave, collectionReduce, collectionReduceRight } from './manipulations';
+import {
+  collectionSplice,
+  collectionInterleave,
+  collectionReduce,
+  collectionReduceRight,
+  collectionFilter,
+  collectionFindEntry,
+} from './manipulations';
 
 export { Collection, CollectionPrototype, IndexedCollectionPrototype };
 
@@ -193,7 +194,7 @@ mixin(CollectionImpl, {
   },
 
   filter(predicate, context) {
-    return reify(this, filterFactory(this, predicate, context, true));
+    return collectionFilter(this, predicate, context);
   },
 
   partition(predicate, context) {
@@ -232,21 +233,11 @@ mixin(CollectionImpl, {
   },
 
   reduce(reducer, initialReduction, context) {
-    return collectionReduce(
-      this,
-      reducer,
-      initialReduction,
-      context
-    );
+    return collectionReduce(this, reducer, initialReduction, context);
   },
 
   reduceRight(reducer, initialReduction, context) {
-    return collectionReduceRight(
-      this,
-      reducer,
-      initialReduction,
-      context
-    );
+    return collectionReduceRight(this, reducer, initialReduction, context);
   },
 
   reverse() {
@@ -318,18 +309,12 @@ mixin(CollectionImpl, {
   },
 
   findEntry(predicate, context, notSetValue) {
-    let found = notSetValue;
-    this.__iterate((v, k, c) => {
-      if (predicate.call(context, v, k, c)) {
-        found = [k, v];
-        return false;
-      }
-    });
-    return found;
+    return collectionFindEntry(this, predicate, context, notSetValue);
   },
 
   findKey(predicate, context) {
-    const entry = this.findEntry(predicate, context);
+    const entry = collectionFindEntry(this, predicate, context);
+
     return entry && entry[0];
   },
 
@@ -563,7 +548,7 @@ mixin(IndexedCollectionImpl, {
   },
 
   splice(index, removeNum, ...values) {
-    return collectionSplice(this, index, removeNum, values)
+    return collectionSplice(this, index, removeNum, values);
   },
 
   // ### More collection methods
@@ -671,19 +656,6 @@ mixin(IndexedSeqImpl, IndexedCollectionPrototype);
 mixin(SetSeqImpl, SetCollectionPrototype);
 
 // #pragma Helper functions
-
-function reduce(collection, reducer, reduction, context, useFirst, reverse) {
-  assertNotInfinite(collection.size);
-  collection.__iterate((v, k, c) => {
-    if (useFirst) {
-      useFirst = false;
-      reduction = v;
-    } else {
-      reduction = reducer.call(context, reduction, v, k, c);
-    }
-  }, reverse);
-  return reduction;
-}
 
 function keyMapper(v, k) {
   return k;
