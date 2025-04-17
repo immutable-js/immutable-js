@@ -5,76 +5,130 @@ import {
   KeyedCollectionImpl,
   SetCollectionImpl,
 } from './Collection';
-import { hash } from './Hash';
-import { is } from './is';
-import {
-  ITERATE_ENTRIES,
-  ITERATE_KEYS,
-  ITERATE_VALUES,
-  Iterator,
-  ITERATOR_SYMBOL,
-} from './Iterator';
-import { imul, smi } from './Math';
-import { IS_COLLECTION_SYMBOL } from './predicates/isCollection';
-import { IS_INDEXED_SYMBOL, isIndexed } from './predicates/isIndexed';
-import { IS_KEYED_SYMBOL, isKeyed } from './predicates/isKeyed';
-import { IS_ORDERED_SYMBOL, isOrdered } from './predicates/isOrdered';
-import {
-  ensureSize,
-  NOT_SET,
-  resolveBegin,
-  returnTrue,
-  wrapIndex,
-} from './TrieUtils';
+import CollectionProtoAssign from './CollectionProtoAssign';
+import { Iterator, ITERATOR_SYMBOL } from './Iterator';
+import { IS_INDEXED_SYMBOL } from './predicates/isIndexed';
+import { IS_KEYED_SYMBOL } from './predicates/isKeyed';
+import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
 
-import arrCopy from './utils/arrCopy';
-import assertNotInfinite from './utils/assertNotInfinite';
-import deepEqual from './utils/deepEqual';
 import mixin from './utils/mixin';
 import quoteString from './utils/quoteString';
 
-import { List } from './List';
-import { Map } from './Map';
 import { getIn } from './methods/getIn';
 import { hasIn } from './methods/hasIn';
 import { toObject } from './methods/toObject';
+
 import {
-  concatFactory,
-  countByFactory,
-  filterFactory,
-  flatMapFactory,
-  flattenFactory,
-  flipFactory,
-  FromEntriesSequence,
-  groupByFactory,
-  interposeFactory,
-  mapFactory,
-  maxFactory,
-  partitionFactory,
-  reify,
-  reverseFactory,
-  skipWhileFactory,
-  sliceFactory,
-  sortFactory,
-  takeWhileFactory,
-  ToIndexedSequence,
-  ToKeyedSequence,
-  ToSetSequence,
-  zipWithFactory,
-} from './Operations';
-import { OrderedMap } from './OrderedMap';
-import { OrderedSet } from './OrderedSet';
-import { Range } from './Range';
-import {
-  ArraySeq,
-  IndexedSeq,
   IndexedSeqImpl,
   KeyedSeqImpl,
   SetSeqImpl,
+  ArraySeq,
 } from './Seq';
-import { Set } from './Set';
-import { Stack } from './Stack';
-import { toJS } from './toJS';
+
+import {
+  collectionToArray,
+  collectionToIndexedSeq,
+  collectionToJS,
+  collectionToKeyedSequence,
+  collectionToMap,
+  collectionToOrderedMap,
+  collectionValueSeq,
+  collectionToOrderedSet,
+  collectionToSet,
+  collectionToSetSeq,
+  collectionToSeq,
+  collectionToStack,
+  collectionToList,
+  collectionToStringDetails,
+  collectionConcat,
+  collectionIncludes,
+  collectionEntries,
+  collectionEvery,
+  collectionPartition,
+  collectionFind,
+  collectionForEach,
+  collectionReduce,
+  collectionReduceRight,
+  collectionFilter,
+  collectionFindEntry,
+  collectionTake,
+  collectionTakeLast,
+  collectionTakeWhile,
+  collectionJoin,
+  collectionKeys,
+  collectionMap,
+  collectionReverse,
+  collectionSlice,
+  collectionSort,
+  collectionSome,
+  collectionValues,
+  collectionButLast,
+  collectionIsEmpty,
+  collectionCount,
+  collectionCountBy,
+  collectionEquals,
+  collectionEntrySeq,
+  collectionFilterNot,
+  collectionFindKey,
+  collectionFindLast,
+  collectionFindLastEntry,
+  collectionFindLastKey,
+  collectionFirst,
+  collectionFlatMap,
+  collectionFlatten,
+  collectionFromEntrySeq,
+  collectionGet,
+  collectionGroupBy,
+  collectionHas,
+  collectionIsSubset,
+  collectionIsSuperset,
+  collectionKeyOf,
+  collectionKeySeq,
+  collectionLast,
+  collectionLastKeyOf,
+  collectionMax,
+  collectionMaxBy,
+  collectionMin,
+  collectionMinBy,
+  collectionRest,
+  collectionSkip,
+  collectionSkipLast,
+  collectionSkipWhile,
+  collectionSkipUntil,
+  collectionSortBy,
+  collectionTakeUntil,
+  collectionHashCode,
+
+  collectionSetGet,
+  collectionSetIncludes,
+  collectionSetKeySeq,
+  
+  collectionKeyedFlip,
+  collectionKeyedMapEntries,
+  collectionKeyedMapKeys,
+
+  collectionIndexedToKeyedSeq,
+  collectionIndexedFilter,
+  collectionIndexedFindIndex,
+  collectionIndexedIndexOf,
+  collectionIndexedLastIndexOf,
+  collectionIndexedReverse,
+  collectionIndexedSlice,
+  collectionIndexedSplice,
+  collectionIndexedFindLastIndex,
+  collectionIndexedFirst,
+  collectionIndexedFlatten,
+  collectionIndexedGet,
+  collectionIndexedHas,
+  collectionIndexedInterpose,
+  collectionIndexedInterleave,
+  collectionIndexedKeySeq,
+  collectionIndexedLast,
+  collectionIndexedSkipWhile,
+  collectionIndexedZip,
+  collectionIndexedZipAll,
+  collectionIndexedZipWith
+} from './Operations';
 
 export { Collection, CollectionPrototype, IndexedCollectionPrototype };
 
@@ -84,71 +138,54 @@ mixin(CollectionImpl, {
   // ### Conversion to other types
 
   toArray() {
-    assertNotInfinite(this.size);
-    const array = new Array(this.size || 0);
-    const useTuples = isKeyed(this);
-    let i = 0;
-    this.__iterate((v, k) => {
-      // Keyed collections produce an array of tuples.
-      array[i++] = useTuples ? [k, v] : v;
-    });
-    return array;
+    return collectionToArray(this);
   },
 
   toIndexedSeq() {
-    return new ToIndexedSequence(this);
+    return collectionToIndexedSeq(this);
   },
 
   toJS() {
-    return toJS(this);
+    return collectionToJS(this);
   },
 
   toKeyedSeq() {
-    return new ToKeyedSequence(this, true);
+    return collectionToKeyedSequence(this);
   },
 
   toMap() {
     // Use Late Binding here to solve the circular dependency.
-    return Map(this.toKeyedSeq());
+    return collectionToMap(this);
   },
 
   toObject: toObject,
 
   toOrderedMap() {
-    // Use Late Binding here to solve the circular dependency.
-    return OrderedMap(this.toKeyedSeq());
+    return collectionToOrderedMap(this);
   },
 
   toOrderedSet() {
-    // Use Late Binding here to solve the circular dependency.
-    return OrderedSet(isKeyed(this) ? this.valueSeq() : this);
+    return collectionToOrderedSet(this);
   },
 
   toSet() {
-    // Use Late Binding here to solve the circular dependency.
-    return Set(isKeyed(this) ? this.valueSeq() : this);
+    return collectionToSet(this);
   },
 
   toSetSeq() {
-    return new ToSetSequence(this);
+    return collectionToSetSeq(this);
   },
 
   toSeq() {
-    return isIndexed(this)
-      ? this.toIndexedSeq()
-      : isKeyed(this)
-        ? this.toKeyedSeq()
-        : this.toSetSeq();
+    return collectionToSeq(this);
   },
 
   toStack() {
-    // Use Late Binding here to solve the circular dependency.
-    return Stack(isKeyed(this) ? this.valueSeq() : this);
+    return collectionToStack(this);
   },
 
   toList() {
-    // Use Late Binding here to solve the circular dependency.
-    return List(isKeyed(this) ? this.valueSeq() : this);
+    return collectionToList(this);
   },
 
   // ### Common JavaScript methods and properties
@@ -158,322 +195,243 @@ mixin(CollectionImpl, {
   },
 
   __toString(head, tail) {
-    if (this.size === 0) {
-      return head + tail;
-    }
-    return (
-      head +
-      ' ' +
-      this.toSeq().map(this.__toStringMapper).join(', ') +
-      ' ' +
-      tail
-    );
+    return collectionToStringDetails(this, head, tail);
   },
 
   // ### ES6 Collection methods (ES6 Array and Map)
 
   concat(...values) {
-    return reify(this, concatFactory(this, values));
+    return collectionConcat(this, values);
   },
 
   includes(searchValue) {
-    return this.some((value) => is(value, searchValue));
+    return collectionIncludes(this, searchValue);
   },
 
   entries() {
-    return this.__iterator(ITERATE_ENTRIES);
+    return collectionEntries(this);
   },
 
   every(predicate, context) {
-    assertNotInfinite(this.size);
-    let returnValue = true;
-    this.__iterate((v, k, c) => {
-      if (!predicate.call(context, v, k, c)) {
-        returnValue = false;
-        return false;
-      }
-    });
-    return returnValue;
+    return collectionEvery(this, predicate, context);
   },
 
   filter(predicate, context) {
-    return reify(this, filterFactory(this, predicate, context, true));
+    return collectionFilter(this, predicate, context);
   },
 
   partition(predicate, context) {
-    return partitionFactory(this, predicate, context);
+    return collectionPartition(this, predicate, context);
   },
 
   find(predicate, context, notSetValue) {
-    const entry = this.findEntry(predicate, context);
-    return entry ? entry[1] : notSetValue;
+    return collectionFind(this, predicate, context, notSetValue);
   },
 
   forEach(sideEffect, context) {
-    assertNotInfinite(this.size);
-    return this.__iterate(context ? sideEffect.bind(context) : sideEffect);
+    return collectionForEach(this, sideEffect, context);
   },
 
   join(separator) {
-    assertNotInfinite(this.size);
-    separator = separator !== undefined ? '' + separator : ',';
-    let joined = '';
-    let isFirst = true;
-    this.__iterate((v) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
-      isFirst ? (isFirst = false) : (joined += separator);
-      joined += v !== null && v !== undefined ? v.toString() : '';
-    });
-    return joined;
+    return collectionJoin(this, separator);
   },
 
   keys() {
-    return this.__iterator(ITERATE_KEYS);
+    return collectionKeys(this);
   },
 
   map(mapper, context) {
-    return reify(this, mapFactory(this, mapper, context));
+    return collectionMap(this, mapper, context);
   },
 
   reduce(reducer, initialReduction, context) {
-    return reduce(
-      this,
-      reducer,
-      initialReduction,
-      context,
-      arguments.length < 2,
-      false
-    );
+    return collectionReduce(this, reducer, initialReduction, context);
   },
 
   reduceRight(reducer, initialReduction, context) {
-    return reduce(
-      this,
-      reducer,
-      initialReduction,
-      context,
-      arguments.length < 2,
-      true
-    );
+    return collectionReduceRight(this, reducer, initialReduction, context);
   },
 
   reverse() {
-    return reify(this, reverseFactory(this, true));
+    return collectionReverse(this);
   },
 
   slice(begin, end) {
-    return reify(this, sliceFactory(this, begin, end, true));
+    return collectionSlice(this, begin, end);
   },
 
   some(predicate, context) {
-    assertNotInfinite(this.size);
-    let returnValue = false;
-    this.__iterate((v, k, c) => {
-      if (predicate.call(context, v, k, c)) {
-        returnValue = true;
-        return false;
-      }
-    });
-    return returnValue;
+    return collectionSome(this, predicate, context);
   },
 
   sort(comparator) {
-    return reify(this, sortFactory(this, comparator));
+    return collectionSort(this, comparator);
   },
 
   values() {
-    return this.__iterator(ITERATE_VALUES);
+    return collectionValues(this);
   },
 
   // ### More sequential methods
 
   butLast() {
-    return this.slice(0, -1);
+    return collectionButLast(this);
   },
 
   isEmpty() {
-    return this.size !== undefined ? this.size === 0 : !this.some(() => true);
+    return collectionIsEmpty(this);
   },
 
   count(predicate, context) {
-    return ensureSize(
-      predicate ? this.toSeq().filter(predicate, context) : this
-    );
+    return collectionCount(this, predicate, context);
   },
 
   countBy(grouper, context) {
-    return countByFactory(this, grouper, context);
+    return collectionCountBy(this, grouper, context);
   },
 
   equals(other) {
-    return deepEqual(this, other);
+    return collectionEquals(this, other);
   },
 
   entrySeq() {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const collection = this;
-    if (collection._cache) {
-      // We cache as an entries array, so we can just return the cache!
-      return new ArraySeq(collection._cache);
-    }
-    const entriesSequence = collection.toSeq().map(entryMapper).toIndexedSeq();
-    entriesSequence.fromEntrySeq = () => collection.toSeq();
-    return entriesSequence;
+    return collectionEntrySeq(this, ArraySeq);
   },
 
   filterNot(predicate, context) {
-    return this.filter(not(predicate), context);
+    return collectionFilterNot(this, predicate, context);
   },
 
   findEntry(predicate, context, notSetValue) {
-    let found = notSetValue;
-    this.__iterate((v, k, c) => {
-      if (predicate.call(context, v, k, c)) {
-        found = [k, v];
-        return false;
-      }
-    });
-    return found;
+    return collectionFindEntry(this, predicate, context, notSetValue);
   },
 
   findKey(predicate, context) {
-    const entry = this.findEntry(predicate, context);
-    return entry && entry[0];
+    return collectionFindKey(this, predicate, context);
   },
 
   findLast(predicate, context, notSetValue) {
-    return this.toKeyedSeq().reverse().find(predicate, context, notSetValue);
+    return collectionFindLast(this, predicate, context, notSetValue);
   },
 
   findLastEntry(predicate, context, notSetValue) {
-    return this.toKeyedSeq()
-      .reverse()
-      .findEntry(predicate, context, notSetValue);
+    return collectionFindLastEntry(this, predicate, context, notSetValue);
   },
 
   findLastKey(predicate, context) {
-    return this.toKeyedSeq().reverse().findKey(predicate, context);
+    return collectionFindLastKey(this, predicate, context);
   },
 
   first(notSetValue) {
-    return this.find(returnTrue, null, notSetValue);
+    return collectionFirst(this, notSetValue);
   },
 
   flatMap(mapper, context) {
-    return reify(this, flatMapFactory(this, mapper, context));
+    return collectionFlatMap(this, mapper, context);
   },
 
   flatten(depth) {
-    return reify(this, flattenFactory(this, depth, true));
+    return collectionFlatten(this, depth);
   },
 
   fromEntrySeq() {
-    return new FromEntriesSequence(this);
+    return collectionFromEntrySeq(this);
   },
 
   get(searchKey, notSetValue) {
-    return this.find((_, key) => is(key, searchKey), undefined, notSetValue);
+    return collectionGet(this, searchKey, notSetValue);
   },
 
   getIn: getIn,
 
   groupBy(grouper, context) {
-    return groupByFactory(this, grouper, context);
+    return collectionGroupBy(this, grouper, context);
   },
 
   has(searchKey) {
-    return this.get(searchKey, NOT_SET) !== NOT_SET;
+    return collectionHas(this, searchKey);
   },
 
   hasIn: hasIn,
 
   isSubset(iter) {
-    iter = typeof iter.includes === 'function' ? iter : Collection(iter);
-    return this.every((value) => iter.includes(value));
+    return collectionIsSubset(this, iter, Collection);
   },
 
   isSuperset(iter) {
-    iter = typeof iter.isSubset === 'function' ? iter : Collection(iter);
-    return iter.isSubset(this);
+    return collectionIsSuperset(this, iter, Collection);
   },
 
   keyOf(searchValue) {
-    return this.findKey((value) => is(value, searchValue));
+    return collectionKeyOf(this, searchValue);
   },
 
   keySeq() {
-    return this.toSeq().map(keyMapper).toIndexedSeq();
+    return collectionKeySeq(this);
   },
 
   last(notSetValue) {
-    return this.toSeq().reverse().first(notSetValue);
+    return collectionLast(this, notSetValue);
   },
 
   lastKeyOf(searchValue) {
-    return this.toKeyedSeq().reverse().keyOf(searchValue);
+    return collectionLastKeyOf(this, searchValue);
   },
 
   max(comparator) {
-    return maxFactory(this, comparator);
+    return collectionMax(this, comparator);
   },
 
   maxBy(mapper, comparator) {
-    return maxFactory(this, comparator, mapper);
+    return collectionMaxBy(this, mapper, comparator);
   },
 
   min(comparator) {
-    return maxFactory(
-      this,
-      comparator ? neg(comparator) : defaultNegComparator
-    );
+    return collectionMin(this, comparator);
   },
 
   minBy(mapper, comparator) {
-    return maxFactory(
-      this,
-      comparator ? neg(comparator) : defaultNegComparator,
-      mapper
-    );
+    return collectionMinBy(this, mapper, comparator);
   },
 
   rest() {
-    return this.slice(1);
+    return collectionRest(this);
   },
 
   skip(amount) {
-    return amount === 0 ? this : this.slice(Math.max(0, amount));
+    return collectionSkip(this, amount);
   },
 
   skipLast(amount) {
-    return amount === 0 ? this : this.slice(0, -Math.max(0, amount));
+    return collectionSkipLast(this, amount);
   },
 
   skipWhile(predicate, context) {
-    return reify(this, skipWhileFactory(this, predicate, context, true));
+    return collectionSkipWhile(this, predicate, context);
   },
 
   skipUntil(predicate, context) {
-    return this.skipWhile(not(predicate), context);
+    return collectionSkipUntil(this, predicate, context);
   },
 
   sortBy(mapper, comparator) {
-    return reify(this, sortFactory(this, comparator, mapper));
+    return collectionSortBy(this, mapper, comparator);
   },
 
   take(amount) {
-    return this.slice(0, Math.max(0, amount));
+    return collectionTake(this, amount);
   },
 
   takeLast(amount) {
-    return this.slice(-Math.max(0, amount));
+    return collectionTakeLast(this, amount);
   },
 
   takeWhile(predicate, context) {
-    return reify(this, takeWhileFactory(this, predicate, context));
+    return collectionTakeWhile(this, predicate, context);
   },
 
   takeUntil(predicate, context) {
-    return this.takeWhile(not(predicate), context);
+    return collectionTakeUntil(this, predicate, context);
   },
 
   update(fn) {
@@ -481,13 +439,13 @@ mixin(CollectionImpl, {
   },
 
   valueSeq() {
-    return this.toIndexedSeq();
+    return collectionValueSeq(this);
   },
 
   // ### Hashable Object
 
   hashCode() {
-    return this.__hash || (this.__hash = hashCollection(this));
+    return collectionHashCode(this);
   },
 
   // ### Internal
@@ -497,42 +455,21 @@ mixin(CollectionImpl, {
   // abstract __iterator(type, reverse)
 });
 
-const CollectionPrototype = CollectionImpl.prototype;
-CollectionPrototype[IS_COLLECTION_SYMBOL] = true;
-CollectionPrototype[ITERATOR_SYMBOL] = CollectionPrototype.values;
-CollectionPrototype.toJSON = CollectionPrototype.toArray;
-CollectionPrototype.__toStringMapper = quoteString;
-CollectionPrototype.inspect = CollectionPrototype.toSource = function () {
-  return this.toString();
-};
-CollectionPrototype.chain = CollectionPrototype.flatMap;
-CollectionPrototype.contains = CollectionPrototype.includes;
+const CollectionPrototype = CollectionProtoAssign(CollectionImpl.prototype);
 
 mixin(KeyedCollectionImpl, {
   // ### More sequential methods
 
   flip() {
-    return reify(this, flipFactory(this));
+    return collectionKeyedFlip(this)
   },
 
   mapEntries(mapper, context) {
-    let iterations = 0;
-    return reify(
-      this,
-      this.toSeq()
-        .map((v, k) => mapper.call(context, [k, v], iterations++, this))
-        .fromEntrySeq()
-    );
+    return collectionKeyedMapEntries(this, mapper, context)
   },
 
   mapKeys(mapper, context) {
-    return reify(
-      this,
-      this.toSeq()
-        .flip()
-        .map((k, v) => mapper.call(context, k, v, this))
-        .flip()
-    );
+    return collectionKeyedMapKeys(this, mapper, context)
   },
 });
 
@@ -547,132 +484,91 @@ mixin(IndexedCollectionImpl, {
   // ### Conversion to other types
 
   toKeyedSeq() {
-    return new ToKeyedSequence(this, false);
+    return collectionIndexedToKeyedSeq(this)
   },
 
   // ### ES6 Collection methods (ES6 Array and Map)
 
   filter(predicate, context) {
-    return reify(this, filterFactory(this, predicate, context, false));
+    return collectionIndexedFilter(this, predicate, context)
   },
 
   findIndex(predicate, context) {
-    const entry = this.findEntry(predicate, context);
-    return entry ? entry[0] : -1;
+    return collectionIndexedFindIndex(this, predicate, context)
   },
 
   indexOf(searchValue) {
-    const key = this.keyOf(searchValue);
-    return key === undefined ? -1 : key;
+    return collectionIndexedIndexOf(this, searchValue)
   },
 
   lastIndexOf(searchValue) {
-    const key = this.lastKeyOf(searchValue);
-    return key === undefined ? -1 : key;
+    return collectionIndexedLastIndexOf(this, searchValue)
   },
 
   reverse() {
-    return reify(this, reverseFactory(this, false));
+    return collectionIndexedReverse(this)
   },
 
   slice(begin, end) {
-    return reify(this, sliceFactory(this, begin, end, false));
+    return collectionIndexedSlice(this, begin, end)
   },
 
-  splice(index, removeNum /*, ...values*/) {
-    const numArgs = arguments.length;
-    removeNum = Math.max(removeNum || 0, 0);
-    if (numArgs === 0 || (numArgs === 2 && !removeNum)) {
-      return this;
-    }
-    // If index is negative, it should resolve relative to the size of the
-    // collection. However size may be expensive to compute if not cached, so
-    // only call count() if the number is in fact negative.
-    index = resolveBegin(index, index < 0 ? this.count() : this.size);
-    const spliced = this.slice(0, index);
-    return reify(
-      this,
-      numArgs === 1
-        ? spliced
-        : spliced.concat(arrCopy(arguments, 2), this.slice(index + removeNum))
-    );
+  splice(index, removeNum, ...values) {
+    return collectionIndexedSplice(this, index, removeNum, values)
   },
 
   // ### More collection methods
 
   findLastIndex(predicate, context) {
-    const entry = this.findLastEntry(predicate, context);
-    return entry ? entry[0] : -1;
-  },
+    return collectionIndexedFindLastIndex(this, predicate, context)  },
 
   first(notSetValue) {
-    return this.get(0, notSetValue);
+    return collectionIndexedFirst(this, notSetValue)
   },
 
   flatten(depth) {
-    return reify(this, flattenFactory(this, depth, false));
+    return collectionIndexedFlatten(this, depth)
   },
 
   get(index, notSetValue) {
-    index = wrapIndex(this, index);
-    return index < 0 ||
-      this.size === Infinity ||
-      (this.size !== undefined && index > this.size)
-      ? notSetValue
-      : this.find((_, key) => key === index, undefined, notSetValue);
+    return collectionIndexedGet(this, index, notSetValue)
   },
 
   has(index) {
-    index = wrapIndex(this, index);
-    return (
-      index >= 0 &&
-      (this.size !== undefined
-        ? this.size === Infinity || index < this.size
-        : this.indexOf(index) !== -1)
-    );
+    return collectionIndexedHas(this, index)
   },
 
   interpose(separator) {
-    return reify(this, interposeFactory(this, separator));
+    return collectionIndexedInterpose(this, separator);
   },
 
-  interleave(/*...collections*/) {
-    const collections = [this].concat(arrCopy(arguments));
-    const zipped = zipWithFactory(this.toSeq(), IndexedSeq.of, collections);
-    const interleaved = zipped.flatten(true);
-    if (zipped.size) {
-      interleaved.size = zipped.size * collections.length;
-    }
-    return reify(this, interleaved);
+  interleave(...collections) {
+    return collectionIndexedInterleave(this, collections);
   },
 
   keySeq() {
-    return Range(0, this.size);
+    return collectionIndexedKeySeq(this);
   },
 
   last(notSetValue) {
-    return this.get(-1, notSetValue);
+    return collectionIndexedLast(this, notSetValue);
   },
 
   skipWhile(predicate, context) {
-    return reify(this, skipWhileFactory(this, predicate, context, false));
+    return collectionIndexedSkipWhile(this, predicate, context);
   },
 
-  zip(/*, ...collections */) {
-    const collections = [this].concat(arrCopy(arguments));
-    return reify(this, zipWithFactory(this, defaultZipper, collections));
+  zip(...collections) {
+    return collectionIndexedZip(this, collections);
   },
 
-  zipAll(/*, ...collections */) {
-    const collections = [this].concat(arrCopy(arguments));
-    return reify(this, zipWithFactory(this, defaultZipper, collections, true));
+  zipAll(...collections) {
+    return collectionIndexedZipAll(this, collections);
   },
 
-  zipWith(zipper /*, ...collections */) {
-    const collections = arrCopy(arguments);
-    collections[0] = this;
-    return reify(this, zipWithFactory(this, zipper, collections));
-  },
+  zipWith(zipper, ...collections) {
+    return collectionIndexedZipWith(this, zipper, collections);
+  }
 });
 
 const IndexedCollectionPrototype = IndexedCollectionImpl.prototype;
@@ -683,17 +579,16 @@ mixin(SetCollectionImpl, {
   // ### ES6 Collection methods (ES6 Array and Map)
 
   get(value, notSetValue) {
-    return this.has(value) ? value : notSetValue;
+    return collectionSetGet(this, value, notSetValue);
   },
 
   includes(value) {
-    return this.has(value);
+    return collectionSetIncludes(this, value)
   },
 
   // ### More sequential methods
-
   keySeq() {
-    return this.valueSeq();
+    return collectionSetKeySeq(this)
   },
 });
 
@@ -707,90 +602,3 @@ SetCollectionPrototype.keys = SetCollectionPrototype.values;
 mixin(KeyedSeqImpl, KeyedCollectionPrototype);
 mixin(IndexedSeqImpl, IndexedCollectionPrototype);
 mixin(SetSeqImpl, SetCollectionPrototype);
-
-// #pragma Helper functions
-
-function reduce(collection, reducer, reduction, context, useFirst, reverse) {
-  assertNotInfinite(collection.size);
-  collection.__iterate((v, k, c) => {
-    if (useFirst) {
-      useFirst = false;
-      reduction = v;
-    } else {
-      reduction = reducer.call(context, reduction, v, k, c);
-    }
-  }, reverse);
-  return reduction;
-}
-
-function keyMapper(v, k) {
-  return k;
-}
-
-function entryMapper(v, k) {
-  return [k, v];
-}
-
-function not(predicate) {
-  return function () {
-    return !predicate.apply(this, arguments);
-  };
-}
-
-function neg(predicate) {
-  return function () {
-    return -predicate.apply(this, arguments);
-  };
-}
-
-function defaultZipper() {
-  return arrCopy(arguments);
-}
-
-function defaultNegComparator(a, b) {
-  return a < b ? 1 : a > b ? -1 : 0;
-}
-
-function hashCollection(collection) {
-  if (collection.size === Infinity) {
-    return 0;
-  }
-  const ordered = isOrdered(collection);
-  const keyed = isKeyed(collection);
-  let h = ordered ? 1 : 0;
-
-  collection.__iterate(
-    keyed
-      ? ordered
-        ? (v, k) => {
-            h = (31 * h + hashMerge(hash(v), hash(k))) | 0;
-          }
-        : (v, k) => {
-            h = (h + hashMerge(hash(v), hash(k))) | 0;
-          }
-      : ordered
-        ? (v) => {
-            h = (31 * h + hash(v)) | 0;
-          }
-        : (v) => {
-            h = (h + hash(v)) | 0;
-          }
-  );
-
-  return murmurHashOfSize(collection.size, h);
-}
-
-function murmurHashOfSize(size, h) {
-  h = imul(h, 0xcc9e2d51);
-  h = imul((h << 15) | (h >>> -15), 0x1b873593);
-  h = imul((h << 13) | (h >>> -13), 5);
-  h = ((h + 0xe6546b64) | 0) ^ size;
-  h = imul(h ^ (h >>> 16), 0x85ebca6b);
-  h = imul(h ^ (h >>> 13), 0xc2b2ae35);
-  h = smi(h ^ (h >>> 16));
-  return h;
-}
-
-function hashMerge(a, b) {
-  return (a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2))) | 0; // int
-}
