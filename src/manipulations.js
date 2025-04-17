@@ -35,7 +35,6 @@ import { OrderedMap } from './OrderedMap';
 import { OrderedSet } from './OrderedSet';
 import { Set } from './Set';
 import { Map } from './Map';
-import { ArraySeq, IndexedSeq } from './Seq';
 import { List } from './List';
 import { Stack } from './Stack';
 import { ITERATE_ENTRIES, ITERATE_KEYS, ITERATE_VALUES } from './Iterator';
@@ -161,11 +160,11 @@ const collectionSplice = (collection, index, removeNum, args) => {
   );
 };
 
-const collectionInterleave = (collection, collections) => {
+const collectionInterleave = (collection, collections, zipper) => {
   const collectionsJoined = [collection].concat(arrCopy(collections));
   const zipped = zipWithFactory(
     collection.toSeq(),
-    IndexedSeq.of,
+    zipper,
     collectionsJoined
   );
   const interleaved = zipped.flatten(true);
@@ -409,10 +408,10 @@ const collectionEquals = (collection, other) => {
   return deepEqual(collection, other);
 };
 
-const collectionEntrySeq = (collection) => {
+const collectionEntrySeq = (collection, ArraySeqConstructor) => {
   if (collection._cache) {
     // We cache as an entries array, so we can just return the cache!
-    return new ArraySeq(collection._cache);
+    return new ArraySeqConstructor(collection._cache);
   }
   const entriesSequence = collection.toSeq().map(entryMapper).toIndexedSeq();
   entriesSequence.fromEntrySeq = () => collection.toSeq();

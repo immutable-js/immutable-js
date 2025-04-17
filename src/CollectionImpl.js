@@ -32,7 +32,7 @@ import {
   zipWithFactory,
 } from './Operations';
 import { Range } from './Range';
-import { IndexedSeqImpl, KeyedSeqImpl, SetSeqImpl } from './Seq';
+import { IndexedSeqImpl, IndexedSeq, KeyedSeqImpl, SetSeqImpl, ArraySeq } from './Seq';
 
 import {
   collectionToArray,
@@ -276,7 +276,7 @@ mixin(CollectionImpl, {
   },
 
   entrySeq() {
-    return collectionEntrySeq(this);
+    return collectionEntrySeq(this, ArraySeq);
   },
 
   filterNot(predicate, context) {
@@ -552,7 +552,7 @@ mixin(IndexedCollectionImpl, {
   },
 
   interleave(...collections) {
-    return collectionInterleave(this, collections);
+    return collectionInterleave(this, collections, IndexedSeq.of);
   },
 
   keySeq() {
