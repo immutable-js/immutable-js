@@ -19,6 +19,16 @@ import quoteString from './utils/quoteString';
 import { getIn } from './methods/getIn';
 import { hasIn } from './methods/hasIn';
 import { toObject } from './methods/toObject';
+
+import { Range } from './Range';
+import {
+  IndexedSeqImpl,
+  IndexedSeq,
+  KeyedSeqImpl,
+  SetSeqImpl,
+  ArraySeq,
+} from './Seq';
+
 import {
   filterFactory,
   flattenFactory,
@@ -30,17 +40,6 @@ import {
   sliceFactory,
   ToKeyedSequence,
   zipWithFactory,
-} from './Operations';
-import { Range } from './Range';
-import {
-  IndexedSeqImpl,
-  IndexedSeq,
-  KeyedSeqImpl,
-  SetSeqImpl,
-  ArraySeq,
-} from './Seq';
-
-import {
   collectionToArray,
   collectionToIndexedSeq,
   collectionToJS,
@@ -115,7 +114,7 @@ import {
   collectionSortBy,
   collectionTakeUntil,
   collectionHashCode,
-} from './manipulations';
+} from './Operations';
 
 export { Collection, CollectionPrototype, IndexedCollectionPrototype };
 
