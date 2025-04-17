@@ -19,13 +19,7 @@ import { imul, smi } from './Math';
 import { IS_INDEXED_SYMBOL, isIndexed } from './predicates/isIndexed';
 import { IS_KEYED_SYMBOL, isKeyed } from './predicates/isKeyed';
 import { IS_ORDERED_SYMBOL, isOrdered } from './predicates/isOrdered';
-import {
-  ensureSize,
-  NOT_SET,
-  resolveBegin,
-  returnTrue,
-  wrapIndex,
-} from './TrieUtils';
+import { ensureSize, resolveBegin, NOT_SET, returnTrue, wrapIndex } from './TrieUtils';
 
 import arrCopy from './utils/arrCopy';
 import assertNotInfinite from './utils/assertNotInfinite';
@@ -75,6 +69,8 @@ import {
 import { Set } from './Set';
 import { Stack } from './Stack';
 import { toJS } from './toJS';
+
+import { collectionSplice } from './manipulations';
 
 export { Collection, CollectionPrototype, IndexedCollectionPrototype };
 
@@ -570,23 +566,8 @@ mixin(IndexedCollectionImpl, {
     return reify(this, sliceFactory(this, begin, end, false));
   },
 
-  splice(index, removeNum /*, ...values*/) {
-    const numArgs = arguments.length;
-    removeNum = Math.max(removeNum || 0, 0);
-    if (numArgs === 0 || (numArgs === 2 && !removeNum)) {
-      return this;
-    }
-    // If index is negative, it should resolve relative to the size of the
-    // collection. However size may be expensive to compute if not cached, so
-    // only call count() if the number is in fact negative.
-    index = resolveBegin(index, index < 0 ? this.count() : this.size);
-    const spliced = this.slice(0, index);
-    return reify(
-      this,
-      numArgs === 1
-        ? spliced
-        : spliced.concat(arrCopy(arguments, 2), this.slice(index + removeNum))
-    );
+  splice(index, removeNum, ...values) {
+    return collectionSplice(this, index, removeNum, values)
   },
 
   // ### More collection methods
