@@ -162,11 +162,7 @@ const collectionSplice = (collection, index, removeNum, args) => {
 
 const collectionInterleave = (collection, collections, zipper) => {
   const collectionsJoined = [collection].concat(arrCopy(collections));
-  const zipped = zipWithFactory(
-    collection.toSeq(),
-    zipper,
-    collectionsJoined
-  );
+  const zipped = zipWithFactory(collection.toSeq(), zipper, collectionsJoined);
   const interleaved = zipped.flatten(true);
   if (zipped.size) {
     interleaved.size = zipped.size * collectionsJoined.length;

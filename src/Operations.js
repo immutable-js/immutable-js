@@ -6,12 +6,7 @@ import {
   resolveBegin,
   resolveEnd,
 } from './TrieUtils';
-import {
-  Collection,
-  KeyedCollection,
-  SetCollection,
-  IndexedCollection,
-} from './Collection';
+import { Collection, KeyedCollection, collectionClass } from './Collection';
 import { isCollection } from './predicates/isCollection';
 import { IS_KEYED_SYMBOL, isKeyed } from './predicates/isKeyed';
 import { IS_INDEXED_SYMBOL, isIndexed } from './predicates/isIndexed';
@@ -957,14 +952,6 @@ function validateEntry(entry) {
   if (entry !== Object(entry)) {
     throw new TypeError('Expected [K, V] tuple: ' + entry);
   }
-}
-
-function collectionClass(collection) {
-  return isKeyed(collection)
-    ? KeyedCollection
-    : isIndexed(collection)
-      ? IndexedCollection
-      : SetCollection;
 }
 
 function makeSequence(collection) {

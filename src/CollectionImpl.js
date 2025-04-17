@@ -32,7 +32,13 @@ import {
   zipWithFactory,
 } from './Operations';
 import { Range } from './Range';
-import { IndexedSeqImpl, IndexedSeq, KeyedSeqImpl, SetSeqImpl, ArraySeq } from './Seq';
+import {
+  IndexedSeqImpl,
+  IndexedSeq,
+  KeyedSeqImpl,
+  SetSeqImpl,
+  ArraySeq,
+} from './Seq';
 
 import {
   collectionToArray,

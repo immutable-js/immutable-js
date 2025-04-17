@@ -22,6 +22,16 @@ export const SetCollection = (value) =>
 
 export class SetCollectionImpl extends CollectionImpl {}
 
+const collectionClass = (collection) => {
+  return isKeyed(collection)
+    ? KeyedCollection
+    : isIndexed(collection)
+      ? IndexedCollection
+      : SetCollection;
+};
+
 Collection.Keyed = KeyedCollectionImpl;
 Collection.Indexed = IndexedCollectionImpl;
 Collection.Set = SetCollectionImpl;
+
+export { collectionClass };
