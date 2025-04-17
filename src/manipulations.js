@@ -1,5 +1,6 @@
 import { resolveBegin } from './TrieUtils';
-import { reify, filterFactory, zipWithFactory } from './Operations';
+import { reify, filterFactory, zipWithFactory, takeWhileFactory } from './Operations';
+import { isKeyed } from './predicates/isKeyed';
 import arrCopy from './utils/arrCopy';
 import { IndexedSeq } from './Seq';
 import assertNotInfinite from './utils/assertNotInfinite';
@@ -15,6 +16,18 @@ function reduce(collection, reducer, reduction, context, useFirst, reverse) {
     }
   }, reverse);
   return reduction;
+}
+
+const collectionToArray = (collection) => {
+  assertNotInfinite(collection.size);
+  const array = new Array(collection.size || 0);
+  const useTuples = isKeyed(collection);
+  let i = 0;
+  collection.__iterate((v, k) => {
+    // Keyed collections produce an array of tuples.
+    array[i++] = useTuples ? [k, v] : v;
+  });
+  return array;
 }
 
 const collectionSplice = (collection, index, removeNum, args) => {
@@ -99,11 +112,27 @@ const collectionFindEntry = (collection, predicate, context, notSetValue) => {
   return found;
 };
 
+const collectionTake = (collection, amount) => {
+  return collection.slice(0, Math.max(0, amount));
+}
+
+const collectionTakeLast = (collection, amount) => {
+  return collection.slice(-Math.max(0, amount));
+};
+
+const collectionTakeWhile = (collection, predicate, context) => {
+  return reify(collection, takeWhileFactory(collection, predicate, context));
+};
+
 export {
+  collectionToArray,
   collectionSplice,
   collectionInterleave,
   collectionReduce,
   collectionReduceRight,
   collectionFilter,
   collectionFindEntry,
+  collectionTake,
+  collectionTakeLast,
+  collectionTakeWhile
 };

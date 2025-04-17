@@ -50,7 +50,6 @@ import {
   skipWhileFactory,
   sliceFactory,
   sortFactory,
-  takeWhileFactory,
   ToIndexedSequence,
   ToKeyedSequence,
   ToSetSequence,
@@ -65,12 +64,16 @@ import { Stack } from './Stack';
 import { toJS } from './toJS';
 
 import {
+  collectionToArray,
   collectionSplice,
   collectionInterleave,
   collectionReduce,
   collectionReduceRight,
   collectionFilter,
   collectionFindEntry,
+  collectionTake,
+  collectionTakeLast,
+  collectionTakeWhile
 } from './manipulations';
 
 export { Collection, CollectionPrototype, IndexedCollectionPrototype };
@@ -81,15 +84,7 @@ mixin(CollectionImpl, {
   // ### Conversion to other types
 
   toArray() {
-    assertNotInfinite(this.size);
-    const array = new Array(this.size || 0);
-    const useTuples = isKeyed(this);
-    let i = 0;
-    this.__iterate((v, k) => {
-      // Keyed collections produce an array of tuples.
-      array[i++] = useTuples ? [k, v] : v;
-    });
-    return array;
+    return collectionToArray(this)
   },
 
   toIndexedSeq() {
@@ -438,15 +433,15 @@ mixin(CollectionImpl, {
   },
 
   take(amount) {
-    return this.slice(0, Math.max(0, amount));
+    return collectionTake(this, amount);
   },
 
   takeLast(amount) {
-    return this.slice(-Math.max(0, amount));
+    return collectionTakeLast(this, amount);
   },
 
   takeWhile(predicate, context) {
-    return reify(this, takeWhileFactory(this, predicate, context));
+    return collectionTakeWhile(this, predicate, context);
   },
 
   takeUntil(predicate, context) {
