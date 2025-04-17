@@ -10,9 +10,7 @@ import { Iterator, ITERATOR_SYMBOL } from './Iterator';
 import { IS_INDEXED_SYMBOL } from './predicates/isIndexed';
 import { IS_KEYED_SYMBOL } from './predicates/isKeyed';
 import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
-import { wrapIndex } from './TrieUtils';
 
-import arrCopy from './utils/arrCopy';
 import mixin from './utils/mixin';
 import quoteString from './utils/quoteString';
 
@@ -20,26 +18,14 @@ import { getIn } from './methods/getIn';
 import { hasIn } from './methods/hasIn';
 import { toObject } from './methods/toObject';
 
-import { Range } from './Range';
 import {
   IndexedSeqImpl,
-  IndexedSeq,
   KeyedSeqImpl,
   SetSeqImpl,
   ArraySeq,
 } from './Seq';
 
 import {
-  filterFactory,
-  flattenFactory,
-  flipFactory,
-  interposeFactory,
-  reify,
-  reverseFactory,
-  skipWhileFactory,
-  sliceFactory,
-  ToKeyedSequence,
-  zipWithFactory,
   collectionToArray,
   collectionToIndexedSeq,
   collectionToJS,
@@ -61,8 +47,6 @@ import {
   collectionPartition,
   collectionFind,
   collectionForEach,
-  collectionSplice,
-  collectionInterleave,
   collectionReduce,
   collectionReduceRight,
   collectionFilter,
@@ -122,6 +106,28 @@ import {
   collectionKeyedFlip,
   collectionKeyedMapEntries,
   collectionKeyedMapKeys,
+
+  collectionIndexedToKeyedSeq,
+  collectionIndexedFilter,
+  collectionIndexedFindIndex,
+  collectionIndexedIndexOf,
+  collectionIndexedLastIndexOf,
+  collectionIndexedReverse,
+  collectionIndexedSlice,
+  collectionIndexedSplice,
+  collectionIndexedFindLastIndex,
+  collectionIndexedFirst,
+  collectionIndexedFlatten,
+  collectionIndexedGet,
+  collectionIndexedHas,
+  collectionIndexedInterpose,
+  collectionIndexedInterleave,
+  collectionIndexedKeySeq,
+  collectionIndexedLast,
+  collectionIndexedSkipWhile,
+  collectionIndexedZip,
+  collectionIndexedZipAll,
+  collectionIndexedZipWith
 } from './Operations';
 
 export { Collection, CollectionPrototype, IndexedCollectionPrototype };
@@ -478,111 +484,91 @@ mixin(IndexedCollectionImpl, {
   // ### Conversion to other types
 
   toKeyedSeq() {
-    return new ToKeyedSequence(this, false);
+    return collectionIndexedToKeyedSeq(this)
   },
 
   // ### ES6 Collection methods (ES6 Array and Map)
 
   filter(predicate, context) {
-    return reify(this, filterFactory(this, predicate, context, false));
+    return collectionIndexedFilter(this, predicate, context)
   },
 
   findIndex(predicate, context) {
-    const entry = this.findEntry(predicate, context);
-    return entry ? entry[0] : -1;
+    return collectionIndexedFindIndex(this, predicate, context)
   },
 
   indexOf(searchValue) {
-    const key = this.keyOf(searchValue);
-    return key === undefined ? -1 : key;
+    return collectionIndexedIndexOf(this, searchValue)
   },
 
   lastIndexOf(searchValue) {
-    const key = this.lastKeyOf(searchValue);
-    return key === undefined ? -1 : key;
+    return collectionIndexedLastIndexOf(this, searchValue)
   },
 
   reverse() {
-    return reify(this, reverseFactory(this, false));
+    return collectionIndexedReverse(this)
   },
 
   slice(begin, end) {
-    return reify(this, sliceFactory(this, begin, end, false));
+    return collectionIndexedSlice(this, begin, end)
   },
 
   splice(index, removeNum, ...values) {
-    return collectionSplice(this, index, removeNum, values);
+    return collectionIndexedSplice(this, index, removeNum, values)
   },
 
   // ### More collection methods
 
   findLastIndex(predicate, context) {
-    const entry = this.findLastEntry(predicate, context);
-    return entry ? entry[0] : -1;
-  },
+    return collectionIndexedFindLastIndex(this, predicate, context)  },
 
   first(notSetValue) {
-    return this.get(0, notSetValue);
+    return collectionIndexedFirst(this, notSetValue)
   },
 
   flatten(depth) {
-    return reify(this, flattenFactory(this, depth, false));
+    return collectionIndexedFlatten(this, depth)
   },
 
   get(index, notSetValue) {
-    index = wrapIndex(this, index);
-    return index < 0 ||
-      this.size === Infinity ||
-      (this.size !== undefined && index > this.size)
-      ? notSetValue
-      : this.find((_, key) => key === index, undefined, notSetValue);
+    return collectionIndexedGet(this, index, notSetValue)
   },
 
   has(index) {
-    index = wrapIndex(this, index);
-    return (
-      index >= 0 &&
-      (this.size !== undefined
-        ? this.size === Infinity || index < this.size
-        : this.indexOf(index) !== -1)
-    );
+    return collectionIndexedHas(this, index)
   },
 
   interpose(separator) {
-    return reify(this, interposeFactory(this, separator));
+    return collectionIndexedInterpose(this, separator);
   },
 
   interleave(...collections) {
-    return collectionInterleave(this, collections, IndexedSeq.of);
+    return collectionIndexedInterleave(this, collections);
   },
 
   keySeq() {
-    return Range(0, this.size);
+    return collectionIndexedKeySeq(this);
   },
 
   last(notSetValue) {
-    return this.get(-1, notSetValue);
+    return collectionIndexedLast(this, notSetValue);
   },
 
   skipWhile(predicate, context) {
-    return reify(this, skipWhileFactory(this, predicate, context, false));
+    return collectionIndexedSkipWhile(this, predicate, context);
   },
 
-  zip(/*, ...collections */) {
-    const collections = [this].concat(arrCopy(arguments));
-    return reify(this, zipWithFactory(this, defaultZipper, collections));
+  zip(...collections) {
+    return collectionIndexedZip(this, collections);
   },
 
-  zipAll(/*, ...collections */) {
-    const collections = [this].concat(arrCopy(arguments));
-    return reify(this, zipWithFactory(this, defaultZipper, collections, true));
+  zipAll(...collections) {
+    return collectionIndexedZipAll(this, collections);
   },
 
-  zipWith(zipper /*, ...collections */) {
-    const collections = arrCopy(arguments);
-    collections[0] = this;
-    return reify(this, zipWithFactory(this, zipper, collections));
-  },
+  zipWith(zipper, ...collections) {
+    return collectionIndexedZipWith(this, zipper, collections);
+  }
 });
 
 const IndexedCollectionPrototype = IndexedCollectionImpl.prototype;
@@ -601,7 +587,6 @@ mixin(SetCollectionImpl, {
   },
 
   // ### More sequential methods
-
   keySeq() {
     return collectionSetKeySeq(this)
   },
@@ -617,8 +602,3 @@ SetCollectionPrototype.keys = SetCollectionPrototype.values;
 mixin(KeyedSeqImpl, KeyedCollectionPrototype);
 mixin(IndexedSeqImpl, IndexedCollectionPrototype);
 mixin(SetSeqImpl, SetCollectionPrototype);
-
-// #pragma Helper functions
-function defaultZipper() {
-  return arrCopy(arguments);
-}
