@@ -115,6 +115,10 @@ import {
   collectionTakeUntil,
   collectionHashCode,
 
+  collectionSetGet,
+  collectionSetIncludes,
+  collectionSetKeySeq,
+  
   collectionKeyedFlip,
   collectionKeyedMapEntries,
   collectionKeyedMapKeys,
@@ -589,17 +593,17 @@ mixin(SetCollectionImpl, {
   // ### ES6 Collection methods (ES6 Array and Map)
 
   get(value, notSetValue) {
-    return this.has(value) ? value : notSetValue;
+    return collectionSetGet(this, value, notSetValue);
   },
 
   includes(value) {
-    return this.has(value);
+    return collectionSetIncludes(this, value)
   },
 
   // ### More sequential methods
 
   keySeq() {
-    return this.valueSeq();
+    return collectionSetKeySeq(this)
   },
 });
 

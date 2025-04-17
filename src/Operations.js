@@ -1563,8 +1563,24 @@ const collectionKeyedMapKeys = (collection, mapper, context) => {
   );
 };
 
+const collectionSetGet = (collection, value, notSetValue) => {
+  return collection.has(value) ? value : notSetValue;
+}
+
+const collectionSetIncludes = (collection, value) => {
+  return collection.has(value);
+}
+
+const collectionSetKeySeq = (collection) => {
+  return collection.valueSeq();
+}
+
 export {
   seqArrayGet,
+
+  collectionSetGet,
+  collectionSetIncludes,
+  collectionSetKeySeq,
 
   collectionKeyedFlip,
   collectionKeyedMapEntries,
