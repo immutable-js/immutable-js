@@ -114,6 +114,10 @@ import {
   collectionSortBy,
   collectionTakeUntil,
   collectionHashCode,
+
+  collectionKeyedFlip,
+  collectionKeyedMapEntries,
+  collectionKeyedMapKeys,
 } from './Operations';
 
 export { Collection, CollectionPrototype, IndexedCollectionPrototype };
@@ -447,27 +451,15 @@ mixin(KeyedCollectionImpl, {
   // ### More sequential methods
 
   flip() {
-    return reify(this, flipFactory(this));
+    return collectionKeyedFlip(this)
   },
 
   mapEntries(mapper, context) {
-    let iterations = 0;
-    return reify(
-      this,
-      this.toSeq()
-        .map((v, k) => mapper.call(context, [k, v], iterations++, this))
-        .fromEntrySeq()
-    );
+    return collectionKeyedMapEntries(this, mapper, context)
   },
 
   mapKeys(mapper, context) {
-    return reify(
-      this,
-      this.toSeq()
-        .flip()
-        .map((k, v) => mapper.call(context, k, v, this))
-        .flip()
-    );
+    return collectionKeyedMapKeys(this, mapper, context)
   },
 });
 

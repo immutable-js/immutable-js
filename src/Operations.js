@@ -50,12 +50,17 @@ import { List } from './List';
 import { Stack } from './Stack';
 
 export class ToKeyedSequence extends KeyedSeqImpl {
+  // export class ToKeyedSequence extends SeqImpl {
   constructor(indexed, useKeys) {
     super();
 
     this._iter = indexed;
     this._useKeys = useKeys;
     this.size = indexed.size;
+  }
+
+  toKeyedSeq() {
+    return seqKeyedToKeyedSeq(this);
   }
 
   get(key, notSetValue) {
@@ -1530,8 +1535,41 @@ const seqArrayGet = (seq, index, notSetValue) => {
   return seq.has(index) ? seq._array[wrapIndex(seq, index)] : notSetValue;
 };
 
+const seqKeyedToKeyedSeq = (seqkeyed) => {
+  return seqkeyed;
+};
+
+const collectionKeyedFlip = (collection) => {
+  return reify(collection, flipFactory(collection));  
+}
+
+const collectionKeyedMapEntries = (collection, mapper, context) => {
+  let iterations = 0;
+  return reify(
+    collection,
+    collection.toSeq()
+      .map((v, k) => mapper.call(context, [k, v], iterations++, collection))
+      .fromEntrySeq()
+  );
+}
+
+const collectionKeyedMapKeys = (collection, mapper, context) => {
+  return reify(
+    collection,
+    collection.toSeq()
+      .flip()
+      .map((k, v) => mapper.call(context, k, v, collection))
+      .flip()
+  );
+};
+
 export {
   seqArrayGet,
+
+  collectionKeyedFlip,
+  collectionKeyedMapEntries,
+  collectionKeyedMapKeys,
+
   collectionToArray,
   collectionToIndexedSeq,
   collectionToJS,
