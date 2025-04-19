@@ -1,10 +1,17 @@
-3:I[1742,[],""]
-4:I[9121,[],""]
-0:["DE0_L6Q1DncFBE_QAXk4D",[[["",{"children":["__PAGE__",{}]},"$undefined","$undefined",true],["",{"children":["__PAGE__",{},[["$L1","$L2",null],null],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/140566edd9b33c98.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","children":["$","body",null,{"children":["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]}]}]],null],null],["$L5",null]]]]
-6:I[5354,["542","static/chunks/542-c924920cb7790e4a.js","685","static/chunks/685-a9c0c7003392b7e4.js","886","static/chunks/886-31117cd24491e23b.js","931","static/chunks/app/page-75fcc1c768656af2.js"],"ImmutableConsole"]
-7:I[7626,["542","static/chunks/542-c924920cb7790e4a.js","685","static/chunks/685-a9c0c7003392b7e4.js","886","static/chunks/886-31117cd24491e23b.js","931","static/chunks/app/page-75fcc1c768656af2.js"],"Header"]
-8:I[1546,["542","static/chunks/542-c924920cb7790e4a.js","685","static/chunks/685-a9c0c7003392b7e4.js","886","static/chunks/886-31117cd24491e23b.js","931","static/chunks/app/page-75fcc1c768656af2.js"],"MarkdownContent"]
-9:T18b3f,<h1>Immutable collections for JavaScript</h1>
+1:"$Sreact.fragment"
+2:I[9287,[],""]
+3:I[4235,[],""]
+4:I[9534,["534","static/chunks/534-36991723363293d6.js","345","static/chunks/app/not-found-f24f5b393b180f03.js"],""]
+6:I[3621,[],"OutletBoundary"]
+9:I[3621,[],"ViewportBoundary"]
+b:I[3621,[],"MetadataBoundary"]
+d:I[7890,[],""]
+:HL["/_next/static/css/a4b7556e45b5277f.css","style"]
+0:{"P":null,"b":"lyrSGbVhX14DGWXjtE0Vs","p":"","c":["",""],"i":false,"f":[[["",{"children":["__PAGE__",{}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/a4b7556e45b5277f.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","children":["$","body",null,{"children":["$","$L2",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L3",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","div",null,{"className":"pageBody","children":[["$","h2",null,{"children":"Not Found"}],["$","p",null,{"children":"Could not find requested resource"}],["$","$L4",null,{"href":"/","children":"Return Home"}]]}],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]}]]}],{"children":["__PAGE__",["$","$1","c",{"children":["$L5","$undefined",null,["$","$L6",null,{"children":["$L7","$L8",null]}]]}],{},null,false]},null,false],["$","$1","h",{"children":[null,["$","$1","4OGB86yopi1txuhp6rvvl",{"children":[["$","$L9",null,{"children":"$La"}],null]}],["$","$Lb",null,{"children":"$Lc"}]]}],false]],"m":"$undefined","G":["$d","$undefined"],"s":false,"S":true}
+e:I[4366,["534","static/chunks/534-36991723363293d6.js","479","static/chunks/479-9d174c784fc467f1.js","974","static/chunks/app/page-a018afe824629487.js"],"ImmutableConsole"]
+f:I[7776,["534","static/chunks/534-36991723363293d6.js","479","static/chunks/479-9d174c784fc467f1.js","974","static/chunks/app/page-a018afe824629487.js"],"Header"]
+10:I[7657,["534","static/chunks/534-36991723363293d6.js","479","static/chunks/479-9d174c784fc467f1.js","974","static/chunks/app/page-a018afe824629487.js"],"MarkdownContent"]
+11:T18b3f,<h1>Immutable collections for JavaScript</h1>
 <p><a href="https://immutable-js.com/docs/">Read the docs</a> and eat your vegetables.</p>
 <p>Docs are automatically generated from <a href="https://github.com/immutable-js/immutable-js/blob/main/README.md">README.md</a> and <a href="https://github.com/immutable-js/immutable-js/blob/main/type-definitions/immutable.d.ts">immutable.d.ts</a>.
 Please contribute! Also, don&#39;t miss the <a href="https://github.com/immutable-js/immutable-js/wiki">wiki</a> which contains articles on
@@ -599,6 +606,8 @@ Submit a PR to add it to this list in alphabetical order.</p>
 and research in persistent data structures.</p>
 <p><a href="https://github.com/hughfdjackson/">Hugh Jackson</a>, for providing the npm package
 name. If you&#39;re looking for his unsupported package, see <a href="https://github.com/hughfdjackson/immutable">this repository</a>.</p>
-2:[["$","$L6",null,{"version":"v5.1.1"}],["$","$L7",null,{"versions":["v5.1.1","v4.3.7","v3.8.2","latest@main"]}],["$","div",null,{"className":"pageBody","children":["$","div",null,{"className":"contents","children":["$","$L8",null,{"contents":"$9"}]}]}]]
-5:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"Immutable.js"}],["$","link","3",{"rel":"icon","href":"/favicon.png"}]]
-1:null
+5:[["$","$Le",null,{"version":"v5.1.1"}],["$","$Lf",null,{"versions":["v5.1.1","v4.3.7","v3.8.2","latest@main"]}],["$","div",null,{"className":"pageBody","children":["$","div",null,{"className":"contents","children":["$","$L10",null,{"contents":"$11"}]}]}]]
+a:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+7:null
+8:null
+c:[["$","title","0",{"children":"Immutable.js"}],["$","link","1",{"rel":"icon","href":"/favicon.png"}]]
