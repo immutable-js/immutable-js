@@ -21,10 +21,11 @@ type Params = {
 };
 
 type Props = {
-  params: Params;
+  params: Promise<Params>;
 };
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata(props: Props) {
+  const params = await props.params;
   const version = getVersionFromParams(params);
   const defs = getTypeDefs(version);
   const def = Object.values(defs.types).find((d) => d.label === params.type);
@@ -38,13 +39,8 @@ export async function generateMetadata({ params }: Props) {
   };
 }
 
-export default function TypeDocPage({
-  // versions,
-  // version,
-  // def,
-  // sidebarLinks,
-  params,
-}: Props) {
+export default async function TypeDocPage(props: Props) {
+  const params = await props.params;
   const version = getVersionFromParams(params);
   const defs = getTypeDefs(version);
 

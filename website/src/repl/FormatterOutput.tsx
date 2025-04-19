@@ -1,5 +1,5 @@
 import { toHTML } from 'jsonml-html';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type JSX } from 'react';
 
 /**
  * immutable-devtools is a console custom formatter.
