@@ -1,0 +1,260 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# Stack
+
+Stacks are indexed collections which support very efficient `O(1)` addition and removal from the front using `unshift(v)` and `shift()`.
+
+<Signature code={`type Stack<T> extends Collection.Indexed<T>`} />
+
+For familiarity, Stack also provides `push(v)`, `pop()`, and `peek()`, but be aware that they also operate on the front of the list, unlike List or a JavaScript Array.
+
+Note: `reverse()` or any inherent reverse traversal (`reduceRight`, `lastIndexOf`, etc.) is not efficient with a Stack.
+
+Stack is implemented with a Single-Linked List.
+
+## Construction
+
+<MemberLabel label="Stack()" />
+
+## Static Methods
+
+<MemberLabel label="Stack.isStack()" />
+
+<MemberLabel label="Stack.of()" />
+
+## Members
+
+<MemberLabel label="size" />
+
+## Reading values
+
+<MemberLabel label="peek()" />
+
+<MemberLabel label="get()" />
+
+<MemberLabel label="has()" />
+
+<MemberLabel label="includes()" />
+
+<MemberLabel label="first()" />
+
+<MemberLabel label="last()" />
+
+## Persistent changes
+
+<MemberLabel label="clear()" />
+
+<MemberLabel label="unshift()" />
+
+<MemberLabel label="unshiftAll()" />
+
+<MemberLabel label="shift()" />
+
+<MemberLabel label="push()" />
+
+<MemberLabel label="pushAll()" />
+
+<MemberLabel label="pop()" />
+
+<MemberLabel label="update()" />
+
+## Transient changes
+
+<MemberLabel label="withMutations()" />
+
+<MemberLabel label="asMutable()" />
+
+<MemberLabel label="wasAltered()" />
+
+<MemberLabel label="asImmutable()" />
+
+## Sequence algorithms
+
+<MemberLabel label="concat()" />
+
+<MemberLabel label="map()" />
+
+<MemberLabel label="flatMap()" />
+
+<MemberLabel label="filter()" />
+
+<MemberLabel label="zip()" />
+
+<MemberLabel label="zipAll()" />
+
+<MemberLabel label="zipWith()" />
+
+<MemberLabel label="partition()" />
+
+<MemberLabel label="[Symbol.iterator]()" />
+
+<MemberLabel label="filterNot()" />
+
+<MemberLabel label="reverse()" />
+
+<MemberLabel label="sort()" />
+
+<MemberLabel label="sortBy()" />
+
+<MemberLabel label="groupBy()" />
+
+## Conversion to JavaScript types
+
+<MemberLabel label="toJS()" />
+
+<MemberLabel label="toJSON()" />
+
+<MemberLabel label="toArray()" />
+
+<MemberLabel label="toObject()" />
+
+## Conversion to Seq
+
+<MemberLabel label="toSeq()" />
+
+<MemberLabel label="fromEntrySeq()" />
+
+<MemberLabel label="toKeyedSeq()" />
+
+<MemberLabel label="toIndexedSeq()" />
+
+<MemberLabel label="toSetSeq()" />
+
+## Combination
+
+<MemberLabel label="interpose()" />
+
+<MemberLabel label="interleave()" />
+
+<MemberLabel label="splice()" />
+
+<MemberLabel label="flatten()" />
+
+## Search for value
+
+<MemberLabel label="indexOf()" />
+
+<MemberLabel label="lastIndexOf()" />
+
+<MemberLabel label="findIndex()" />
+
+<MemberLabel label="findLastIndex()" />
+
+<MemberLabel label="find()" />
+
+<MemberLabel label="findLast()" />
+
+<MemberLabel label="findEntry()" />
+
+<MemberLabel label="findLastEntry()" />
+
+<MemberLabel label="findKey()" />
+
+<MemberLabel label="findLastKey()" />
+
+<MemberLabel label="keyOf()" />
+
+<MemberLabel label="lastKeyOf()" />
+
+<MemberLabel label="max()" />
+
+<MemberLabel label="maxBy()" />
+
+<MemberLabel label="min()" />
+
+<MemberLabel label="minBy()" />
+
+## Value equality
+
+<MemberLabel label="equals()" />
+
+<MemberLabel label="hashCode()" />
+
+## Reading deep values
+
+<MemberLabel label="getIn()" />
+
+<MemberLabel label="hasIn()" />
+
+## Conversion to Collections
+
+<MemberLabel label="toMap()" />
+
+<MemberLabel label="toOrderedMap()" />
+
+<MemberLabel label="toSet()" />
+
+<MemberLabel label="toOrderedSet()" />
+
+<MemberLabel label="toList()" />
+
+<MemberLabel label="toStack()" />
+
+## Iterators
+
+<MemberLabel label="keys()" />
+
+<MemberLabel label="values()" />
+
+<MemberLabel label="entries()" />
+
+## Collections (Seq)
+
+<MemberLabel label="keySeq()" />
+
+<MemberLabel label="valueSeq()" />
+
+<MemberLabel label="entrySeq()" />
+
+## Side effects
+
+<MemberLabel label="forEach()" />
+
+## Creating subsets
+
+<MemberLabel label="slice()" />
+
+<MemberLabel label="rest()" />
+
+<MemberLabel label="butLast()" />
+
+<MemberLabel label="skip()" />
+
+<MemberLabel label="skipLast()" />
+
+<MemberLabel label="skipWhile()" />
+
+<MemberLabel label="skipUntil()" />
+
+<MemberLabel label="take()" />
+
+<MemberLabel label="takeLast()" />
+
+<MemberLabel label="takeWhile()" />
+
+<MemberLabel label="takeUntil()" />
+
+## Reducing a value
+
+<MemberLabel label="reduce()" />
+
+<MemberLabel label="reduceRight()" />
+
+<MemberLabel label="every()" />
+
+<MemberLabel label="some()" />
+
+<MemberLabel label="join()" />
+
+<MemberLabel label="isEmpty()" />
+
+<MemberLabel label="count()" />
+
+<MemberLabel label="countBy()" />
+
+## Comparison
+
+<MemberLabel label="isSubset()" />
+
+<MemberLabel label="isSuperset()" />
