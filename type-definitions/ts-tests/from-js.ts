@@ -7,7 +7,7 @@ test('fromJS', () => {
     Collection<unknown, unknown>
   >();
 
-  expect(fromJS('abc')).type.toBeString();
+  expect(fromJS('abc')).type.toBe<string>();
 
   expect(fromJS([0, 1, 2])).type.toBe<List<number>>();
 
@@ -36,7 +36,8 @@ test('fromJS in an array of function', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const create = [(data: any) => data, fromJS][1];
 
-  expect(create({ a: 'A' })).type.toBeAny();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  expect(create({ a: 'A' })).type.toBe<any>();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const createConst = ([(data: any) => data, fromJS] as const)[1];
