@@ -17,244 +17,831 @@ Stack is implemented with a Single-Linked List.
 
 <MemberLabel label="Stack()" />
 
+Create a new immutable Stack containing the values of the provided collection-like.
+
+<Signature
+  code={`Stack<T>(collection?: Iterable<T> | ArrayLike<T>): Stack<T>`}
+/>
+
+Note: `Stack` is a factory function and not a class, and does not use the `new` keyword during construction.
+
 ## Static Methods
 
 <MemberLabel label="Stack.isStack()" />
 
+True if the provided value is a Stack.
+
+<Signature
+  code={`Stack.isStack(maybeStack: unknown): maybeStack is Stack<unknown>`}
+/>
+
 <MemberLabel label="Stack.of()" />
+
+Creates a new Stack containing `values`.
+
+<Signature code={`Stack.of<T>(...values: Array<T>): Stack<T>`} />
 
 ## Members
 
 <MemberLabel label="size" />
 
+The number of items in this Stack.
+
+<Signature code={`size: number`} />
+
 ## Reading values
 
 <MemberLabel label="peek()" />
 
+Alias for `Stack.first()`.
+
+<Signature code={`peek(): T | undefined`} />
+
 <MemberLabel label="get()" />
+
+Returns the value associated with the provided key, or notSetValue if the Collection does not contain this key.
+
+<Signature
+  code={`get<NSV>(key: number, notSetValue: NSV): T | NSV
+get(key: number): T | undefined`}
+/>
 
 <MemberLabel label="has()" />
 
-<MemberLabel label="includes()" />
+True if a key exists within this Collection, using `Immutable.is` to determine equality.
+
+<Signature code={`has(key: number): boolean`} />
+
+<MemberLabel label="includes()" alias="contains()" />
+
+True if a value exists within this Collection, using `Immutable.is` to determine equality.
+
+<Signature code={`includes(value: T): boolean`} />
 
 <MemberLabel label="first()" />
 
+Returns the first value in this Collection.
+
+<Signature code={`first(): T | undefined`} />
+
 <MemberLabel label="last()" />
+
+Returns the last value in this Collection.
+
+<Signature code={`last(): T | undefined`} />
 
 ## Persistent changes
 
 <MemberLabel label="clear()" />
 
+Returns a new Stack with 0 size and no values.
+
+<Signature code={`clear(): Stack<T>`} />
+
+Note: `clear` can be used in `withMutations`.
+
 <MemberLabel label="unshift()" />
+
+Returns a new Stack with the provided `values` prepended, shifting other values ahead to higher indices.
+
+<Signature code={`unshift(...values: Array<T>): Stack<T>`} />
+
+This is very efficient for Stack.
+
+Note: `unshift` can be used in `withMutations`.
 
 <MemberLabel label="unshiftAll()" />
 
+Like `Stack#unshift`, but accepts a collection rather than varargs.
+
+<Signature code={`unshiftAll(iter: Iterable<T>): Stack<T>`} />
+
+Note: `unshiftAll` can be used in `withMutations`.
+
 <MemberLabel label="shift()" />
+
+Returns a new Stack with a size ones less than this Stack, excluding the first item in this Stack, shifting all other values to a lower index.
+
+<Signature code={`shift(): Stack<T>`} />
+
+Note: this differs from `Array#shift` because it returns a new Stack rather than the removed value. Use `first()` or `peek()` to get the first value in this Stack.
+
+Note: `shift` can be used in `withMutations`.
 
 <MemberLabel label="push()" />
 
+Alias for `Stack#unshift` and is not equivalent to `List#push`.
+
+<Signature code={`push(...values: Array<T>): Stack<T>`} />
+
 <MemberLabel label="pushAll()" />
+
+Alias for `Stack#unshiftAll`.
+
+<Signature code={`pushAll(iter: Iterable<T>): Stack<T>`} />
 
 <MemberLabel label="pop()" />
 
+Alias for `Stack#shift` and is not equivalent to `List#pop`.
+
+<Signature code={`pop(): Stack<T>`} />
+
 <MemberLabel label="update()" />
+
+Returns a new Stack with an updated value at `index` with the return value of calling `updater` with the existing value.
+
+<Signature
+  code={`update(index: number, updater: (value: T | undefined) => T | undefined): this
+update<R>(updater: (value: this) => R): R`}
+/>
 
 ## Transient changes
 
 <MemberLabel label="withMutations()" />
 
+Note: Not all methods can be used on a mutable collection or within `withMutations`! Check the documentation for each method to see if it mentions being safe to use in `withMutations`.
+
+<Signature code={`withMutations(mutator: (mutable: this) => unknown): this`} />
+
 <MemberLabel label="asMutable()" />
+
+Note: Not all methods can be used on a mutable collection or within `withMutations`! Check the documentation for each method to see if it mentions being safe to use in `withMutations`.
+
+<Signature code={`asMutable(): this`} />
 
 <MemberLabel label="wasAltered()" />
 
+<Signature code={`wasAltered(): boolean`} />
+
 <MemberLabel label="asImmutable()" />
+
+<Signature code={`asImmutable(): this`} />
 
 ## Sequence algorithms
 
 <MemberLabel label="concat()" />
 
+Returns a new Stack with other collections concatenated to this one.
+
+<Signature
+  code={`concat<C>(...valuesOrCollections: Array<Iterable<C> | C>): Stack<T | C>`}
+/>
+
 <MemberLabel label="map()" />
+
+Returns a new Stack with values passed through a `mapper` function.
+
+<Signature
+  code={`map<M>(mapper: (value: T, key: number, iter: this) => M, context?: unknown): Stack<M>`}
+/>
+
+Note: `map()` always returns a new instance, even if it produced the same value at every step.
 
 <MemberLabel label="flatMap()" />
 
+Flat-maps the Stack, returning a new Stack.
+
+Similar to `stack.map(...).flatten(true)`.
+
+<Signature
+  code={`flatMap<M>(mapper: (value: T, key: number, iter: this) => Iterable<M>, context?: unknown): Stack<M>`}
+/>
+
 <MemberLabel label="filter()" />
+
+Returns a new Set with only the values for which the `predicate` function returns true.
+
+<Signature
+  code={`filter<F extends T>(predicate: (value: T, index: number, iter: this) => value is F, context?: unknown): Set<F>
+filter(predicate: (value: T, index: number, iter: this) => unknown, context?: unknown): this`}
+/>
+
+Note: `filter()` always returns a new instance, even if it results in not filtering out any values.
+
+<MemberLabel label="partition()" />
+
+Returns a new Stack with the values for which the `predicate` function returns false and another for which it returns true.
+
+<Signature
+  code={`partition<F extends T, C>(predicate: (this: C, value: T, index: number, iter: this) => value is F, context?: C): [Stack<T>, Stack<F>]
+partition<C>(predicate: (this: C, value: T, index: number, iter: this) => unknown, context?: C): [this, this]`}
+/>
 
 <MemberLabel label="zip()" />
 
+Returns a Stack "zipped" with the provided collections.
+
+Like `zipWith`, but using the default `zipper`: creating an `Array`.
+
+<Signature
+  code={`zip<U>(other: Collection<unknown, U>): Stack<[T, U]>
+zip<U, V>(other: Collection<unknown, U>, other2: Collection<unknown, V>): Stack<[T, U, V]>
+zip(...collections: Array<Collection<unknown, unknown>>): Stack<unknown>`}
+/>
+
+Example:
+
+```js
+const a = Stack([1, 2, 3]);
+const b = Stack([4, 5, 6]);
+const c = a.zip(b); // Stack [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
+```
+
 <MemberLabel label="zipAll()" />
 
+Returns a Stack "zipped" with the provided collections.
+
+Unlike `zip`, `zipAll` continues zipping until the longest collection is exhausted. Missing values from shorter collections are filled with `undefined`.
+
+<Signature
+  code={`zipAll<U>(other: Collection<unknown, U>): Stack<[T, U]>
+zipAll<U, V>(other: Collection<unknown, U>, other2: Collection<unknown, V>): Stack<[T, U, V]>
+zipAll(...collections: Array<Collection<unknown, unknown>>): Stack<unknown>`}
+/>
+
+Example:
+
+```js
+const a = Stack([1, 2]);
+const b = Stack([3, 4, 5]);
+const c = a.zipAll(b); // Stack [ [ 1, 3 ], [ 2, 4 ], [ undefined, 5 ] ]
+```
+
+Note: Since zipAll will return a collection as large as the largest input, some results may contain undefined values. TypeScript cannot account for these without cases (as of v2.5).
+
 <MemberLabel label="zipWith()" />
+
+Returns a Stack "zipped" with the provided collections by using a custom `zipper` function.
+
+<Signature
+  code={`zipWith<U, Z>(zipper: (value: T, otherValue: U) => Z, otherCollection: Collection<unknown, U>): Stack<Z>
+zipWith<U, V, Z>(zipper: (value: T, otherValue: U, thirdValue: V) => Z, otherCollection: Collection<unknown, U>, thirdCollection: Collection<unknown, V>): Stack<Z>
+zipWith<Z>(zipper: (...values: Array<unknown>) => Z, ...collections: Array<Collection<unknown, unknown>>): Stack<Z>`}
+/>
+
+Example:
+
+```js
+const a = Stack([1, 2, 3]);
+const b = Stack([4, 5, 6]);
+const c = a.zipWith((a, b) => a + b, b);
+// Stack [ 5, 7, 9 ]
+```
+
+## Sequence algorithms
 
 <MemberLabel label="partition()" />
 
 <MemberLabel label="[Symbol.iterator]()" />
 
+Returns an iterator of this Stack.
+
+<Signature code={`[Symbol.iterator](): IterableIterator<T>`} />
+
 <MemberLabel label="filterNot()" />
+
+Returns a new Stack with only the values for which the `predicate` function returns false.
+
+<Signature
+  code={`filterNot(predicate: (value: T, index: number, iter: this) => boolean, context?: unknown): this`}
+/>
+
+Note: `filterNot()` always returns a new instance, even if it results in not filtering out any values.
 
 <MemberLabel label="reverse()" />
 
+Returns a new Stack with the order of the values reversed.
+
+<Signature code={`reverse(): this`} />
+
 <MemberLabel label="sort()" />
+
+Returns Stack of the same type which includes the same entries, stably sorted by using a comparator.
+
+<Signature code={`sort(comparator?: Comparator<T>): this`} />
+
+If a comparator is not provided, a default comparator uses `<` and `>`.
+
+`comparator(valueA, valueB)`:
+
+- Returns `0` if the elements should not be swapped.
+- Returns `-1` (or any negative number) if `valueA` comes before `valueB`
+- Returns `1` (or any positive number) if `valueA` comes after `valueB`
+- Alternatively, can return a value of the `PairSorting` enum type
+- Is pure, i.e. it must always return the same value for the same pair of values.
+
+Note: `sort()` always returns a new instance, even if the original was already sorted.
+
+Note: This is always an eager operation.
 
 <MemberLabel label="sortBy()" />
 
+Like `sort`, but also accepts a `comparatorValueMapper` which allows for sorting by more sophisticated means.
+
+<Signature
+  code={`sortBy<C>(comparatorValueMapper: (value: T, key: number, iter: this) => C, comparator?: Comparator<C>): this`}
+/>
+
+Note: `sortBy()` always returns a new instance, even if the original was already sorted.
+
+Note: This is always an eager operation.
+
 <MemberLabel label="groupBy()" />
+
+Returns a `Map` of `Stack`, grouped by the return value of the `grouper` function.
+
+<Signature
+  code={`groupBy<G>(grouper: (value: T, key: number, iter: this) => G, context?: unknown): Map<G, Stack<T>>`}
+/>
+
+Note: This is not a lazy operation.
 
 ## Conversion to JavaScript types
 
 <MemberLabel label="toJS()" />
 
+Deeply converts this Stack to equivalent native JavaScript Array.
+
+<Signature code={`toJS(): Array<DeepCopy<T>>`} />
+
 <MemberLabel label="toJSON()" />
+
+Shallowly converts this Stack to equivalent native JavaScript Array.
+
+<Signature code={`toJSON(): Array<T>`} />
 
 <MemberLabel label="toArray()" />
 
+Shallowly converts this collection to an Array.
+
+<Signature code={`toArray(): Array<T>`} />
+
 <MemberLabel label="toObject()" />
+
+Shallowly converts this Stack to a JavaScript Object.
+
+<Signature code={`toObject(): { [key: string]: T }`} />
 
 ## Conversion to Seq
 
 <MemberLabel label="toSeq()" />
 
+Returns a Seq.Indexed of the values of this Stack.
+
+<Signature code={`toSeq(): Seq.Indexed<T>`} />
+
 <MemberLabel label="fromEntrySeq()" />
+
+If this is a collection of [key, value] entry tuples, it will return a Seq.Keyed of those entries.
+
+<Signature code={`fromEntrySeq(): Seq.Keyed<unknown, unknown>`} />
 
 <MemberLabel label="toKeyedSeq()" />
 
+Returns a Seq.Keyed from this Stack where indices are treated as keys.
+
+<Signature code={`toKeyedSeq(): Seq.Keyed<number, T>`} />
+
 <MemberLabel label="toIndexedSeq()" />
 
+Returns a Seq.Indexed of the values of this Stack, discarding keys.
+
+<Signature code={`toIndexedSeq(): Seq.Indexed<T>`} />
+
 <MemberLabel label="toSetSeq()" />
+
+Returns a Seq.Set of the values of this Stack, discarding keys.
+
+<Signature code={`toSetSeq(): Seq.Set<T>`} />
 
 ## Combination
 
 <MemberLabel label="interpose()" />
 
+Returns a new Stack with the separator inserted between each value in this Stack.
+
+<Signature code={`interpose(separator: T): Stack<T>`} />
+
 <MemberLabel label="interleave()" />
+
+Returns a new Stack with the values from each collection interleaved.
+
+<Signature
+  code={`interleave(...collections: Array<Collection<unknown, T>>): Stack<T>`}
+/>
 
 <MemberLabel label="splice()" />
 
+Returns a new Stack by replacing a region of this Stack with new values. If values are not provided, it only skips the region to be removed.
+
+<Signature
+  code={`splice(index: number, removeNum: number, ...values: Array<T>): Stack<T>`}
+/>
+
 <MemberLabel label="flatten()" />
+
+Returns a new flattened Stack, optionally only flattening to a particular depth.
+
+<Signature
+  code={`flatten(depth?: number): Stack<any>
+flatten(shallow?: boolean): Stack<any>`}
+/>
 
 ## Search for value
 
 <MemberLabel label="indexOf()" />
 
+Returns the first index at which a given value can be found in the Stack, or -1 if it is not present.
+
+<Signature code={`indexOf(searchValue: T): number`} />
+
 <MemberLabel label="lastIndexOf()" />
+
+Returns the last index at which a given value can be found in the Stack, or -1 if it is not present.
+
+<Signature code={`lastIndexOf(searchValue: T): number`} />
 
 <MemberLabel label="findIndex()" />
 
+Returns the first index in the Stack where a value satisfies the provided predicate function. Otherwise -1 is returned.
+
+<Signature
+  code={`findIndex(predicate: (value: T, index: number, iter: this) => boolean, context?: unknown): number`}
+/>
+
 <MemberLabel label="findLastIndex()" />
+
+Returns the last index in the Stack where a value satisfies the provided predicate function. Otherwise -1 is returned.
+
+<Signature
+  code={`findLastIndex(predicate: (value: T, index: number, iter: this) => boolean, context?: unknown): number`}
+/>
 
 <MemberLabel label="find()" />
 
+Returns the first value for which the `predicate` returns true.
+
+<Signature
+  code={`find(predicate: (value: T, key: number, iter: this) => boolean, context?: unknown, notSetValue?: T): T | undefined`}
+/>
+
 <MemberLabel label="findLast()" />
+
+Returns the last value for which the `predicate` returns true.
+
+<Signature
+  code={`findLast(predicate: (value: T, key: number, iter: this) => boolean, context?: unknown, notSetValue?: T): T | undefined`}
+/>
+
+Note: `predicate` will be called for each entry in reverse.
 
 <MemberLabel label="findEntry()" />
 
+Returns the first [key, value] entry for which the `predicate` returns true.
+
+<Signature
+  code={`findEntry(predicate: (value: T, key: number, iter: this) => boolean, context?: unknown, notSetValue?: T): [number, T] | undefined`}
+/>
+
 <MemberLabel label="findLastEntry()" />
+
+Returns the last [key, value] entry for which the `predicate` returns true.
+
+<Signature
+  code={`findLastEntry(predicate: (value: T, key: number, iter: this) => boolean, context?: unknown, notSetValue?: T): [number, T] | undefined`}
+/>
+
+Note: `predicate` will be called for each entry in reverse.
 
 <MemberLabel label="findKey()" />
 
+Returns the first key for which the `predicate` returns true.
+
+<Signature
+  code={`findKey(predicate: (value: T, key: number, iter: this) => boolean, context?: unknown): number | undefined`}
+/>
+
 <MemberLabel label="findLastKey()" />
+
+Returns the last key for which the `predicate` returns true.
+
+<Signature
+  code={`findLastKey(predicate: (value: T, key: number, iter: this) => boolean, context?: unknown): number | undefined`}
+/>
+
+Note: `predicate` will be called for each entry in reverse.
 
 <MemberLabel label="keyOf()" />
 
+Returns the key associated with the search value, or undefined.
+
+<Signature code={`keyOf(searchValue: T): number | undefined`} />
+
 <MemberLabel label="lastKeyOf()" />
+
+Returns the last key associated with the search value, or undefined.
+
+<Signature code={`lastKeyOf(searchValue: T): number | undefined`} />
 
 <MemberLabel label="max()" />
 
+Returns the maximum value in this collection. If any values are comparatively equivalent, the first one found will be returned.
+
+<Signature code={`max(comparator?: Comparator<T>): T | undefined`} />
+
 <MemberLabel label="maxBy()" />
+
+Like `max`, but also accepts a `comparatorValueMapper` which allows for comparing by more sophisticated means.
+
+<Signature
+  code={`maxBy<C>(comparatorValueMapper: (value: T, key: number, iter: this) => C, comparator?: Comparator<C>): T | undefined`}
+/>
 
 <MemberLabel label="min()" />
 
+Returns the minimum value in this collection. If any values are comparatively equivalent, the first one found will be returned.
+
+<Signature code={`min(comparator?: Comparator<T>): T | undefined`} />
+
 <MemberLabel label="minBy()" />
+
+Like `min`, but also accepts a `comparatorValueMapper` which allows for comparing by more sophisticated means.
+
+<Signature
+  code={`minBy<C>(comparatorValueMapper: (value: T, key: number, iter: this) => C, comparator?: Comparator<C>): T | undefined`}
+/>
 
 ## Value equality
 
 <MemberLabel label="equals()" />
 
+True if this and the other Collection have value equality, as defined by `Immutable.is()`.
+
+<Signature code={`equals(other: unknown): boolean`} />
+
+Note: This is equivalent to `Immutable.is(this, other)`, but provided to allow for chained expressions.
+
 <MemberLabel label="hashCode()" />
+
+Computes and returns the hashed identity for this Collection.
+
+<Signature code={`hashCode(): number`} />
 
 ## Reading deep values
 
 <MemberLabel label="getIn()" />
 
+Returns the value found by following a path of keys or indices through nested Collections.
+
+<Signature
+  code={`getIn(searchKeyPath: Iterable<unknown>, notSetValue?: unknown): unknown`}
+/>
+
 <MemberLabel label="hasIn()" />
+
+True if the result of following a path of keys or indices through nested Collections results in a set value.
+
+<Signature code={`hasIn(searchKeyPath: Iterable<unknown>): boolean`} />
 
 ## Conversion to Collections
 
 <MemberLabel label="toMap()" />
 
+Converts this Stack to a Map, Throws if keys are not hashable.
+
+<Signature code={`toMap(): Map<number, T>`} />
+
 <MemberLabel label="toOrderedMap()" />
+
+Converts this Stack to a Map, maintaining the order of iteration.
+
+<Signature code={`toOrderedMap(): OrderedMap<number, T>`} />
 
 <MemberLabel label="toSet()" />
 
+Converts this Stack to a Set, discarding keys.
+
+<Signature code={`toSet(): Set<T>`} />
+
 <MemberLabel label="toOrderedSet()" />
+
+Converts this Stack to a Set, maintaining the order of iteration and discarding keys.
+
+<Signature code={`toOrderedSet(): OrderedSet<T>`} />
 
 <MemberLabel label="toList()" />
 
+Converts this Stack to a List, discarding keys.
+
+<Signature code={`toList(): List<T>`} />
+
 <MemberLabel label="toStack()" />
+
+Returns itself.
+
+<Signature code={`toStack(): Stack<T>`} />
 
 ## Iterators
 
 <MemberLabel label="keys()" />
 
+An iterator of this Stack's keys.
+
+<Signature code={`keys(): IterableIterator<number>`} />
+
 <MemberLabel label="values()" />
 
+An iterator of this Stack's values.
+
+<Signature code={`values(): IterableIterator<T>`} />
+
 <MemberLabel label="entries()" />
+
+An iterator of this Stack's entries as [key, value] tuples.
+
+<Signature code={`entries(): IterableIterator<[number, T]>`} />
 
 ## Collections (Seq)
 
 <MemberLabel label="keySeq()" />
 
+Returns a new Seq.Indexed of the keys of this Stack, discarding values.
+
+<Signature code={`keySeq(): Seq.Indexed<number>`} />
+
 <MemberLabel label="valueSeq()" />
 
+Returns an Seq.Indexed of the values of this Stack, discarding keys.
+
+<Signature code={`valueSeq(): Seq.Indexed<T>`} />
+
 <MemberLabel label="entrySeq()" />
+
+Returns a new Seq.Indexed of [key, value] tuples.
+
+<Signature code={`entrySeq(): Seq.Indexed<[number, T]>`} />
 
 ## Side effects
 
 <MemberLabel label="forEach()" />
 
+The `sideEffect` is executed for every entry in the Stack.
+
+<Signature
+  code={`forEach(sideEffect: (value: T, key: number, iter: this) => unknown, context?: unknown): number`}
+/>
+
 ## Creating subsets
 
 <MemberLabel label="slice()" />
 
+Returns a new Stack representing a portion of this Stack from start up to but not including end.
+
+<Signature code={`slice(begin?: number, end?: number): Stack<T>`} />
+
 <MemberLabel label="rest()" />
+
+Returns a new Stack containing all entries except the first.
+
+<Signature code={`rest(): Stack<T>`} />
 
 <MemberLabel label="butLast()" />
 
+Returns a new Stack containing all entries except the last.
+
+<Signature code={`butLast(): Stack<T>`} />
+
 <MemberLabel label="skip()" />
+
+Returns a new Stack which excludes the first `amount` entries from this Stack.
+
+<Signature code={`skip(amount: number): Stack<T>`} />
 
 <MemberLabel label="skipLast()" />
 
+Returns a new Stack which excludes the last `amount` entries from this Stack.
+
+<Signature code={`skipLast(amount: number): Stack<T>`} />
+
 <MemberLabel label="skipWhile()" />
+
+Returns a new Stack which includes entries starting from when `predicate` first returns false.
+
+<Signature
+  code={`skipWhile(predicate: (value: T, key: number, iter: this) => boolean, context?: unknown): Stack<T>`}
+/>
 
 <MemberLabel label="skipUntil()" />
 
+Returns a new Stack which includes entries starting from when `predicate` first returns true.
+
+<Signature
+  code={`skipUntil(predicate: (value: T, key: number, iter: this) => boolean, context?: unknown): Stack<T>`}
+/>
+
 <MemberLabel label="take()" />
+
+Returns a new Stack which includes the first `amount` entries from this Stack.
+
+<Signature code={`take(amount: number): Stack<T>`} />
 
 <MemberLabel label="takeLast()" />
 
+Returns a new Stack which includes the last `amount` entries from this Stack.
+
+<Signature code={`takeLast(amount: number): Stack<T>`} />
+
 <MemberLabel label="takeWhile()" />
 
+Returns a new Stack which includes entries from this Stack as long as the `predicate` returns true.
+
+<Signature
+  code={`takeWhile(predicate: (value: T, key: number, iter: this) => boolean, context?: unknown): Stack<T>`}
+/>
+
 <MemberLabel label="takeUntil()" />
+
+Returns a new Stack which includes entries from this Stack as long as the `predicate` returns false.
+
+<Signature
+  code={`takeUntil(predicate: (value: T, key: number, iter: this) => boolean, context?: unknown): Stack<T>`}
+/>
 
 ## Reducing a value
 
 <MemberLabel label="reduce()" />
 
+Reduces the Stack to a value by calling the `reducer` for every entry in the Stack and passing along the reduced value.
+
+<Signature
+  code={`reduce<R>(reducer: (reduction: R, value: T, key: number, iter: this) => R, initialReduction: R, context?: unknown): R
+reduce<R>(reducer: (reduction: T | R, value: T, key: number, iter: this) => R): R`}
+/>
+
 <MemberLabel label="reduceRight()" />
+
+Reduces the Stack in reverse (from the right side).
+
+<Signature
+  code={`reduceRight<R>(reducer: (reduction: R, value: T, key: number, iter: this) => R, initialReduction: R, context?: unknown): R
+reduceRight<R>(reducer: (reduction: T | R, value: T, key: number, iter: this) => R): R`}
+/>
 
 <MemberLabel label="every()" />
 
+True if `predicate` returns true for all entries in the Stack.
+
+<Signature
+  code={`every(predicate: (value: T, key: number, iter: this) => boolean, context?: unknown): boolean`}
+/>
+
 <MemberLabel label="some()" />
+
+True if `predicate` returns true for any entry in the Stack.
+
+<Signature
+  code={`some(predicate: (value: T, key: number, iter: this) => boolean, context?: unknown): boolean`}
+/>
 
 <MemberLabel label="join()" />
 
+Joins values together as a string, inserting a separator between each. The default separator is `","`.
+
+<Signature code={`join(separator?: string): string`} />
+
 <MemberLabel label="isEmpty()" />
+
+Returns true if this Stack includes no values.
+
+<Signature code={`isEmpty(): boolean`} />
 
 <MemberLabel label="count()" />
 
+Returns the size of this Stack.
+
+<Signature
+  code={`count(): number
+count(predicate: (value: T, key: number, iter: this) => boolean, context?: unknown): number`}
+/>
+
 <MemberLabel label="countBy()" />
+
+Returns a `Map` of counts, grouped by the return value of the `grouper` function.
+
+<Signature
+  code={`countBy<G>(grouper: (value: T, key: number, iter: this) => G, context?: unknown): Map<G, number>`}
+/>
 
 ## Comparison
 
 <MemberLabel label="isSubset()" />
 
+True if `iter` includes every value in this Stack.
+
+<Signature code={`isSubset(iter: Iterable<T>): boolean`} />
+
 <MemberLabel label="isSuperset()" />
+
+True if this Stack includes every value in `iter`.
+
+<Signature code={`isSuperset(iter: Iterable<T>): boolean`} />
