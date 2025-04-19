@@ -22,6 +22,8 @@ export default async function VersionLayout(props: {
     { label: 'Map', url: `/docs/${version}/Map` },
     { label: 'OrderedMap', url: `/docs/${version}/OrdererMap` },
     { label: 'Set', url: `/docs/${version}/Set` },
+    { label: 'OrderedSet', url: `/docs/${version}/OrderedSet` },
+
     { label: 'mergeDeep()', url: `/docs/${version}/mergeDeep()` },
     { label: 'mergeDeepWith()', url: `/docs/${version}/mergeDeepWith()` },
   ];
