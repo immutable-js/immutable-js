@@ -5,9 +5,9 @@ import { Editor } from './Editor';
 import FormatterOutput from './FormatterOutput';
 import './repl.css';
 
-type Props = { defaultValue: string };
+type Props = { defaultValue: string; onRun?: (code: string) => void };
 
-function Repl({ defaultValue }: Props): JSX.Element {
+function Repl({ defaultValue, onRun }: Props): JSX.Element {
   const [code, setCode] = useState<string>(defaultValue);
   const [output, setOutput] = useState<{
     header: Array<unknown>;
@@ -125,6 +125,12 @@ function Repl({ defaultValue }: Props): JSX.Element {
 
   const runCode = () => {
     if (workerRef.current) {
+      // notify parent
+      if (onRun) {
+        onRun(code);
+      }
+
+      // send message to worker
       workerRef.current.postMessage(code);
       workerRef.current.onmessage = (event) => {
         if (event.data.error) {
