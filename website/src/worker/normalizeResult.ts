@@ -11,34 +11,38 @@ export interface DevToolsFormatter {
   body: (obj: unknown) => JsonMLElementList | null;
 }
 
+function getFormatter(
+  immutableFormaters: Array<DevToolsFormatter>,
+  result: unknown
+) {
+  return immutableFormaters.find((formatter) => formatter.header(result));
+}
+
 // console.log(immutableFormaters)
 export default function normalizeResult(
   immutableFormaters: Array<DevToolsFormatter>,
-  result: unknown,
-  fromObject: boolean = false
+  result: unknown
 ): JsonMLElementList | Element {
-  const formatter = immutableFormaters.find((formatter) =>
-    formatter.header(result)
-  );
+  const formatter = getFormatter(immutableFormaters, result);
 
   if (!formatter) {
     if (Array.isArray(result) && result[0] === 'object' && result[1]?.object) {
       // handle special case for deep objects
+      const objectFormatter = getFormatter(
+        immutableFormaters,
+        result[1].object
+      );
 
-      return normalizeResult(immutableFormaters, result[1].object, true);
+      if (objectFormatter) {
+        return normalizeResult(immutableFormaters, result[1].object);
+      }
     }
 
     if (typeof result !== 'string' && isElement(result)) {
       return normalizeElement(immutableFormaters, result);
     }
 
-    if (!fromObject) {
-      return result;
-    }
-
-    // nothing is found, let's return the same object that had been unpacked
-    // let jsonml-html handle it
-    return ['object', { object: result }];
+    return result;
   }
 
   const header = formatter.header(result) ?? [];
