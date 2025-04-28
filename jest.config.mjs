@@ -5,7 +5,7 @@ const config = {
   transform: {
     '^.+\\.(js|ts)$': '<rootDir>/resources/jestPreprocessor.js',
   },
-  testRegex: '/__tests__/.*\\.(ts|js)$',
+  testRegex: ['/__tests__/.*\\.(ts|js)$', '/website/.*\\.test\\.(ts|js)$'],
   testPathIgnorePatterns: ['/__tests__/ts-utils.ts'],
 };
 

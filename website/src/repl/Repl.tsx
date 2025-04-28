@@ -4,15 +4,13 @@ import React, { useEffect, useRef, useState, type JSX } from 'react';
 import { Editor } from './Editor';
 import FormatterOutput from './FormatterOutput';
 import './repl.css';
+import { Element, JsonMLElementList } from '../worker/jsonml-types';
 
 type Props = { defaultValue: string; onRun?: (code: string) => void };
 
 function Repl({ defaultValue, onRun }: Props): JSX.Element {
   const [code, setCode] = useState<string>(defaultValue);
-  const [output, setOutput] = useState<{
-    header: Array<unknown>;
-    body?: Array<unknown>;
-  }>({ header: [] });
+  const [output, setOutput] = useState<JsonMLElementList | Element>([]);
   const workerRef = useRef<Worker | null>(null);
 
   useEffect(() => {
@@ -41,9 +39,15 @@ function Repl({ defaultValue, onRun }: Props): JSX.Element {
       workerRef.current.postMessage(code);
       workerRef.current.onmessage = (event) => {
         if (event.data.error) {
-          setOutput({ header: ['div', 'Error: ' + event.data.error] });
+          setOutput(['div', 'Error: ' + event.data.error]);
         } else {
-          setOutput(event.data.output);
+          const { output } = event.data;
+
+          if (typeof output === 'object' && !Array.isArray(output)) {
+            setOutput(['div', { object: output }]);
+          } else {
+            setOutput(output);
+          }
         }
       };
     }

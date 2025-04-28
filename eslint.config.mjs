@@ -112,7 +112,7 @@ export default tseslint.config(
   },
 
   {
-    files: ['__tests__/**/*', 'perf/*'],
+    files: ['__tests__/**/*', 'website/**/*.test.ts', 'perf/*'],
     languageOptions: {
       globals: pluginJest.environments.globals.globals,
     },
