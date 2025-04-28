@@ -18,7 +18,6 @@ function getFormatter(
   return immutableFormaters.find((formatter) => formatter.header(result));
 }
 
-// console.log(immutableFormaters)
 export default function normalizeResult(
   immutableFormaters: Array<DevToolsFormatter>,
   result: unknown
@@ -42,7 +41,11 @@ export default function normalizeResult(
       return normalizeElement(immutableFormaters, result);
     }
 
-    return result;
+    if (typeof result === 'string') {
+      return result;
+    }
+
+    return JSON.stringify(result);
   }
 
   const header = formatter.header(result) ?? [];
@@ -73,13 +76,13 @@ function normalizeElement(
   const explodedItem = explodeElement(item);
 
   const { tagName, attributes, children } = explodedItem;
-  // console.log(explodedItem);
 
   const normalizedChildren = children.map((child) =>
     normalizeResult(immutableFormaters, child)
   );
 
   if (attributes) {
+    // @ts-expect-error type is not perfect here because of self-reference
     return [tagName, attributes, ...normalizedChildren];
   }
 

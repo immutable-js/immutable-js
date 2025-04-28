@@ -1,5 +1,6 @@
 import { toHTML } from 'jsonml-html';
 import { useEffect, useRef, type JSX } from 'react';
+import { Element, JsonMLElementList } from '../worker/jsonml-types';
 
 /**
  * immutable-devtools is a console custom formatter.
@@ -8,7 +9,7 @@ import { useEffect, useRef, type JSX } from 'react';
  * The `jsonml-html` package can convert jsonml to HTML.
  */
 type Props = {
-  output: Array<unknown>;
+  output: JsonMLElementList | Element;
 };
 
 export default function FormatterOutput({ output }: Props): JSX.Element {
