@@ -180,13 +180,11 @@ function updateInDeeply<
   }
   const key = keyPath[i];
 
-  if (typeof key === 'undefined') {
-    throw new TypeError(
-      'Index can not be undefined in updateIn(). This should not happen'
-    );
-  }
+  const nextExisting = wasNotSet
+    ? NOT_SET
+    : // @ts-expect-error key might be undefined which is not allowed in the type but works in practice
+      get(existing, key, NOT_SET);
 
-  const nextExisting = wasNotSet ? NOT_SET : get(existing, key, NOT_SET);
   const nextUpdated = updateInDeeply(
     nextExisting === NOT_SET ? inImmutable : isImmutable(nextExisting),
     // @ts-expect-error mixed type
@@ -196,10 +194,12 @@ function updateInDeeply<
     notSetValue,
     updater
   );
+
   return nextUpdated === nextExisting
     ? existing
     : nextUpdated === NOT_SET
-      ? remove(existing, key)
+      ? // @ts-expect-error key might be undefined which is not allowed in the type but works in practice
+        remove(existing, key)
       : set(
           wasNotSet ? (inImmutable ? emptyMap() : {}) : existing,
           key,
