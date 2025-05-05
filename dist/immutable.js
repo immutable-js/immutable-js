@@ -2440,7 +2440,9 @@
         !collection.__ownerID &&
         iters.length === 1
       ) {
-        return collection.constructor(iters[0]);
+        return isRecord(collection)
+          ? collection // Record is empty and will not be updated: return the same instance
+          : collection.constructor(iters[0]);
       }
       return collection.withMutations(function (collection) {
         var mergeIntoCollection = merger
