@@ -949,7 +949,7 @@ declare namespace Immutable {
           never;
 
   /** @ignore */
-  type RetrievePath<R, P extends ReadonlyArray<PropertyKey>> = P extends []
+  type RetrievePath<R, P extends ReadonlyArray<unknown>> = P extends []
     ? P
     : RetrievePathReducer<R, Head<P>, Tail<P>>;
 

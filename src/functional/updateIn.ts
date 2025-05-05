@@ -36,24 +36,19 @@ export type PossibleCollection<K, V, TProps extends object> =
   | Record<TProps>
   | Array<V>;
 
-type UpdaterFunction<K extends PropertyKey, C> = (
+type UpdaterFunction<K, C> = (
   value: RetrievePath<C, Array<K>> | undefined
 ) => unknown | undefined;
-type UpdaterFunctionWithNSV<K extends PropertyKey, C, NSV> = (
+type UpdaterFunctionWithNSV<K, C, NSV> = (
   value: RetrievePath<C, Array<K>> | NSV
 ) => unknown;
 
-export function updateIn<K extends PropertyKey, V, C extends Collection<K, V>>(
+export function updateIn<K, V, C extends Collection<K, V>>(
   collection: C,
   keyPath: KeyPath<K>,
   updater: UpdaterFunction<K, C>
 ): C;
-export function updateIn<
-  K extends PropertyKey,
-  V,
-  C extends Collection<K, V>,
-  NSV,
->(
+export function updateIn<K, V, C extends Collection<K, V>, NSV>(
   collection: C,
   keyPath: KeyPath<K>,
   notSetValue: NSV,
@@ -75,43 +70,34 @@ export function updateIn<
   notSetValue: NSV,
   updater: UpdaterFunctionWithNSV<K, C, NSV>
 ): C;
-export function updateIn<K extends PropertyKey, V, C extends Array<V>>(
+export function updateIn<K, V, C extends Array<V>>(
   collection: C,
   keyPath: KeyPath<string | number>,
   updater: UpdaterFunction<K, C>
 ): Array<V>;
-export function updateIn<K extends PropertyKey, V, C extends Array<V>, NSV>(
+export function updateIn<K, V, C extends Array<V>, NSV>(
   collection: C,
   keyPath: KeyPath<K>,
   notSetValue: NSV,
   updater: UpdaterFunctionWithNSV<K, C, NSV>
 ): Array<V>;
-export function updateIn<K extends PropertyKey, C>(
+export function updateIn<K, C>(
   object: C,
   keyPath: KeyPath<K>,
   updater: UpdaterFunction<K, C>
 ): C;
-export function updateIn<K extends PropertyKey, C, NSV>(
+export function updateIn<K, C, NSV>(
   object: C,
   keyPath: KeyPath<K>,
   notSetValue: NSV,
   updater: UpdaterFunctionWithNSV<K, C, NSV>
 ): C;
-export function updateIn<
-  K extends PropertyKey,
-  V,
-  C extends { [key: PropertyKey]: V },
->(
+export function updateIn<K, V, C extends { [key: PropertyKey]: V }>(
   collection: C,
   keyPath: KeyPath<K>,
   updater: UpdaterFunction<K, C>
 ): { [key: PropertyKey]: V };
-export function updateIn<
-  K extends PropertyKey,
-  V,
-  C extends { [key: PropertyKey]: V },
-  NSV,
->(
+export function updateIn<K, V, C extends { [key: PropertyKey]: V }, NSV>(
   collection: C,
   keyPath: KeyPath<K>,
   notSetValue: NSV,
@@ -119,7 +105,7 @@ export function updateIn<
 ): { [key: PropertyKey]: V };
 
 export function updateIn<
-  K extends PropertyKey,
+  K,
   V,
   TProps extends object,
   C extends PossibleCollection<K, V, TProps>,
@@ -150,7 +136,7 @@ export function updateIn<
 }
 
 function updateInDeeply<
-  K extends PropertyKey,
+  K,
   TProps extends object,
   C extends PossibleCollection<unknown, unknown, TProps>,
   NSV,
@@ -180,12 +166,6 @@ function updateInDeeply<
   }
   const key = keyPath[i];
 
-  if (typeof key === 'undefined') {
-    throw new TypeError(
-      'Index can not be undefined in updateIn(). This should not happen'
-    );
-  }
-
   const nextExisting = wasNotSet ? NOT_SET : get(existing, key, NOT_SET);
   const nextUpdated = updateInDeeply(
     nextExisting === NOT_SET ? inImmutable : isImmutable(nextExisting),
@@ -196,6 +176,7 @@ function updateInDeeply<
     notSetValue,
     updater
   );
+
   return nextUpdated === nextExisting
     ? existing
     : nextUpdated === NOT_SET
