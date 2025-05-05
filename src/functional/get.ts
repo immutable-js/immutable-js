@@ -49,12 +49,12 @@ export function get<V, NSV>(
   key: string,
   notSetValue: NSV
 ): V | NSV;
-export function get<K extends PropertyKey, V, NSV>(
+export function get<K, V, NSV>(
   collection: Collection<K, V> | Array<V> | { [key: string]: V },
   key: K,
   notSetValue?: NSV
 ): V | NSV;
-export function get<K extends PropertyKey, V, NSV>(
+export function get<K, V, NSV>(
   collection: Collection<K, V> | Array<V> | { [key: string]: V },
   key: K,
   notSetValue?: NSV
