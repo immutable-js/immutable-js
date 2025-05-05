@@ -2266,6 +2266,7 @@
             // @ts-expect-error weird "remove" here,
             return collection.remove(key);
         }
+        // @ts-expect-error assert that key is a string, a number or a symbol here
         if (!hasOwnProperty.call(collection, key)) {
             return collection;
         }
@@ -2275,6 +2276,7 @@
             collectionCopy.splice(key, 1);
         }
         else {
+            // @ts-expect-error assert that key is a string, a number or a symbol here
             delete collectionCopy[key];
         }
         return collectionCopy;
@@ -2331,9 +2333,6 @@
                 existing);
         }
         var key = keyPath[i];
-        if (typeof key === 'undefined') {
-            throw new TypeError('Index can not be undefined in updateIn(). This should not happen');
-        }
         var nextExisting = wasNotSet ? NOT_SET : get(existing, key, NOT_SET);
         var nextUpdated = updateInDeeply(nextExisting === NOT_SET ? inImmutable : isImmutable(nextExisting), 
         // @ts-expect-error mixed type
