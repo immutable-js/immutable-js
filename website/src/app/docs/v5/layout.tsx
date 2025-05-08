@@ -23,11 +23,11 @@ export default async function VersionLayout(props: {
     { label: 'OrderedMap', url: `/docs/${version}/OrdererMap` },
     { label: 'Set', url: `/docs/${version}/Set` },
     { label: 'OrderedSet', url: `/docs/${version}/OrderedSet` },
-    { label: 'Stack', url: `/docs/${version}/Stack` }, // TODO
-    { label: 'Range()', url: `/docs/${version}/Range()` }, // TODO
-    { label: 'Repeat()', url: `/docs/${version}/Repeat()` }, // TODO
+    { label: 'Stack', url: `/docs/${version}/Stack` },
+    { label: 'Range()', url: `/docs/${version}/Range()` },
+    { label: 'Repeat()', url: `/docs/${version}/Repeat()` },
     { label: 'Record', url: `/docs/${version}/Record` }, // TODO
-    { label: 'Record.Factory', url: `/docs/${version}/Record.Factory` }, // TODO
+    { label: 'Record.Factory', url: `/docs/${version}/Record.Factory` },
     { label: 'Seq', url: `/docs/${version}/Seq` }, // TODO
     { label: 'Seq.Keyed', url: `/docs/${version}/Seq.Keyed` }, // TODO
     { label: 'Seq.Indexed', url: `/docs/${version}/Seq.Indexed` }, // TODO
@@ -36,10 +36,12 @@ export default async function VersionLayout(props: {
     { label: 'Collection.Keyed', url: `/docs/${version}/Collection.Keyed` }, // TODO
     { label: 'Collection.Indexed', url: `/docs/${version}/Collection.Indexed` }, // TODO
     { label: 'Collection.Set', url: `/docs/${version}/Collection.Set` }, // TODO
-    { label: 'ValueObject', url: `/docs/${version}/ValueObject` }, // TODO
-    { label: 'OrderedCollection', url: `/docs/${version}/OrderedCollection` }, // TODO
+    { label: 'ValueObject', url: `/docs/${version}/ValueObject` },
+    { label: 'OrderedCollection', url: `/docs/${version}/OrderedCollection` },
 
     // functions
+    { label: 'fromJS()', url: `/docs/${version}/fromJS()` },
+    { label: 'is()', url: `/docs/${version}/is()` },
     { label: 'hash()', url: `/docs/${version}/hash()` }, // TODO
     { label: 'isImmutable()', url: `/docs/${version}/isImmutable()` }, // TODO
     { label: 'isCollection()', url: `/docs/${version}/isCollection()` }, // TODO

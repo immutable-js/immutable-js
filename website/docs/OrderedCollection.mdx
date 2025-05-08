@@ -1,0 +1,22 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# OrderedCollection
+
+Interface representing all oredered collections.
+This includes `List`, `Stack`, `Map`, `OrderedMap`, `Set`, and `OrderedSet`.
+return of `isOrdered()` return true in that case.
+
+## Members
+
+<MemberLabel label="toArray" />
+
+Shallowly converts this collection to an Array.
+
+<Signature code="toArray(): Array<T>" />
+
+<MemberLabel label="[Symbol.iterator]()" />
+
+Returns an iterator that iterates over the values in this collection.
+
+<Signature code="[Symbol.iterator](): IterableIterator<T>" />

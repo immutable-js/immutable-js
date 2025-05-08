@@ -1,0 +1,46 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# Record.Factory
+
+A Record.Factory is created by the `Record()` function. Record instances
+are created by passing it some of the accepted values for that Recordtype:
+
+<Repl defaultValue={`// makePerson is a Record Factory function
+const makePerson = Record({ name: null, favoriteColor: 'unknown' });
+
+// create a Record instance
+makePerson({ name: 'Alan' });`} />
+
+Note that Record Factories return `Record<TProps> & Readonly<TProps>`,
+this allows use of both the Record instance API, and direct property
+access on the resulting instances:
+
+<Repl defaultValue={`
+const makePerson = Record({ name: null, favoriteColor: 'unknown' });
+const alan = makePerson({ name: 'Alan' });
+
+// Use the Record API
+'Record API: ' + alan.get('name') + "\\n" +
+
+// Or direct property access (Readonly)
+'property access: ' + alan.name;
+`} />
+
+## Construction
+
+<MemberLabel label="Record.Factory" />
+
+<Signature
+  code={`Record.Factory<TProps extends object>(
+    values?: Partial<TProps>
+  ): RecordOf<TProps>`}
+/>
+
+## Members
+
+<MemberLabel label="displayName" />
+
+The name provided to `Record(values, name)` can be accessed with `displayName`.
+
+<Signature code="displayName: string" />

@@ -1,0 +1,16 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# Repeat()
+
+Returns a Seq.Indexed of `value` repeated `times` times. When `times` is not defined, returns an infinite `Seq` of `value`.
+
+<Signature code={`Repeat<T>(value: T, times?: number): Seq.Indexed<T>`} />
+
+Note: `Repeat` is a factory function and not a class, and does not use the `new` keyword during construction.
+
+<Repl
+  defaultValue={`//This will not be normalizable in the playground.
+  Repeat('foo') // ['foo', 'foo', …] `}
+/>
+<Repl defaultValue={`Repeat('bar', 4)`} />
