@@ -1,11 +1,6 @@
 import { useEffect, useRef, type JSX } from 'react';
 import { basicSetup, minimalSetup } from 'codemirror';
-import {
-  EditorView,
-  gutter,
-  highlightActiveLine,
-  keymap,
-} from '@codemirror/view';
+import { EditorView, gutter, keymap } from '@codemirror/view';
 import { defaultKeymap, indentWithTab } from '@codemirror/commands';
 import { EditorState, Extension } from '@codemirror/state';
 import { javascript } from '@codemirror/lang-javascript';
