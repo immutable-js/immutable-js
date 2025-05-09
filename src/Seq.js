@@ -1,304 +1,47 @@
-import { wrapIndex } from './TrieUtils';
-import { CollectionImpl } from './Collection';
-import { IS_SEQ_SYMBOL, isSeq } from './predicates/isSeq';
-import { isImmutable } from './predicates/isImmutable';
-import { isCollection } from './predicates/isCollection';
-import { isKeyed } from './predicates/isKeyed';
-import { isAssociative } from './predicates/isAssociative';
-import { isRecord } from './predicates/isRecord';
-import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
+import { isEntriesIterable, isKeysIterable } from './Iterator';
+
 import {
-  Iterator,
-  iteratorValue,
-  iteratorDone,
-  hasIterator,
-  isIterator,
-  getIterator,
-  isEntriesIterable,
-  isKeysIterable,
-} from './Iterator';
+  probeHasIterator,
+  probeIsArrayLike,
+  probeIsAssociative,
+  probeIsImmutable,
+  probeIsCollection,
+  probeIsIndexed,
+  probeIsRecord,
+  probeIsKeyed,
+  probeIsSeq,
+} from './probe';
 
-import hasOwnProperty from './utils/hasOwnProperty';
-import isArrayLike from './utils/isArrayLike';
+import { SeqArray, seqArrayCreateEmpty } from './SeqArray.js';
 
-export const Seq = (value) =>
-  value === undefined || value === null
-    ? emptySequence()
-    : isImmutable(value)
-      ? value.toSeq()
-      : seqFromValue(value);
-export class SeqImpl extends CollectionImpl {
-  toSeq() {
-    return this;
-  }
+import { SeqObject } from './SeqObject.js';
 
-  toString() {
-    return this.__toString('Seq {', '}');
-  }
+import { collectionIndexedSeqFromCollectionCreate } from './collection/collectionIndexedSeqFromCollection';
 
-  cacheResult() {
-    if (!this._cache && this.__iterateUncached) {
-      this._cache = this.entrySeq().toArray();
-      this.size = this._cache.length;
-    }
-    return this;
-  }
-
-  // abstract __iterateUncached(fn, reverse)
-
-  __iterate(fn, reverse) {
-    const cache = this._cache;
-    if (cache) {
-      const size = cache.length;
-      let i = 0;
-      while (i !== size) {
-        const entry = cache[reverse ? size - ++i : i++];
-        if (fn(entry[1], entry[0], this) === false) {
-          break;
-        }
-      }
-      return i;
-    }
-    return this.__iterateUncached(fn, reverse);
-  }
-
-  // abstract __iteratorUncached(type, reverse)
-
-  __iterator(type, reverse) {
-    const cache = this._cache;
-    if (cache) {
-      const size = cache.length;
-      let i = 0;
-      return new Iterator(() => {
-        if (i === size) {
-          return iteratorDone();
-        }
-        const entry = cache[reverse ? size - ++i : i++];
-        return iteratorValue(type, entry[0], entry[1]);
-      });
-    }
-    return this.__iteratorUncached(type, reverse);
-  }
-}
-
-export const KeyedSeq = (value) =>
-  value === undefined || value === null
-    ? emptySequence().toKeyedSeq()
-    : isCollection(value)
-      ? isKeyed(value)
-        ? value.toSeq()
-        : value.fromEntrySeq()
-      : isRecord(value)
-        ? value.toSeq()
-        : keyedSeqFromValue(value);
-export class KeyedSeqImpl extends SeqImpl {
-  toKeyedSeq() {
-    return this;
-  }
-}
-
-export const IndexedSeq = (value) =>
-  value === undefined || value === null
-    ? emptySequence()
-    : isCollection(value)
-      ? isKeyed(value)
-        ? value.entrySeq()
-        : value.toIndexedSeq()
-      : isRecord(value)
-        ? value.toSeq().entrySeq()
-        : indexedSeqFromValue(value);
-IndexedSeq.of = function (/*...values*/) {
-  return IndexedSeq(arguments);
-};
-export class IndexedSeqImpl extends SeqImpl {
-  toIndexedSeq() {
-    return this;
-  }
-
-  toString() {
-    return this.__toString('Seq [', ']');
-  }
-}
-export const SetSeq = (value) =>
-  (isCollection(value) && !isAssociative(value)
-    ? value
-    : IndexedSeq(value)
-  ).toSetSeq();
-
-SetSeq.of = function (/*...values*/) {
-  return SetSeq(arguments);
+const maybeIndexedSeqFromValue = (value) => {
+  return probeIsArrayLike(value)
+    ? SeqArray(value)
+    : probeHasIterator(value)
+      ? collectionIndexedSeqFromCollectionCreate(value)
+      : undefined;
 };
 
-export class SetSeqImpl extends SeqImpl {
-  toSetSeq() {
-    return this;
-  }
-}
-
-Seq.isSeq = isSeq;
-Seq.Keyed = KeyedSeq;
-Seq.Set = SetSeq;
-Seq.Indexed = IndexedSeq;
-
-SeqImpl.prototype[IS_SEQ_SYMBOL] = true;
-
-// #pragma Root Sequences
-
-export class ArraySeq extends IndexedSeqImpl {
-  constructor(array) {
-    super();
-    this._array = array;
-    this.size = array.length;
-  }
-
-  get(index, notSetValue) {
-    return this.has(index) ? this._array[wrapIndex(this, index)] : notSetValue;
-  }
-
-  __iterate(fn, reverse) {
-    const array = this._array;
-    const size = array.length;
-    let i = 0;
-    while (i !== size) {
-      const ii = reverse ? size - ++i : i++;
-      if (fn(array[ii], ii, this) === false) {
-        break;
-      }
-    }
-    return i;
-  }
-
-  __iterator(type, reverse) {
-    const array = this._array;
-    const size = array.length;
-    let i = 0;
-    return new Iterator(() => {
-      if (i === size) {
-        return iteratorDone();
-      }
-      const ii = reverse ? size - ++i : i++;
-      return iteratorValue(type, ii, array[ii]);
-    });
-  }
-}
-
-class ObjectSeq extends KeyedSeqImpl {
-  constructor(object) {
-    super();
-    const keys = Object.keys(object).concat(
-      Object.getOwnPropertySymbols ? Object.getOwnPropertySymbols(object) : []
-    );
-    this._object = object;
-    this._keys = keys;
-    this.size = keys.length;
-  }
-
-  get(key, notSetValue) {
-    if (notSetValue !== undefined && !this.has(key)) {
-      return notSetValue;
-    }
-    return this._object[key];
-  }
-
-  has(key) {
-    return hasOwnProperty.call(this._object, key);
-  }
-
-  __iterate(fn, reverse) {
-    const object = this._object;
-    const keys = this._keys;
-    const size = keys.length;
-    let i = 0;
-    while (i !== size) {
-      const key = keys[reverse ? size - ++i : i++];
-      if (fn(object[key], key, this) === false) {
-        break;
-      }
-    }
-    return i;
-  }
-
-  __iterator(type, reverse) {
-    const object = this._object;
-    const keys = this._keys;
-    const size = keys.length;
-    let i = 0;
-    return new Iterator(() => {
-      if (i === size) {
-        return iteratorDone();
-      }
-      const key = keys[reverse ? size - ++i : i++];
-      return iteratorValue(type, key, object[key]);
-    });
-  }
-}
-ObjectSeq.prototype[IS_ORDERED_SYMBOL] = true;
-
-class CollectionSeq extends IndexedSeqImpl {
-  constructor(collection) {
-    super();
-    this._collection = collection;
-    this.size = collection.length || collection.size;
-  }
-
-  __iterateUncached(fn, reverse) {
-    if (reverse) {
-      return this.cacheResult().__iterate(fn, reverse);
-    }
-    const collection = this._collection;
-    const iterator = getIterator(collection);
-    let iterations = 0;
-    if (isIterator(iterator)) {
-      let step;
-      while (!(step = iterator.next()).done) {
-        if (fn(step.value, iterations++, this) === false) {
-          break;
-        }
-      }
-    }
-    return iterations;
-  }
-
-  __iteratorUncached(type, reverse) {
-    if (reverse) {
-      return this.cacheResult().__iterator(type, reverse);
-    }
-    const collection = this._collection;
-    const iterator = getIterator(collection);
-    if (!isIterator(iterator)) {
-      return new Iterator(iteratorDone);
-    }
-    let iterations = 0;
-    return new Iterator(() => {
-      const step = iterator.next();
-      return step.done ? step : iteratorValue(type, iterations++, step.value);
-    });
-  }
-}
-
-// # pragma Helper functions
-
-let EMPTY_SEQ;
-
-function emptySequence() {
-  return EMPTY_SEQ || (EMPTY_SEQ = new ArraySeq([]));
-}
-
-export function keyedSeqFromValue(value) {
+const SeqKeyedFromValue = (value) => {
   const seq = maybeIndexedSeqFromValue(value);
+
   if (seq) {
     return seq.fromEntrySeq();
   }
   if (typeof value === 'object') {
-    return new ObjectSeq(value);
+    return SeqObject(value);
   }
   throw new TypeError(
     'Expected Array or collection object of [k, v] entries, or keyed object: ' +
       value
   );
-}
+};
 
-export function indexedSeqFromValue(value) {
+const SeqIndexedFromValue = (value) => {
   const seq = maybeIndexedSeqFromValue(value);
   if (seq) {
     return seq;
@@ -306,9 +49,9 @@ export function indexedSeqFromValue(value) {
   throw new TypeError(
     'Expected Array or collection object of values: ' + value
   );
-}
+};
 
-function seqFromValue(value) {
+const SeqFromValue = (value) => {
   const seq = maybeIndexedSeqFromValue(value);
   if (seq) {
     return isEntriesIterable(value)
@@ -318,17 +61,87 @@ function seqFromValue(value) {
         : seq;
   }
   if (typeof value === 'object') {
-    return new ObjectSeq(value);
+    return SeqObject(value);
   }
   throw new TypeError(
     'Expected Array or collection object of values, or keyed object: ' + value
   );
-}
+};
 
-function maybeIndexedSeqFromValue(value) {
-  return isArrayLike(value)
-    ? new ArraySeq(value)
-    : hasIterator(value)
-      ? new CollectionSeq(value)
-      : undefined;
-}
+const Seq = (value) => {
+  return value === undefined || value === null
+    ? seqArrayCreateEmpty()
+    : probeIsImmutable(value)
+      ? value.toSeq()
+      : SeqFromValue(value);
+};
+
+const SeqKeyed = (value) =>
+  value === undefined || value === null
+    ? seqArrayCreateEmpty().toKeyedSeq()
+    : probeIsCollection(value)
+      ? probeIsKeyed(value)
+        ? value.toSeq()
+        : value.fromEntrySeq()
+      : probeIsRecord(value)
+        ? value.toSeq()
+        : SeqKeyedFromValue(value);
+
+const SeqIndexed = (value) =>
+  value === undefined || value === null
+    ? seqArrayCreateEmpty()
+    : probeIsCollection(value)
+      ? probeIsKeyed(value)
+        ? value.entrySeq()
+        : value.toIndexedSeq()
+      : probeIsRecord(value)
+        ? value.toSeq().entrySeq()
+        : SeqIndexedFromValue(value);
+
+// Was Collection/1
+const SeqWhenNotCollection = (value) =>
+  probeIsCollection(value) ? value : Seq(value);
+
+// WAS KeyedCollection/1
+const SeqKeyedWhenNotKeyed = (value) =>
+  probeIsKeyed(value) ? value : SeqKeyed(value);
+
+// WAS IndexedCollection/1
+const SeqIndexedWhenNotIndexed = (value) =>
+  probeIsIndexed(value) ? value : SeqIndexed(value);
+
+const SeqSet = (value) => {
+  return (
+    probeIsCollection(value) && !probeIsAssociative(value)
+      ? value
+      : SeqIndexed(value)
+  ).toSetSeq();
+};
+
+// WAS SetCollection/1
+const SeqSetWhenNotAssociative = (value) =>
+  probeIsCollection(value) && !probeIsAssociative(value)
+    ? value
+    : SeqIndexed(value).toSetSeq();
+
+SeqIndexed.of = (...values) => SeqIndexed(values);
+SeqSet.of = (...values) => SeqSet(...values);
+
+Seq.isSeq = probeIsSeq;
+Seq.Indexed = SeqIndexed;
+Seq.Keyed = SeqKeyed;
+Seq.Set = SeqSet;
+
+export {
+  Seq,
+  SeqWhenNotCollection,
+  SeqFromValue,
+  SeqKeyed,
+  SeqKeyedWhenNotKeyed,
+  SeqKeyedFromValue,
+  SeqIndexed,
+  SeqIndexedWhenNotIndexed,
+  SeqIndexedFromValue,
+  SeqSet,
+  SeqSetWhenNotAssociative,
+};

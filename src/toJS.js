@@ -1,19 +1,18 @@
 import { Seq } from './Seq';
-import { isCollection } from './predicates/isCollection';
-import { isKeyed } from './predicates/isKeyed';
-import isDataStructure from './utils/isDataStructure';
+
+import { probeIsKeyed, probeIsCollection, probeIsDataStructure } from './probe';
 
 export function toJS(value) {
   if (!value || typeof value !== 'object') {
     return value;
   }
-  if (!isCollection(value)) {
-    if (!isDataStructure(value)) {
+  if (!probeIsCollection(value)) {
+    if (!probeIsDataStructure(value)) {
       return value;
     }
     value = Seq(value);
   }
-  if (isKeyed(value)) {
+  if (probeIsKeyed(value)) {
     const result = {};
     value.__iterate((v, k) => {
       result[k] = toJS(v);
