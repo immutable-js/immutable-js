@@ -1,5 +1,5 @@
-import { SideBar } from '@/Sidebar';
-import { DocSearch } from '@/DocSearch';
+import { SideBar } from '../../../Sidebar';
+import { DocSearch } from '../../../DocSearch';
 import { DocHeader } from '../../../DocHeader';
 import { ImmutableConsole } from '../../../ImmutableConsole';
 import { getVersions } from '../../../static/getVersions';
@@ -8,8 +8,6 @@ export default async function VersionLayout(props: {
   children: React.ReactNode;
   params: Promise<{ version: string }>;
 }) {
-  const params = await props.params;
-
   const { children } = props;
 
   const versions = getVersions();
