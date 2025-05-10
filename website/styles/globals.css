@@ -13,6 +13,7 @@ body {
   --body-color: #626466;
   --code-block-bg-color: #f4f4f4;
   --code-block-color: #484a4c;
+  --anchor-link-color: #9ca0a3;
 
   background-color: #ffffff;
   color: var(--body-color);
@@ -35,6 +36,7 @@ body {
     --body-color: #c0c0c0;
     --code-block-bg-color: #2e2e2e;
     --code-block-color: #d1d5da;
+    --anchor-link-color: #616161;
 
     background-color: #121212;
   }
@@ -64,8 +66,24 @@ h6 {
   color: var(--header-color);
 }
 
+h1 {
+  color: light-dark(#555, #fff);
+  font-size: 1.5em;
+  margin: 1rem 0;
+  font-weight: bold;
+}
+
+h1.mainTitle {
+  font-size: 2em;
+  margin: 1.34rem 0;
+}
+
 h2 {
-  margin: 4rem 0 1rem;
+  margin: 4rem 0 1 rem;
+  color: #9a9c9e;
+  font-size: 1.5em;
+  font-weight: 300;
+  margin: 3rem 0 2rem;
 }
 
 h3 {
@@ -74,9 +92,11 @@ h3 {
 
 h4 {
   margin: 1rem 0 0;
+  color: var(--body-color);
 }
 
-a {
+a,
+a > code {
   color: var(--link-color);
   text-decoration: none;
 }
@@ -116,6 +136,7 @@ blockquote > :last-child {
 
 /* Markdown */
 
+pre > code,
 .codeBlock {
   -webkit-overflow-scrolling: touch;
   background: var(--code-block-bg-color);
@@ -174,6 +195,7 @@ a.try-it {
 
 .contents > .docContents {
   flex-grow: 1;
+  max-width: calc(1024px - 340px); /* contents width minus sidebar */
 }
 
 img {
@@ -518,14 +540,6 @@ img {
   background-color: rgba(112, 170, 220, 0.2);
 }
 
-.typeHeader {
-  color: light-dark(#555, #fff);
-  font-size: 1.5em;
-  font-weight: normal;
-  margin: 1rem 0;
-  font-weight: bold;
-}
-
 .interfaceMember {
   padding-top: 4rem;
   margin-top: -5rem;
@@ -595,4 +609,14 @@ img {
 
 p:last-child {
   margin-bottom: 0;
+}
+
+.memberLabel .anchorLink {
+  display: none;
+  margin-left: 0.25em;
+  color: var(--anchor-link-color);
+}
+
+.memberLabel:hover .anchorLink {
+  display: inline;
 }

@@ -11,7 +11,7 @@
   border: 1px solid var(--code-block-bg-color);
 }
 
-textarea {
+.js-repl textarea {
   width: 100%;
   height: 100px;
   margin-bottom: 10px;
@@ -23,7 +23,7 @@ textarea {
   resize: none;
 }
 
-button {
+.js-repl button {
   padding: 10px 15px;
   font-size: 14px;
   background-color: var(--link-color);
@@ -33,11 +33,11 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+.js-repl button:hover {
   background-color: var(--link-hover-color);
 }
 
-pre {
+.js-repl pre.repl-output {
   background-color: var(--code-block-bg-color);
   padding: 10px;
   border: 1px solid #ccc;

@@ -40,7 +40,7 @@ export default async function OverviewDocPage(props: Props) {
       <SideBar links={sidebarLinks} />
       <div key="Overview" className="docContents">
         <DocSearch />
-        <h1>Immutable.js ({version})</h1>
+        <h1 className="mainTitle">Immutable.js ({version})</h1>
         <DocOverview data={overviewData} />
       </div>
     </>

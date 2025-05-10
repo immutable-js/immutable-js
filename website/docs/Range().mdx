@@ -1,0 +1,17 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# Range()
+
+Returns a Seq.Indexed of numbers from `start` (inclusive) to `end` (exclusive), by `step`, where start defaults to 0, `step` to 1, and `end` to infinity. When `start` is equal to `end`, returns empty range.
+
+<Signature
+  code={`Range(start: number, end: number, step?: number): Seq.Indexed<number>`}
+/>
+
+Note: `Range` is a factory function and not a class, and does not use the `new` keyword during construction.
+
+<Repl defaultValue={`Range(10, 15)`} />
+<Repl defaultValue={`Range(10, 30, 5)`} />
+<Repl defaultValue={`Range(30, 10, 5)`} />
+<Repl defaultValue={`Range(30, 30, 5)`} />
