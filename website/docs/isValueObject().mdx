@@ -1,0 +1,10 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# isValueObject()
+
+True if `maybeValue` is a JavaScript Object which has _both_ `equals()` and `hashCode()` methods.
+
+<Signature code={`isValueObject(maybeValue: unknown): boolean;`} />
+
+Any two instances of value objects can be compared for value equality with `Immutable.is()` and can be used as keys in a `Map` or members in a `Set`.

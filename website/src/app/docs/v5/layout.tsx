@@ -40,34 +40,34 @@ export default async function VersionLayout(props: {
     // functions
     { label: 'fromJS()', url: `/docs/${version}/fromJS()` },
     { label: 'is()', url: `/docs/${version}/is()` },
-    { label: 'hash()', url: `/docs/${version}/hash()` }, // TODO
-    { label: 'isImmutable()', url: `/docs/${version}/isImmutable()` }, // TODO
-    { label: 'isCollection()', url: `/docs/${version}/isCollection()` }, // TODO
-    { label: 'isKeyed()', url: `/docs/${version}/isKeyed()` }, // TODO
-    { label: 'isIndexed()', url: `/docs/${version}/isIndexed()` }, // TODO
-    { label: 'isAssociative()', url: `/docs/${version}/isAssociative()` }, // TODO
-    { label: 'isOrdered()', url: `/docs/${version}/isOrdered()` }, // TODO
-    { label: 'isValueObject()', url: `/docs/${version}/isValueObject()` }, // TODO
-    { label: 'isSeq()', url: `/docs/${version}/isSeq()` }, // TODO
-    { label: 'isList()', url: `/docs/${version}/isList()` }, // TODO
-    { label: 'isMap()', url: `/docs/${version}/isMap()` }, // TODO
-    { label: 'isOrderedMap()', url: `/docs/${version}/isOrderedMap()` }, // TODO
-    { label: 'isStack()', url: `/docs/${version}/isStack()` }, // TODO
-    { label: 'isSet()', url: `/docs/${version}/isSet()` }, // TODO
-    { label: 'isOrderedSet()', url: `/docs/${version}/isOrderedSet()` }, // TODO
-    { label: 'isRecord()', url: `/docs/${version}/isRecord()` }, // TODO
-    { label: 'get()', url: `/docs/${version}/get()` }, // TODO
-    { label: 'has()', url: `/docs/${version}/has()` }, // TODO
-    { label: 'remove()', url: `/docs/${version}/remove()` }, // TODO
-    { label: 'set()', url: `/docs/${version}/set()` }, // TODO
-    { label: 'update()', url: `/docs/${version}/update()` }, // TODO
-    { label: 'getIn()', url: `/docs/${version}/getIn()` }, // TODO
-    { label: 'hasIn()', url: `/docs/${version}/hasIn()` }, // TODO
-    { label: 'removeIn()', url: `/docs/${version}/removeIn()` }, // TODO
-    { label: 'setIn()', url: `/docs/${version}/setIn()` }, // TODO
-    { label: 'updateIn()', url: `/docs/${version}/updateIn()` }, // TODO
-    { label: 'merge()', url: `/docs/${version}/merge()` }, // TODO
-    { label: 'mergeWith()', url: `/docs/${version}/mergeWith()` }, // TODO
+    { label: 'hash()', url: `/docs/${version}/hash()` },
+    { label: 'isImmutable()', url: `/docs/${version}/isImmutable()` },
+    { label: 'isCollection()', url: `/docs/${version}/isCollection()` },
+    { label: 'isKeyed()', url: `/docs/${version}/isKeyed()` },
+    { label: 'isIndexed()', url: `/docs/${version}/isIndexed()` },
+    { label: 'isAssociative()', url: `/docs/${version}/isAssociative()` },
+    { label: 'isOrdered()', url: `/docs/${version}/isOrdered()` },
+    { label: 'isValueObject()', url: `/docs/${version}/isValueObject()` },
+    { label: 'isSeq()', url: `/docs/${version}/isSeq()` },
+    { label: 'isList()', url: `/docs/${version}/isList()` },
+    { label: 'isMap()', url: `/docs/${version}/isMap()` },
+    { label: 'isOrderedMap()', url: `/docs/${version}/isOrderedMap()` },
+    { label: 'isStack()', url: `/docs/${version}/isStack()` },
+    { label: 'isSet()', url: `/docs/${version}/isSet()` },
+    { label: 'isOrderedSet()', url: `/docs/${version}/isOrderedSet()` },
+    { label: 'isRecord()', url: `/docs/${version}/isRecord()` },
+    { label: 'get()', url: `/docs/${version}/get()` },
+    { label: 'has()', url: `/docs/${version}/has()` },
+    { label: 'remove()', url: `/docs/${version}/remove()` },
+    { label: 'set()', url: `/docs/${version}/set()` },
+    { label: 'update()', url: `/docs/${version}/update()` },
+    { label: 'getIn()', url: `/docs/${version}/getIn()` },
+    { label: 'hasIn()', url: `/docs/${version}/hasIn()` },
+    { label: 'removeIn()', url: `/docs/${version}/removeIn()` },
+    { label: 'setIn()', url: `/docs/${version}/setIn()` },
+    { label: 'updateIn()', url: `/docs/${version}/updateIn()` },
+    { label: 'merge()', url: `/docs/${version}/merge()` },
+    { label: 'mergeWith()', url: `/docs/${version}/mergeWith()` },
     { label: 'mergeDeep()', url: `/docs/${version}/mergeDeep()` },
     { label: 'mergeDeepWith()', url: `/docs/${version}/mergeDeepWith()` },
   ];

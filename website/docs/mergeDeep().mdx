@@ -20,12 +20,7 @@ Note: Indexed and set-like collections are merged using
 A functional alternative to `collection.mergeDeep()` which will also work
 with plain Objects and Arrays.
 
-<Repl defaultValue={`List(['a', 'b', 'c'])`} />
-
-// TODO this should be in the repl but it does have an error
-
-```js
-const original = { x: { y: 123 } };
-mergeDeep(original, { x: { z: 456 } }); // { x: { y: 123, z: 456 }}
-console.log(original); // { x: { y: 123 }}
-```
+<Repl
+  defaultValue={`const original = { x: { y: 123 }}
+mergeDeep(original, { x: { z: 456 }})`}
+/>

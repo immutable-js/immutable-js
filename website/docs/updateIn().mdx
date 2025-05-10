@@ -1,0 +1,12 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# updateIn()
+
+Returns a copy of the collection with the value at the key path set to the result of providing the existing value to the updating function.
+
+A functional alternative to `collection.updateIn(keypath, fn)` which will also work with plain Objects and Arrays.
+
+<Signature
+  code={`updateIn(collection: C, keyPath: Iterable, updater: (value: any) => any): C;`}
+/>

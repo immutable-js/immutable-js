@@ -19,18 +19,10 @@ A functional alternative to `collection.mergeDeepWith()` which will also
 work with plain Objects and Arrays.
 
 <Repl
-  defaultValue={`List([1, 2, 3])
-`}
-/>
-
-// TODO this should be in the repl but it does have an error
-
-```js
-const original = { x: { y: 123 } };
-
+  defaultValue={`const original = { x: { y: 123 }}
 mergeDeepWith(
   (oldVal, newVal) => oldVal + newVal,
   original,
-  { x: { y: 456 }
-);
-```
+  { x: { y: 456 }}
+)`}
+/>

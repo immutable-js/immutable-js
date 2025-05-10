@@ -1,0 +1,20 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# isImmutable()
+
+True if `maybeImmutable` is an Immutable Collection or Record.
+
+<Signature code={`isImmutable(maybeImmutable: unknown): boolean;`} />
+
+Note: Still returns true even if the collections is within a `withMutations()`.
+
+```js
+const { isImmutable, Map, List, Stack } = require('immutable');
+isImmutable([]); // false
+isImmutable({}); // false
+isImmutable(Map()); // true
+isImmutable(List()); // true
+isImmutable(Stack()); // true
+isImmutable(Map().asMutable()); // true
+```
