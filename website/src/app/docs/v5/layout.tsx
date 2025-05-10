@@ -1,5 +1,5 @@
-import { SideBar } from '@/Sidebar';
-import { DocSearch } from '@/DocSearch';
+import { SideBar } from '../../../Sidebar';
+import { DocSearch } from '../../../DocSearch';
 import { DocHeader } from '../../../DocHeader';
 import { ImmutableConsole } from '../../../ImmutableConsole';
 import { getVersions } from '../../../static/getVersions';

@@ -1,4 +1,4 @@
-import { getDocFiles } from '@/utils/doc';
+import { getDocFiles } from '../../../../utils/doc';
 
 export async function generateStaticParams() {
   const docFiles = getDocFiles();
