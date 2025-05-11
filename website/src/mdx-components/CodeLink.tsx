@@ -6,11 +6,13 @@ type Props = {
 };
 
 export default function CodeLink({ to, children }: Props): JSX.Element {
-  const href = to.includes('#') ? to : `#${to}`;
+  const href = to.includes('#') || to.startsWith('.') ? to : `#${to}`;
+
+  const text = children || to.replace(/^[./]*/g, '');
 
   return (
     <a href={href}>
-      <code>{children || href}</code>
+      <code>{text}</code>
     </a>
   );
 }
