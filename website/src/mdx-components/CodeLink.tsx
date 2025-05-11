@@ -6,9 +6,11 @@ type Props = {
 };
 
 export default function CodeLink({ to, children }: Props): JSX.Element {
+  const href = to.includes('#') ? to : `#${to}`;
+
   return (
-    <a href={`#${to}`}>
-      <code>{children || to}</code>
+    <a href={href}>
+      <code>{children || href}</code>
     </a>
   );
 }

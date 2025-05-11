@@ -24,7 +24,7 @@ export default async function VersionLayout(props: {
     { label: 'Stack', url: `/docs/${version}/Stack` },
     { label: 'Range()', url: `/docs/${version}/Range()` },
     { label: 'Repeat()', url: `/docs/${version}/Repeat()` },
-    { label: 'Record', url: `/docs/${version}/Record` }, // TODO
+    { label: 'Record', url: `/docs/${version}/Record` },
     { label: 'Record.Factory', url: `/docs/${version}/Record.Factory` },
     { label: 'Seq', url: `/docs/${version}/Seq` }, // TODO
     { label: 'Seq.Keyed', url: `/docs/${version}/Seq.Keyed` }, // TODO

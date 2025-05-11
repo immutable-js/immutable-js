@@ -21,7 +21,7 @@ Create a new immutable List containing the values of the provided collection-lik
 
 <Signature code={`List<T>(collection?: Iterable<T> | ArrayLike<T>): List<T>`} />
 
-Note: <CodeLink to="List" /> is a factory function and not a class, and does not use the `new` keyword during construction.
+Note: <CodeLink to="../List" /> is a factory function and not a class, and does not use the `new` keyword during construction.
 
 <Repl imports={['List', 'Set']} defaultValue={`List()`} />
 
@@ -661,9 +661,7 @@ Returns a new List with the separator inserted between each value in this List.
 
 <Signature code={`interpose(separator: T): List<T>`} />
 
-<Repl
-  defaultValue={`List([ 1, 2, 3 ]).interpose(0)`}
-/>
+<Repl defaultValue={`List([ 1, 2, 3 ]).interpose(0)`} />
 
 <MemberLabel label="interleave()" />
 
@@ -675,15 +673,11 @@ Returns a new List with the values from each collection interleaved.
 
 The resulting Collection includes the first item from each, then the second from each, etc.
 
-<Repl
-  defaultValue={`List([ 1, 2, 3 ]).interleave(List([ 4, 5, 6 ]))`}
-/>
+<Repl defaultValue={`List([ 1, 2, 3 ]).interleave(List([ 4, 5, 6 ]))`} />
 
 The shortest Collection stops interleave.
 
-<Repl
-  defaultValue={`List([ 1, 2, 3 ]).interleave(List([ 4, 5 ]))`}
-/>
+<Repl defaultValue={`List([ 1, 2, 3 ]).interleave(List([ 4, 5 ]))`} />
 
 Since `interleave()` re-indexes values, it produces a complete copy, which has `O(N)` complexity.
 
@@ -854,7 +848,7 @@ Returns the maximum value in this collection. If any values are comparatively eq
 
 <Repl defaultValue={`List([ 1, 2, 3, 4 ]).max()`} />
 
-The comparator is used in the same way as <CodeLink to="Collection#sort()">Collection#sort</CodeLink>. If it is not provided, the default comparator is `>`.
+The comparator is used in the same way as <CodeLink to="../Collection#sort()">Collection#sort</CodeLink>. If it is not provided, the default comparator is `>`.
 
 When two values are considered equivalent, the first encountered will be returned. Otherwise, `max` will operate independent of the order of input as long as the comparator is commutative. The default comparator `>` is commutative only when types do not differ.
 
@@ -889,7 +883,7 @@ Returns the minimum value in this collection. If any values are comparatively eq
 
 <Repl defaultValue={`List([ 1, 2, 3, 4 ]).min()`} />
 
-The comparator is used in the same way as <CodeLink to="Collection#sort()">Collection#sort</CodeLink>. If it is not provided, the default comparator is `<`.
+The comparator is used in the same way as <CodeLink to="../Collection#sort()">Collection#sort</CodeLink>. If it is not provided, the default comparator is `<`.
 
 When two values are considered equivalent, the first encountered will be returned. Otherwise, `min` will operate independent of the order of input as long as the comparator is commutative. The default comparator `<` is commutative only when types do not differ.
 
@@ -950,7 +944,9 @@ If two values have the same `hashCode`, they are [not guaranteed to be equal][Ha
 
 Returns the value found by following a path of keys or indices through nested Collections.
 
-<Signature code={`getIn(searchKeyPath: Iterable<unknown>, notSetValue?: unknown): unknown`} />
+<Signature
+  code={`getIn(searchKeyPath: Iterable<unknown>, notSetValue?: unknown): unknown`}
+/>
 
 <Repl
   defaultValue={`const { Map, List } = require('immutable')
@@ -1081,7 +1077,9 @@ Returns a new Seq.Indexed of [key, value] tuples.
 
 The `sideEffect` is executed for every entry in the Collection.
 
-<Signature code={`forEach(sideEffect: (value: V, key: K, iter: this) => unknown, context?: unknown): number`} />
+<Signature
+  code={`forEach(sideEffect: (value: V, key: K, iter: this) => unknown, context?: unknown): number`}
+/>
 
 Unlike `Array#forEach`, if any call of `sideEffect` returns `false`, the iteration will stop. Returns the number of entries iterated (including the last iteration which returned false).
 
@@ -1127,7 +1125,9 @@ Returns a new Collection of the same type which excludes the last `amount` entri
 
 Returns a new Collection of the same type which includes entries starting from when `predicate` first returns false.
 
-<Signature code={`skipWhile(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): List<T>`} />
+<Signature
+  code={`skipWhile(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): List<T>`}
+/>
 
 <Repl
   defaultValue={`List([ 'dog', 'frog', 'cat', 'hat', 'god' ])
@@ -1138,7 +1138,9 @@ Returns a new Collection of the same type which includes entries starting from w
 
 Returns a new Collection of the same type which includes entries starting from when `predicate` first returns true.
 
-<Signature code={`skipUntil(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): this`} />
+<Signature
+  code={`skipUntil(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): this`}
+/>
 
 <Repl
   defaultValue={`List([ 'dog', 'frog', 'cat', 'hat', 'god' ])
@@ -1161,7 +1163,9 @@ Returns a new Collection of the same type which includes the last `amount` entri
 
 Returns a new Collection of the same type which includes entries from this Collection as long as the `predicate` returns true.
 
-<Signature code={`takeWhile(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): List<T>`} />
+<Signature
+  code={`takeWhile(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): List<T>`}
+/>
 
 <Repl
   defaultValue={`List([ 'dog', 'frog', 'cat', 'hat', 'god' ])
@@ -1172,7 +1176,9 @@ Returns a new Collection of the same type which includes entries from this Colle
 
 Returns a new Collection of the same type which includes entries from this Collection as long as the `predicate` returns false.
 
-<Signature code={`takeUntil(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): List<T>`} />
+<Signature
+  code={`takeUntil(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): List<T>`}
+/>
 
 <Repl
   defaultValue={`List([ 'dog', 'frog', 'cat', 'hat', 'god' ])
@@ -1185,8 +1191,10 @@ Returns a new Collection of the same type which includes entries from this Colle
 
 Reduces the Collection to a value by calling the `reducer` for every entry in the Collection and passing along the reduced value.
 
-<Signature code={`reduce<R>(reducer: (reduction: R, value: V, key: K, iter: this) => R, initialReduction: R, context?: unknown): R
-reduce<R>(reducer: (reduction: V | R, value: V, key: K, iter: this) => R): R`} />
+<Signature
+  code={`reduce<R>(reducer: (reduction: R, value: V, key: K, iter: this) => R, initialReduction: R, context?: unknown): R
+reduce<R>(reducer: (reduction: V | R, value: V, key: K, iter: this) => R): R`}
+/>
 
 If `initialReduction` is not provided, the first item in the Collection will be used.
 
@@ -1194,8 +1202,10 @@ If `initialReduction` is not provided, the first item in the Collection will be 
 
 Reduces the Collection in reverse (from the right side).
 
-<Signature code={`reduceRight<R>(reducer: (reduction: R, value: V, key: K, iter: this) => R, initialReduction: R, context?: unknown): R
-reduceRight<R>(reducer: (reduction: V | R, value: V, key: K, iter: this) => R): R`} />
+<Signature
+  code={`reduceRight<R>(reducer: (reduction: R, value: V, key: K, iter: this) => R, initialReduction: R, context?: unknown): R
+reduceRight<R>(reducer: (reduction: V | R, value: V, key: K, iter: this) => R): R`}
+/>
 
 Note: Similar to this.reverse().reduce(), and provided for parity with `Array#reduceRight`.
 
@@ -1203,13 +1213,17 @@ Note: Similar to this.reverse().reduce(), and provided for parity with `Array#re
 
 True if `predicate` returns true for all entries in the Collection.
 
-<Signature code={`every(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): boolean`} />
+<Signature
+  code={`every(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): boolean`}
+/>
 
 <MemberLabel label="some()" />
 
 True if `predicate` returns true for any entry in the Collection.
 
-<Signature code={`some(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): boolean`} />
+<Signature
+  code={`some(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): boolean`}
+/>
 
 <MemberLabel label="join()" />
 
@@ -1229,8 +1243,10 @@ For some lazy `Seq`, `isEmpty` might need to iterate to determine emptiness. At 
 
 Returns the size of this Collection.
 
-<Signature code={`count(): number
-count(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): number`} />
+<Signature
+  code={`count(): number
+count(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): number`}
+/>
 
 Regardless of if this Collection can describe its size lazily (some Seqs cannot), this method will always return the correct size. E.g. it evaluates a lazy `Seq` if necessary.
 
@@ -1240,7 +1256,9 @@ If `predicate` is provided, then this returns the count of entries in the Collec
 
 Returns a `Seq.Keyed` of counts, grouped by the return value of the `grouper` function.
 
-<Signature code={`countBy<G>(grouper: (value: V, key: K, iter: this) => G, context?: unknown): Map<G, number>`} />
+<Signature
+  code={`countBy<G>(grouper: (value: V, key: K, iter: this) => G, context?: unknown): Map<G, number>`}
+/>
 
 Note: This is not a lazy operation.
 
