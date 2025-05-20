@@ -31,8 +31,8 @@ export default async function VersionLayout(props: {
     { label: 'Seq.Indexed', url: `/docs/${version}/Seq.Indexed` }, // TODO
     { label: 'Seq.Set', url: `/docs/${version}/Seq.Set` }, // TODO
     { label: 'Collection', url: `/docs/${version}/Collection` },
-    { label: 'Collection.Keyed', url: `/docs/${version}/Collection.Keyed` }, // TODO
-    { label: 'Collection.Indexed', url: `/docs/${version}/Collection.Indexed` }, // TODO
+    { label: 'Collection.Keyed', url: `/docs/${version}/Collection.Keyed` },
+    { label: 'Collection.Indexed', url: `/docs/${version}/Collection.Indexed` },
     { label: 'Collection.Set', url: `/docs/${version}/Collection.Set` }, // TODO
     { label: 'ValueObject', url: `/docs/${version}/ValueObject` },
     { label: 'OrderedCollection', url: `/docs/${version}/OrderedCollection` },
