@@ -1,0 +1,216 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# Collection.Keyed
+
+Keyed Collections have discrete keys tied to each value.
+
+<Signature code="type Collection.Keyed<K, V> extends Collection<K, V>" />
+
+When iterating `Collection.Keyed`, each iteration will yield a [K, V] tuple, in other words, `Collection#entries` is the default iterator for Keyed Collections.
+
+## Construction
+
+<MemberLabel label="Collection.Keyed()" />
+
+Creates a Collection.Keyed
+
+Similar to `Collection()`, however it expects collection-likes of [K, V]
+tuples if not constructed from a Collection.Keyed or JS Object.
+
+Note: `Collection.Keyed` is a conversion function and not a class, and
+does not use the `new` keyword during construction.
+
+## Conversion to JavaScript types
+
+<MemberLabel label="toJS()" />
+
+<MemberLabel label="toJSON()" />
+
+<MemberLabel label="toArray()" />
+
+<MemberLabel label="toObject()" />
+
+## Conversion to Seq
+
+<MemberLabel label="toSeq()" />
+
+<MemberLabel label="toKeyedSeq()" />
+
+<MemberLabel label="toIndexedSeq()" />
+
+<MemberLabel label="toSetSeq()" />
+
+## Sequence functions
+
+<MemberLabel label="flip()" />
+
+<MemberLabel label="concat()" />
+
+<MemberLabel label="map()" />
+
+<MemberLabel label="mapKeys()" />
+
+<MemberLabel label="mapEntries()" />
+
+<MemberLabel label="flatMap()" />
+
+<MemberLabel label="filter()" />
+
+<MemberLabel label="partition()" />
+
+<MemberLabel label="[Symbol.iterator]()">
+      [Symbol.iterator]()
+    </a>
+
+## Value equality
+
+<MemberLabel label="equals()" />
+
+<MemberLabel label="hashCode()" />
+
+## Reading values
+
+<MemberLabel label="get()" />
+
+<MemberLabel label="has()" />
+
+<MemberLabel label="includes()" />
+
+<MemberLabel label="first()" />
+
+<MemberLabel label="last()" />
+
+## Reading deep values
+
+<MemberLabel label="getIn()" />
+
+<MemberLabel label="hasIn()" />
+
+## Persistent changes
+
+<MemberLabel label="update()" />
+
+## Conversion to Collections
+
+<MemberLabel label="toMap()" />
+
+<MemberLabel label="toOrderedMap()" />
+
+<MemberLabel label="toSet()" />
+
+<MemberLabel label="toOrderedSet()" />
+
+<MemberLabel label="toList()" />
+
+<MemberLabel label="toStack()" />
+
+## Iterators
+
+<MemberLabel label="keys()" />
+
+<MemberLabel label="values()" />
+
+<MemberLabel label="entries()" />
+
+## Collections (Seq)
+
+<MemberLabel label="keySeq()" />
+
+<MemberLabel label="valueSeq()" />
+
+<MemberLabel label="entrySeq()" />
+
+## Sequence algorithms
+
+<MemberLabel label="filterNot()" />
+
+<MemberLabel label="reverse()" />
+
+<MemberLabel label="sort()" />
+
+<MemberLabel label="sortBy()" />
+
+<MemberLabel label="groupBy()" />
+
+## Side effects
+
+<MemberLabel label="forEach()" />
+
+## Creating subsets
+
+<MemberLabel label="slice()" />
+
+<MemberLabel label="rest()" />
+
+<MemberLabel label="butLast()" />
+
+<MemberLabel label="skip()" />
+
+<MemberLabel label="skipLast()" />
+
+<MemberLabel label="skipWhile()" />
+
+<MemberLabel label="skipUntil()" />
+
+<MemberLabel label="take()" />
+
+<MemberLabel label="takeLast()" />
+
+<MemberLabel label="takeWhile()" />
+
+<MemberLabel label="takeUntil()" />
+
+## Combination
+
+<MemberLabel label="flatten()" />
+
+## Reducing a value
+
+<MemberLabel label="reduce()" />
+
+<MemberLabel label="reduceRight()" />
+
+<MemberLabel label="every()" />
+
+<MemberLabel label="some()" />
+
+<MemberLabel label="join()" />
+
+<MemberLabel label="isEmpty()" />
+
+<MemberLabel label="count()" />
+
+<MemberLabel label="countBy()" />
+
+## Search for value
+
+<MemberLabel label="find()" />
+
+<MemberLabel label="findLast()" />
+
+<MemberLabel label="findEntry()" />
+
+<MemberLabel label="findLastEntry()" />
+
+<MemberLabel label="findKey()" />
+
+<MemberLabel label="findLastKey()" />
+
+<MemberLabel label="keyOf()" />
+
+<MemberLabel label="lastKeyOf()" />
+
+<MemberLabel label="max()" />
+
+<MemberLabel label="maxBy()" />
+
+<MemberLabel label="min()" />
+
+<MemberLabel label="minBy()" />
+
+## Comparison
+
+<MemberLabel label="isSubset()" />
+
+<MemberLabel label="isSuperset()" />
