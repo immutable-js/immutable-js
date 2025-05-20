@@ -26,11 +26,11 @@ export default async function VersionLayout(props: {
     { label: 'Repeat()', url: `/docs/${version}/Repeat()` },
     { label: 'Record', url: `/docs/${version}/Record` },
     { label: 'Record.Factory', url: `/docs/${version}/Record.Factory` },
-    { label: 'Seq', url: `/docs/${version}/Seq` }, // TODO
+    { label: 'Seq', url: `/docs/${version}/Seq` },
     { label: 'Seq.Keyed', url: `/docs/${version}/Seq.Keyed` }, // TODO
     { label: 'Seq.Indexed', url: `/docs/${version}/Seq.Indexed` }, // TODO
     { label: 'Seq.Set', url: `/docs/${version}/Seq.Set` }, // TODO
-    { label: 'Collection', url: `/docs/${version}/Collection` }, // TODO
+    { label: 'Collection', url: `/docs/${version}/Collection` },
     { label: 'Collection.Keyed', url: `/docs/${version}/Collection.Keyed` }, // TODO
     { label: 'Collection.Indexed', url: `/docs/${version}/Collection.Indexed` }, // TODO
     { label: 'Collection.Set', url: `/docs/${version}/Collection.Set` }, // TODO
