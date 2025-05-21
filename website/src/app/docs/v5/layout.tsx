@@ -29,7 +29,7 @@ export default async function VersionLayout(props: {
     { label: 'Seq', url: `/docs/${version}/Seq` },
     { label: 'Seq.Keyed', url: `/docs/${version}/Seq.Keyed` }, // TODO
     { label: 'Seq.Indexed', url: `/docs/${version}/Seq.Indexed` }, // TODO
-    { label: 'Seq.Set', url: `/docs/${version}/Seq.Set` }, // TODO
+    { label: 'Seq.Set', url: `/docs/${version}/Seq.Set` },
     { label: 'Collection', url: `/docs/${version}/Collection` },
     { label: 'Collection.Keyed', url: `/docs/${version}/Collection.Keyed` },
     { label: 'Collection.Indexed', url: `/docs/${version}/Collection.Indexed` },
