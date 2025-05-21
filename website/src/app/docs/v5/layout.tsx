@@ -33,7 +33,7 @@ export default async function VersionLayout(props: {
     { label: 'Collection', url: `/docs/${version}/Collection` },
     { label: 'Collection.Keyed', url: `/docs/${version}/Collection.Keyed` },
     { label: 'Collection.Indexed', url: `/docs/${version}/Collection.Indexed` },
-    { label: 'Collection.Set', url: `/docs/${version}/Collection.Set` }, // TODO
+    { label: 'Collection.Set', url: `/docs/${version}/Collection.Set` },
     { label: 'ValueObject', url: `/docs/${version}/ValueObject` },
     { label: 'OrderedCollection', url: `/docs/${version}/OrderedCollection` },
 
