@@ -1,0 +1,90 @@
+Immutable data encourages pure functions (data-in, data-out) and lends itself
+to much simpler application development and enabling techniques from
+functional programming such as lazy evaluation.
+
+While designed to bring these powerful functional concepts to JavaScript, it
+presents an Object-Oriented API familiar to Javascript engineers and closely
+mirroring that of Array, Map, and Set. It is easy and efficient to convert to
+and from plain Javascript types.
+
+## How to read these docs
+
+In order to better explain what kinds of values the Immutable.js API expects
+and produces, this documentation is presented in a statically typed dialect of
+JavaScript (like [Flow][] or [TypeScript][]). You _don't need_ to use these
+type checking tools in order to use Immutable.js, however becoming familiar
+with their syntax will help you get a deeper understanding of this API.
+
+**A few examples and how to read them.**
+
+All methods describe the kinds of data they accept and the kinds of data
+they return. For example a function which accepts two numbers and returns
+a number would look like this:
+
+```js
+sum(first: number, second: number): number
+```
+
+Sometimes, methods can accept different kinds of data or return different
+kinds of data, and this is described with a _type variable_, which is
+typically in all-caps. For example, a function which always returns the same
+kind of data it was provided would look like this:
+
+```js
+identity<T>(value: T): T
+```
+
+Type variables are defined with classes and referred to in methods. For
+example, a class that holds onto a value for you might look like this:
+
+```js
+class Box<T> {
+constructor(value: T)
+getValue(): T
+}
+```
+
+In order to manipulate Immutable data, methods that we're used to affecting
+a Collection instead return a new Collection of the same type. The type
+`this` refers to the same kind of class. For example, a List which returns
+new Lists when you `push` a value onto it might look like:
+
+```js
+class List<T> {
+push(value: T): this
+}
+```
+
+Many methods in Immutable.js accept values which implement the JavaScript
+[Iterable][] protocol, and might appear like `Iterable<string>` for something
+which represents sequence of strings. Typically in JavaScript we use plain
+Arrays (`[]`) when an Iterable is expected, but also all of the Immutable.js
+collections are iterable themselves!
+
+For example, to get a value deep within a structure of data, we might use
+`getIn` which expects an `Iterable` path:
+
+```
+getIn(path: Iterable<string | number>): unknown
+```
+
+To use this method, we could pass an array: `data.getIn([ "key", 2 ])`.
+
+Note: All examples are presented in the modern [ES2015][] version of
+JavaScript. Use tools like Babel to support older browsers.
+
+For example:
+
+```js
+// ES2015
+const mappedFoo = foo.map((x) => x * x);
+// ES5
+var mappedFoo = foo.map(function (x) {
+  return x * x;
+});
+```
+
+[ES2015]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/New_in_JavaScript/ECMAScript_6_support_in_Mozilla
+[TypeScript]: https://www.typescriptlang.org/
+[Flow]: https://flowtype.org/
+[Iterable]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols
