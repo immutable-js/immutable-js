@@ -1,33 +1,29 @@
 import Repl from '@/repl/Repl.tsx';
 import CodeLink from '@/mdx-components/CodeLink.tsx';
 
-# Collection.Indexed
+# Seq.Indexed
 
-Indexed Collections have incrementing numeric keys. They exhibit
-slightly different behavior than `Collection.Keyed` for some methods in order
-to better mirror the behavior of JavaScript's `Array`, and add methods
-which do not make sense on non-indexed Collections such as `indexOf`.
+<CodeLink to="./Seq" /> which represents an ordered indexed list of values.
 
-Unlike JavaScript arrays, `Collection.Indexed`s are always dense. "Unset"
-indices and `undefined` indices are indistinguishable, and all indices from
-0 to `size` are visited when iterated.
-
-All Collection.Indexed methods return re-indexed Collections. In other words,
-indices always start at 0 and increment until size. If you wish to
-preserve indices, using them as keys, convert to a Collection.Keyed by
-calling `toKeyedSeq`.
+<Signature code="type Seq.Indexed<T> extends Seq<number, T>, Collection.Indexed<T>" />
 
 ## Construction
 
-<MemberLabel label="Collection.Indexed()" />
+<MemberLabel label="Seq.Indexed()" />
 
-Creates a new Collection.Indexed.
+Always returns Seq.Indexed, discarding associated keys and supplying incrementing indices.
 
-<Signature
-  code={`function Collection.Indexed<T>(collection?: Iterable<T> | ArrayLike<T>): Collection.Indexed<T>;`}
-/>
+<Signature code="Seq.Indexed<T>(collection?: Iterable<T> | ArrayLike<T>): Seq.Indexed<T>" />
 
-Note: `Collection.Indexed` is a conversion function and not a class, and does not use the `new` keyword during construction.
+Note: `Seq.Indexed` is a conversion function and not a class, and does not use the new keyword during construction.
+
+## Static methods
+
+<MemberLabel label="Seq.Indexed.of()" />
+
+Provides an Seq.Indexed of the values provided.
+
+<Signature code="Seq.Indexed.of<T>(...values: Array<T>): Seq.Indexed<T>" />
 
 ## Reading values
 
@@ -36,8 +32,8 @@ Note: `Collection.Indexed` is a conversion function and not a class, and does no
 Returns the value associated with the provided index, or notSetValue if the index is beyond the bounds of the Collection.
 
 <Signature
-  code={`get<NSV>(index: number, notSetValue: NSV): T | NSV;
-get(index: number): T | undefined;`}
+  code={`get<NSV>(key: number, notSetValue: NSV): T | NSV;
+get(key: number): T | undefined;`}
 />
 
 `index` may be a negative number, which indexes back from the end of the Collection. `s.get(-1)` gets the last item in the Collection.
@@ -76,13 +72,13 @@ last(): T | undefined;`}
 
 <MemberLabel label="toJS()" />
 
-Deeply converts this Indexed collection to equivalent native JavaScript Array.
+Deeply converts this Indexed Seq to equivalent native JavaScript Array.
 
 <Signature code={`toJS(): Array<DeepCopy<T>>;`} />
 
 <MemberLabel label="toJSON()" />
 
-Shallowly converts this Indexed collection to equivalent native JavaScript Array.
+Shallowly converts this Indexed Seq to equivalent native JavaScript Array.
 
 <Signature code={`toJSON(): Array<T>;`} />
 
@@ -187,13 +183,13 @@ Note: `splice` _cannot_ be used in `withMutations`.
 Returns a Collection of the same type "zipped" with the provided collections.
 
 <Signature
-  code={`zip<U>(other: Collection<unknown, U>): Collection.Indexed<[T, U]>;`}
+  code={`zip<U>(other: Collection<unknown, U>): Seq.Indexed<[T, U]>;`}
 />
 <Signature
-  code={`zip<U, V>(other: Collection<unknown, U>, other2: Collection<unknown, V>): Collection.Indexed<[T, U, V]>;`}
+  code={`zip<U, V>(other: Collection<unknown, U>, other2: Collection<unknown, V>): Seq.Indexed<[T, U, V]>;`}
 />
 <Signature
-  code={`zip(...collections: Array<Collection<unknown, unknown>>): Collection.Indexed<unknown>;`}
+  code={`zip(...collections: Array<Collection<unknown, unknown>>): Seq.Indexed<unknown>;`}
 />
 
 Like `zipWith`, but using the default `zipper`: creating an `Array`.
@@ -209,13 +205,13 @@ a.zip(b);`}
 Returns a Collection "zipped" with the provided collections. Unlike `zip`, `zipAll` continues zipping until the longest collection is exhausted. Missing values from shorter collections are filled with `undefined`.
 
 <Signature
-  code={`zipAll<U>(other: Collection<unknown, U>): Collection.Indexed<[T, U]>;`}
+  code={`zipAll<U>(other: Collection<unknown, U>): Seq.Indexed<[T, U]>;`}
 />
 <Signature
-  code={`zipAll<U, V>(other: Collection<unknown, U>, other2: Collection<unknown, V>): Collection.Indexed<[T, U, V]>;`}
+  code={`zipAll<U, V>(other: Collection<unknown, U>, other2: Collection<unknown, V>): Seq.Indexed<[T, U, V]>;`}
 />
 <Signature
-  code={`zipAll(...collections: Array<Collection<unknown, unknown>>): Collection.Indexed<unknown>;`}
+  code={`zipAll(...collections: Array<Collection<unknown, unknown>>): Seq.Indexed<unknown>;`}
 />
 
 <Repl
@@ -232,10 +228,10 @@ Returns a Collection of the same type "zipped" with the provided collections by 
   code={`zipWith<U, Z>(zipper: (value: T, otherValue: U) => Z, otherCollection: Collection<unknown, U>): Collection.Indexed<Z>;`}
 />
 <Signature
-  code={`zipWith<U, V, Z>(zipper: (value: T, otherValue: U, thirdValue: V) => Z, otherCollection: Collection<unknown, U>, thirdCollection: Collection<unknown, V>): Collection.Indexed<Z>;`}
+  code={`zipWith<U, V, Z>(zipper: (value: T, otherValue: U, thirdValue: V) => Z, otherCollection: Collection<unknown, U>, thirdCollection: Collection<unknown, V>): Seq.Indexed<Z>;`}
 />
 <Signature
-  code={`zipWith<Z>(zipper: (...values: Array<unknown>) => Z, ...collections: Array<Collection<unknown, unknown>>): Collection.Indexed<Z>;`}
+  code={`zipWith<Z>(zipper: (...values: Array<unknown>) => Z, ...collections: Array<Collection<unknown, unknown>>): Seq.Indexed<Z>;`}
 />
 
 <Repl
@@ -413,40 +409,40 @@ l.minBy(i => i.avgHit);`}
 
 <MemberLabel label="concat()" />
 
-Returns a new Collection with other collections concatenated to this one.
+Returns a new Seq with other collections concatenated to this one.
 
 <Signature
-  code={`concat<C>(...valuesOrCollections: Array<Iterable<C> | C>): Collection.Indexed<T | C>;`}
+  code={`concat<C>(...valuesOrCollections: Array<Iterable<C> | C>): Seq.Indexed<T | C>;`}
 />
 
 <MemberLabel label="map()" />
 
-Returns a new Collection.Indexed with values passed through a `mapper` function.
+Returns a new Seq.Indexed with values passed through a `mapper` function.
 
 <Signature
-  code={`map<M>(mapper: (value: T, key: number, iter: this) => M, context?: unknown): Collection.Indexed<M>;`}
+  code={`map<M>(mapper: (value: T, key: number, iter: this) => M, context?: unknown): Seq.Indexed<M>;`}
 />
 
-<Repl defaultValue={`Collection.Indexed([1, 2]).map((x) => 10 * x)`} />
+<Repl defaultValue={`Seq.Indexed([1, 2]).map((x) => 10 * x)`} />
 
 Note: `map()` always returns a new instance, even if it produced the same value at every step.
 
 <MemberLabel label="flatMap()" />
 
-Flat-maps the Collection, returning a Collection of the same type.
+Flat-maps the Seq, returning a Seq of the same type.
 
 <Signature
-  code={`flatMap<M>(mapper: (value: T, key: number, iter: this) => Iterable<M>, context?: unknown): Collection.Indexed<M>;`}
+  code={`flatMap<M>(mapper: (value: T, key: number, iter: this) => Iterable<M>, context?: unknown): Seq.Indexed<M>;`}
 />
 
-Similar to `collection.map(...).flatten(true)`.
+Similar to `seq.map(...).flatten(true)`.
 
 <MemberLabel label="filter()" />
 
 Returns a new Collection with only the values for which the `predicate` function returns true.
 
 <Signature
-  code={`filter<F extends T>(predicate: (value: T, index: number, iter: this) => value is F, context?: unknown): Collection.Indexed<F>;`}
+  code={`filter<F extends T>(predicate: (value: T, index: number, iter: this) => value is F, context?: unknown): Seq.Indexed<F>;`}
 />
 <Signature
   code={`filter(predicate: (value: T, index: number, iter: this) => unknown, context?: unknown): this;`}
@@ -456,10 +452,10 @@ Note: `filter()` always returns a new instance, even if it results in not filter
 
 <MemberLabel label="partition()" />
 
-Returns a new indexed Collection with the values for which the `predicate` function returns false and another for which is returns true.
+Returns a new indexed Seq with the values for which the `predicate` function returns false and another for which is returns true.
 
 <Signature
-  code={`partition<F extends T, C>(predicate: (this: C, value: T, index: number, iter: this) => value is F, context?: C): [Collection.Indexed<T>, Collection.Indexed<F>];`}
+  code={`partition<F extends T, C>(predicate: (this: C, value: T, index: number, iter: this) => value is F, context?: C): [Seq.Indexed<T>, Seq.Indexed<F>];`}
 />
 <Signature
   code={`partition<C>(predicate: (this: C, value: T, index: number, iter: this) => unknown, context?: C): [this, this];`}
