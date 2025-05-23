@@ -1,11 +1,11 @@
 import { getSidebarLinks } from '../../../../getSidebarLinks';
 import { getTypeDefs } from '../../../../static/getTypeDefs';
-import { getVersions } from '../../../../static/getVersions';
+import { getVersionFromGitTag } from '../../../../static/getVersions';
 import { TypeDocumentation } from '../../../../TypeDocumentation';
 import { getVersionFromParams } from '../../../getVersionFromParams';
 
 export async function generateStaticParams() {
-  return getVersions()
+  return getVersionFromGitTag()
     .map((version) =>
       Object.values(getTypeDefs(version).types).map((def) => ({
         version,

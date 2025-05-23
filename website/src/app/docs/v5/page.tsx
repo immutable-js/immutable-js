@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { SIDEBAR_LINKS } from '../currentVersion';
+import { SIDEBAR_LINKS, VERSION } from '../currentVersion';
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -9,7 +9,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function OverviewDocPage() {
-  const version = 'v5';
   const { default: MdxContent } = await import(`@/docs/Intro.mdx`);
 
   console.log('MdxContent', MdxContent);
@@ -17,7 +16,7 @@ export default async function OverviewDocPage() {
   return (
     <>
       <div key="Overview" className="docContents">
-        <h1 className="mainTitle">Immutable.js ({version})</h1>
+        <h1 className="mainTitle">Immutable.js ({VERSION})</h1>
         {/* <DocOverview data={overviewData} /> */}
         <MdxContent />
 
