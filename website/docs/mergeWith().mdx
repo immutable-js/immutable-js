@@ -1,0 +1,17 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# mergeWith()
+
+Returns a copy of the collection with the remaining collections merged in, calling the `merger` function whenever an existing value is encountered.
+
+A functional alternative to `collection.mergeWith()` which will also work with plain Objects and Arrays.
+
+<Repl
+  defaultValue={`const original = { x: 123, y: 456 }
+mergeWith(
+    (oldVal, newVal) => oldVal + newVal,
+    original,
+    { y: 789, z: 'abc' }
+)`}
+/>

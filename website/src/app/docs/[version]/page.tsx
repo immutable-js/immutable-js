@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { getVersions } from '../../../static/getVersions';
+import { getVersionFromGitTag } from '../../../static/getVersions';
 import { getTypeDefs } from '../../../static/getTypeDefs';
 import { DocOverview, getOverviewData } from '../../../DocOverview';
 import { DocSearch } from '../../../DocSearch';
@@ -8,7 +8,7 @@ import { getSidebarLinks } from '../../../getSidebarLinks';
 import { getVersionFromParams } from '../../getVersionFromParams';
 
 export async function generateStaticParams() {
-  return [...getVersions().map((version) => ({ version }))];
+  return [...getVersionFromGitTag().map((version) => ({ version }))];
 }
 
 type Params = {
@@ -40,7 +40,7 @@ export default async function OverviewDocPage(props: Props) {
       <SideBar links={sidebarLinks} />
       <div key="Overview" className="docContents">
         <DocSearch />
-        <h1>Immutable.js ({version})</h1>
+        <h1 className="mainTitle">Immutable.js ({version})</h1>
         <DocOverview data={overviewData} />
       </div>
     </>

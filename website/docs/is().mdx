@@ -1,0 +1,30 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# is()
+
+Value equality check with semantics similar to `Object.is`, but treats
+Immutable `Collection`s as values, equal if the second `Collection` includes
+equivalent values.
+
+<Signature code="is(first, second): boolean" />
+
+It's used throughout Immutable when checking for equality, including `Map`
+key equality and `Set` membership.
+
+```js
+import { Map, is } from 'immutable';
+
+const map1 = Map({ a: 1, b: 1, c: 1 });
+const map2 = Map({ a: 1, b: 1, c: 1 });
+assert.equal(map1 !== map2, true);
+assert.equal(Object.is(map1, map2), false);
+assert.equal(is(map1, map2), true);
+```
+
+`is()` compares primitive types like strings and numbers, Immutable.js
+collections like `Map` and `List`, but also any custom object which
+implements `ValueObject` by providing `equals()` and `hashCode()` methods.
+
+Note: Unlike `Object.is`, `Immutable.is` assumes `0` and `-0` are the same
+value, matching the behavior of ES6 Map key equality.

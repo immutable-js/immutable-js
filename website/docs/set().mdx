@@ -1,0 +1,20 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# set()
+
+Returns a copy of the collection with the value at key set to the provided value.
+
+A functional alternative to `collection.set(key, value)` which will also work with plain Objects and Arrays as an alternative for `collectionCopy[key] = value`.
+
+<Signature code={`set(collection: C, key, value): C;`} />
+
+<Repl
+  defaultValue={`const originalArray = List([ 'dog', 'frog', 'cat' ])
+set(originalArray, 1, 'cow')`}
+/>
+
+<Repl
+  defaultValue={`const originalObject = { x: 123, y: 456 }
+set(originalObject, 'x', 789)`}
+/>

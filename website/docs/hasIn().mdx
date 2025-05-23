@@ -1,0 +1,13 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# hasIn()
+
+Returns true if the key path is defined in the provided collection.
+
+A functional alternative to `collection.hasIn(keypath)` which will also work with plain Objects and Arrays.
+
+<Signature code={`hasIn(collection, keyPath): boolean;`} />
+
+<Repl defaultValue={`hasIn({ x: { y: { z: 123 } } }, ['x', 'y', 'z']);`} />
+<Repl defaultValue={`hasIn({ x: { y: { z: 123 } } }, ['x', 'q', 'p']);`} />

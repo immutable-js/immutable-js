@@ -1,0 +1,19 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# isOrdered()
+
+True if `maybeOrdered` is a Collection where iteration order is well defined. True for Collection.Indexed as well as OrderedMap and OrderedSet.
+
+<Signature code={`isOrdered(maybeOrdered: unknown): boolean;`} />
+
+```js
+import { isOrdered, Map, OrderedMap, List, Set } from 'immutable';
+
+isOrdered([]); // false
+isOrdered({}); // false
+isOrdered(Map()); // false
+isOrdered(OrderedMap()); // true
+isOrdered(List()); // true
+isOrdered(Set()); // false
+```

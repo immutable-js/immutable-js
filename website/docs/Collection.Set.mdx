@@ -1,0 +1,765 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# Collection.Set
+
+Set Collections only represent values. They have no associated keys or indices. Duplicate values are possible in the lazy <CodeLink to="./Seq.Set" />s, however the concrete <CodeLink to="./Set" /> Collection does not allow duplicate values.
+
+<Signature code="type Collection.Set<T> extends Collection<T, T>" />
+
+Collection methods on Collection.Set such as <CodeLink to="map" /> and <CodeLink to="forEach" /> will provide the value as both the first and second arguments to the provided function.
+
+```js
+const seq = Collection.Set(['A', 'B', 'C']);
+// Seq { "A", "B", "C" }
+seq.forEach((v, k) => {
+  assert.equal(v, k);
+});
+```
+
+## Construction
+
+<MemberLabel label="Collection.Set()" />
+
+Similar to <CodeLink to="./Collection#Collection()">Collection()</CodeLink>, but always returns a `Collection.Set`.
+
+<Signature code="Collection.Set<T>(collection?: Iterable<T> | ArrayLike<T>): Collection.Set<T>" />
+
+Note: `Collection.Set` is a factory function and not a class, and does not use the `new` keyword during construction.
+
+## Sequence algorithms
+
+<MemberLabel label="map()" />
+
+Returns a new `Collection.Set` with values passed through a `mapper` function.
+
+<Signature
+  code={`map<M>(mapper: (value: T, key: T, iter: this) => M, context?: unknown): Collection.Set<M>`}
+/>
+
+<Repl defaultValue={`Collection.Set([ 1, 2 ]).map(x => 10 * x)`} />
+
+Note: `map()` always returns a new instance, even if it produced the same value at every step.
+
+<MemberLabel label="flatMap()" />
+
+Flat-maps the Collection, returning a Collection of the same type.
+
+Similar to `collection.map(...).flatten(true)`.
+
+<Signature
+  code={`flatMap<M>(mapper: (value: T, key: T, iter: this) => Iterable<M>, context?: unknown): Collection.Set<M>`}
+/>
+
+<MemberLabel label="filter()" />
+
+Returns a new Collection with only the values for which the `predicate` function returns true.
+
+Note: `filter()` always returns a new instance, even if it results in not filtering out any values.
+
+<Signature
+  code={`filter(predicate: (value: T, key: T, iter: this) => boolean, context?: unknown): Collection.Set<T>`}
+/>
+
+<MemberLabel label="filterNot()" />
+
+Returns a new Collection with only the values for which the `predicate` function returns false.
+
+<Signature
+  code={`filterNot(predicate: (value: T, key: T, iter: this) => boolean, context?: unknown): Collection.Set<T>`}
+/>
+
+Note: `filterNot()` always returns a new instance, even if it results in not filtering out any values.
+
+<MemberLabel label="partition()" />
+
+Returns a new Collection with the values for which the `predicate` function returns false and another for which is returns true.
+
+<Signature
+  code={`partition(predicate: (this: C, value: T, key: T, iter: this) => boolean, context?: C): [Collection.Set<T>, Collection.Set<T>]`}
+/>
+
+<MemberLabel label="sort()" />
+
+Returns a Collection of the same type which includes the same entries, stably sorted by using a `comparator`.
+
+<Signature code={`sort(comparator?: Comparator<T>): this`} />
+
+If a `comparator` is not provided, a default comparator uses `<` and `>`.
+
+`comparator(valueA, valueB)`:
+
+- Returns `0` if the elements should not be swapped.
+- Returns `-1` (or any negative number) if `valueA` comes before `valueB`
+- Returns `1` (or any positive number) if `valueA` comes after `valueB`
+- Alternatively, can return a value of the `PairSorting` enum type
+- Is pure, i.e. it must always return the same value for the same pair of values.
+
+When sorting collections which have no defined order, their ordered equivalents will be returned. e.g. `map.sort()` returns OrderedMap.
+
+<Repl
+  defaultValue={`Map({ "c": 3, "a": 1, "b": 2 }).sort((a, b) => {
+    if (a < b) { return -1; }
+    if (a > b) { return 1; }
+    if (a === b) { return 0; }
+  });`}
+/>
+
+Note: `sort()` Always returns a new instance, even if the original was already sorted.
+
+Note: This is always an eager operation.
+
+<MemberLabel label="sortBy()" />
+
+Like `sort`, but also accepts a `comparatorValueMapper` which allows for sorting by more sophisticated means:
+
+<Signature
+  code={`sortBy<C>(comparatorValueMapper: (value: T, key: T, iter: this) => C, comparator?: Comparator<C>): this`}
+/>
+
+<Repl
+  defaultValue={`Collection.Set([
+    { name: 'Bob', age: 30 },
+    { name: 'Max', age: 25 },
+    { name: 'Lili', age: 35 }
+  ]).sortBy(person => person.age)`}
+/>
+
+Note: `sortBy()` Always returns a new instance, even if the original was already sorted.
+
+Note: This is always an eager operation.
+
+<MemberLabel label="reverse()" />
+
+Returns a new Set with the order of the values reversed.
+
+<Signature code={`reverse(): Set<T>`} />
+
+<MemberLabel label="groupBy()" />
+
+Returns a `Map` of `Set`, grouped by the return value of the `grouper` function.
+
+<Signature
+  code={`groupBy<G>(grouper: (value: T, key: T, iter: this) => G, context?: unknown): Map<G, Set<T>>`}
+/>
+
+Note: This is not a lazy operation.
+
+## Conversion to JavaScript types
+
+<MemberLabel label="toJS()" />
+
+Deeply converts this Set to equivalent native JavaScript Array.
+
+<Signature code={`toJS(): Array<DeepCopy<T>>`} />
+
+<MemberLabel label="toJSON()" />
+
+Shallowly converts this Set to equivalent native JavaScript Array.
+
+<Signature code={`toJSON(): Array<T>`} />
+
+<MemberLabel label="toArray()" />
+
+Shallowly converts this collection to an Array.
+
+<Signature code={`toArray(): Array<T>`} />
+
+<MemberLabel label="toObject()" />
+
+Shallowly converts this Collection to an Object.
+
+<Signature code={`toObject(): { [key: string]: T }`} />
+
+Converts keys to Strings.
+
+## Conversion to Seq
+
+<MemberLabel label="toSeq()" />
+
+Returns itself.
+
+<Signature code={`toSeq(): Seq.Set<T>`} />
+
+<MemberLabel label="toKeyedSeq()" />
+
+Returns a Seq.Keyed from this Collection where indices are treated as keys.
+
+This is useful if you want to operate on a Collection and preserve the [value, value] pairs.
+
+<Signature code={`toKeyedSeq(): Seq.Keyed<T, T>`} />
+
+<MemberLabel label="toIndexedSeq()" />
+
+Returns an Seq.Indexed of the values of this Collection, discarding keys.
+
+<Signature code={`toIndexedSeq(): Seq.Indexed<T>`} />
+
+<MemberLabel label="toSetSeq()" />
+
+Returns a Seq.Set of the values of this Collection, discarding keys.
+
+<Signature code={`toSetSeq(): Seq.Set<T>`} />
+
+## Value equality
+
+<MemberLabel label="equals()" />
+
+True if this and the other Collection have value equality, as defined by `Immutable.is()`.
+
+<Signature code={`equals(other): boolean`} />
+
+Note: This is equivalent to `Immutable.is(this, other)`, but provided to allow for chained expressions.
+
+<MemberLabel label="hashCode()" />
+
+Computes and returns the hashed identity for this Collection.
+
+The `hashCode` of a Collection is used to determine potential equality, and is used when adding this to a `Set` or as a key in a `Map`, enabling lookup via a different instance.
+
+<Signature code={`hashCode(): number`} />
+
+<Repl
+  defaultValue={`const a = Set([ 1, 2, 3 ]);
+const b = Set([ 1, 2, 3 ]);
+assert.notStrictEqual(a, b); // different instances
+const set = Set([ a ]);
+assert.equal(set.has(b), true);`}
+/>
+
+If two values have the same `hashCode`, they are [not guaranteed to be equal][Hash Collision]. If two values have different `hashCode`s, they must not be equal.
+
+[Hash Collision]: https://en.wikipedia.org/wiki/Collision_(computer_science)
+
+## Reading values
+
+<MemberLabel label="get()" />
+
+Returns the value associated with the provided key, or notSetValue if the Collection does not contain this key.
+
+Note: it is possible a key may be associated with an `undefined` value, so if `notSetValue` is not provided and this method returns `undefined`, that does not guarantee the key was not found.
+
+<Signature
+  code={`get<NSV>(key: T, notSetValue: NSV): T | NSV
+get(key: T): T | undefined`}
+/>
+
+<MemberLabel label="has()" />
+
+True if a key exists within this Collection, using `Immutable.is` to determine equality.
+
+<Signature code={`has(key: T): boolean`} />
+
+<MemberLabel label="includes()" alias="contains()" />
+
+True if a value exists within this `Collection`, using `Immutable.is` to determine equality.
+
+<Signature code={`includes(value: T): boolean`} />
+
+<MemberLabel label="first()" />
+
+Returns the first value in this Collection.
+
+<Signature
+  code={`first<NSV>(notSetValue: NSV): T | NSV
+first(): T | undefined`}
+/>
+
+<MemberLabel label="last()" />
+
+Returns the last value in this Collection.
+
+<Signature
+  code={`last<NSV>(notSetValue: NSV): T | NSV
+last(): T | undefined`}
+/>
+
+## Reading deep values
+
+<MemberLabel label="getIn()" />
+
+Returns the value found by following a path of keys or indices through nested Collections.
+
+<Signature
+  code={`getIn(searchKeyPath: Iterable<unknown>, notSetValue?: unknown): unknown`}
+/>
+
+<Repl
+  defaultValue={`const deepSet = Set([Set([1, 2, 3])]);
+deepSet.getIn([0, 1])`}
+/>
+
+Plain JavaScript Object or Arrays may be nested within an Immutable.js Collection, and getIn() can access those values as well:
+
+<Repl
+  defaultValue={`const deepSet = Set([{ a: 1, b: 2 }]);
+deepSet.getIn([0, 'b'])`}
+/>
+
+<MemberLabel label="hasIn()" />
+
+True if the result of following a path of keys or indices through nested Collections results in a set value.
+
+<Signature code={`hasIn(searchKeyPath: Iterable<unknown>): boolean`} />
+
+## Persistent changes
+
+<MemberLabel label="update()" />
+
+This can be very useful as a way to "chain" a normal function into a sequence of methods. RxJS calls this "let" and lodash calls it "thru".
+
+<Signature code="update<R>(updater: (value: this) => R): R" />
+
+For example, to sum a Seq after mapping and filtering:
+
+<Repl
+  defaultValue={`function sum(collection) {
+    return collection.reduce((sum, x) => sum + x, 0)
+  }
+  
+  Collection.Set([ 1, 2, 3 ])
+  .map(x => x + 1)
+  .filter(x => x % 2 === 0)
+  .update(sum)`}
+/>
+
+## Conversion to Collections
+
+<MemberLabel label="toMap()" />
+
+Converts this Collection to a Map, Throws if keys are not hashable.
+
+<Signature code={`toMap(): Map<T, T>`} />
+
+Note: This is equivalent to `Map(this.toKeyedSeq())`, but provided for convenience and to allow for chained expressions.
+
+<MemberLabel label="toOrderedMap()" />
+
+Converts this Collection to a Map, maintaining the order of iteration.
+
+<Signature code={`toOrderedMap(): OrderedMap<T, T>`} />
+
+Note: This is equivalent to `OrderedMap(this.toKeyedSeq())`, but provided for convenience and to allow for chained expressions.
+
+<MemberLabel label="toSet()" />
+
+Returns itself.
+
+<Signature code={`toSet(): Set<T>`} />
+
+<MemberLabel label="toOrderedSet()" />
+
+Converts this Collection to a Set, maintaining the order of iteration.
+
+<Signature code={`toOrderedSet(): OrderedSet<T>`} />
+
+Note: This is equivalent to `OrderedSet(this)`, but provided for convenience and to allow for chained expressions.
+
+<MemberLabel label="toList()" />
+
+Converts this Collection to a List.
+
+<Signature code={`toList(): List<T>`} />
+
+<MemberLabel label="toStack()" />
+
+Converts this Collection to a Stack, discarding keys. Throws if values are not hashable.
+
+<Signature code={`toStack(): Stack<T>`} />
+
+Note: This is equivalent to `Stack(this)`, but provided to allow for chained expressions.
+
+## Iterators
+
+<MemberLabel label="keys()" />
+
+An iterator of this `Set`'s keys.
+
+<Signature code={`keys(): IterableIterator<T>`} />
+
+Note: this will return an ES6 iterator which does not support Immutable.js sequence algorithms. Use `keySeq` instead, if this is what you want.
+
+<MemberLabel label="values()" />
+
+An iterator of this `Set`'s values.
+
+<Signature code={`values(): IterableIterator<T>`} />
+
+Note: this will return an ES6 iterator which does not support Immutable.js sequence algorithms. Use `valueSeq` instead, if this is what you want.
+
+<MemberLabel label="entries()" />
+
+An iterator of this `Set`'s entries as `[value, value]` tuples.
+
+<Signature code={`entries(): IterableIterator<[T, T]>`} />
+
+Note: this will return an ES6 iterator which does not support Immutable.js sequence algorithms. Use `entrySeq` instead, if this is what you want.
+
+## Collections (Seq)
+
+<MemberLabel label="keySeq()" />
+
+Returns a new Seq.Indexed of the keys of this Collection, discarding values.
+
+<Signature code={`keySeq(): Seq.Indexed<T>`} />
+
+<MemberLabel label="valueSeq()" />
+
+Returns an Seq.Indexed of the values of this Collection, discarding keys.
+
+<Signature code={`valueSeq(): Seq.Indexed<T>`} />
+
+<MemberLabel label="entrySeq()" />
+
+Returns a new Seq.Indexed of [value, value] tuples.
+
+<Signature code={`entrySeq(): Seq.Indexed<[T, T]>`} />
+
+## Side effects
+
+<MemberLabel label="forEach()" />
+
+The `sideEffect` is executed for every entry in the Collection.
+
+<Signature
+  code={`forEach(sideEffect: (value: T, key: T, iter: this) => unknown, context?: unknown): number`}
+/>
+
+Unlike `Array#forEach`, if any call of `sideEffect` returns `false`, the iteration will stop. Returns the number of entries iterated (including the last iteration which returned false).
+
+## Creating subsets
+
+<MemberLabel label="slice()" />
+
+Returns a new Set of the same type representing a portion of this Set from start up to but not including end.
+
+<Signature code={`slice(begin?: number, end?: number): Set<T>`} />
+
+If begin is negative, it is offset from the end of the Collection. e.g. `slice(-2)` returns a Collection of the last two entries. If it is not provided the new Collection will begin at the beginning of this Collection.
+
+If end is negative, it is offset from the end of the Collection. e.g. `slice(0, -1)` returns a Collection of everything but the last entry. If it is not provided, the new Collection will continue through the end of this Collection.
+
+If the requested slice is equivalent to the current Collection, then it will return itself.
+
+<MemberLabel label="rest()" />
+
+Returns a new Collection of the same type containing all entries except the first.
+
+<Signature code={`rest(): Set<T>`} />
+
+<MemberLabel label="butLast()" />
+
+Returns a new Collection of the same type containing all entries except the last.
+
+<Signature code={`butLast(): Set<T>`} />
+
+<MemberLabel label="skip()" />
+
+Returns a new Collection of the same type which excludes the first `amount` entries from this Collection.
+
+<Signature code={`skip(amount: number): Set<T>`} />
+
+<MemberLabel label="skipLast()" />
+
+Returns a new Collection of the same type which excludes the last `amount` entries from this Collection.
+
+<Signature code={`skipLast(amount: number): Set<T>`} />
+
+<MemberLabel label="skipWhile()" />
+
+Returns a new Collection of the same type which includes entries starting from when `predicate` first returns false.
+
+<Signature
+  code={`skipWhile(predicate: (value: T, key: T, iter: this) => boolean, context?: unknown): Set<T>`}
+/>
+
+<Repl
+  defaultValue={`Set([ 'dog', 'frog', 'cat', 'hat', 'god' ])
+  .skipWhile(x => x.match(/g/))`}
+/>
+
+<MemberLabel label="skipUntil()" />
+
+Returns a new Collection of the same type which includes entries starting from when `predicate` first returns true.
+
+<Signature
+  code={`skipUntil(predicate: (value: T, key: T, iter: this) => boolean, context?: unknown): Set<T>`}
+/>
+
+<Repl
+  defaultValue={`Set([ 'dog', 'frog', 'cat', 'hat', 'god' ])
+  .skipUntil(x => x.match(/hat/))`}
+/>
+
+<MemberLabel label="take()" />
+
+Returns a new Collection of the same type which includes the first `amount` entries from this Collection.
+
+<Signature code={`take(amount: number): Set<T>`} />
+
+<MemberLabel label="takeLast()" />
+
+Returns a new Collection of the same type which includes the last `amount` entries from this Collection.
+
+<Signature code={`takeLast(amount: number): Set<T>`} />
+
+<MemberLabel label="takeWhile()" />
+
+Returns a new Collection of the same type which includes entries from this Collection as long as the `predicate` returns true.
+
+<Signature
+  code={`takeWhile(predicate: (value: T, key: T, iter: this) => boolean, context?: unknown): Set<T>`}
+/>
+
+<Repl
+  defaultValue={`Set([ 'dog', 'frog', 'cat', 'hat', 'god' ])
+  .takeWhile(x => x.match(/o/))`}
+/>
+
+<MemberLabel label="takeUntil()" />
+
+Returns a new Collection of the same type which includes entries from this Collection as long as the `predicate` returns false.
+
+<Signature
+  code={`takeUntil(predicate: (value: T, key: T, iter: this) => boolean, context?: unknown): Set<T>`}
+/>
+
+<Repl
+  defaultValue={`Set([ 'dog', 'frog', 'cat', 'hat', 'god' ])
+  .takeUntil(x => x.match(/at/))`}
+/>
+
+## Combination
+
+<MemberLabel label="concat()" />
+
+Returns a new Set with other collections concatenated to this one.
+
+<Signature
+  code={`concat<C>(...valuesOrCollections: Array<Iterable<C> | C>): Set<T | C>`}
+/>
+
+<MemberLabel label="flatten()" />
+
+Flattens nested Collections.
+
+Will deeply flatten the Collection by default, returning a Collection of the same type, but a `depth` can be provided in the form of a number or boolean (where true means to shallowly flatten one level). A depth of 0 (or shallow: false) will deeply flatten.
+
+Flattens only others Collection, not Arrays or Objects.
+
+<Signature
+  code={`flatten(depth?: number): this
+flatten(shallow?: boolean): this`}
+/>
+
+<MemberLabel label="flatMap()" />
+
+Flat-maps the Set, returning a new Set.
+
+Similar to `set.map(...).flatten(true)`.
+
+<Signature
+  code={`flatMap<M>(mapper: (value: T, key: T, iter: this) => Iterable<M>, context?: unknown): Set<M>`}
+/>
+
+## Reducing a value
+
+<MemberLabel label="reduce()" />
+
+Reduces the Iterable to a value by calling the `reducer` for every entry in the Iterable and passing along the reduced value.
+
+<Signature
+  code={`reduce<R>(reducer: (reduced: R, value: T, key: T, iter: this) => R, initialValue: R): R`}
+/>
+
+If initialValue is not provided, the first entry in the Iterable will be used as the initial value.
+
+<MemberLabel label="reduceRight()" />
+
+Reduces the Iterable to a value by calling the `reducer` for every entry in the Iterable and passing along the reduced value.
+
+<Signature
+  code={`reduceRight<R>(reducer: (reduced: R, value: T, key: T, iter: this) => R, initialValue: R): R`}
+/>
+
+Note: Similar to this.reverse().reduce(), and provided for parity with `Array#reduceRight`.
+
+<MemberLabel label="every()" />
+
+Returns true if the `predicate` returns true for every entry in the Iterable.
+
+<Signature
+  code={`every(predicate: (value: T, key: T, iter: this) => boolean, context?: unknown): boolean`}
+/>
+
+<MemberLabel label="some()" />
+
+Returns true if the `predicate` returns true for any entry in the Iterable.
+
+<Signature
+  code={`some(predicate: (value: T, key: T, iter: this) => boolean, context?: unknown): boolean`}
+/>
+
+<MemberLabel label="join()" />
+
+Returns a string of all the entries in the Iterable, separated by `separator`.
+
+<Signature code={`join(separator?: string): string`} />
+
+<MemberLabel label="isEmpty()" />
+
+Returns true if the Iterable is empty.
+
+<Signature code={`isEmpty(): boolean`} />
+
+<MemberLabel label="count()" />
+
+Returns the number of entries in the Iterable.
+
+<Signature code={`count(): number`} />
+
+<MemberLabel label="countBy()" />
+
+Returns a Map of the number of occurrences of each value in the Iterable.
+
+<Signature
+  code={`countBy<G>(grouper: (value: T, key: T, iter: this) => G, context?: unknown): Map<G, number>`}
+/>
+
+## Search for value
+
+<MemberLabel label="find()" />
+
+Returns the first value for which the `predicate` returns true.
+
+<Signature
+  code={`find(predicate: (value: T, key: T, iter: this) => boolean, context?: unknown, notSetValue?: T): T | undefined`}
+/>
+
+<MemberLabel label="findLast()" />
+
+Returns the last value for which the `predicate` returns true.
+
+<Signature
+  code={`findLast(predicate: (value: T, key: T, iter: this) => boolean, context?: unknown, notSetValue?: T): T | undefined`}
+/>
+
+Note: `predicate` will be called for each entry in reverse.
+
+<MemberLabel label="findEntry()" />
+
+Returns the first [value, value] entry for which the `predicate` returns true.
+
+<Signature
+  code={`findEntry(predicate: (value: T, key: T, iter: this) => boolean, context?: unknown, notSetValue?: T): [T, T] | undefined`}
+/>
+
+<MemberLabel label="findLastEntry()" />
+
+Returns the last [value, value] entry for which the `predicate` returns true.
+
+<Signature
+  code={`findLastEntry(predicate: (value: T, key: T, iter: this) => boolean, context?: unknown, notSetValue?: T): [T, T] | undefined`}
+/>
+
+Note: `predicate` will be called for each entry in reverse.
+
+<MemberLabel label="findKey()" />
+
+Returns the first key for which the `predicate` returns true.
+
+<Signature
+  code={`findKey(predicate: (value: T, key: T, iter: this) => boolean, context?: unknown): T | undefined`}
+/>
+
+<MemberLabel label="findLastKey()" />
+
+Returns the last key for which the `predicate` returns true.
+
+<Signature
+  code={`findLastKey(predicate: (value: T, key: T, iter: this) => boolean, context?: unknown): T | undefined`}
+/>
+
+Note: `predicate` will be called for each entry in reverse.
+
+<MemberLabel label="keyOf()" />
+
+Returns the key associated with the search value, or undefined.
+
+<Signature code={`keyOf(searchValue: T): T | undefined`} />
+
+<MemberLabel label="lastKeyOf()" />
+
+Returns the last key associated with the search value, or undefined.
+
+<Signature code={`lastKeyOf(searchValue: T): T | undefined`} />
+
+<MemberLabel label="max()" />
+
+Returns the maximum value in this collection. If any values are comparatively equivalent, the first one found will be returned.
+
+<Signature code={`max(comparator?: Comparator<T>): T | undefined`} />
+
+The comparator is used in the same way as `Collection#sort`. If it is not provided, the default comparator is `>`.
+
+When two values are considered equivalent, the first encountered will be returned. Otherwise, `max` will operate independent of the order of input as long as the comparator is commutative. The default comparator `>` is commutative only when types do not differ.
+
+If `comparator` returns 0 and either value is NaN, undefined, or null, that value will be returned.
+
+<MemberLabel label="maxBy()" />
+
+Like `max`, but also accepts a `comparatorValueMapper` which allows for comparing by more sophisticated means:
+
+<Signature
+  code={`maxBy<C>(comparatorValueMapper: (value: T, key: T, iter: this) => C, comparator?: Comparator<C>): T | undefined`}
+/>
+
+<Repl
+  defaultValue={`Set([
+    { name: 'Bob', age: 30 },
+    { name: 'Max', age: 25 },
+    { name: 'Lili', age: 35 }
+  ]).maxBy(person => person.age)`}
+/>
+
+<MemberLabel label="min()" />
+
+Returns the minimum value in this collection. If any values are comparatively equivalent, the first one found will be returned.
+
+<Signature code={`min(comparator?: Comparator<T>): T | undefined`} />
+
+The comparator is used in the same way as `Collection#sort`. If it is not provided, the default comparator is `<`.
+
+When two values are considered equivalent, the first encountered will be returned. Otherwise, `min` will operate independent of the order of input as long as the comparator is commutative. The default comparator `<` is commutative only when types do not differ.
+
+If `comparator` returns 0 and either value is NaN, undefined, or null, that value will be returned.
+
+<MemberLabel label="minBy()" />
+
+Like `min`, but also accepts a `comparatorValueMapper` which allows for comparing by more sophisticated means:
+
+<Signature
+  code={`minBy<C>(comparatorValueMapper: (value: T, key: T, iter: this) => C, comparator?: Comparator<C>): T | undefined`}
+/>
+
+<Repl
+  defaultValue={`Set([
+    { name: 'Bob', age: 30 },
+    { name: 'Max', age: 25 },
+    { name: 'Lili', age: 35 }
+  ]).minBy(person => person.age)`}
+/>
+
+## Comparison
+
+<MemberLabel label="isSubset()" />
+
+True if `iter` includes every value in this Collection.
+
+<Signature code={`isSubset(iter: Iterable<T>): boolean`} />
+
+<MemberLabel label="isSuperset()" />
+
+True if this Collection includes every value in `iter`.
+
+<Signature code={`isSuperset(iter: Iterable<T>): boolean`} />

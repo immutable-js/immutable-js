@@ -1,0 +1,19 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# isAssociative()
+
+True if `maybeAssociative` is either a Keyed or Indexed Collection.
+
+<Signature code={`isAssociative(maybeAssociative: unknown): boolean;`} />
+
+```js
+import { isAssociative, Map, List, Stack, Set } from 'immutable';
+
+isAssociative([]); // false
+isAssociative({}); // false
+isAssociative(Map()); // true
+isAssociative(List()); // true
+isAssociative(Stack()); // true
+isAssociative(Set()); // false
+```

@@ -1,0 +1,19 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# isIndexed()
+
+True if `maybeIndexed` is a Collection.Indexed, or any of its subclasses.
+
+<Signature code={`isIndexed(maybeIndexed: unknown): boolean;`} />
+
+```js
+import { isIndexed, Map, List, Stack, Set } from 'immutable';
+
+isIndexed([]); // false
+isIndexed({}); // false
+isIndexed(Map()); // false
+isIndexed(List()); // true
+isIndexed(Stack()); // true
+isIndexed(Set()); // false
+```

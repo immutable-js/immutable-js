@@ -1,0 +1,15 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# has()
+
+Returns true if the key is defined in the provided collection.
+
+<Signature code={`has(collection, key): boolean;`} />
+
+A functional alternative to `collection.has(key)` which will also work with plain Objects and Arrays as an alternative for `collection.hasOwnProperty(key)`.
+
+<Repl defaultValue={`has(['dog', 'frog', 'cat'], 2);`} />
+<Repl defaultValue={`has(['dog', 'frog', 'cat'], 5);`} />
+<Repl defaultValue={`has({ x: 123, y: 456 }, 'x');`} />
+<Repl defaultValue={`has({ x: 123, y: 456 }, 'z');`} />

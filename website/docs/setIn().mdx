@@ -1,0 +1,15 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# setIn()
+
+Returns a copy of the collection with the value at the key path set to the provided value.
+
+A functional alternative to `collection.setIn(keypath)` which will also work with plain Objects and Arrays.
+
+<Signature code={`setIn(collection: C, keyPath: Iterable, value: any): C;`} />
+
+<Repl
+  defaultValue={`const original = { x: { y: { z: 123 }}}
+setIn(original, ['x', 'y', 'z'], 456)`}
+/>

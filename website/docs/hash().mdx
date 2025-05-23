@@ -1,0 +1,27 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# hash()
+
+The `hash()` function is an important part of how Immutable determines if
+two values are equivalent and is used to determine how to store those
+values. Provided with any value, `hash()` will return a 31-bit integer.
+
+<Signature code={`hash(value: unknown): number;`} />
+
+When designing Objects which may be equal, it's important that when a
+`.equals()` method returns true, that both values `.hashCode()` method
+return the same value. `hash()` may be used to produce those values.
+
+For non-Immutable Objects that do not provide a `.hashCode()` functions
+(including plain Objects, plain Arrays, Date objects, etc), a unique hash
+value will be created for each _instance_. That is, the create hash
+represents referential equality, and not value equality for Objects. This
+ensures that if that Object is mutated over time that its hash code will
+remain consistent, allowing Objects to be used as keys and values in
+Immutable.js collections.
+
+Note that `hash()` attempts to balance between speed and avoiding
+collisions, however it makes no attempt to produce secure hashes.
+
+_New in Version 4.0_

@@ -1,0 +1,28 @@
+import Repl from '@/repl/Repl.tsx';
+
+# mergeDeepWith()
+
+Like[`mergeDeep()`](<../mergeDeep()>), but when two non-collections or incompatible
+collections are encountered at the same key, it uses the `merger` function
+to determine the resulting value. Collections are considered incompatible
+if they fall into separate categories between keyed, indexed, and set-like.
+
+<Signature
+  code={`mergeDeepWith(
+    merger: (oldVal, newVal, key) => any,
+    collection,
+    ...collections
+  )`}
+/>
+
+A functional alternative to `collection.mergeDeepWith()` which will also
+work with plain Objects and Arrays.
+
+<Repl
+  defaultValue={`const original = { x: { y: 123 }}
+mergeDeepWith(
+  (oldVal, newVal) => oldVal + newVal,
+  original,
+  { x: { y: 456 }}
+)`}
+/>

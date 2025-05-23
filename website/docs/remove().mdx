@@ -1,0 +1,20 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# remove()
+
+Returns a copy of the collection with the value at key removed.
+
+<Signature code={`remove(collection: C, key): C;`} />
+
+A functional alternative to `collection.remove(key)` which will also work with plain Objects and Arrays as an alternative for `delete collectionCopy[key]`.
+
+<Repl
+  defaultValue={`const originalList = List([ 'dog', 'frog', 'cat' ])
+remove(originalList, 1)`}
+/>
+
+<Repl
+  defaultValue={`const originalObject = { x: 123, y: 456 }
+remove(originalObject, 'x') `}
+/>

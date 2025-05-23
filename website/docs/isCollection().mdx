@@ -1,0 +1,18 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# isCollection()
+
+True if `maybeCollection` is a Collection, or any of its subclasses.
+
+<Signature code={`isCollection(maybeCollection: unknown): boolean;`} />
+
+```js
+import { isCollection, Map, List, Stack } from 'immutable';
+
+isCollection([]); // false
+isCollection({}); // false
+isCollection(Map()); // true
+isCollection(List()); // true
+isCollection(Stack()); // true
+```

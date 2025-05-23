@@ -1,0 +1,17 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# isKeyed()
+
+True if `maybeKeyed` is a Collection.Keyed, or any of its subclasses.
+
+<Signature code={`isKeyed(maybeKeyed: unknown): boolean;`} />
+
+```js
+const { isKeyed, Map, List, Stack } = require('immutable');
+isKeyed([]); // false
+isKeyed({}); // false
+isKeyed(Map()); // true
+isKeyed(List()); // false
+isKeyed(Stack()); // false
+```

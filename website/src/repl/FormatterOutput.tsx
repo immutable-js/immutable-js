@@ -9,13 +9,13 @@ import { Element, JsonMLElementList } from '../worker/jsonml-types';
  * The `jsonml-html` package can convert jsonml to HTML.
  */
 type Props = {
-  output: JsonMLElementList | Element;
+  output: undefined | JsonMLElementList | Element;
 };
 
 export default function FormatterOutput({ output }: Props): JSX.Element {
   const header = useRef<HTMLDivElement>(null);
 
-  const htmlHeader = toHTML(output);
+  const htmlHeader = output ? toHTML(output) : undefined;
 
   useEffect(() => {
     if (header.current && htmlHeader) {
