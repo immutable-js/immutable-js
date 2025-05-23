@@ -2209,16 +2209,6 @@
      * A functional alternative to `collection.has(key)` which will also work with
      * plain Objects and Arrays as an alternative for
      * `collection.hasOwnProperty(key)`.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * import { has } from 'immutable';
-     *
-     * has([ 'dog', 'frog', 'cat' ], 2) // true
-     * has([ 'dog', 'frog', 'cat' ], 5) // false
-     * has({ x: 123, y: 456 }, 'x') // true
-     * has({ x: 123, y: 456 }, 'z') // false
-     * ```
      */
     function has(collection, key) {
         return isImmutable(collection)
@@ -2350,15 +2340,6 @@
      *
      * A functional alternative to `collection.setIn(keypath)` which will also
      * work with plain Objects and Arrays.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * import { setIn } from 'immutable';
-     *
-     * const original = { x: { y: { z: 123 }}}
-     * setIn(original, ['x', 'y', 'z'], 456) // { x: { y: { z: 456 }}}
-     * console.log(original) // { x: { y: { z: 123 }}}
-     * ```
      */
     function setIn$1(collection, keyPath, value) {
         return updateIn$1(collection, keyPath, NOT_SET, function () { return value; });
@@ -2373,15 +2354,6 @@
      *
      * A functional alternative to `collection.removeIn(keypath)` which will also
      * work with plain Objects and Arrays.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * import { removeIn } from 'immutable';
-     *
-     * const original = { x: { y: { z: 123 }}}
-     * removeIn(original, ['x', 'y', 'z']) // { x: { y: {}}}
-     * console.log(original) // { x: { y: { z: 123 }}}
-     * ```
      */
     function removeIn(collection, keyPath) {
         return updateIn$1(collection, keyPath, function () { return NOT_SET; });
@@ -4990,14 +4962,6 @@
      *
      * A functional alternative to `collection.getIn(keypath)` which will also
      * work with plain Objects and Arrays.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * import { getIn } from 'immutable';
-     *
-     * getIn({ x: { y: { z: 123 }}}, ['x', 'y', 'z']) // 123
-     * getIn({ x: { y: { z: 123 }}}, ['x', 'q', 'p'], 'ifNotSet') // 'ifNotSet'
-     * ```
      */
     function getIn$1(collection, searchKeyPath, notSetValue) {
         var keyPath = coerceKeyPath(searchKeyPath);
@@ -5021,14 +4985,6 @@
      *
      * A functional alternative to `collection.hasIn(keypath)` which will also
      * work with plain Objects and Arrays.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * import { hasIn } from 'immutable';
-     *
-     * hasIn({ x: { y: { z: 123 }}}, ['x', 'y', 'z']) // true
-     * hasIn({ x: { y: { z: 123 }}}, ['x', 'q', 'p']) // false
-     * ```
      */
     function hasIn$1(collection, keyPath) {
         return getIn$1(collection, keyPath, NOT_SET) !== NOT_SET;
