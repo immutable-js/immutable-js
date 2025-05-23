@@ -195,34 +195,13 @@ declare namespace Immutable {
   namespace List {
     /**
      * True if the provided value is a List
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { List } = require('immutable');
-     * List.isList([]); // false
-     * List.isList(List()); // true
-     * ```
      */
     function isList(maybeList: unknown): maybeList is List<unknown>;
 
     /**
      * Creates a new List containing `values`.
      *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { List } = require('immutable');
-     * List.of(1, 2, 3, 4)
-     * // List [ 1, 2, 3, 4 ]
-     * ```
-     *
      * Note: Values are not altered or converted in any way.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { List } = require('immutable');
-     * List.of({x:1}, 2, [3], 4)
-     * // List [ { x: 1 }, 2, [ 3 ], 4 ]
-     * ```
      */
     function of<T>(...values: Array<T>): List<T>;
   }
@@ -233,30 +212,6 @@ declare namespace Immutable {
    *
    * Note: `List` is a factory function and not a class, and does not use the
    * `new` keyword during construction.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { List, Set } = require('immutable')
-   *
-   * const emptyList = List()
-   * // List []
-   *
-   * const plainArray = [ 1, 2, 3, 4 ]
-   * const listFromPlainArray = List(plainArray)
-   * // List [ 1, 2, 3, 4 ]
-   *
-   * const plainSet = Set([ 1, 2, 3, 4 ])
-   * const listFromPlainSet = List(plainSet)
-   * // List [ 1, 2, 3, 4 ]
-   *
-   * const arrayIterator = plainArray[Symbol.iterator]()
-   * const listFromCollectionArray = List(arrayIterator)
-   * // List [ 1, 2, 3, 4 ]
-   *
-   * listFromPlainArray.equals(listFromCollectionArray) // true
-   * listFromPlainSet.equals(listFromCollectionArray) // true
-   * listFromPlainSet.equals(listFromPlainArray) // true
-   * ```
    */
   function List<T>(collection?: Iterable<T> | ArrayLike<T>): List<T>;
 
@@ -278,23 +233,6 @@ declare namespace Immutable {
      * If `index` larger than `size`, the returned List's `size` will be large
      * enough to include the `index`.
      *
-     * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable');" }
-     * -->
-     * ```js
-     * const originalList = List([ 0 ]);
-     * // List [ 0 ]
-     * originalList.set(1, 1);
-     * // List [ 0, 1 ]
-     * originalList.set(0, 'overwritten');
-     * // List [ "overwritten" ]
-     * originalList.set(2, 2);
-     * // List [ 0, undefined, 2 ]
-     *
-     * List().set(50000, 'value').size;
-     * // 50001
-     * ```
-     *
      * Note: `set` can be used in `withMutations`.
      */
     set(index: number, value: T): List<T>;
@@ -310,14 +248,6 @@ declare namespace Immutable {
      * List. `v.delete(-1)` deletes the last item in the List.
      *
      * Note: `delete` cannot be safely used in IE8
-     *
-     * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable');" }
-     * -->
-     * ```js
-     * List([ 0, 1, 2, 3, 4 ]).delete(0);
-     * // List [ 1, 2, 3, 4 ]
-     * ```
      *
      * Since `delete()` re-indexes values, it produces a complete copy, which
      * has `O(N)` complexity.
@@ -335,14 +265,6 @@ declare namespace Immutable {
      *
      * This is synonymous with `list.splice(index, 0, value)`.
      *
-     * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable');" }
-     * -->
-     * ```js
-     * List([ 0, 1, 2, 3, 4 ]).insert(6, 5)
-     * // List [ 0, 1, 2, 3, 4, 5 ]
-     * ```
-     *
      * Since `insert()` re-indexes values, it produces a complete copy, which
      * has `O(N)` complexity.
      *
@@ -353,14 +275,6 @@ declare namespace Immutable {
     /**
      * Returns a new List with 0 size and no values in constant time.
      *
-     * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable');" }
-     * -->
-     * ```js
-     * List([ 1, 2, 3, 4 ]).clear()
-     * // List []
-     * ```
-     *
      * Note: `clear` can be used in `withMutations`.
      */
     clear(): List<T>;
@@ -368,14 +282,6 @@ declare namespace Immutable {
     /**
      * Returns a new List with the provided `values` appended, starting at this
      * List's `size`.
-     *
-     * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable');" }
-     * -->
-     * ```js
-     * List([ 1, 2, 3, 4 ]).push(5)
-     * // List [ 1, 2, 3, 4, 5 ]
-     * ```
      *
      * Note: `push` can be used in `withMutations`.
      */
@@ -402,14 +308,6 @@ declare namespace Immutable {
      * Returns a new List with the provided `values` prepended, shifting other
      * values ahead to higher indices.
      *
-     * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable');" }
-     * -->
-     * ```js
-     * List([ 2, 3, 4]).unshift(1);
-     * // List [ 1, 2, 3, 4 ]
-     * ```
-     *
      * Note: `unshift` can be used in `withMutations`.
      */
     unshift(...values: Array<T>): List<T>;
@@ -421,14 +319,6 @@ declare namespace Immutable {
      * Note: this differs from `Array#shift` because it returns a new
      * List rather than the removed value. Use `first()` to get the first
      * value in this List.
-     *
-     * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable');" }
-     * -->
-     * ```js
-     * List([ 0, 1, 2, 3, 4 ]).shift();
-     * // List [ 1, 2, 3, 4 ]
-     * ```
      *
      * Note: `shift` can be used in `withMutations`.
      */
@@ -443,34 +333,10 @@ declare namespace Immutable {
      * `index` may be a negative number, which indexes back from the end of the
      * List. `v.update(-1)` updates the last item in the List.
      *
-     * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable');" }
-     * -->
-     * ```js
-     * const list = List([ 'a', 'b', 'c' ])
-     * const result = list.update(2, val => val.toUpperCase())
-     * // List [ "a", "b", "C" ]
-     * ```
-     *
      * This can be very useful as a way to "chain" a normal function into a
      * sequence of methods. RxJS calls this "let" and lodash calls it "thru".
      *
      * For example, to sum a List after mapping and filtering:
-     *
-     * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable');" }
-     * -->
-     * ```js
-     * function sum(collection) {
-     *   return collection.reduce((sum, x) => sum + x, 0)
-     * }
-     *
-     * List([ 1, 2, 3 ])
-     *   .map(x => x + 1)
-     *   .filter(x => x % 2 === 0)
-     *   .update(sum)
-     * // 6
-     * ```
      *
      * Note: `update(index)` can be used in `withMutations`.
      *
@@ -504,25 +370,9 @@ declare namespace Immutable {
      * Index numbers are used as keys to determine the path to follow in
      * the List.
      *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { List } = require('immutable')
-     * const list = List([ 0, 1, 2, List([ 3, 4 ])])
-     * list.setIn([3, 0], 999);
-     * // List [ 0, 1, 2, List [ 999, 4 ] ]
-     * ```
-     *
      * Plain JavaScript Object or Arrays may be nested within an Immutable.js
      * Collection, and setIn() can update those values as well, treating them
      * immutably by creating new copies of those values with the changes applied.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { List } = require('immutable')
-     * const list = List([ 0, 1, 2, { plain: 'object' }])
-     * list.setIn([3, 'plain'], 'value');
-     * // List([ 0, 1, 2, { plain: 'value' }])
-     * ```
      *
      * Note: `setIn` can be used in `withMutations`.
      */
@@ -532,25 +382,9 @@ declare namespace Immutable {
      * Returns a new List having removed the value at this `keyPath`. If any
      * keys in `keyPath` do not exist, no change will occur.
      *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { List } = require('immutable')
-     * const list = List([ 0, 1, 2, List([ 3, 4 ])])
-     * list.deleteIn([3, 0]);
-     * // List [ 0, 1, 2, List [ 4 ] ]
-     * ```
-     *
      * Plain JavaScript Object or Arrays may be nested within an Immutable.js
      * Collection, and removeIn() can update those values as well, treating them
      * immutably by creating new copies of those values with the changes applied.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { List } = require('immutable')
-     * const list = List([ 0, 1, 2, { plain: 'object' }])
-     * list.removeIn([3, 'plain']);
-     * // List([ 0, 1, 2, {}])
-     * ```
      *
      * Note: `deleteIn` *cannot* be safely used in `withMutations`.
      *
@@ -638,14 +472,6 @@ declare namespace Immutable {
     /**
      * Returns a new List with values passed through a
      * `mapper` function.
-     *
-     * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable');" }
-     * -->
-     * ```js
-     * List([ 1, 2 ]).map(x => 10 * x)
-     * // List [ 10, 20 ]
-     * ```
      */
     map<M>(
       mapper: (value: T, key: number, iter: this) => M,
@@ -695,15 +521,6 @@ declare namespace Immutable {
      * Returns a List "zipped" with the provided collection.
      *
      * Like `zipWith`, but using the default `zipper`: creating an `Array`.
-     *
-     * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable');" }
-     * -->
-     * ```js
-     * const a = List([ 1, 2, 3 ]);
-     * const b = List([ 4, 5, 6 ]);
-     * const c = a.zip(b); // List [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
-     * ```
      */
     zip<U>(other: Collection<unknown, U>): List<[T, U]>;
     zip<U, V>(
@@ -717,15 +534,6 @@ declare namespace Immutable {
      *
      * Unlike `zip`, `zipAll` continues zipping until the longest collection is
      * exhausted. Missing values from shorter collections are filled with `undefined`.
-     *
-     * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable');" }
-     * -->
-     * ```js
-     * const a = List([ 1, 2 ]);
-     * const b = List([ 3, 4, 5 ]);
-     * const c = a.zipAll(b); // List [ [ 1, 3 ], [ 2, 4 ], [ undefined, 5 ] ]
-     * ```
      *
      * Note: Since zipAll will return a collection as large as the largest
      * input, some results may contain undefined values. TypeScript cannot
@@ -741,16 +549,6 @@ declare namespace Immutable {
     /**
      * Returns a List "zipped" with the provided collections by using a
      * custom `zipper` function.
-     *
-     * <!-- runkit:activate
-     *      { "preamble": "const { List } = require('immutable');" }
-     * -->
-     * ```js
-     * const a = List([ 1, 2, 3 ]);
-     * const b = List([ 4, 5, 6 ]);
-     * const c = a.zipWith((a, b) => a + b, b);
-     * // List [ 5, 7, 9 ]
-     * ```
      */
     zipWith<U, Z>(
       zipper: (value: T, otherValue: U) => Z,
@@ -789,13 +587,6 @@ declare namespace Immutable {
    * Immutable collections are treated as values, any Immutable collection may
    * be used as a key.
    *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { Map, List } = require('immutable');
-   * Map().set(List([ 1 ]), 'listofone').get(List([ 1 ]));
-   * // 'listofone'
-   * ```
-   *
    * Any JavaScript object may be used as a key, however strict identity is used
    * to evaluate key equality. Two similar looking objects will represent two
    * different keys.
@@ -805,13 +596,6 @@ declare namespace Immutable {
   namespace Map {
     /**
      * True if the provided value is a Map
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Map } = require('immutable')
-     * Map.isMap({}) // false
-     * Map.isMap(Map()) // true
-     * ```
      */
     function isMap(maybeMap: unknown): maybeMap is Map<unknown, unknown>;
   }
@@ -825,28 +609,9 @@ declare namespace Immutable {
    * Note: `Map` is a factory function and not a class, and does not use the
    * `new` keyword during construction.
    *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { Map } = require('immutable')
-   * Map({ key: "value" })
-   * Map([ [ "key", "value" ] ])
-   * ```
-   *
    * Keep in mind, when using JS objects to construct Immutable Maps, that
    * JavaScript Object properties are always strings, even if written in a
    * quote-less shorthand, while Immutable Maps accept keys of any type.
-   *
-   * <!-- runkit:activate
-   *      { "preamble": "const { Map } = require('immutable');" }
-   * -->
-   * ```js
-   * let obj = { 1: "one" }
-   * Object.keys(obj) // [ "1" ]
-   * assert.equal(obj["1"], obj[1]) // "one" === "one"
-   *
-   * let map = Map(obj)
-   * assert.notEqual(map.get("1"), map.get(1)) // "one" !== undefined
-   * ```
    *
    * Property access for JavaScript Objects first converts the key to a string,
    * but since Immutable Map keys can be of any type the argument to `get()` is
@@ -965,21 +730,6 @@ declare namespace Immutable {
      * Returns a new Map also containing the new key, value pair. If an equivalent
      * key already exists in this Map, it will be replaced.
      *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Map } = require('immutable')
-     * const originalMap = Map()
-     * const newerMap = originalMap.set('key', 'value')
-     * const newestMap = newerMap.set('key', 'newer value')
-     *
-     * originalMap
-     * // Map {}
-     * newerMap
-     * // Map { "key": "value" }
-     * newestMap
-     * // Map { "key": "newer value" }
-     * ```
-     *
      * Note: `set` can be used in `withMutations`.
      */
     set(key: K, value: V): this;
@@ -989,18 +739,6 @@ declare namespace Immutable {
      *
      * Note: `delete` cannot be safely used in IE8, but is provided to mirror
      * the ES6 collection API.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Map } = require('immutable')
-     * const originalMap = Map({
-     *   key: 'value',
-     *   otherKey: 'other value'
-     * })
-     * // Map { "key": "value", "otherKey": "other value" }
-     * originalMap.delete('otherKey')
-     * // Map { "key": "value" }
-     * ```
      *
      * Note: `delete` can be used in `withMutations`.
      *
@@ -1012,14 +750,6 @@ declare namespace Immutable {
     /**
      * Returns a new Map which excludes the provided `keys`.
      *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Map } = require('immutable')
-     * const names = Map({ a: "Aaron", b: "Barry", c: "Connor" })
-     * names.deleteAll([ 'a', 'c' ])
-     * // Map { "b": "Barry" }
-     * ```
-     *
      * Note: `deleteAll` can be used in `withMutations`.
      *
      * @alias removeAll
@@ -1029,13 +759,6 @@ declare namespace Immutable {
 
     /**
      * Returns a new Map containing no keys or values.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Map } = require('immutable')
-     * Map({ key: 'value' }).clear()
-     * // Map {}
-     * ```
      *
      * Note: `clear` can be used in `withMutations`.
      */
@@ -1047,52 +770,16 @@ declare namespace Immutable {
      *
      * Similar to: `map.set(key, updater(map.get(key)))`.
      *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Map } = require('immutable')
-     * const aMap = Map({ key: 'value' })
-     * const newMap = aMap.update('key', value => value + value)
-     * // Map { "key": "valuevalue" }
-     * ```
-     *
      * This is most commonly used to call methods on collections within a
      * structure of data. For example, in order to `.push()` onto a nested `List`,
      * `update` and `push` can be used together:
      *
-     * <!-- runkit:activate
-     *      { "preamble": "const { Map, List } = require('immutable');" }
-     * -->
-     * ```js
-     * const aMap = Map({ nestedList: List([ 1, 2, 3 ]) })
-     * const newMap = aMap.update('nestedList', list => list.push(4))
-     * // Map { "nestedList": List [ 1, 2, 3, 4 ] }
-     * ```
-     *
      * When a `notSetValue` is provided, it is provided to the `updater`
      * function when the value at the key does not exist in the Map.
-     *
-     * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require('immutable');" }
-     * -->
-     * ```js
-     * const aMap = Map({ key: 'value' })
-     * const newMap = aMap.update('noKey', 'no value', value => value + value)
-     * // Map { "key": "value", "noKey": "no valueno value" }
-     * ```
      *
      * However, if the `updater` function returns the same value it was called
      * with, then no change will occur. This is still true if `notSetValue`
      * is provided.
-     *
-     * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require('immutable');" }
-     * -->
-     * ```js
-     * const aMap = Map({ apples: 10 })
-     * const newMap = aMap.update('oranges', 0, val => val)
-     * // Map { "apples": 10 }
-     * assert.strictEqual(newMap, map);
-     * ```
      *
      * For code using ES2015 or later, using `notSetValue` is discourged in
      * favor of function parameter default values. This helps to avoid any
@@ -1100,46 +787,13 @@ declare namespace Immutable {
      *
      * The previous example behaves differently when written with default values:
      *
-     * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require('immutable');" }
-     * -->
-     * ```js
-     * const aMap = Map({ apples: 10 })
-     * const newMap = aMap.update('oranges', (val = 0) => val)
-     * // Map { "apples": 10, "oranges": 0 }
-     * ```
-     *
      * If no key is provided, then the `updater` function return value is
      * returned as well.
-     *
-     * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require('immutable');" }
-     * -->
-     * ```js
-     * const aMap = Map({ key: 'value' })
-     * const result = aMap.update(aMap => aMap.get('key'))
-     * // "value"
-     * ```
      *
      * This can be very useful as a way to "chain" a normal function into a
      * sequence of methods. RxJS calls this "let" and lodash calls it "thru".
      *
      * For example, to sum the values in a Map
-     *
-     * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require('immutable');" }
-     * -->
-     * ```js
-     * function sum(collection) {
-     *   return collection.reduce((sum, x) => sum + x, 0)
-     * }
-     *
-     * Map({ x: 1, y: 2, z: 3 })
-     *   .map(x => x + 1)
-     *   .filter(x => x % 2 === 0)
-     *   .update(sum)
-     * // 6
-     * ```
      *
      * Note: `update(key)` can be used in `withMutations`.
      */
@@ -1154,14 +808,6 @@ declare namespace Immutable {
      *
      * Note: Values provided to `merge` are shallowly converted before being
      * merged. No nested values are altered.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Map } = require('immutable')
-     * const one = Map({ a: 10, b: 20, c: 30 })
-     * const two = Map({ b: 40, a: 50, d: 60 })
-     * one.merge(two) // Map { "a": 50, "b": 40, "c": 30, "d": 60 }
-     * two.merge(one) // Map { "b": 20, "a": 10, "d": 60, "c": 30 }
      * ```
      *
      * Note: `merge` can be used in `withMutations`.
@@ -1186,17 +832,6 @@ declare namespace Immutable {
      * Like `merge()`, `mergeWith()` returns a new Map resulting from merging
      * the provided Collections (or JS objects) into this Map, but uses the
      * `merger` function for dealing with conflicts.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Map } = require('immutable')
-     * const one = Map({ a: 10, b: 20, c: 30 })
-     * const two = Map({ b: 40, a: 50, d: 60 })
-     * one.mergeWith((oldVal, newVal) => oldVal / newVal, two)
-     * // { "a": 0.2, "b": 0.5, "c": 30, "d": 60 }
-     * two.mergeWith((oldVal, newVal) => oldVal / newVal, one)
-     * // { "b": 2, "a": 5, "d": 60, "c": 30 }
-     * ```
      *
      * Note: `mergeWith` can be used in `withMutations`.
      */
@@ -1223,19 +858,6 @@ declare namespace Immutable {
      * Note: Indexed and set-like collections are merged using
      * `concat()`/`union()` and therefore do not recurse.
      *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Map } = require('immutable')
-     * const one = Map({ a: Map({ x: 10, y: 10 }), b: Map({ x: 20, y: 50 }) })
-     * const two = Map({ a: Map({ x: 2 }), b: Map({ y: 5 }), c: Map({ z: 3 }) })
-     * one.mergeDeep(two)
-     * // Map {
-     * //   "a": Map { "x": 2, "y": 10 },
-     * //   "b": Map { "x": 20, "y": 5 },
-     * //   "c": Map { "z": 3 }
-     * // }
-     * ```
-     *
      * Note: `mergeDeep` can be used in `withMutations`.
      */
     mergeDeep<KC, VC>(
@@ -1252,19 +874,6 @@ declare namespace Immutable {
      * incompatible if they fall into separate categories between keyed,
      * indexed, and set-like.
      *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Map } = require('immutable')
-     * const one = Map({ a: Map({ x: 10, y: 10 }), b: Map({ x: 20, y: 50 }) })
-     * const two = Map({ a: Map({ x: 2 }), b: Map({ y: 5 }), c: Map({ z: 3 }) })
-     * one.mergeDeepWith((oldVal, newVal) => oldVal / newVal, two)
-     * // Map {
-     * //   "a": Map { "x": 5, "y": 10 },
-     * //   "b": Map { "x": 20, "y": 10 },
-     * //   "c": Map { "z": 3 }
-     * // }
-     * ```
-     *
      * Note: `mergeDeepWith` can be used in `withMutations`.
      */
     mergeDeepWith(
@@ -1278,62 +887,9 @@ declare namespace Immutable {
      * Returns a new Map having set `value` at this `keyPath`. If any keys in
      * `keyPath` do not exist, a new immutable Map will be created at that key.
      *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Map } = require('immutable')
-     * const originalMap = Map({
-     *   subObject: Map({
-     *     subKey: 'subvalue',
-     *     subSubObject: Map({
-     *       subSubKey: 'subSubValue'
-     *     })
-     *   })
-     * })
-     *
-     * const newMap = originalMap.setIn(['subObject', 'subKey'], 'ha ha!')
-     * // Map {
-     * //   "subObject": Map {
-     * //     "subKey": "ha ha!",
-     * //     "subSubObject": Map { "subSubKey": "subSubValue" }
-     * //   }
-     * // }
-     *
-     * const newerMap = originalMap.setIn(
-     *   ['subObject', 'subSubObject', 'subSubKey'],
-     *   'ha ha ha!'
-     * )
-     * // Map {
-     * //   "subObject": Map {
-     * //     "subKey": "subvalue",
-     * //     "subSubObject": Map { "subSubKey": "ha ha ha!" }
-     * //   }
-     * // }
-     * ```
-     *
      * Plain JavaScript Object or Arrays may be nested within an Immutable.js
      * Collection, and setIn() can update those values as well, treating them
      * immutably by creating new copies of those values with the changes applied.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Map } = require('immutable')
-     * const originalMap = Map({
-     *   subObject: {
-     *     subKey: 'subvalue',
-     *     subSubObject: {
-     *       subSubKey: 'subSubValue'
-     *     }
-     *   }
-     * })
-     *
-     * originalMap.setIn(['subObject', 'subKey'], 'ha ha!')
-     * // Map {
-     * //   "subObject": {
-     * //     subKey: "ha ha!",
-     * //     subSubObject: { subSubKey: "subSubValue" }
-     * //   }
-     * // }
-     * ```
      *
      * If any key in the path exists but cannot be updated (such as a primitive
      * like number or a custom Object like Date), an error will be thrown.
@@ -1360,41 +916,15 @@ declare namespace Immutable {
      * This is most commonly used to call methods on collections nested within a
      * structure of data. For example, in order to `.push()` onto a nested `List`,
      * `updateIn` and `push` can be used together:
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Map, List } = require('immutable')
-     * const map = Map({ inMap: Map({ inList: List([ 1, 2, 3 ]) }) })
-     * const newMap = map.updateIn(['inMap', 'inList'], list => list.push(4))
-     * // Map { "inMap": Map { "inList": List [ 1, 2, 3, 4 ] } }
-     * ```
+
      *
      * If any keys in `keyPath` do not exist, new Immutable `Map`s will
      * be created at those keys. If the `keyPath` does not already contain a
      * value, the `updater` function will be called with `notSetValue`, if
      * provided, otherwise `undefined`.
      *
-     * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require('immutable')" }
-     * -->
-     * ```js
-     * const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
-     * const newMap = map.updateIn(['a', 'b', 'c'], val => val * 2)
-     * // Map { "a": Map { "b": Map { "c": 20 } } }
-     * ```
-     *
      * If the `updater` function returns the same value it was called with, then
      * no change will occur. This is still true if `notSetValue` is provided.
-     *
-     * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require('immutable')" }
-     * -->
-     * ```js
-     * const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
-     * const newMap = map.updateIn(['a', 'b', 'x'], 100, val => val)
-     * // Map { "a": Map { "b": Map { "c": 10 } } }
-     * assert.strictEqual(newMap, aMap)
-     * ```
      *
      * For code using ES2015 or later, using `notSetValue` is discourged in
      * favor of function parameter default values. This helps to avoid any
@@ -1402,27 +932,9 @@ declare namespace Immutable {
      *
      * The previous example behaves differently when written with default values:
      *
-     * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require('immutable')" }
-     * -->
-     * ```js
-     * const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
-     * const newMap = map.updateIn(['a', 'b', 'x'], (val = 100) => val)
-     * // Map { "a": Map { "b": Map { "c": 10, "x": 100 } } }
-     * ```
-     *
      * Plain JavaScript Object or Arrays may be nested within an Immutable.js
      * Collection, and updateIn() can update those values as well, treating them
      * immutably by creating new copies of those values with the changes applied.
-     *
-     * <!-- runkit:activate
-     *      { "preamble": "const { Map } = require('immutable')" }
-     * -->
-     * ```js
-     * const map = Map({ a: { b: { c: 10 } } })
-     * const newMap = map.updateIn(['a', 'b', 'c'], val => val * 2)
-     * // Map { "a": { b: { c: 20 } } }
-     * ```
      *
      * If any key in the path exists but cannot be updated (such as a primitive
      * like number or a custom Object like Date), an error will be thrown.
@@ -1484,17 +996,6 @@ declare namespace Immutable {
      * exactly how complex mutations like `merge` are done.
      *
      * As an example, this results in the creation of 2, not 4, new Maps:
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Map } = require('immutable')
-     * const map1 = Map()
-     * const map2 = map1.withMutations(map => {
-     *   map.set('a', 1).set('b', 2).set('c', 3)
-     * })
-     * assert.equal(map1.size, 0)
-     * assert.equal(map2.size, 3)
-     * ```
      *
      * Note: Not all methods can be used on a mutable collection or within
      * `withMutations`! Read the documentation for each method to see if it
@@ -1637,17 +1138,6 @@ declare namespace Immutable {
      *   * Is pure, i.e. it must always return the same value for the same pair
      *     of values.
      *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Map } = require('immutable')
-     * Map({ "c": 3, "a": 1, "b": 2 }).sort((a, b) => {
-     *   if (a < b) { return -1; }
-     *   if (a > b) { return 1; }
-     *   if (a === b) { return 0; }
-     * });
-     * // OrderedMap { "a": 1, "b": 2, "c": 3 }
-     * ```
-     *
      * Note: `sort()` Always returns a new instance, even if the original was
      * already sorted.
      *
@@ -1658,18 +1148,6 @@ declare namespace Immutable {
     /**
      * Like `sort`, but also accepts a `comparatorValueMapper` which allows for
      * sorting by more sophisticated means:
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Map } = require('immutable')
-     * const beattles = Map({
-     *   John: { name: "Lennon" },
-     *   Paul: { name: "McCartney" },
-     *   George: { name: "Harrison" },
-     *   Ringo: { name: "Starr" },
-     * });
-     * beattles.sortBy(member => member.name);
-     * ```
      *
      * Note: `sortBy()` Always returns a new instance, even if the original was
      * already sorted.
@@ -1731,18 +1209,6 @@ declare namespace Immutable {
      * equivalent key already exists in this OrderedMap, it will be replaced
      * while maintaining the existing order.
      *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { OrderedMap } = require('immutable')
-     * const originalMap = OrderedMap({a:1, b:1, c:1})
-     * const updatedMap = originalMap.set('b', 2)
-     *
-     * originalMap
-     * // OrderedMap {a: 1, b: 1, c: 1}
-     * updatedMap
-     * // OrderedMap {a: 1, b: 2, c: 1}
-     * ```
-     *
      * Note: `set` can be used in `withMutations`.
      */
     set(key: K, value: V): this;
@@ -1754,15 +1220,6 @@ declare namespace Immutable {
      *
      * Note: Values provided to `merge` are shallowly converted before being
      * merged. No nested values are altered.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { OrderedMap } = require('immutable')
-     * const one = OrderedMap({ a: 10, b: 20, c: 30 })
-     * const two = OrderedMap({ b: 40, a: 50, d: 60 })
-     * one.merge(two) // OrderedMap { "a": 50, "b": 40, "c": 30, "d": 60 }
-     * two.merge(one) // OrderedMap { "b": 20, "a": 10, "d": 60, "c": 30 }
-     * ```
      *
      * Note: `merge` can be used in `withMutations`.
      *
@@ -2008,13 +1465,6 @@ declare namespace Immutable {
     /**
      * Returns a Set excluding any values contained within `collections`.
      *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { OrderedSet } = require('immutable')
-     * OrderedSet([ 1, 2, 3 ]).subtract([1, 3])
-     * // OrderedSet [2]
-     * ```
-     *
      * Note: `subtract` can be used in `withMutations`.
      */
     subtract(...collections: Array<Iterable<T>>): this;
@@ -2117,17 +1567,6 @@ declare namespace Immutable {
      *   * Is pure, i.e. it must always return the same value for the same pair
      *     of values.
      *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Set } = require('immutable')
-     * Set(['b', 'a', 'c']).sort((a, b) => {
-     *   if (a < b) { return -1; }
-     *   if (a > b) { return 1; }
-     *   if (a === b) { return 0; }
-     * });
-     * // OrderedSet { "a":, "b", "c" }
-     * ```
-     *
      * Note: `sort()` Always returns a new instance, even if the original was
      * already sorted.
      *
@@ -2138,18 +1577,6 @@ declare namespace Immutable {
     /**
      * Like `sort`, but also accepts a `comparatorValueMapper` which allows for
      * sorting by more sophisticated means:
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Set } = require('immutable')
-     * const beattles = Set([
-     *   { name: "Lennon" },
-     *   { name: "McCartney" },
-     *   { name: "Harrison" },
-     *   { name: "Starr" },
-     * ]);
-     * beattles.sortBy(member => member.name);
-     * ```
      *
      * Note: `sortBy()` Always returns a new instance, even if the original was
      * already sorted.
@@ -2821,48 +2248,9 @@ declare namespace Immutable {
      * are created by passing it some of the accepted values for that Record
      * type:
      *
-     * <!-- runkit:activate
-     *      { "preamble": "const { Record } = require('immutable')" }
-     * -->
-     * ```js
-     * // makePerson is a Record Factory function
-     * const makePerson = Record({ name: null, favoriteColor: 'unknown' });
-     *
-     * // alan is a Record instance
-     * const alan = makePerson({ name: 'Alan' });
-     * ```
-     *
      * Note that Record Factories return `Record<TProps> & Readonly<TProps>`,
      * this allows use of both the Record instance API, and direct property
      * access on the resulting instances:
-     *
-     * <!-- runkit:activate
-     *      { "preamble": "const { Record } = require('immutable');const makePerson = Record({ name: null, favoriteColor: 'unknown' });const alan = makePerson({ name: 'Alan' });" }
-     * -->
-     * ```js
-     * // Use the Record API
-     * console.log('Record API: ' + alan.get('name'))
-     *
-     * // Or direct property access (Readonly)
-     * console.log('property access: ' + alan.name)
-     * ```
-     *
-     * **Flow Typing Records:**
-     *
-     * Use the `RecordFactory<TProps>` Flow type to get high quality type checking of
-     * Records:
-     *
-     * ```js
-     * import type { RecordFactory, RecordOf } from 'immutable';
-     *
-     * // Use RecordFactory<TProps> for defining new Record factory functions.
-     * type PersonProps = { name: ?string, favoriteColor: string };
-     * const makePerson: RecordFactory<PersonProps> = Record({ name: null, favoriteColor: 'unknown' });
-     *
-     * // Use RecordOf<T> for defining new instances of that Record.
-     * type Person = RecordOf<PersonProps>;
-     * const alan: Person = makePerson({ name: 'Alan' });
-     * ```
      */
     namespace Factory {}
 
@@ -3077,13 +2465,6 @@ declare namespace Immutable {
    *
    * Any collection can be converted to a lazy Seq with `Seq()`.
    *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { Map } = require('immutable')
-   * const map = Map({ a: 1, b: 2, c: 3 })
-   * const lazySeq = Seq(map)
-   * ```
-   *
    * `Seq` allows for the efficient chaining of operations, allowing for the
    * expression of logic that can otherwise be very tedious:
    *
@@ -3097,18 +2478,6 @@ declare namespace Immutable {
    *
    * As well as expressing logic that would otherwise seem memory or time
    * limited, for example `Range` is a special kind of Lazy sequence.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { Range } = require('immutable')
-   * Range(1, Infinity)
-   *   .skip(1000)
-   *   .map(n => -n)
-   *   .filter(n => n % 2 === 0)
-   *   .take(2)
-   *   .reduce((r, n) => r * n, 1)
-   * // 1006008
-   * ```
    *
    * Seq is often used to provide a rich collection API to JavaScript Object.
    *
@@ -3784,13 +3153,6 @@ declare namespace Immutable {
       /**
        * Returns a new Collection.Keyed of the same type where the keys and values
        * have been flipped.
-       *
-       * <!-- runkit:activate -->
-       * ```js
-       * const { Map } = require('immutable')
-       * Map({ a: 'z', b: 'y' }).flip()
-       * // Map { "z": "a", "y": "b" }
-       * ```
        */
       flip(): Collection.Keyed<V, K>;
 
@@ -3826,13 +3188,6 @@ declare namespace Immutable {
        * Returns a new Collection.Keyed of the same type with keys passed through
        * a `mapper` function.
        *
-       * <!-- runkit:activate -->
-       * ```js
-       * const { Map } = require('immutable')
-       * Map({ a: 1, b: 2 }).mapKeys(x => x.toUpperCase())
-       * // Map { "A": 1, "B": 2 }
-       * ```
-       *
        * Note: `mapKeys()` always returns a new instance, even if it produced
        * the same key at every step.
        */
@@ -3844,14 +3199,6 @@ declare namespace Immutable {
       /**
        * Returns a new Collection.Keyed of the same type with entries
        * ([key, value] tuples) passed through a `mapper` function.
-       *
-       * <!-- runkit:activate -->
-       * ```js
-       * const { Map } = require('immutable')
-       * Map({ a: 1, b: 2 })
-       *   .mapEntries(([ k, v ]) => [ k.toUpperCase(), v * 2 ])
-       * // Map { "A": 2, "B": 4 }
-       * ```
        *
        * Note: `mapEntries()` always returns a new instance, even if it produced
        * the same entry at every step.
@@ -3994,27 +3341,7 @@ declare namespace Immutable {
        * The resulting Collection includes the first item from each, then the
        * second from each, etc.
        *
-       * <!-- runkit:activate
-       *      { "preamble": "require('immutable')"}
-       * -->
-       * ```js
-       * const { List } = require('immutable')
-       * List([ 1, 2, 3 ]).interleave(List([ 'A', 'B', 'C' ]))
-       * // List [ 1, "A", 2, "B", 3, "C" ]
-       * ```
-       *
        * The shortest Collection stops interleave.
-       *
-       * <!-- runkit:activate
-       *      { "preamble": "const { List } = require('immutable')" }
-       * -->
-       * ```js
-       * List([ 1, 2, 3 ]).interleave(
-       *   List([ 'A', 'B' ]),
-       *   List([ 'X', 'Y', 'Z' ])
-       * )
-       * // List [ 1, "A", "X", 2, "B", "Y" ]
-       * ```
        *
        * Since `interleave()` re-indexes values, it produces a complete copy,
        * which has `O(N)` complexity.
@@ -4031,13 +3358,6 @@ declare namespace Immutable {
        * `index` may be a negative number, which indexes back from the end of the
        * Collection. `s.splice(-2)` splices after the second to last item.
        *
-       * <!-- runkit:activate -->
-       * ```js
-       * const { List } = require('immutable')
-       * List([ 'a', 'b', 'c', 'd' ]).splice(1, 2, 'q', 'r', 's')
-       * // List [ "a", "q", "r", "s", "d" ]
-       * ```
-       *
        * Since `splice()` re-indexes values, it produces a complete copy, which
        * has `O(N)` complexity.
        *
@@ -4050,16 +3370,6 @@ declare namespace Immutable {
        * collections.
        *
        * Like `zipWith`, but using the default `zipper`: creating an `Array`.
-       *
-       *
-       * <!-- runkit:activate
-       *      { "preamble": "const { List } = require('immutable')" }
-       * -->
-       * ```js
-       * const a = List([ 1, 2, 3 ]);
-       * const b = List([ 4, 5, 6 ]);
-       * const c = a.zip(b); // List [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
-       * ```
        */
       zip<U>(other: Collection<unknown, U>): Collection.Indexed<[T, U]>;
       zip<U, V>(
@@ -4094,16 +3404,6 @@ declare namespace Immutable {
       /**
        * Returns a Collection of the same type "zipped" with the provided
        * collections by using a custom `zipper` function.
-       *
-       * <!-- runkit:activate
-       *      { "preamble": "const { List } = require('immutable')" }
-       * -->
-       * ```js
-       * const a = List([ 1, 2, 3 ]);
-       * const b = List([ 4, 5, 6 ]);
-       * const c = a.zipWith((a, b) => a + b, b);
-       * // List [ 5, 7, 9 ]
-       * ```
        */
       zipWith<U, Z>(
         zipper: (value: T, otherValue: U) => Z,
@@ -4388,17 +3688,6 @@ declare namespace Immutable {
      * and is used when adding this to a `Set` or as a key in a `Map`, enabling
      * lookup via a different instance.
      *
-     * <!-- runkit:activate
-     *      { "preamble": "const { Set,  List } = require('immutable')" }
-     * -->
-     * ```js
-     * const a = List([ 1, 2, 3 ]);
-     * const b = List([ 1, 2, 3 ]);
-     * assert.notStrictEqual(a, b); // different instances
-     * const set = Set([ a ]);
-     * assert.equal(set.has(b), true);
-     * ```
-     *
      * If two values have the same `hashCode`, they are [not guaranteed
      * to be equal][Hash Collision]. If two values have different `hashCode`s,
      * they must not be equal.
@@ -4458,22 +3747,8 @@ declare namespace Immutable {
      * Returns the value found by following a path of keys or indices through
      * nested Collections.
      *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Map, List } = require('immutable')
-     * const deepData = Map({ x: List([ Map({ y: 123 }) ]) });
-     * deepData.getIn(['x', 0, 'y']) // 123
-     * ```
-     *
      * Plain JavaScript Object or Arrays may be nested within an Immutable.js
      * Collection, and getIn() can access those values as well:
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Map, List } = require('immutable')
-     * const deepData = Map({ x: [ { y: 123 } ] });
-     * deepData.getIn(['x', 0, 'y']) // 123
-     * ```
      */
     getIn(searchKeyPath: Iterable<unknown>, notSetValue?: unknown): unknown;
 
@@ -4490,21 +3765,6 @@ declare namespace Immutable {
      * sequence of methods. RxJS calls this "let" and lodash calls it "thru".
      *
      * For example, to sum a Seq after mapping and filtering:
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Seq } = require('immutable')
-     *
-     * function sum(collection) {
-     *   return collection.reduce((sum, x) => sum + x, 0)
-     * }
-     *
-     * Seq([ 1, 2, 3 ])
-     *   .map(x => x + 1)
-     *   .filter(x => x % 2 === 0)
-     *   .update(sum)
-     * // 6
-     * ```
      */
     update<R>(updater: (value: this) => R): R;
 
@@ -4584,14 +3844,6 @@ declare namespace Immutable {
      * expressions. However, when called on `Map` or other keyed collections,
      * `collection.toList()` discards the keys and creates a list of only the
      * values, whereas `List(collection)` creates a list of entry tuples.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Map, List } = require('immutable')
-     * var myMap = Map({ a: 'Apple', b: 'Banana' })
-     * List(myMap) // List [ [ "a", "Apple" ], [ "b", "Banana" ] ]
-     * myMap.toList() // List [ "Apple", "Banana" ]
-     * ```
      */
     toList(): List<V>;
 
@@ -4620,19 +3872,6 @@ declare namespace Immutable {
      *
      * The returned Seq will have identical iteration order as
      * this Collection.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Seq } = require('immutable')
-     * const indexedSeq = Seq([ 'A', 'B', 'C' ])
-     * // Seq [ "A", "B", "C" ]
-     * indexedSeq.filter(v => v === 'B')
-     * // Seq [ "B" ]
-     * const keyedSeq = indexedSeq.toKeyedSeq()
-     * // Seq { 0: "A", 1: "B", 2: "C" }
-     * keyedSeq.filter(v => v === 'B')
-     * // Seq { 1: "B" }
-     * ```
      */
     toKeyedSeq(): Seq.Keyed<K, V>;
 
@@ -4701,13 +3940,6 @@ declare namespace Immutable {
      * Returns a new Collection of the same type with values passed through a
      * `mapper` function.
      *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Collection } = require('immutable')
-     * Collection({ a: 1, b: 2 }).map(x => 10 * x)
-     * // Seq { "a": 10, "b": 20 }
-     * ```
-     *
      * Note: `map()` always returns a new instance, even if it produced the same
      * value at every step.
      */
@@ -4728,13 +3960,6 @@ declare namespace Immutable {
      * Returns a new Collection of the same type with only the entries for which
      * the `predicate` function returns true.
      *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Map } = require('immutable')
-     * Map({ a: 1, b: 2, c: 3, d: 4}).filter(x => x % 2 === 0)
-     * // Map { "b": 2, "d": 4 }
-     * ```
-     *
      * Note: `filter()` always returns a new instance, even if it results in
      * not filtering out any values.
      */
@@ -4750,13 +3975,6 @@ declare namespace Immutable {
     /**
      * Returns a new Collection of the same type with only the entries for which
      * the `predicate` function returns false.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Map } = require('immutable')
-     * Map({ a: 1, b: 2, c: 3, d: 4}).filterNot(x => x % 2 === 0)
-     * // Map { "a": 1, "c": 3 }
-     * ```
      *
      * Note: `filterNot()` always returns a new instance, even if it results in
      * not filtering out any values.
@@ -4802,17 +4020,6 @@ declare namespace Immutable {
      * When sorting collections which have no defined order, their ordered
      * equivalents will be returned. e.g. `map.sort()` returns OrderedMap.
      *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Map } = require('immutable')
-     * Map({ "c": 3, "a": 1, "b": 2 }).sort((a, b) => {
-     *   if (a < b) { return -1; }
-     *   if (a > b) { return 1; }
-     *   if (a === b) { return 0; }
-     * });
-     * // OrderedMap { "a": 1, "b": 2, "c": 3 }
-     * ```
-     *
      * Note: `sort()` Always returns a new instance, even if the original was
      * already sorted.
      *
@@ -4823,18 +4030,6 @@ declare namespace Immutable {
     /**
      * Like `sort`, but also accepts a `comparatorValueMapper` which allows for
      * sorting by more sophisticated means:
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { Map } = require('immutable')
-     * const beattles = Map({
-     *   John: { name: "Lennon" },
-     *   Paul: { name: "McCartney" },
-     *   George: { name: "Harrison" },
-     *   Ringo: { name: "Starr" },
-     * });
-     * beattles.sortBy(member => member.name);
-     * ```
      *
      * Note: `sortBy()` Always returns a new instance, even if the original was
      * already sorted.
@@ -4851,24 +4046,6 @@ declare namespace Immutable {
      * value of the `grouper` function.
      *
      * Note: This is always an eager operation.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { List, Map } = require('immutable')
-     * const listOfMaps = List([
-     *   Map({ v: 0 }),
-     *   Map({ v: 1 }),
-     *   Map({ v: 1 }),
-     *   Map({ v: 0 }),
-     *   Map({ v: 2 })
-     * ])
-     * const groupsOfMaps = listOfMaps.groupBy(x => x.get('v'))
-     * // Map {
-     * //   0: List [ Map{ "v": 0 }, Map { "v": 0 } ],
-     * //   1: List [ Map{ "v": 1 }, Map { "v": 1 } ],
-     * //   2: List [ Map{ "v": 2 } ],
-     * // }
-     * ```
      */
     groupBy<G>(
       grouper: (value: V, key: K, iter: this) => G,
@@ -4936,14 +4113,6 @@ declare namespace Immutable {
     /**
      * Returns a new Collection of the same type which includes entries starting
      * from when `predicate` first returns false.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { List } = require('immutable')
-     * List([ 'dog', 'frog', 'cat', 'hat', 'god' ])
-     *   .skipWhile(x => x.match(/g/))
-     * // List [ "cat", "hat", "god" ]
-     * ```
      */
     skipWhile(
       predicate: (value: V, key: K, iter: this) => boolean,
@@ -4953,14 +4122,6 @@ declare namespace Immutable {
     /**
      * Returns a new Collection of the same type which includes entries starting
      * from when `predicate` first returns true.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { List } = require('immutable')
-     * List([ 'dog', 'frog', 'cat', 'hat', 'god' ])
-     *   .skipUntil(x => x.match(/hat/))
-     * // List [ "hat", "god" ]
-     * ```
      */
     skipUntil(
       predicate: (value: V, key: K, iter: this) => boolean,
@@ -4982,14 +4143,6 @@ declare namespace Immutable {
     /**
      * Returns a new Collection of the same type which includes entries from this
      * Collection as long as the `predicate` returns true.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { List } = require('immutable')
-     * List([ 'dog', 'frog', 'cat', 'hat', 'god' ])
-     *   .takeWhile(x => x.match(/o/))
-     * // List [ "dog", "frog" ]
-     * ```
      */
     takeWhile(
       predicate: (value: V, key: K, iter: this) => boolean,
@@ -4999,14 +4152,6 @@ declare namespace Immutable {
     /**
      * Returns a new Collection of the same type which includes entries from this
      * Collection as long as the `predicate` returns false.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { List } = require('immutable')
-     * List([ 'dog', 'frog', 'cat', 'hat', 'god' ])
-     *   .takeUntil(x => x.match(/at/))
-     * // List [ "dog", "frog" ]
-     * ```
      */
     takeUntil(
       predicate: (value: V, key: K, iter: this) => boolean,
@@ -5246,17 +4391,6 @@ declare namespace Immutable {
     /**
      * Like `max`, but also accepts a `comparatorValueMapper` which allows for
      * comparing by more sophisticated means:
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { List, } = require('immutable');
-     * const l = List([
-     *   { name: 'Bob', avgHit: 1 },
-     *   { name: 'Max', avgHit: 3 },
-     *   { name: 'Lili', avgHit: 2 } ,
-     * ]);
-     * l.maxBy(i => i.avgHit); // will output { name: 'Max', avgHit: 3 }
-     * ```
      */
     maxBy<C>(
       comparatorValueMapper: (value: V, key: K, iter: this) => C,
@@ -5283,17 +4417,6 @@ declare namespace Immutable {
     /**
      * Like `min`, but also accepts a `comparatorValueMapper` which allows for
      * comparing by more sophisticated means:
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { List, } = require('immutable');
-     * const l = List([
-     *   { name: 'Bob', avgHit: 1 },
-     *   { name: 'Max', avgHit: 3 },
-     *   { name: 'Lili', avgHit: 2 } ,
-     * ]);
-     * l.minBy(i => i.avgHit); // will output { name: 'Bob', avgHit: 1 }
-     * ```
      */
     minBy<C>(
       comparatorValueMapper: (value: V, key: K, iter: this) => C,
@@ -5332,16 +4455,6 @@ declare namespace Immutable {
      * The `hashCode` of a Collection is used to determine potential equality,
      * and is used when adding this to a `Set` or as a key in a `Map`, enabling
      * lookup via a different instance.
-     *
-     * <!-- runkit:activate -->
-     * ```js
-     * const { List, Set } = require('immutable');
-     * const a = List([ 1, 2, 3 ]);
-     * const b = List([ 1, 2, 3 ]);
-     * assert.notStrictEqual(a, b); // different instances
-     * const set = Set([ a ]);
-     * assert.equal(set.has(b), true);
-     * ```
      *
      * Note: hashCode() MUST return a Uint32 number. The easiest way to
      * guarantee this is to return `myHash | 0` from a custom implementation.
@@ -5395,43 +4508,11 @@ declare namespace Immutable {
    * If `reviver` is not provided, the default behavior will convert Objects
    * into Maps and Arrays into Lists like so:
    *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { fromJS, isKeyed } = require('immutable')
-   * function (key, value) {
-   *   return isKeyed(value) ? value.toMap() : value.toList()
-   * }
-   * ```
-   *
    * Accordingly, this example converts native JS data to OrderedMap and List:
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { fromJS, isKeyed } = require('immutable')
-   * fromJS({ a: {b: [10, 20, 30]}, c: 40}, function (key, value, path) {
-   *   console.log(key, value, path)
-   *   return isKeyed(value) ? value.toOrderedMap() : value.toList()
-   * })
-   *
-   * > "b", [ 10, 20, 30 ], [ "a", "b" ]
-   * > "a", {b: [10, 20, 30]}, [ "a" ]
-   * > "", {a: {b: [10, 20, 30]}, c: 40}, []
-   * ```
    *
    * Keep in mind, when using JS objects to construct Immutable Maps, that
    * JavaScript Object properties are always strings, even if written in a
    * quote-less shorthand, while Immutable Maps accept keys of any type.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { Map } = require('immutable')
-   * let obj = { 1: "one" };
-   * Object.keys(obj); // [ "1" ]
-   * assert.equal(obj["1"], obj[1]); // "one" === "one"
-   *
-   * let map = Map(obj);
-   * assert.notEqual(map.get("1"), map.get(1)); // "one" !== undefined
-   * ```
    *
    * Property access for JavaScript Objects first converts the key to a string,
    * but since Immutable Map keys can be of any type the argument to `get()` is
@@ -5487,16 +4568,6 @@ declare namespace Immutable {
    * It's used throughout Immutable when checking for equality, including `Map`
    * key equality and `Set` membership.
    *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { Map, is } = require('immutable')
-   * const map1 = Map({ a: 1, b: 1, c: 1 })
-   * const map2 = Map({ a: 1, b: 1, c: 1 })
-   * assert.equal(map1 !== map2, true)
-   * assert.equal(Object.is(map1, map2), false)
-   * assert.equal(is(map1, map2), true)
-   * ```
-   *
    * `is()` compares primitive types like strings and numbers, Immutable.js
    * collections like `Map` and `List`, but also any custom object which
    * implements `ValueObject` by providing `equals()` and `hashCode()` methods.
@@ -5534,17 +4605,6 @@ declare namespace Immutable {
    * True if `maybeImmutable` is an Immutable Collection or Record.
    *
    * Note: Still returns true even if the collections is within a `withMutations()`.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { isImmutable, Map, List, Stack } = require('immutable');
-   * isImmutable([]); // false
-   * isImmutable({}); // false
-   * isImmutable(Map()); // true
-   * isImmutable(List()); // true
-   * isImmutable(Stack()); // true
-   * isImmutable(Map().asMutable()); // true
-   * ```
    */
   function isImmutable(
     maybeImmutable: unknown
@@ -5552,16 +4612,6 @@ declare namespace Immutable {
 
   /**
    * True if `maybeCollection` is a Collection, or any of its subclasses.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { isCollection, Map, List, Stack } = require('immutable');
-   * isCollection([]); // false
-   * isCollection({}); // false
-   * isCollection(Map()); // true
-   * isCollection(List()); // true
-   * isCollection(Stack()); // true
-   * ```
    */
   function isCollection(
     maybeCollection: unknown
@@ -5569,16 +4619,6 @@ declare namespace Immutable {
 
   /**
    * True if `maybeKeyed` is a Collection.Keyed, or any of its subclasses.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { isKeyed, Map, List, Stack } = require('immutable');
-   * isKeyed([]); // false
-   * isKeyed({}); // false
-   * isKeyed(Map()); // true
-   * isKeyed(List()); // false
-   * isKeyed(Stack()); // false
-   * ```
    */
   function isKeyed(
     maybeKeyed: unknown
@@ -5586,17 +4626,6 @@ declare namespace Immutable {
 
   /**
    * True if `maybeIndexed` is a Collection.Indexed, or any of its subclasses.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { isIndexed, Map, List, Stack, Set } = require('immutable');
-   * isIndexed([]); // false
-   * isIndexed({}); // false
-   * isIndexed(Map()); // false
-   * isIndexed(List()); // true
-   * isIndexed(Stack()); // true
-   * isIndexed(Set()); // false
-   * ```
    */
   function isIndexed(
     maybeIndexed: unknown
@@ -5604,17 +4633,6 @@ declare namespace Immutable {
 
   /**
    * True if `maybeAssociative` is either a Keyed or Indexed Collection.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { isAssociative, Map, List, Stack, Set } = require('immutable');
-   * isAssociative([]); // false
-   * isAssociative({}); // false
-   * isAssociative(Map()); // true
-   * isAssociative(List()); // true
-   * isAssociative(Stack()); // true
-   * isAssociative(Set()); // false
-   * ```
    */
   function isAssociative(
     maybeAssociative: unknown
@@ -5625,17 +4643,6 @@ declare namespace Immutable {
   /**
    * True if `maybeOrdered` is a Collection where iteration order is well
    * defined. True for Collection.Indexed as well as OrderedMap and OrderedSet.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { isOrdered, Map, OrderedMap, List, Set } = require('immutable');
-   * isOrdered([]); // false
-   * isOrdered({}); // false
-   * isOrdered(Map()); // false
-   * isOrdered(OrderedMap()); // true
-   * isOrdered(List()); // true
-   * isOrdered(Set()); // false
-   * ```
    */
   function isOrdered<T>(
     maybeOrdered: Iterable<T>
@@ -5712,14 +4719,6 @@ declare namespace Immutable {
    *
    * A functional alternative to `collection.get(key)` which will also work on
    * plain Objects and Arrays as an alternative for `collection[key]`.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { get } = require('immutable')
-   * get([ 'dog', 'frog', 'cat' ], 2) // 'frog'
-   * get({ x: 123, y: 456 }, 'x') // 123
-   * get({ x: 123, y: 456 }, 'z', 'ifNotSet') // 'ifNotSet'
-   * ```
    */
   function get<K, V>(collection: Collection<K, V>, key: K): V | undefined;
   function get<K, V, NSV>(
@@ -5759,15 +4758,6 @@ declare namespace Immutable {
    * A functional alternative to `collection.has(key)` which will also work with
    * plain Objects and Arrays as an alternative for
    * `collection.hasOwnProperty(key)`.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { has } = require('immutable')
-   * has([ 'dog', 'frog', 'cat' ], 2) // true
-   * has([ 'dog', 'frog', 'cat' ], 5) // false
-   * has({ x: 123, y: 456 }, 'x') // true
-   * has({ x: 123, y: 456 }, 'z') // false
-   * ```
    */
   function has(collection: object, key: unknown): boolean;
 
@@ -5777,17 +4767,6 @@ declare namespace Immutable {
    * A functional alternative to `collection.remove(key)` which will also work
    * with plain Objects and Arrays as an alternative for
    * `delete collectionCopy[key]`.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { remove } = require('immutable')
-   * const originalArray = [ 'dog', 'frog', 'cat' ]
-   * remove(originalArray, 1) // [ 'dog', 'cat' ]
-   * console.log(originalArray) // [ 'dog', 'frog', 'cat' ]
-   * const originalObject = { x: 123, y: 456 }
-   * remove(originalObject, 'x') // { y: 456 }
-   * console.log(originalObject) // { x: 123, y: 456 }
-   * ```
    */
   function remove<K, C extends Collection<K, unknown>>(
     collection: C,
@@ -5812,17 +4791,6 @@ declare namespace Immutable {
    * A functional alternative to `collection.set(key, value)` which will also
    * work with plain Objects and Arrays as an alternative for
    * `collectionCopy[key] = value`.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { set } = require('immutable')
-   * const originalArray = [ 'dog', 'frog', 'cat' ]
-   * set(originalArray, 1, 'cow') // [ 'dog', 'cow', 'cat' ]
-   * console.log(originalArray) // [ 'dog', 'frog', 'cat' ]
-   * const originalObject = { x: 123, y: 456 }
-   * set(originalObject, 'x', 789) // { x: 789, y: 456 }
-   * console.log(originalObject) // { x: 123, y: 456 }
-   * ```
    */
   function set<K, V, C extends Collection<K, V>>(
     collection: C,
@@ -5849,17 +4817,6 @@ declare namespace Immutable {
    * A functional alternative to `collection.update(key, fn)` which will also
    * work with plain Objects and Arrays as an alternative for
    * `collectionCopy[key] = fn(collection[key])`.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { update } = require('immutable')
-   * const originalArray = [ 'dog', 'frog', 'cat' ]
-   * update(originalArray, 1, val => val.toUpperCase()) // [ 'dog', 'FROG', 'cat' ]
-   * console.log(originalArray) // [ 'dog', 'frog', 'cat' ]
-   * const originalObject = { x: 123, y: 456 }
-   * update(originalObject, 'x', val => val * 6) // { x: 738, y: 456 }
-   * console.log(originalObject) // { x: 123, y: 456 }
-   * ```
    */
   function update<K, V, C extends Collection<K, V>>(
     collection: C,
@@ -5931,13 +4888,6 @@ declare namespace Immutable {
    *
    * A functional alternative to `collection.getIn(keypath)` which will also
    * work with plain Objects and Arrays.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { getIn } = require('immutable')
-   * getIn({ x: { y: { z: 123 }}}, ['x', 'y', 'z']) // 123
-   * getIn({ x: { y: { z: 123 }}}, ['x', 'q', 'p'], 'ifNotSet') // 'ifNotSet'
-   * ```
    */
   function getIn<C, P extends ReadonlyArray<PropertyKey>>(
     object: C,
@@ -5960,13 +4910,6 @@ declare namespace Immutable {
    *
    * A functional alternative to `collection.hasIn(keypath)` which will also
    * work with plain Objects and Arrays.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { hasIn } = require('immutable')
-   * hasIn({ x: { y: { z: 123 }}}, ['x', 'y', 'z']) // true
-   * hasIn({ x: { y: { z: 123 }}}, ['x', 'q', 'p']) // false
-   * ```
    */
   function hasIn(
     collection: string | boolean | number,
@@ -5979,14 +4922,6 @@ declare namespace Immutable {
    *
    * A functional alternative to `collection.removeIn(keypath)` which will also
    * work with plain Objects and Arrays.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { removeIn } = require('immutable')
-   * const original = { x: { y: { z: 123 }}}
-   * removeIn(original, ['x', 'y', 'z']) // { x: { y: {}}}
-   * console.log(original) // { x: { y: { z: 123 }}}
-   * ```
    */
   function removeIn<C>(collection: C, keyPath: Iterable<unknown>): C;
 
@@ -5996,14 +4931,6 @@ declare namespace Immutable {
    *
    * A functional alternative to `collection.setIn(keypath)` which will also
    * work with plain Objects and Arrays.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { setIn } = require('immutable')
-   * const original = { x: { y: { z: 123 }}}
-   * setIn(original, ['x', 'y', 'z'], 456) // { x: { y: { z: 456 }}}
-   * console.log(original) // { x: { y: { z: 123 }}}
-   * ```
    */
   function setIn<C>(
     collection: C,
@@ -6017,14 +4944,6 @@ declare namespace Immutable {
    *
    * A functional alternative to `collection.updateIn(keypath)` which will also
    * work with plain Objects and Arrays.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { updateIn } = require('immutable')
-   * const original = { x: { y: { z: 123 }}}
-   * updateIn(original, ['x', 'y', 'z'], val => val * 6) // { x: { y: { z: 738 }}}
-   * console.log(original) // { x: { y: { z: 123 }}}
-   * ```
    */
   function updateIn<K extends PropertyKey, V, C extends Collection<K, V>>(
     collection: C,
@@ -6109,14 +5028,6 @@ declare namespace Immutable {
    *
    * A functional alternative to `collection.merge()` which will also work with
    * plain Objects and Arrays.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { merge } = require('immutable')
-   * const original = { x: 123, y: 456 }
-   * merge(original, { y: 789, z: 'abc' }) // { x: 123, y: 789, z: 'abc' }
-   * console.log(original) // { x: 123, y: 456 }
-   * ```
    */
   function merge<C>(
     collection: C,
@@ -6133,18 +5044,6 @@ declare namespace Immutable {
    *
    * A functional alternative to `collection.mergeWith()` which will also work
    * with plain Objects and Arrays.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { mergeWith } = require('immutable')
-   * const original = { x: 123, y: 456 }
-   * mergeWith(
-   *   (oldVal, newVal) => oldVal + newVal,
-   *   original,
-   *   { y: 789, z: 'abc' }
-   * ) // { x: 123, y: 1245, z: 'abc' }
-   * console.log(original) // { x: 123, y: 456 }
-   * ```
    */
   function mergeWith<C>(
     merger: (oldVal: unknown, newVal: unknown, key: unknown) => unknown,
@@ -6172,14 +5071,6 @@ declare namespace Immutable {
    *
    * A functional alternative to `collection.mergeDeep()` which will also work
    * with plain Objects and Arrays.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { mergeDeep } = require('immutable')
-   * const original = { x: { y: 123 }}
-   * mergeDeep(original, { x: { z: 456 }}) // { x: { y: 123, z: 456 }}
-   * console.log(original) // { x: { y: 123 }}
-   * ```
    */
   function mergeDeep<C>(
     collection: C,
@@ -6198,18 +5089,6 @@ declare namespace Immutable {
    *
    * A functional alternative to `collection.mergeDeepWith()` which will also
    * work with plain Objects and Arrays.
-   *
-   * <!-- runkit:activate -->
-   * ```js
-   * const { mergeDeepWith } = require('immutable')
-   * const original = { x: { y: 123 }}
-   * mergeDeepWith(
-   *   (oldVal, newVal) => oldVal + newVal,
-   *   original,
-   *   { x: { y: 456 }}
-   * ) // { x: { y: 579 }}
-   * console.log(original) // { x: { y: 123 }}
-   * ```
    */
   function mergeDeepWith<C>(
     merger: (oldVal: unknown, newVal: unknown, key: unknown) => unknown,

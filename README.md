@@ -73,8 +73,6 @@ bun add immutable
 
 Then require it into any module.
 
-<!-- runkit:activate -->
-
 ```js
 const { Map } = require('immutable');
 const map1 = Map({ a: 1, b: 2, c: 3 });
@@ -136,8 +134,6 @@ lib. Include either `"target": "es2015"` or `"lib": "es2015"` in your
 `tsconfig.json`, or provide `--target es2015` or `--lib es2015` to the
 `tsc` command.
 
-<!-- runkit:activate -->
-
 ```js
 const { Map } = require('immutable');
 const map1 = Map({ a: 1, b: 2, c: 3 });
@@ -187,8 +183,6 @@ treat Immutable.js collections as values, it's important to use the
 `Immutable.is()` function or `.equals()` method to determine _value equality_
 instead of the `===` operator which determines object _reference identity_.
 
-<!-- runkit:activate -->
-
 ```js
 const { Map } = require('immutable');
 const map1 = Map({ a: 1, b: 2, c: 3 });
@@ -205,8 +199,6 @@ which would prefer to re-run the function if a deeper equality check could
 potentially be more costly. The `===` equality check is also used internally by
 `Immutable.is` and `.equals()` as a performance optimization.
 
-<!-- runkit:activate -->
-
 ```js
 const { Map } = require('immutable');
 const map1 = Map({ a: 1, b: 2, c: 3 });
@@ -219,8 +211,6 @@ to it instead of copying the entire object. Because a reference is much smaller
 than the object itself, this results in memory savings and a potential boost in
 execution speed for programs which rely on copies (such as an undo-stack).
 
-<!-- runkit:activate -->
-
 ```js
 const { Map } = require('immutable');
 const map = Map({ a: 1, b: 2, c: 3 });
@@ -229,7 +219,6 @@ const mapCopy = map; // Look, "copies" are free!
 
 [React]: https://reactjs.org/
 [Flux]: https://facebook.github.io/flux/docs/in-depth-overview/
-
 
 ## JavaScript-first API
 
@@ -247,8 +236,6 @@ The difference for the immutable collections is that methods which would mutate
 the collection, like `push`, `set`, `unshift` or `splice`, instead return a new
 immutable collection. Methods which return new arrays, like `slice` or `concat`,
 instead return new immutable collections.
-
-<!-- runkit:activate -->
 
 ```js
 const { List } = require('immutable');
@@ -268,8 +255,6 @@ Almost all of the methods on [Array][] will be found in similar form on
 found on `Immutable.Set`, including collection operations like `forEach()`
 and `map()`.
 
-<!-- runkit:activate -->
-
 ```js
 const { Map } = require('immutable');
 const alpha = Map({ a: 1, b: 2, c: 3, d: 4 });
@@ -282,8 +267,6 @@ alpha.map((v, k) => k.toUpperCase()).join();
 Designed to inter-operate with your existing JavaScript, Immutable.js
 accepts plain JavaScript Arrays and Objects anywhere a method expects a
 `Collection`.
-
-<!-- runkit:activate -->
 
 ```js
 const { Map, List } = require('immutable');
@@ -305,13 +288,11 @@ collection methods on JavaScript Objects, which otherwise have a very sparse
 native API. Because Seq evaluates lazily and does not cache intermediate
 results, these operations can be extremely efficient.
 
-<!-- runkit:activate -->
-
 ```js
 const { Seq } = require('immutable');
 const myObject = { a: 1, b: 2, c: 3 };
 Seq(myObject)
-  .map(x => x * x)
+  .map((x) => x * x)
   .toObject();
 // { a: 1, b: 4, c: 9 }
 ```
@@ -319,8 +300,6 @@ Seq(myObject)
 Keep in mind, when using JS objects to construct Immutable Maps, that
 JavaScript Object properties are always strings, even if written in a quote-less
 shorthand, while Immutable Maps accept keys of any type.
-
-<!-- runkit:activate -->
 
 ```js
 const { fromJS } = require('immutable');
@@ -345,8 +324,6 @@ All Immutable Collections also implement `toJSON()` allowing them to be passed
 to `JSON.stringify` directly. They also respect the custom `toJSON()` methods of
 nested objects.
 
-<!-- runkit:activate -->
-
 ```js
 const { Map, List } = require('immutable');
 const deep = Map({ a: 1, b: 2, c: List([3, 4, 5]) });
@@ -369,7 +346,7 @@ browsers, they need to be translated to ES5.
 
 ```js
 // ES2015
-const mapped = foo.map(x => x * x);
+const mapped = foo.map((x) => x * x);
 // ES5
 var mapped = foo.map(function (x) {
   return x * x;
@@ -378,8 +355,6 @@ var mapped = foo.map(function (x) {
 
 All Immutable.js collections are [Iterable][iterators], which allows them to be
 used anywhere an Iterable is expected, such as when spreading into an Array.
-
-<!-- runkit:activate -->
 
 ```js
 const { List } = require('immutable');
@@ -395,13 +370,10 @@ not always be well defined, as is the case for the `Map` and `Set`.
 [Classes]: https://wiki.ecmascript.org/doku.php?id=strawman:maximally_minimal_classes
 [Modules]: https://www.2ality.com/2014/09/es6-modules-final.html
 
-
 ## Nested Structures
 
 The collections in Immutable.js are intended to be nested, allowing for deep
 trees of data, similar to JSON.
-
-<!-- runkit:activate -->
 
 ```js
 const { fromJS } = require('immutable');
@@ -413,8 +385,6 @@ A few power-tools allow for reading and operating on nested data. The
 most useful are `mergeDeep`, `getIn`, `setIn`, and `updateIn`, found on `List`,
 `Map` and `OrderedMap`.
 
-<!-- runkit:activate -->
-
 ```js
 const { fromJS } = require('immutable');
 const nested = fromJS({ a: { b: { c: [3, 4, 5] } } });
@@ -424,11 +394,11 @@ const nested2 = nested.mergeDeep({ a: { b: { d: 6 } } });
 
 console.log(nested2.getIn(['a', 'b', 'd'])); // 6
 
-const nested3 = nested2.updateIn(['a', 'b', 'd'], value => value + 1);
+const nested3 = nested2.updateIn(['a', 'b', 'd'], (value) => value + 1);
 console.log(nested3);
 // Map { a: Map { b: Map { c: List [ 3, 4, 5 ], d: 7 } } }
 
-const nested4 = nested3.updateIn(['a', 'b', 'c'], list => list.push(6));
+const nested4 = nested3.updateIn(['a', 'b', 'c'], (list) => list.push(6));
 // Map { a: Map { b: Map { c: List [ 3, 4, 5, 6 ], d: 7 } } }
 ```
 
@@ -442,8 +412,6 @@ determines if two variables represent references to the same object instance.
 
 Consider the example below where two identical `Map` instances are not
 _reference equal_ but are _value equal_.
-
-<!-- runkit:activate -->
 
 ```js
 // First consider:
@@ -461,8 +429,6 @@ is(map1, map2); // alternatively can use the is() function
 
 Value equality allows Immutable.js collections to be used as keys in Maps or
 values in Sets, and retrieved with different but equivalent collections:
-
-<!-- runkit:activate -->
 
 ```js
 const { Map, Set } = require('immutable');
@@ -502,8 +468,6 @@ When possible, Immutable.js avoids creating new objects for updates where no
 change in _value_ occurred, to allow for efficient _reference equality_ checking
 to quickly determine if no change occurred.
 
-<!-- runkit:activate -->
-
 ```js
 const { Map } = require('immutable');
 const originalMap = Map({ a: 1, b: 2, c: 3 });
@@ -514,8 +478,6 @@ updatedMap === originalMap; // No-op .set() returned the original reference.
 However updates which do result in a change will return a new reference. Each
 of these operations occur independently, so two similar updates will not return
 the same reference:
-
-<!-- runkit:activate -->
 
 ```js
 const { Map } = require('immutable');
@@ -548,8 +510,6 @@ exactly how Immutable.js applies complex mutations itself.
 
 As an example, building `list2` results in the creation of 1, not 3, new
 immutable Lists.
-
-<!-- runkit:activate -->
 
 ```js
 const { List } = require('immutable');
@@ -592,8 +552,8 @@ For example, the following performs no work, because the resulting
 ```js
 const { Seq } = require('immutable');
 const oddSquares = Seq([1, 2, 3, 4, 5, 6, 7, 8])
-  .filter(x => x % 2 !== 0)
-  .map(x => x * x);
+  .filter((x) => x % 2 !== 0)
+  .map((x) => x * x);
 ```
 
 Once the `Seq` is used, it performs only the work necessary. In this
@@ -605,8 +565,6 @@ oddSquares.get(1); // 9
 ```
 
 Any collection can be converted to a lazy Seq with `Seq()`.
-
-<!-- runkit:activate -->
 
 ```js
 const { Map, Seq } = require('immutable');
@@ -620,7 +578,7 @@ expression of logic that can otherwise be very tedious:
 ```js
 lazySeq
   .flip()
-  .map(key => key.toUpperCase())
+  .map((key) => key.toUpperCase())
   .flip();
 // Seq { A: 1, B: 2, C: 3 }
 ```
@@ -628,14 +586,12 @@ lazySeq
 As well as expressing logic that would otherwise seem memory or time
 limited, for example `Range` is a special kind of Lazy sequence.
 
-<!-- runkit:activate -->
-
 ```js
 const { Range } = require('immutable');
 Range(1, Infinity)
   .skip(1000)
-  .map(n => -n)
-  .filter(n => n % 2 === 0)
+  .map((n) => -n)
+  .filter((n) => n % 2 === 0)
   .take(2)
   .reduce((r, n) => r * n, 1);
 // 1006008
@@ -646,8 +602,8 @@ Range(1, Infinity)
 The `filter()`, `groupBy()`, and `partition()` methods are similar in that they
 all divide a collection into parts based on applying a function to each element.
 All three call the predicate or grouping function once for each item in the
-input collection.  All three return zero or more collections of the same type as
-their input.  The returned collections are always distinct from the input
+input collection. All three return zero or more collections of the same type as
+their input. The returned collections are always distinct from the input
 (according to `===`), even if the contents are identical.
 
 Of these methods, `filter()` is the only one that is lazy and the only one which
@@ -658,21 +614,21 @@ methods to form a pipeline of operations.
 The `partition()` method is similar to an eager version of `filter()`, but it
 returns two collections; the first contains the items that would have been
 discarded by `filter()`, and the second contains the items that would have been
-kept.  It always returns an array of exactly two collections, which can make it
-easier to use than `groupBy()`.  Compared to making two separate calls to
+kept. It always returns an array of exactly two collections, which can make it
+easier to use than `groupBy()`. Compared to making two separate calls to
 `filter()`, `partition()` makes half as many calls it the predicate passed to
 it.
 
 The `groupBy()` method is a more generalized version of `partition()` that can
-group by an arbitrary function rather than just a predicate.  It returns a map
+group by an arbitrary function rather than just a predicate. It returns a map
 with zero or more entries, where the keys are the values returned by the
 grouping function, and the values are nonempty collections of the corresponding
-arguments.  Although `groupBy()` is more powerful than `partition()`, it can be
+arguments. Although `groupBy()` is more powerful than `partition()`, it can be
 harder to use because it is not always possible predict in advance how many
 entries the returned map will have and what their keys will be.
 
 | Summary                       | `filter` | `partition` | `groupBy`      |
-|:------------------------------|:---------|:------------|:---------------|
+| :---------------------------- | :------- | :---------- | :------------- |
 | ease of use                   | easiest  | moderate    | hardest        |
 | generality                    | least    | moderate    | most           |
 | laziness                      | lazy     | eager       | eager          |
@@ -684,49 +640,63 @@ entries the returned map will have and what their keys will be.
 ## Additional Tools and Resources
 
 - [Atom-store](https://github.com/jameshopkins/atom-store/)
+
   - A Clojure-inspired atom implementation in Javascript with configurability
     for external persistance.
 
 - [Chai Immutable](https://github.com/astorije/chai-immutable)
+
   - If you are using the [Chai Assertion Library](https://chaijs.com/), this
     provides a set of assertions to use against Immutable.js collections.
 
 - [Fantasy-land](https://github.com/fantasyland/fantasy-land)
+
   - Specification for interoperability of common algebraic structures in JavaScript.
 
 - [Immutagen](https://github.com/pelotom/immutagen)
+
   - A library for simulating immutable generators in JavaScript.
 
 - [Immutable-cursor](https://github.com/redbadger/immutable-cursor)
+
   - Immutable cursors incorporating the Immutable.js interface over
-  Clojure-inspired atom.
+    Clojure-inspired atom.
 
 - [Immutable-ext](https://github.com/DrBoolean/immutable-ext)
+
   - Fantasyland extensions for immutablejs
 
 - [Immutable-js-tools](https://github.com/madeinfree/immutable-js-tools)
+
   - Util tools for immutable.js
 
 - [Immutable-Redux](https://github.com/gajus/redux-immutable)
+
   - redux-immutable is used to create an equivalent function of Redux
-  combineReducers that works with Immutable.js state.
+    combineReducers that works with Immutable.js state.
 
 - [Immutable-Treeutils](https://github.com/lukasbuenger/immutable-treeutils)
+
   - Functional tree traversal helpers for ImmutableJS data structures.
 
 - [Irecord](https://github.com/ericelliott/irecord)
+
   - An immutable store that exposes an RxJS observable. Great for React.
 
 - [Mudash](https://github.com/brianneisler/mudash)
+
   - Lodash wrapper providing Immutable.JS support.
 
 - [React-Immutable-PropTypes](https://github.com/HurricaneJames/react-immutable-proptypes)
+
   - PropType validators that work with Immutable.js.
 
 - [Redux-Immutablejs](https://github.com/indexiatech/redux-immutablejs)
+
   - Redux Immutable facilities.
 
 - [Rxstate](https://github.com/yamalight/rxstate)
+
   - Simple opinionated state management library based on RxJS and Immutable.js.
 
 - [Transit-Immutable-js](https://github.com/glenjamin/transit-immutable-js)

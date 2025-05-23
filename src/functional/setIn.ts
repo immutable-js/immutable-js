@@ -8,15 +8,6 @@ import type { KeyPath } from '../../type-definitions/immutable';
  *
  * A functional alternative to `collection.setIn(keypath)` which will also
  * work with plain Objects and Arrays.
- *
- * <!-- runkit:activate -->
- * ```js
- * import { setIn } from 'immutable';
- *
- * const original = { x: { y: { z: 123 }}}
- * setIn(original, ['x', 'y', 'z'], 456) // { x: { y: { z: 456 }}}
- * console.log(original) // { x: { y: { z: 123 }}}
- * ```
  */
 export function setIn<
   K extends PropertyKey,

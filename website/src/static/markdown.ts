@@ -9,11 +9,6 @@ export type MarkdownContext = {
   signatures?: Array<CallSignature>;
 };
 
-type RunkitContext = {
-  options: string | object;
-  activated: boolean;
-};
-
 function highlight(code: string): string {
   return prism.highlight(code, prism.languages.javascript, 'javascript');
 }
@@ -45,38 +40,10 @@ export function markdown(content: string, context: MarkdownContext): string {
 
   const renderer = new marked.Renderer();
 
-  const runkitRegExp = /^<!--\s*runkit:activate((.|\n)*)-->(.|\n)*$/;
-  const runkitContext: RunkitContext = { options: '{}', activated: false };
-
-  renderer.html = function (text: string) {
-    const result = runkitRegExp.exec(text);
-
-    if (!result) return text;
-
-    runkitContext.activated = true;
-    try {
-      runkitContext.options = result[1] ? JSON.parse(result[1]) : {};
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO enable eslint here
-    } catch (e) {
-      runkitContext.options = {};
-    }
-    return text;
-  };
-
   renderer.code = function (code: string, lang: string, escaped: boolean) {
-    const runItButton = runkitContext.activated
-      ? '<a class="try-it" data-options="' +
-        escape(JSON.stringify(runkitContext.options)) +
-        `" onClick="runIt(this,'${context.defs.version}')">run it</a>`
-      : '';
-
-    runkitContext.activated = false;
-    runkitContext.options = '{}';
-
     return (
       '<code class="codeBlock">' +
       (escaped ? code : escapeCode(code)) +
-      runItButton +
       '</code>'
     );
   };

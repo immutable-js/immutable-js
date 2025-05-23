@@ -8,15 +8,6 @@ import { has } from './has';
  *
  * A functional alternative to `collection.get(key)` which will also work on
  * plain Objects and Arrays as an alternative for `collection[key]`.
- *
- * <!-- runkit:activate -->
- * ```js
- * import { get } from 'immutable';
- *
- * get([ 'dog', 'frog', 'cat' ], 1) // 'frog'
- * get({ x: 123, y: 456 }, 'x') // 123
- * get({ x: 123, y: 456 }, 'z', 'ifNotSet') // 'ifNotSet'
- * ```
  */
 export function get<K, V>(collection: Collection<K, V>, key: K): V | undefined;
 export function get<K, V, NSV>(

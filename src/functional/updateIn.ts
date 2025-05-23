@@ -20,15 +20,6 @@ import type {
  *
  * A functional alternative to `collection.updateIn(keypath)` which will also
  * work with plain Objects and Arrays.
- *
- * <!-- runkit:activate -->
- * ```js
- * import { updateIn } from 'immutable'
- *
- * const original = { x: { y: { z: 123 }}}
- * updateIn(original, ['x', 'y', 'z'], val => val * 6) // { x: { y: { z: 738 }}}
- * console.log(original) // { x: { y: { z: 123 }}}
- * ```
  */
 
 export type PossibleCollection<K, V, TProps extends object> =
