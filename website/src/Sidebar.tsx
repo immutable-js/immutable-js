@@ -5,6 +5,7 @@ import { Fragment, useEffect, useState } from 'react';
 import type { TypeDefinition } from './TypeDefs';
 import { collectMemberGroups } from './collectMemberGroups';
 import { ArrowDown } from './ArrowDown';
+import { SIDEBAR_LINKS } from './app/docs/currentVersion';
 
 export type SidebarLinks = Array<{ label: string; url: string }>;
 
@@ -130,14 +131,14 @@ function Focus({
 }
 
 export function SideBar({
-  links,
+  links = SIDEBAR_LINKS,
   focus,
   toggleShowInherited,
   toggleShowInGroups,
   showInherited,
   showInGroups,
 }: {
-  links: SidebarLinks;
+  links?: SidebarLinks;
   focus?: TypeDefinition;
   toggleShowInherited?: () => void;
   toggleShowInGroups?: () => void;

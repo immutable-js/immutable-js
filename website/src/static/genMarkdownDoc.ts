@@ -1,5 +1,5 @@
 import { markdown } from './markdown';
-import { SIDEBAR_LINKS } from '../app/docs/v5/layout';
+import { SIDEBAR_LINKS } from '../app/docs/currentVersion';
 
 export function genMarkdownDoc(version: string, typeDefSource: string): string {
   return markdown(
