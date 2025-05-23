@@ -8,16 +8,6 @@ import isDataStructure from '../utils/isDataStructure';
  * A functional alternative to `collection.has(key)` which will also work with
  * plain Objects and Arrays as an alternative for
  * `collection.hasOwnProperty(key)`.
- *
- * <!-- runkit:activate -->
- * ```js
- * import { has } from 'immutable';
- *
- * has([ 'dog', 'frog', 'cat' ], 2) // true
- * has([ 'dog', 'frog', 'cat' ], 5) // false
- * has({ x: 123, y: 456 }, 'x') // true
- * has({ x: 123, y: 456 }, 'z') // false
- * ```
  */
 export function has(collection: object, key: unknown): boolean {
   return isImmutable(collection)

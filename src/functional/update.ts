@@ -11,18 +11,6 @@ type UpdaterFunctionWithNSV<V, NSV> = (value: V | NSV) => V;
  * A functional alternative to `collection.update(key, fn)` which will also
  * work with plain Objects and Arrays as an alternative for
  * `collectionCopy[key] = fn(collection[key])`.
- *
- * <!-- runkit:activate -->
- * ```js
- * import { update } from 'immutable';
- *
- * const originalArray = [ 'dog', 'frog', 'cat' ]
- * update(originalArray, 1, val => val.toUpperCase()) // [ 'dog', 'FROG', 'cat' ]
- * console.log(originalArray) // [ 'dog', 'frog', 'cat' ]
- * const originalObject = { x: 123, y: 456 }
- * update(originalObject, 'x', val => val * 6) // { x: 738, y: 456 }
- * console.log(originalObject) // { x: 123, y: 456 }
- * ```
  */
 export function update<K, V, C extends Collection<K, V>>(
   collection: C,

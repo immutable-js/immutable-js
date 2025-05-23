@@ -10,18 +10,6 @@ import shallowCopy from '../utils/shallowCopy';
  * A functional alternative to `collection.remove(key)` which will also work
  * with plain Objects and Arrays as an alternative for
  * `delete collectionCopy[key]`.
- *
- * <!-- runkit:activate -->
- * ```js
- * import { remove } from 'immutable';
- *
- * const originalArray = [ 'dog', 'frog', 'cat' ]
- * remove(originalArray, 1) // [ 'dog', 'cat' ]
- * console.log(originalArray) // [ 'dog', 'frog', 'cat' ]
- * const originalObject = { x: 123, y: 456 }
- * remove(originalObject, 'x') // { y: 456 }
- * console.log(originalObject) // { x: 123, y: 456 }
- * ```
  */
 export function remove<K, C extends Collection<K, unknown>>(
   collection: C,

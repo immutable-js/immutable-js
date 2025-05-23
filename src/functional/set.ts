@@ -11,18 +11,6 @@ import shallowCopy from '../utils/shallowCopy';
  * A functional alternative to `collection.set(key, value)` which will also
  * work with plain Objects and Arrays as an alternative for
  * `collectionCopy[key] = value`.
- *
- * <!-- runkit:activate -->
- * ```js
- * import { set } from 'immutable';
- *
- * const originalArray = [ 'dog', 'frog', 'cat' ]
- * set(originalArray, 1, 'cow') // [ 'dog', 'cow', 'cat' ]
- * console.log(originalArray) // [ 'dog', 'frog', 'cat' ]
- * const originalObject = { x: 123, y: 456 }
- * set(originalObject, 'x', 789) // { x: 789, y: 456 }
- * console.log(originalObject) // { x: 123, y: 456 }
- * ```
  */
 export function set<K, V, C extends Collection<K, V>>(
   collection: C,
