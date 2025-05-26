@@ -1,10 +1,11 @@
 'use client';
 import dynamic from 'next/dynamic';
-import React, { useEffect, useRef, useState, type JSX } from 'react';
+import React, { useCallback, useEffect, useState, type JSX } from 'react';
 import { Editor } from './Editor';
 import FormatterOutput from './FormatterOutput';
-import './repl.css';
 import { Element, JsonMLElementList } from '../worker/jsonml-types';
+import { useWorkerContext } from '../app/WorkerContext';
+import './repl.css';
 
 type Props = {
   defaultValue: string;
@@ -15,51 +16,23 @@ type Props = {
 function Repl({ defaultValue, onRun, imports }: Props): JSX.Element {
   const [code, setCode] = useState<string>(defaultValue);
   const [output, setOutput] = useState<JsonMLElementList | Element>([]);
-  const workerRef = useRef<Worker | null>(null);
+  const { runCode: workerRunCode } = useWorkerContext();
 
-  useEffect(() => {
-    // Create a worker from the external worker.js file
-    workerRef.current = new Worker(
-      new URL('../worker/index.ts', import.meta.url)
-    );
+  const onSuccess = (result: JsonMLElementList | Element): void => {
+    if (onRun) {
+      onRun(code);
+    }
 
-    return () => {
-      workerRef.current?.terminate();
-    };
-  }, []);
+    setOutput(result);
+  };
+
+  const runCode = useCallback(() => {
+    workerRunCode(code, onSuccess);
+  }, [workerRunCode]);
 
   useEffect(() => {
     runCode();
   }, []);
-
-  const runCode = () => {
-    if (workerRef.current) {
-      // ignore import statements as we do unpack all immutable data in the worker
-      // but it might be useful in the documentation
-      const cleanedCode = code; // .replace(/^import.*/m, '');
-
-      // notify parent
-      if (onRun) {
-        onRun(cleanedCode);
-      }
-
-      // send message to worker
-      workerRef.current.postMessage(cleanedCode);
-      workerRef.current.onmessage = (event) => {
-        if (event.data.error) {
-          setOutput(['div', 'Error: ' + event.data.error]);
-        } else {
-          const { output } = event.data;
-
-          if (typeof output === 'object' && !Array.isArray(output)) {
-            setOutput(['div', { object: output }]);
-          } else {
-            setOutput(output);
-          }
-        }
-      };
-    }
-  };
 
   return (
     <div className="js-repl">
