@@ -28,7 +28,7 @@ function Repl({ defaultValue, onRun, imports }: Props): JSX.Element {
 
   const runCode = useCallback(() => {
     workerRunCode(code, onSuccess);
-  }, [workerRunCode]);
+  }, [code, onSuccess, workerRunCode]);
 
   useEffect(() => {
     runCode();

@@ -20,7 +20,7 @@ export default function OverviewDocPage() {
       <SideBar />
       <div key="Overview" className="docContents">
         <DocSearch />
-        <h1>Playgroud (${VERSION})</h1>
+        <h1>Playgroud ({VERSION})</h1>
         You can share or bookmark the url to get access to this playground.
         <Playground />
       </div>
