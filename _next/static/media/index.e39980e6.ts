@@ -80,9 +80,13 @@ immutableDevTools(Immutable);
 // hack to get the formatters from immutable-devtools as they are not exported, but they modify the "global" variable
 const immutableFormaters = globalThis.devtoolsFormatters;
 
-self.onmessage = function (event) {
+self.onmessage = function (event: {
+  data: { code: string; key: string };
+}): void {
+  const { code, key } = event.data;
+
   const timeoutId = setTimeout(() => {
-    self.postMessage({ error: 'Execution timed out' });
+    self.postMessage({ key, error: 'Execution timed out' });
     self.close();
   }, 2000);
 
@@ -92,8 +96,6 @@ self.onmessage = function (event) {
     // if (!globalThis.globalThisKeysBefore) {
     //   globalThis.globalThisKeysBefore = [...Object.keys(globalThis)];
     // }
-
-    const code = event.data;
 
     // track const and let variables into global scope to record them
 
@@ -129,10 +131,13 @@ self.onmessage = function (event) {
 
     // }
 
-    self.postMessage({ output: normalizeResult(immutableFormaters, result) });
+    self.postMessage({
+      key,
+      output: normalizeResult(immutableFormaters, result),
+    });
   } catch (error) {
     console.log(error);
     clearTimeout(timeoutId);
-    self.postMessage({ error: String(error) });
+    self.postMessage({ key, error: String(error) });
   }
 };
