@@ -10,7 +10,7 @@ True if `maybeImmutable` is an Immutable Collection or Record.
 Note: Still returns true even if the collections is within a `withMutations()`.
 
 ```js
-const { isImmutable, Map, List, Stack } = require('immutable');
+import { isImmutable, Map, List, Stack } from 'immutable';
 isImmutable([]); // false
 isImmutable({}); // false
 isImmutable(Map()); // true

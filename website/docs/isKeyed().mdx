@@ -8,7 +8,7 @@ True if `maybeKeyed` is a Collection.Keyed, or any of its subclasses.
 <Signature code={`isKeyed(maybeKeyed: unknown): boolean;`} />
 
 ```js
-const { isKeyed, Map, List, Stack } = require('immutable');
+import { isKeyed, Map, List, Stack } from 'immutable';
 isKeyed([]); // false
 isKeyed({}); // false
 isKeyed(Map()); // true

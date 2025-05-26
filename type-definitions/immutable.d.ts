@@ -1372,7 +1372,7 @@ declare namespace Immutable {
      * a collection of other sets.
      *
      * ```js
-     * const { Set } = require('immutable')
+     * import { Set } from 'immutable'
      * const intersected = Set.intersect([
      *   Set([ 'a', 'b', 'c' ])
      *   Set([ 'c', 'a', 't' ])
@@ -1387,7 +1387,7 @@ declare namespace Immutable {
      * collection of other sets.
      *
      * ```js
-     * const { Set } = require('immutable')
+     * import { Set } from 'immutable'
      * const unioned = Set.union([
      *   Set([ 'a', 'b', 'c' ])
      *   Set([ 'c', 'a', 't' ])
@@ -2029,7 +2029,7 @@ declare namespace Immutable {
    * `new` keyword during construction.
    *
    * ```js
-   * const { Range } = require('immutable')
+   * import { Range } from 'immutable'
    * Range(10, 15) // [ 10, 11, 12, 13, 14 ]
    * Range(10, 30, 5) // [ 10, 15, 20, 25 ]
    * Range(30, 10, 5) // [ 30, 25, 20, 15 ]
@@ -2050,7 +2050,7 @@ declare namespace Immutable {
    * `new` keyword during construction.
    *
    * ```js
-   * const { Repeat } = require('immutable')
+   * import { Repeat } from 'immutable'
    * Repeat('foo') // [ 'foo', 'foo', 'foo', ... ]
    * Repeat('bar', 4) // [ 'bar', 'bar', 'bar', 'bar' ]
    * ```
@@ -2065,7 +2065,7 @@ declare namespace Immutable {
    * create Record instances.
    *
    * ```js
-   * const { Record } = require('immutable')
+   * import { Record } from 'immutable'
    * const ABRecord = Record({ a: 1, b: 2 })
    * const myRecord = ABRecord({ b: 3 })
    * ```
@@ -2229,7 +2229,7 @@ declare namespace Immutable {
      * method. If one was not provided, the string "Record" is returned.
      *
      * ```js
-     * const { Record } = require('immutable')
+     * import { Record } from 'immutable'
      * const Person = Record({
      *   name: null
      * }, 'Person')
@@ -2449,7 +2449,7 @@ declare namespace Immutable {
    * `Seq`'s values are never iterated:
    *
    * ```js
-   * const { Seq } = require('immutable')
+   * import { Seq } from 'immutable'
    * const oddSquares = Seq([ 1, 2, 3, 4, 5, 6, 7, 8 ])
    *   .filter(x => x % 2 !== 0)
    *   .map(x => x * x)
@@ -2557,7 +2557,7 @@ declare namespace Immutable {
        * `mapper` function.
        *
        * ```js
-       * const { Seq } = require('immutable')
+       * import { Seq } from 'immutable'
        * Seq.Keyed({ a: 1, b: 2 }).map(x => 10 * x)
        * // Seq { "a": 10, "b": 20 }
        * ```
@@ -2691,7 +2691,7 @@ declare namespace Immutable {
        * `mapper` function.
        *
        * ```js
-       * const { Seq } = require('immutable')
+       * import { Seq } from 'immutable'
        * Seq.Indexed([ 1, 2 ]).map(x => 10 * x)
        * // Seq [ 10, 20 ]
        * ```
@@ -2994,7 +2994,7 @@ declare namespace Immutable {
      * `mapper` function.
      *
      * ```js
-     * const { Seq } = require('immutable')
+     * import { Seq } from 'immutable'
      * Seq([ 1, 2 ]).map(x => 10 * x)
      * // Seq [ 10, 20 ]
      * ```
@@ -3012,7 +3012,7 @@ declare namespace Immutable {
      * `mapper` function.
      *
      * ```js
-     * const { Seq } = require('immutable')
+     * import { Seq } from 'immutable'
      * Seq([ 1, 2 ]).map(x => 10 * x)
      * // Seq [ 10, 20 ]
      * ```
@@ -3171,7 +3171,7 @@ declare namespace Immutable {
        * `mapper` function.
        *
        * ```js
-       * const { Collection } = require('immutable')
+       * import { Collection } from 'immutable'
        * Collection.Keyed({ a: 1, b: 2 }).map(x => 10 * x)
        * // Seq { "a": 10, "b": 20 }
        * ```
@@ -3465,7 +3465,7 @@ declare namespace Immutable {
        * `mapper` function.
        *
        * ```js
-       * const { Collection } = require('immutable')
+       * import { Collection } from 'immutable'
        * Collection.Indexed([1,2]).map(x => 10 * x)
        * // Seq [ 1, 2 ]
        * ```
@@ -3530,7 +3530,7 @@ declare namespace Immutable {
      * the value as both the first and second arguments to the provided function.
      *
      * ```js
-     * const { Collection } = require('immutable')
+     * import { Collection } from 'immutable'
      * const seq = Collection.Set([ 'A', 'B', 'C' ])
      * // Seq { "A", "B", "C" }
      * seq.forEach((v, k) =>

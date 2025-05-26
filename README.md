@@ -74,7 +74,7 @@ bun add immutable
 Then require it into any module.
 
 ```js
-const { Map } = require('immutable');
+import { Map } from 'immutable';
 const map1 = Map({ a: 1, b: 2, c: 3 });
 const map2 = map1.set('b', 50);
 map1.get('b') + ' vs. ' + map2.get('b'); // 2 vs. 50
@@ -135,7 +135,7 @@ lib. Include either `"target": "es2015"` or `"lib": "es2015"` in your
 `tsc` command.
 
 ```js
-const { Map } = require('immutable');
+import { Map } from 'immutable';
 const map1 = Map({ a: 1, b: 2, c: 3 });
 const map2 = map1.set('b', 50);
 map1.get('b') + ' vs. ' + map2.get('b'); // 2 vs. 50
@@ -184,7 +184,7 @@ treat Immutable.js collections as values, it's important to use the
 instead of the `===` operator which determines object _reference identity_.
 
 ```js
-const { Map } = require('immutable');
+import { Map } from 'immutable';
 const map1 = Map({ a: 1, b: 2, c: 3 });
 const map2 = Map({ a: 1, b: 2, c: 3 });
 map1.equals(map2); // true
@@ -200,7 +200,7 @@ potentially be more costly. The `===` equality check is also used internally by
 `Immutable.is` and `.equals()` as a performance optimization.
 
 ```js
-const { Map } = require('immutable');
+import { Map } from 'immutable';
 const map1 = Map({ a: 1, b: 2, c: 3 });
 const map2 = map1.set('b', 2); // Set to same value
 map1 === map2; // true
@@ -212,7 +212,7 @@ than the object itself, this results in memory savings and a potential boost in
 execution speed for programs which rely on copies (such as an undo-stack).
 
 ```js
-const { Map } = require('immutable');
+import { Map } from 'immutable';
 const map = Map({ a: 1, b: 2, c: 3 });
 const mapCopy = map; // Look, "copies" are free!
 ```
@@ -238,7 +238,7 @@ immutable collection. Methods which return new arrays, like `slice` or `concat`,
 instead return new immutable collections.
 
 ```js
-const { List } = require('immutable');
+import { List } from 'immutable';
 const list1 = List([1, 2]);
 const list2 = list1.push(3, 4, 5);
 const list3 = list2.unshift(0);
@@ -256,7 +256,7 @@ found on `Immutable.Set`, including collection operations like `forEach()`
 and `map()`.
 
 ```js
-const { Map } = require('immutable');
+import { Map } from 'immutable';
 const alpha = Map({ a: 1, b: 2, c: 3, d: 4 });
 alpha.map((v, k) => k.toUpperCase()).join();
 // 'A,B,C,D'
@@ -269,7 +269,7 @@ accepts plain JavaScript Arrays and Objects anywhere a method expects a
 `Collection`.
 
 ```js
-const { Map, List } = require('immutable');
+import { Map, List } from 'immutable';
 const map1 = Map({ a: 1, b: 2, c: 3, d: 4 });
 const map2 = Map({ c: 10, a: 20, t: 30 });
 const obj = { d: 100, o: 200, g: 300 };
@@ -289,7 +289,7 @@ native API. Because Seq evaluates lazily and does not cache intermediate
 results, these operations can be extremely efficient.
 
 ```js
-const { Seq } = require('immutable');
+import { Seq } from 'immutable';
 const myObject = { a: 1, b: 2, c: 3 };
 Seq(myObject)
   .map((x) => x * x)
@@ -302,7 +302,7 @@ JavaScript Object properties are always strings, even if written in a quote-less
 shorthand, while Immutable Maps accept keys of any type.
 
 ```js
-const { fromJS } = require('immutable');
+import { fromJS } from 'immutable';
 
 const obj = { 1: 'one' };
 console.log(Object.keys(obj)); // [ "1" ]
@@ -325,7 +325,7 @@ to `JSON.stringify` directly. They also respect the custom `toJSON()` methods of
 nested objects.
 
 ```js
-const { Map, List } = require('immutable');
+import { Map, List } from 'immutable';
 const deep = Map({ a: 1, b: 2, c: List([3, 4, 5]) });
 console.log(deep.toObject()); // { a: 1, b: 2, c: List [ 3, 4, 5 ] }
 console.log(deep.toArray()); // [ 1, 2, List [ 3, 4, 5 ] ]
@@ -357,7 +357,7 @@ All Immutable.js collections are [Iterable][iterators], which allows them to be
 used anywhere an Iterable is expected, such as when spreading into an Array.
 
 ```js
-const { List } = require('immutable');
+import { List } from 'immutable';
 const aList = List([1, 2, 3]);
 const anArray = [0, ...aList, 4, 5]; // [ 0, 1, 2, 3, 4, 5 ]
 ```
@@ -376,7 +376,7 @@ The collections in Immutable.js are intended to be nested, allowing for deep
 trees of data, similar to JSON.
 
 ```js
-const { fromJS } = require('immutable');
+import { fromJS } from 'immutable';
 const nested = fromJS({ a: { b: { c: [3, 4, 5] } } });
 // Map { a: Map { b: Map { c: List [ 3, 4, 5 ] } } }
 ```
@@ -386,7 +386,7 @@ most useful are `mergeDeep`, `getIn`, `setIn`, and `updateIn`, found on `List`,
 `Map` and `OrderedMap`.
 
 ```js
-const { fromJS } = require('immutable');
+import { fromJS } from 'immutable';
 const nested = fromJS({ a: { b: { c: [3, 4, 5] } } });
 
 const nested2 = nested.mergeDeep({ a: { b: { d: 6 } } });
@@ -419,7 +419,7 @@ const obj1 = { a: 1, b: 2, c: 3 };
 const obj2 = { a: 1, b: 2, c: 3 };
 obj1 !== obj2; // two different instances are always not equal with ===
 
-const { Map, is } = require('immutable');
+import { Map, is } from 'immutable';
 const map1 = Map({ a: 1, b: 2, c: 3 });
 const map2 = Map({ a: 1, b: 2, c: 3 });
 map1 !== map2; // two different instances are not reference-equal
@@ -431,7 +431,7 @@ Value equality allows Immutable.js collections to be used as keys in Maps or
 values in Sets, and retrieved with different but equivalent collections:
 
 ```js
-const { Map, Set } = require('immutable');
+import { Map, Set } from 'immutable';
 const map1 = Map({ a: 1, b: 2, c: 3 });
 const map2 = Map({ a: 1, b: 2, c: 3 });
 const set = Set().add(map1);
@@ -469,7 +469,7 @@ change in _value_ occurred, to allow for efficient _reference equality_ checking
 to quickly determine if no change occurred.
 
 ```js
-const { Map } = require('immutable');
+import { Map } from 'immutable';
 const originalMap = Map({ a: 1, b: 2, c: 3 });
 const updatedMap = originalMap.set('b', 2);
 updatedMap === originalMap; // No-op .set() returned the original reference.
@@ -480,7 +480,7 @@ of these operations occur independently, so two similar updates will not return
 the same reference:
 
 ```js
-const { Map } = require('immutable');
+import { Map } from 'immutable';
 const originalMap = Map({ a: 1, b: 2, c: 3 });
 const updatedMap = originalMap.set('b', 1000);
 // New instance, leaving the original immutable.
@@ -512,7 +512,7 @@ As an example, building `list2` results in the creation of 1, not 3, new
 immutable Lists.
 
 ```js
-const { List } = require('immutable');
+import { List } from 'immutable';
 const list1 = List([1, 2, 3]);
 const list2 = list1.withMutations(function (list) {
   list.push(4).push(5).push(6);
@@ -550,7 +550,7 @@ For example, the following performs no work, because the resulting
 `Seq`'s values are never iterated:
 
 ```js
-const { Seq } = require('immutable');
+import { Seq } from 'immutable';
 const oddSquares = Seq([1, 2, 3, 4, 5, 6, 7, 8])
   .filter((x) => x % 2 !== 0)
   .map((x) => x * x);
@@ -567,7 +567,7 @@ oddSquares.get(1); // 9
 Any collection can be converted to a lazy Seq with `Seq()`.
 
 ```js
-const { Map, Seq } = require('immutable');
+import { Map, Seq } from 'immutable';
 const map = Map({ a: 1, b: 2, c: 3 });
 const lazySeq = Seq(map);
 ```
@@ -587,7 +587,7 @@ As well as expressing logic that would otherwise seem memory or time
 limited, for example `Range` is a special kind of Lazy sequence.
 
 ```js
-const { Range } = require('immutable');
+import { Range } from 'immutable';
 Range(1, Infinity)
   .skip(1000)
   .map((n) => -n)
