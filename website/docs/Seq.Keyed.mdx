@@ -99,7 +99,7 @@ Returns a new Collection.Keyed of the same type where the keys and values have b
 <Signature code="flip(): Collection.Keyed<V, K>;" />
 
 ```js
-const { Map } = require('immutable');
+import { Map } from 'immutable';
 Map({ a: 'z', b: 'y' }).flip();
 // Map { "z": "a", "y": "b" }
 ```
@@ -129,7 +129,7 @@ Returns a new Seq.Keyed with values passed through a `mapper` function.
 />
 
 ```js
-const { Seq } = require('immutable');
+import { Seq } from 'immutable';
 Seq.Keyed({ a: 1, b: 2 }).map((x) => 10 * x);
 // Seq { "a": 10, "b": 20 }
 ```
@@ -145,7 +145,7 @@ Returns a new Collection.Keyed of the same type with keys passed through a `mapp
 />
 
 ```js
-const { Map } = require('immutable');
+import { Map } from 'immutable';
 Map({ a: 1, b: 2 }).mapKeys((x) => x.toUpperCase());
 // Map { "A": 1, "B": 2 }
 ```
@@ -161,7 +161,7 @@ Returns a new Collection.Keyed of the same type with entries ([key, value] tuple
 />
 
 ```js
-const { Map } = require('immutable');
+import { Map } from 'immutable';
 Map({ a: 1, b: 2 }).mapEntries(([k, v]) => [k.toUpperCase(), v * 2]);
 // Map { "A": 2, "B": 4 }
 ```
@@ -442,7 +442,7 @@ Returns a new Collection of the same type with only the entries for which the `p
 />
 
 ```js
-const { Map } = require('immutable');
+import { Map } from 'immutable';
 Map({ a: 1, b: 2, c: 3, d: 4 }).filterNot((x) => x % 2 === 0);
 // Map { "a": 1, "c": 3 }
 ```
@@ -472,7 +472,7 @@ If a `comparator` is not provided, a default comparator uses `<` and `>`.
 - Is pure, i.e. it must always return the same value for the same pair of values.
 
 ```js
-const { Map } = require('immutable');
+import { Map } from 'immutable';
 Map({ c: 3, a: 1, b: 2 }).sort((a, b) => {
   if (a < b) {
     return -1;
@@ -635,7 +635,7 @@ Returns a new Collection of the same type which includes entries from this Colle
 />
 
 ```js
-const { List } = require('immutable');
+import { List } from 'immutable';
 List(['dog', 'frog', 'cat', 'hat', 'god']).takeWhile((x) => x.match(/o/));
 // List [ "dog", "frog" ]
 ```
@@ -649,7 +649,7 @@ Returns a new Collection of the same type which includes entries from this Colle
 />
 
 ```js
-const { List } = require('immutable');
+import { List } from 'immutable';
 List(['dog', 'frog', 'cat', 'hat', 'god']).takeUntil((x) => x.match(/at/));
 // List [ "dog", "frog" ]
 ```
@@ -835,7 +835,7 @@ Like `max`, but also accepts a `comparatorValueMapper` which allows for comparin
 />
 
 ```js
-const { List } = require('immutable');
+import { List } from 'immutable';
 const l = List([
   { name: 'Bob', avgHit: 1 },
   { name: 'Max', avgHit: 3 },
@@ -865,7 +865,7 @@ Like `min`, but also accepts a `comparatorValueMapper` which allows for comparin
 />
 
 ```js
-const { List } = require('immutable');
+import { List } from 'immutable';
 const l = List([
   { name: 'Bob', avgHit: 1 },
   { name: 'Max', avgHit: 3 },

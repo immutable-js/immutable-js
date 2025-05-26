@@ -629,9 +629,7 @@ The returned Seq will have identical iteration order as this List.
 <Signature code={`toKeyedSeq(): Seq.Keyed<number, T>`} />
 
 <Repl
-  defaultValue={`import { Seq } from 'immutable';
-
-const indexedSeq = Seq([ 'A', 'B', 'C' ])
+  defaultValue={`const indexedSeq = Seq([ 'A', 'B', 'C' ])
 // Seq [ "A", "B", "C" ]
 indexedSeq.filter(v => v === 'B')
 // Seq [ "B" ]
@@ -949,16 +947,14 @@ Returns the value found by following a path of keys or indices through nested Co
 />
 
 <Repl
-  defaultValue={`const { Map, List } = require('immutable')
-const deepData = Map({ x: List([ Map({ y: 123 }) ]) });
+  defaultValue={`const deepData = Map({ x: List([ Map({ y: 123 }) ]) });
 deepData.getIn(['x', 0, 'y'])`}
 />
 
 Plain JavaScript Object or Arrays may be nested within an Immutable.js Collection, and getIn() can access those values as well:
 
 <Repl
-  defaultValue={`const { Map, List } = require('immutable')
-const deepData = Map({ x: [ { y: 123 } ] });
+  defaultValue={`const deepData = Map({ x: [ { y: 123 } ] });
 deepData.getIn(['x', 0, 'y'])`}
 />
 
@@ -1011,8 +1007,7 @@ This is similar to `List(collection)`, but provided to allow for chained express
 <Signature code={`toList(): List<V>`} />
 
 <Repl
-  defaultValue={`const { Map, List } = require('immutable')
-var myMap = Map({ a: 'Apple', b: 'Banana' })
+  defaultValue={`const myMap = Map({ a: 'Apple', b: 'Banana' })
 List(myMap) // List [ [ "a", "Apple" ], [ "b", "Banana" ] ]
 myMap.toList() // List [ "Apple", "Banana" ]`}
 />
