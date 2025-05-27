@@ -21,7 +21,7 @@ All methods describe the kinds of data they accept and the kinds of data
 they return. For example a function which accepts two numbers and returns
 a number would look like this:
 
-```js
+```ts
 sum(first: number, second: number): number
 ```
 
@@ -30,17 +30,17 @@ kinds of data, and this is described with a _type variable_, which is
 typically in all-caps. For example, a function which always returns the same
 kind of data it was provided would look like this:
 
-```js
+```ts
 identity<T>(value: T): T
 ```
 
 Type variables are defined with classes and referred to in methods. For
 example, a class that holds onto a value for you might look like this:
 
-```js
+```ts
 class Box<T> {
-constructor(value: T)
-getValue(): T
+  constructor(value: T);
+  getValue(): T;
 }
 ```
 
@@ -49,9 +49,9 @@ a Collection instead return a new Collection of the same type. The type
 `this` refers to the same kind of class. For example, a List which returns
 new Lists when you `push` a value onto it might look like:
 
-```js
+```ts
 class List<T> {
-push(value: T): this
+  push(value: T): this;
 }
 ```
 
@@ -64,25 +64,40 @@ collections are iterable themselves!
 For example, to get a value deep within a structure of data, we might use
 `getIn` which expects an `Iterable` path:
 
-```
+```ts
 getIn(path: Iterable<string | number>): unknown
 ```
 
 To use this method, we could pass an array: `data.getIn([ "key", 2 ])`.
 
-Note: All examples are presented in the modern [ES2015][] version of
-JavaScript. Use tools like Babel to support older browsers.
+### Inheritance cheatsheet
 
-For example:
+The following diagram shows the inheritance relationships between the
+Immutable.js collections. Click on the image to view it in full size.
 
-```js
-// ES2015
-const mappedFoo = foo.map((x) => x * x);
-// ES5
-var mappedFoo = foo.map(function (x) {
-  return x * x;
-});
-```
+<span>
+  {/*
+  SVG files are generated from https://excalidraw.com/#json=Indmlmx6FxIgZXvBbKbmH,OKX0Xpl-pmU1c8ZQueCj6Q
+  If you want to update this chart:
+    - open the link above
+    - edit the chart
+    - export it as SVG via "file > export" without background, one time in light mode and one time in dark mode
+    - change the link above with the link you will get with "share > shareable link"
+  */}
+</span>
+
+<a href="/Immutable.js-Inheritance-cheatsheet.light.excalidraw.svg">
+  <picture>
+    <source
+      srcSet="/Immutable.js-Inheritance-cheatsheet.dark.excalidraw.svg"
+      media="(prefers-color-scheme: dark)"
+    />
+    <img
+      src="/Immutable.js-Inheritance-cheatsheet.light.excalidraw.svg"
+      alt="Immutable.js Inheritance cheatsheet"
+    />
+  </picture>
+</a>
 
 [ES2015]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/New_in_JavaScript/ECMAScript_6_support_in_Mozilla
 [TypeScript]: https://www.typescriptlang.org/

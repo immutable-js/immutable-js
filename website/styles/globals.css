@@ -199,7 +199,7 @@ a.try-it {
 }
 
 img {
-  max-width: 1024px;
+  max-width: min(100%, 1024px);
 }
 
 .markdown h1 {
@@ -377,10 +377,6 @@ img {
 
   .contents {
     padding-top: 24px;
-  }
-
-  .contents img {
-    max-width: 100%;
   }
 
   .pageBody {
