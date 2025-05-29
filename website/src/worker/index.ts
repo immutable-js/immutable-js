@@ -5,18 +5,14 @@ import normalizeResult, { DevToolsFormatter } from './normalizeResult';
 // Declare Immutable and immutableDevTools as they come from external scripts
 declare const Immutable: typeof ImmutableModule;
 
-declare function immutableDevTools(immutable: typeof ImmutableModule): void;
-
 // Declare globalThis.devtoolsFormatters
 declare global {
-  // eslint-disable-next-line no-var
-  var devtoolsFormatters: DevToolsFormatter[];
+  interface GlobalThis {
+    devtoolsFormatters: DevToolsFormatter[];
+  }
 }
 
-importScripts(
-  'https://cdn.jsdelivr.net/npm/immutable@5.1.1',
-  'https://cdn.jsdelivr.net/npm/@jdeniau/immutable-devtools@0.2.0'
-);
+importScripts('https://cdn.jsdelivr.net/npm/immutable');
 
 // extract all Immutable exports to have them available in the worker automatically
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -75,69 +71,82 @@ const {
 } = Immutable;
 /* eslint-enable @typescript-eslint/no-unused-vars */
 
-immutableDevTools(Immutable);
+(async () => {
+  // Utilisez une URL ESM si besoin
+  const immutableDevTools = (await import('@jdeniau/immutable-devtools'))
+    .default;
+  // ...le reste de l'initialisation...
+  immutableDevTools(Immutable);
+  const immutableFormaters: Array<DevToolsFormatter> =
+    globalThis.devtoolsFormatters;
 
-// hack to get the formatters from immutable-devtools as they are not exported, but they modify the "global" variable
-const immutableFormaters = globalThis.devtoolsFormatters;
+  // immutableDevTools(Immutable);
 
-self.onmessage = function (event: {
-  data: { code: string; key: string };
-}): void {
-  const { code, key } = event.data;
+  // hack to get the formatters from immutable-devtools as they are not exported, but they modify the "global" variable
 
-  const timeoutId = setTimeout(() => {
-    self.postMessage({ key, error: 'Execution timed out' });
-    self.close();
-  }, 2000);
+  self.onmessage = function (event: {
+    data: { code: string; key: string };
+  }): void {
+    const { code, key } = event.data;
 
-  try {
-    // track globalThis variables to remove them later
+    const timeoutId = setTimeout(() => {
+      self.postMessage({ key, error: 'Execution timed out' });
+      self.close();
+    }, 2000);
 
-    // if (!globalThis.globalThisKeysBefore) {
-    //   globalThis.globalThisKeysBefore = [...Object.keys(globalThis)];
-    // }
+    try {
+      // track globalThis variables to remove them later
 
-    // track const and let variables into global scope to record them
+      // if (!globalThis.globalThisKeysBefore) {
+      //   globalThis.globalThisKeysBefore = [...Object.keys(globalThis)];
+      // }
 
-    // it might make a userland code fail with a conflict.
+      // track const and let variables into global scope to record them
 
-    // We might want to indicate the user in the REPL that they should not use let/const if they want to have the result returned
+      // it might make a userland code fail with a conflict.
 
-    // code = code.replace(/^(const|let|var) /gm, '');
+      // We might want to indicate the user in the REPL that they should not use let/const if they want to have the result returned
 
-    const result = eval(code);
+      // code = code.replace(/^(const|let|var) /gm, '');
 
-    // const globalThisKeys = Object.keys(globalThis).filter((key) => {
+      const result = eval(code);
 
-    //   return !globalThisKeysBefore.includes(key) && key !== 'globalThisKeysBefore';
+      // const globalThisKeys = Object.keys(globalThis).filter((key) => {
 
-    // });
+      //   return !globalThisKeysBefore.includes(key) && key !== 'globalThisKeysBefore';
 
-    // console.log(globalThisKeys)
+      // });
 
-    clearTimeout(timeoutId);
+      // console.log(globalThisKeys)
 
-    // TODO handle more than one result
+      clearTimeout(timeoutId);
 
-    // if (!result) {
+      // TODO handle more than one result
 
-    //   // result = globalThis[globalThisKeys[0]];
+      // if (!result) {
 
-    //   result = globalThisKeys.map((key) => {
+      //   // result = globalThis[globalThisKeys[0]];
 
-    //     globalThis[key];
+      //   result = globalThisKeys.map((key) => {
 
-    //   });
+      //     globalThis[key];
 
-    // }
+      //   });
 
-    self.postMessage({
-      key,
-      output: normalizeResult(immutableFormaters, result),
-    });
-  } catch (error) {
-    console.log(error);
-    clearTimeout(timeoutId);
-    self.postMessage({ key, error: String(error) });
-  }
-};
+      // }
+
+      self.postMessage({
+        key,
+        output: normalizeResult(immutableFormaters, result),
+      });
+    } catch (error) {
+      console.log(error);
+      clearTimeout(timeoutId);
+      self.postMessage({ key, error: String(error) });
+    }
+  };
+})().catch((error) => {
+  console.error('Worker initialization failed:', error);
+  self.postMessage({ key: '', error: String(error) });
+  self.close();
+});
