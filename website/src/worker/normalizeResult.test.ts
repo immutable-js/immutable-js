@@ -50,6 +50,25 @@ describe('normalizeResult', () => {
     ]);
   });
 
+  it('should return the correct object for an empty list', () => {
+    const result = normalizeResult(immutableFormaters, Immutable.List());
+    expect(result).toEqual([
+      'span',
+      [
+        'span',
+        [
+          'span',
+          {
+            style:
+              'color: light-dark(rgb(232,98,0), rgb(255, 150, 50)); position: relative',
+          },
+          'List',
+        ],
+        ['span', '[0]'],
+      ],
+    ]);
+  });
+
   it('should return the correct object for a deep list', () => {
     const result = normalizeResult(
       immutableFormaters,

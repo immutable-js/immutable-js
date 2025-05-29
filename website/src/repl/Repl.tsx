@@ -15,7 +15,9 @@ type Props = {
 
 function Repl({ defaultValue, onRun, imports }: Props): JSX.Element {
   const [code, setCode] = useState<string>(defaultValue);
-  const [output, setOutput] = useState<JsonMLElementList | Element>([]);
+  const [output, setOutput] = useState<JsonMLElementList | Element | undefined>(
+    undefined
+  );
   const { runCode: workerRunCode } = useWorkerContext();
 
   const onSuccess = (result: JsonMLElementList | Element): void => {
@@ -54,11 +56,9 @@ function Repl({ defaultValue, onRun, imports }: Props): JSX.Element {
         </button>
       </div>
 
-      {output && (
-        <pre className="repl-output">
-          <FormatterOutput output={output} />
-        </pre>
-      )}
+      <pre className="repl-output">
+        <FormatterOutput output={output} />
+      </pre>
     </div>
   );
 }

@@ -58,7 +58,11 @@ export default function normalizeResult(
     body = body.map((item) => normalizeElement(immutableFormaters, item));
   }
 
-  return ['span', header, body ?? []];
+  if (!body) {
+    return ['span', header];
+  }
+
+  return ['span', header, body];
 }
 
 function normalizeElement(
