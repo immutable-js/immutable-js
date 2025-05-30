@@ -1,0 +1,72 @@
+# Devtools
+
+Inspecting immutable collections in browser's Dev Tools is awkward. You only
+see the internal data structure, not the logical contents. For example, when
+inspecting the contents of an Immutable List, you'd really like to see the
+items in the list.
+
+Chrome (v47+) and Firefox (116+) has support for custom "formatters". A
+formatter tells browser's Dev Tools how to display values in the Console,
+Scope list, etc. This means we can display Lists, Maps and other collections,
+in a much better way.
+
+Essentially, it turns this:
+
+![Before Devtools](/before.png)
+
+into:
+
+![After Devtools](/after.png)
+
+## Installation
+
+Install the following extension in your browser:
+
+<ul className="devtoolsLinks">
+  <li>
+    <a
+      href="https://chromewebstore.google.com/detail/immutablejs-object-format/lfdmhpmheemfkgjpifhenbkgcaaopckp"
+      target="_blank"
+      rel="noopener"
+    >
+      <figure>
+        <img src="/store-logo-chrome.svg" alt="Chrome Store Logo" />
+        <figcaption>Chrome or Chromium based browser extension</figcaption>
+      </figure>
+    </a>
+  </li>
+  <li>
+    <a
+      href="https://addons.mozilla.org/fr/firefox/addon/immutable-js-devtool-extension/"
+      target="_blank"
+      rel="noopener"
+    >
+      <figure>
+        <img src="/store-logo-firefox.svg" alt="Firefox Logo" />
+        <figcaption>Firefox Extension</figcaption>
+      </figure>
+    </a>
+  </li>
+</ul>
+
+### Alternative
+
+If you don't want to install an extension, you can install the devtools as a
+dependency in your project.
+
+To do that, install the following package using your package manager:
+
+```sh
+npm install --save-dev @jdeniau/immutable-devtools
+```
+
+and enable it with:
+
+```js
+import * as Immutable from 'immutable';
+import installDevTools from '@jdeniau/immutable-devtools';
+
+installDevTools(Immutable);
+```
+
+See more details in the [github repository](https://github.com/immutable-js/immutable-devtools).

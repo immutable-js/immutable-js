@@ -11,8 +11,6 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function OverviewDocPage() {
   const { default: MdxContent } = await import(`@/docs/Intro.mdx`);
 
-  console.log('MdxContent', MdxContent);
-
   return (
     <>
       <div key="Overview" className="docContents">
