@@ -3,10 +3,13 @@ import globals from 'globals';
 import pluginJest from 'eslint-plugin-jest';
 import importPlugin from 'eslint-plugin-import';
 import pluginReact from 'eslint-plugin-react';
-import tseslint from 'typescript-eslint';
+import {
+  config as tseslintConfig,
+  configs as tseslintConfigs,
+} from 'typescript-eslint';
 
 /** @type {import('eslint').Linter.Config[]} */
-export default tseslint.config(
+export default tseslintConfig(
   { files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'] },
   {
     ignores: [
@@ -30,8 +33,15 @@ export default tseslint.config(
   pluginJs.configs.recommended,
   importPlugin.flatConfigs.recommended,
   importPlugin.flatConfigs.typescript,
-  ...tseslint.configs.recommended,
+  ...tseslintConfigs.recommended,
 
+  {
+    settings: {
+      'import/resolver': {
+        typescript: {},
+      },
+    },
+  },
   {
     rules: {
       eqeqeq: 'error',
@@ -152,13 +162,6 @@ export default tseslint.config(
       'no-var': 'off',
       'prefer-arrow-callback': 'off',
       '@typescript-eslint/no-require-imports': 'off',
-    },
-  },
-  {
-    settings: {
-      'import/resolver': {
-        typescript: {},
-      },
     },
   }
 );
