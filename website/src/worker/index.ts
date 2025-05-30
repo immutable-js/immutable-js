@@ -7,9 +7,8 @@ declare const Immutable: typeof ImmutableModule;
 
 // Declare globalThis.devtoolsFormatters
 declare global {
-  interface GlobalThis {
-    devtoolsFormatters: DevToolsFormatter[];
-  }
+  // eslint-disable-next-line no-var
+  var devtoolsFormatters: DevToolsFormatter[];
 }
 
 importScripts('https://cdn.jsdelivr.net/npm/immutable');
