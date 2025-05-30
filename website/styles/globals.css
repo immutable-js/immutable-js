@@ -6,6 +6,11 @@
 
 html,
 body {
+  --line-height: 1.625;
+  --font-size: 16px;
+  --font-size-small-screen: 14px;
+  --header-content-padding: 12px;
+
   --link-color: #4183c4;
   --link-hover-color: #2b6db0;
   --header-color: #212325;
@@ -46,14 +51,14 @@ body,
 input {
   color: var(--body-color);
   font-family: 'Fira Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 16px;
-  line-height: 1.625;
+  font-size: var(--font-size);
+  line-height: var(--line-height);
 }
 
 @media only screen and (max-width: 680px) {
   body,
   input {
-    font-size: 14px;
+    font-size: var(--font-size-small-screen);
   }
 }
 
@@ -243,24 +248,54 @@ img {
 .miniHeaderContents {
   margin: 0 auto;
   max-width: 1024px;
-  padding: 12px 36px;
+  padding: var(--header-content-padding) 36px;
   position: relative;
   text-align: right;
-}
-
-@media only screen and (max-width: 680px) {
-  .miniHeaderContents {
-    padding: 12px;
-  }
 }
 
 .miniLogo {
   float: left;
   left: -140px;
-  top: 12px;
+  top: var(--header-content-padding);
+}
+
+.MenuButton__Toggle {
+  display: none;
+}
+
+.MenuButton__Toggle > button {
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1.5em;
+  padding: 0;
 }
 
 @media only screen and (max-width: 680px) {
+  .sideBar .MenuButton__Toggle {
+    display: block;
+    text-align: right;
+    margin-top: 8px;
+    margin-right: -15px;
+  }
+
+  .miniHeader .MenuButton__Toggle {
+    display: grid;
+    place-items: center;
+    padding: 0 5px;
+  }
+
+  .miniHeader {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+
+  .miniHeaderContents {
+    margin: 0;
+    padding: var(--header-content-padding);
+  }
   .miniLogo {
     display: none;
   }
@@ -493,17 +528,37 @@ img {
   transform: rotate(180deg);
 }
 
-@media only screen and (max-width: 680px) {
-  .sideBar {
-    display: none;
-  }
-}
-
 .sideBar .scrollContent {
   box-sizing: border-box;
   height: 100%;
   width: 300px;
   overflow: hidden auto;
+}
+
+@media only screen and (max-width: 680px) {
+  .sideBar {
+    display: none;
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    height: 100vh;
+  }
+
+  .sideBar--visible {
+    display: block;
+  }
+
+  .sideBar__background {
+    position: absolute;
+    margin-left: 0;
+    padding-left: 12px;
+    right: -12px;
+  }
+
+  .sideBar .scrollContent {
+    width: auto;
+    padding: 0 20px;
+  }
 }
 
 .sideBar h2 {
