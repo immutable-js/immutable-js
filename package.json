@@ -89,7 +89,7 @@
     "@codemirror/theme-one-dark": "^6.1.2",
     "@codemirror/view": "^6.36.5",
     "@eslint/js": "^9.20.0",
-    "@jdeniau/immutable-devtools": "^2.1.1",
+    "@jdeniau/immutable-devtools": "^2.1.2",
     "@jest/globals": "^29.7.0",
     "@mdx-js/loader": "^3.1.0",
     "@mdx-js/react": "^3.1.0",

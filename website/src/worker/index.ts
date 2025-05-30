@@ -2,7 +2,7 @@
 import type * as ImmutableModule from '../../../type-definitions/immutable.js';
 import normalizeResult, { DevToolsFormatter } from './normalizeResult';
 
-// Declare Immutable and immutableDevTools as they come from external scripts
+// Declare Immutable as they come from external scripts
 declare const Immutable: typeof ImmutableModule;
 
 // Declare globalThis.devtoolsFormatters
@@ -14,75 +14,14 @@ declare global {
 
 importScripts('https://cdn.jsdelivr.net/npm/immutable');
 
-// extract all Immutable exports to have them available in the worker automatically
-/* eslint-disable @typescript-eslint/no-unused-vars */
-const {
-  // @ts-expect-error type is not exported but runtime is OK
-  version,
-  Collection,
-  // @ts-expect-error type is not exported but runtime is OK
-  // Note: Iterable is deprecated, alias for Collection
-  Iterable,
-  Seq,
-  Map,
-  OrderedMap,
-  List,
-  Stack,
-  Set,
-  OrderedSet,
-  PairSorting,
-  Record,
-  Range,
-  Repeat,
-  is,
-  fromJS,
-  hash,
-  isImmutable,
-  isCollection,
-  isKeyed,
-  isIndexed,
-  isAssociative,
-  isOrdered,
-  // @ts-expect-error type is not exported but runtime is OK
-  isPlainObject,
-  isValueObject,
-  isSeq,
-  isList,
-  isMap,
-  isOrderedMap,
-  isStack,
-  isSet,
-  isOrderedSet,
-  isRecord,
-  get,
-  getIn,
-  has,
-  hasIn,
-  merge,
-  mergeDeep,
-  mergeWith,
-  mergeDeepWith,
-  remove,
-  removeIn,
-  set,
-  setIn,
-  update,
-  updateIn,
-} = Immutable;
-/* eslint-enable @typescript-eslint/no-unused-vars */
-
 (async () => {
-  // Utilisez une URL ESM si besoin
   const immutableDevTools = (await import('@jdeniau/immutable-devtools'))
     .default;
-  // ...le reste de l'initialisation...
   immutableDevTools(Immutable);
-  const immutableFormaters: Array<DevToolsFormatter> =
-    globalThis.devtoolsFormatters;
-
-  // immutableDevTools(Immutable);
 
   // hack to get the formatters from immutable-devtools as they are not exported, but they modify the "global" variable
+  const immutableFormaters: Array<DevToolsFormatter> =
+    globalThis.devtoolsFormatters;
 
   self.onmessage = function (event: {
     data: { code: string; key: string };
@@ -95,6 +34,63 @@ const {
     }, 2000);
 
     try {
+      // extract all Immutable exports to have them available in the worker automatically
+      /* eslint-disable @typescript-eslint/no-unused-vars */
+      const {
+        // @ts-expect-error type is not exported but runtime is OK
+        version,
+        Collection,
+        // @ts-expect-error type is not exported but runtime is OK
+        // Note: Iterable is deprecated, alias for Collection
+        Iterable,
+        Seq,
+        Map,
+        OrderedMap,
+        List,
+        Stack,
+        Set,
+        OrderedSet,
+        PairSorting,
+        Record,
+        Range,
+        Repeat,
+        is,
+        fromJS,
+        hash,
+        isImmutable,
+        isCollection,
+        isKeyed,
+        isIndexed,
+        isAssociative,
+        isOrdered,
+        // @ts-expect-error type is not exported but runtime is OK
+        isPlainObject,
+        isValueObject,
+        isSeq,
+        isList,
+        isMap,
+        isOrderedMap,
+        isStack,
+        isSet,
+        isOrderedSet,
+        isRecord,
+        get,
+        getIn,
+        has,
+        hasIn,
+        merge,
+        mergeDeep,
+        mergeWith,
+        mergeDeepWith,
+        remove,
+        removeIn,
+        set,
+        setIn,
+        update,
+        updateIn,
+      } = Immutable;
+      /* eslint-enable @typescript-eslint/no-unused-vars */
+
       // track globalThis variables to remove them later
 
       // if (!globalThis.globalThisKeysBefore) {
@@ -147,6 +143,5 @@ const {
   };
 })().catch((error) => {
   console.error('Worker initialization failed:', error);
-  self.postMessage({ key: '', error: String(error) });
   self.close();
 });
