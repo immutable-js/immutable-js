@@ -6,6 +6,7 @@ import { DocSearch } from '../../../DocSearch';
 import { SideBar } from '../../../Sidebar';
 import { getSidebarLinks } from '../../../getSidebarLinks';
 import { getVersionFromParams } from '../../getVersionFromParams';
+import { VERSION } from '../currentVersion';
 
 export async function generateStaticParams() {
   return [...getVersionFromGitTag().map((version) => ({ version }))];
@@ -25,6 +26,13 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
   return {
     title: `Documentation ${version} — Immutable.js`,
+    robots: {
+      index: false,
+      follow: true,
+    },
+    alternates: {
+      canonical: `/docs/${VERSION}/`,
+    },
   };
 }
 

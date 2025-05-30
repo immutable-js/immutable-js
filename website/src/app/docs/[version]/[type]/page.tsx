@@ -3,6 +3,7 @@ import { getTypeDefs } from '../../../../static/getTypeDefs';
 import { getVersionFromGitTag } from '../../../../static/getVersions';
 import { TypeDocumentation } from '../../../../TypeDocumentation';
 import { getVersionFromParams } from '../../../getVersionFromParams';
+import { VERSION } from '../../currentVersion';
 
 export async function generateStaticParams() {
   return getVersionFromGitTag()
@@ -36,6 +37,13 @@ export async function generateMetadata(props: Props) {
 
   return {
     title: `${def.qualifiedName} — Immutable.js`,
+    robots: {
+      index: false,
+      follow: true,
+    },
+    alternates: {
+      canonical: `/docs/${VERSION}/${params.type}/`,
+    },
   };
 }
 
