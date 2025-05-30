@@ -616,3 +616,28 @@ p:last-child {
 .memberLabel:hover .anchorLink {
   display: inline;
 }
+
+.devtoolsLinks {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  margin-top: 0.5rem;
+  list-style-type: none;
+  padding: 0;
+}
+
+@media only screen and (max-width: 680px) {
+  .devtoolsLinks {
+    flex-direction: column;
+  }
+}
+
+.devtoolsLinks > li {
+  flex: 1;
+  text-align: center;
+}
+
+.devtoolsLinks img {
+  max-width: min(150px, 100%);
+}
