@@ -195,7 +195,13 @@ a.try-it {
 
 .contents > .docContents {
   flex-grow: 1;
-  max-width: calc(1024px - 340px); /* contents width minus sidebar */
+  max-width: calc(min(100%, 1024px) - 360px); /* contents width minus sidebar */
+}
+
+@media only screen and (max-width: 680px) {
+  .contents > .docContents {
+    max-width: 100%;
+  }
 }
 
 img {
