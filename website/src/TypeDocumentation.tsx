@@ -75,7 +75,7 @@ export function TypeDocumentation({
 function FunctionDoc({ def }: { def: MemberDefinition }) {
   return (
     <div>
-      <h1 className="typeHeader">{def.label}</h1>
+      <h1>{def.label}</h1>
       {def.doc && (
         <MarkdownContent className="docSynopsis" contents={def.doc.synopsis} />
       )}
@@ -128,7 +128,7 @@ function TypeDoc({
 
   return (
     <div>
-      <h1 className="typeHeader">{def.qualifiedName}</h1>
+      <h1>{def.qualifiedName}</h1>
       {def.doc && (
         <MarkdownContent className="docSynopsis" contents={def.doc.synopsis} />
       )}

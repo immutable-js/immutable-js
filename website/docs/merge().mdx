@@ -1,0 +1,17 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# merge()
+
+Returns a new collection with the provided collections merged in.
+
+A functional alternative to `collection.merge()` which will also work with plain Objects and Arrays
+
+<Signature
+  code={`merge<C>(collection: C, ...collections: Array<Partial<C>>): C;`}
+/>
+
+<Repl
+  defaultValue={`const original = { x: 123, y: 456 }
+merge(original, { y: 789 })`}
+/>

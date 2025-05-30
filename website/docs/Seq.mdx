@@ -1,0 +1,996 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# Seq
+
+`Seq` describes a lazy operation, allowing them to efficiently chain
+use of all the higher-order collection methods (such as <CodeLink to="map" /> and <CodeLink to="filter" />)
+by not creating intermediate collections.
+
+<Signature code={`type Seq<K, V> extends Collection<K, V>`} />
+
+**Seq is immutable** — Once a Seq is created, it cannot be
+changed, appended to, rearranged or otherwise modified. Instead, any
+mutative method called on a `Seq` will return a new `Seq`.
+
+**Seq is lazy** — `Seq` does as little work as necessary to respond to any
+method call. Values are often created during iteration, including implicit
+iteration when reducing or converting to a concrete data structure such as
+a <CodeLink to="../List" /> or JavaScript [`Array`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array).
+
+For example, the following performs no work, because the resulting
+`Seq`'s values are never iterated:
+
+```js
+import { Seq } from 'immutable';
+const oddSquares = Seq([1, 2, 3, 4, 5, 6, 7, 8])
+  .filter((x) => x % 2 !== 0)
+  .map((x) => x * x);
+```
+
+Once the `Seq` is used, it performs only the work necessary. In this
+example, no intermediate arrays are ever created, filter is called three
+times, and map is only called once:
+
+```js
+oddSquares.get(1); // 9
+```
+
+Any collection can be converted to a lazy Seq with `Seq()`.
+
+```js
+import { Map } from 'immutable';
+
+const map = Map({ a: 1, b: 2, c: 3 });
+const lazySeq = Seq(map);
+```
+
+`Seq` allows for the efficient chaining of operations, allowing for the
+expression of logic that can otherwise be very tedious:
+
+```js
+lazySeq
+  .flip()
+  .map((key) => key.toUpperCase())
+  .flip();
+// Seq { A: 1, B: 1, C: 1 }
+```
+
+As well as expressing logic that would otherwise seem memory or time
+limited, for example `Range` is a special kind of Lazy sequence.
+
+<Repl
+  defaultValue={`Range(1, Infinity)
+  .skip(1000)
+  .map((n) => -n)
+  .filter((n) => n % 2 === 0)
+  .take(2)
+  .reduce((r, n) => r * n, 1);
+`}
+/>
+
+Seq is often used to provide a rich collection API to JavaScript Object.
+
+<Repl
+  defaultValue={`Seq({ x: 0, y: 1, z: 2 })
+  .map((v) => v * 2)
+  .toObject();`}
+/>
+
+## Construction
+
+<MemberLabel label="Seq()" />
+
+Creates a Seq.
+
+<Signature
+  code={`function Seq<S extends Seq>(seq: S): S;
+function Seq(collection: Collection.Keyed<K, V>): Seq.Keyed<K, V>;
+function Seq(collection: Collection.Set<T>): Seq.Set<T>;
+function Seq(collection: Collection.Indexed<T> | Iterable<T> | ArrayLike<T>): Seq.Indexed<T>;
+function Seq(obj: { [key: string]: V }): Seq.Keyed<string, V>;`}
+/>
+
+Returns a particular kind of `Seq` based on the input.
+
+    * If a `Seq`, that same `Seq`.
+    * If an `Collection`, a `Seq` of the same kind (Keyed, Indexed, or Set).
+    * If an Array-like, an `Seq.Indexed`.
+    * If an Iterable Object, an `Seq.Indexed`.
+    * If an Object, a `Seq.Keyed`.
+
+Note: An Iterator itself will be treated as an object, becoming a `Seq.Keyed`,
+which is usually not what you want. You should turn your Iterator Object into
+an iterable object by defining a Symbol.iterator (or @@iterator) method which
+returns `this`.
+
+Note: `Seq` is a conversion function and not a class, and does not use the
+`new` keyword during construction.
+
+## Static methods
+
+<MemberLabel label="isSeq()" />
+
+<Signature
+  code={`function isSeq(maybeSeq: unknown): maybeSeq is Seq.Indexed | Seq.Keyed | Seq.Set;`}
+/>
+
+## Members
+
+<MemberLabel label="size" />
+
+Some Seqs can describe their size lazily. When this is the case,
+size will be an integer. Otherwise it will be undefined.
+
+<Signature code={`readonly size: number | undefined;`} />
+
+For example, Seqs returned from <CodeLink to="map" /> or <CodeLink to="reverse" />
+preserve the size of the original `Seq` while <CodeLink to="filter" /> does not.
+
+Note: <CodeLink to="../Range()" />,
+
+<CodeLink to="../Repeat()" /> and `Seq`s made from
+<CodeLink to="../List" />s and <CodeLink to="../Map" />s will always have a
+size.
+
+## Force evaluation
+
+<MemberLabel label="cacheResult()" />
+
+Because Sequences are lazy and designed to be chained together, they do
+not cache their results. For example, this <CodeLink to="map" /> function is called a total
+of 6 times, as each `join` iterates the `Seq` of three values.
+
+<Signature code={`cacheResult(): this;`} />
+
+```js
+var squares = Seq([1, 2, 3]).map((x) => x * x);
+squares.join() + squares.join();
+```
+
+If you know a `Seq` will be used multiple times, it may be more
+efficient to first cache it in memory. Here, the <CodeLink to="map" /> function is called
+only 3 times.
+
+```js
+var squares = Seq([1, 2, 3])
+  .map((x) => x * x)
+  .cacheResult();
+squares.join() + squares.join();
+```
+
+Use this method judiciously, as it must fully evaluate a `Seq` which can be
+a burden on memory and possibly performance.
+
+Note: after calling <CodeLink to="cacheResult" />, a `Seq` will always have a `size`.
+
+## Sequence algorithms
+
+<MemberLabel label="map()" />
+
+Returns a new `Seq` with values passed through a
+`mapper` function.
+
+<Signature
+  code={`map<M>(mapper: (value: V, key: K, iter: this) => M, context?: unknown): Seq<K, M>;`}
+/>
+
+<Repl defaultValue={`Seq([1, 2]).map((x) => 10 * x);`} />
+
+Note: <CodeLink to="map" /> always returns a new instance, even if it produced the same
+value at every step.
+Note: used only for sets.
+
+<MemberLabel label="flatMap()" />
+
+Flat-maps the `Seq`, returning a `Seq` of the same type.
+
+<Signature
+  code={`flatMap<M>(mapper: (value: V, key: K, iter: this) => Iterable<M>, context?: unknown): Seq<K, M>;`}
+/>
+
+Similar to <CodeLink to="map" />(...).<CodeLink to="flatten" />(true).
+
+Note: Used only for sets.
+
+<MemberLabel label="filter()" />
+
+Returns a new `Seq` with only the values for which the `predicate`
+function returns true.
+
+<Signature
+  code={`filter(predicate: (value: V, key: K, iter: this) => unknown, context?: unknown): this;`}
+/>
+
+Note: <CodeLink to="filter" /> always returns a new instance, even if it results in
+not filtering out any values.
+
+<MemberLabel label="partition()" />
+
+Returns a new `Seq` with the values for which the `predicate` function returns false and another for which is returns true.
+
+<Signature
+  code={`partition<F extends V>(
+    predicate: (this, value: V, key: K, iter) => value is F,
+    context
+  ): [Seq<K, V>, Seq<K, F>];`}
+/>
+
+<MemberLabel label="concat()" />
+
+Returns a new `Seq` of the same type with other values and collection-like concatenated to this one.
+
+<Signature code={`concat(...valuesOrCollections): Seq;`} />
+
+All entries will be present in the resulting `Seq`, even if they have the same key.
+
+<MemberLabel label="filterNot()" />
+
+Returns a new Collection of the same type with only the entries for which the `predicate` function returns false.
+
+<Signature
+  code={`filterNot(predicate: (value: V, key: K, iter: this) => boolean, context): this;`}
+/>
+
+Note: `filterNot()` always returns a new instance, even if it results in not filtering out any values.
+
+<MemberLabel label="reverse()" />
+
+Returns a new Collection of the same type in reverse order.
+
+<Signature code={`reverse(): this;`} />
+
+<MemberLabel label="sort()" />
+
+Returns a new Collection of the same type which includes the same entries, stably sorted by using a `comparator`.
+
+<Signature code={`sort(comparator?: Comparator<V>): this;`} />
+
+If a `comparator` is not provided, a default comparator uses `<` and `>`.
+
+`comparator(valueA, valueB)`:
+
+- Returns `0` if the elements should not be swapped.
+- Returns `-1` (or any negative number) if `valueA` comes before `valueB`
+- Returns `1` (or any positive number) if `valueA` comes after `valueB`
+- Alternatively, can return a value of the `PairSorting` enum type
+- Is pure, i.e. it must always return the same value for the same pair of values.
+
+When sorting collections which have no defined order, their ordered equivalents will be returned. e.g. `map.sort()` returns OrderedMap.
+
+<Repl
+  defaultValue={`Seq({ c: 3, a: 1, b: 2 }).sort((a, b) => {
+  if (a < b) {
+    return -1;
+  }
+  if (a > b) {
+    return 1;
+  }
+  if (a === b) {
+    return 0;
+  }
+});`}
+/>
+
+Note: `sort()` Always returns a new instance, even if the original was already sorted.
+
+Note: This is always an eager operation.
+
+<MemberLabel label="sortBy()" />
+
+Like `sort`, but also accepts a `comparatorValueMapper` which allows for sorting by more sophisticated means.
+
+<Signature
+  code={`sortBy<C>(comparatorValueMapper: (value: V, key: K, iter: this) => C, comparator?: Comparator<C>): this;`}
+/>
+
+<Repl
+  defaultValue={`const beattles = Seq({
+  John: { name: "Lennon" },
+  Paul: { name: "McCartney" },
+  George: { name: "Harrison" },
+  Ringo: { name: "Starr" },
+});
+beattles.sortBy(member => member.name);
+`}
+/>
+
+Note: `sortBy()` Always returns a new instance, even if the original was
+already sorted.
+
+Note: This is always an eager operation.
+
+<MemberLabel label="groupBy()" />
+
+Returns a `Map` of `Collection`, grouped by the return value of the `grouper` function.
+
+<Signature
+  code={`groupBy<G>(
+    grouper: (value: V, key: K, iter: this) => G,
+    context?: unknown
+  ): Map<G, this>`}
+/>
+
+Note: This is always an eager operation.
+
+<Repl
+  defaultValue={`const seqOfMaps = Seq([
+  Map({ v: 0 }),
+  Map({ v: 1 }),
+  Map({ v: 1 }),
+  Map({ v: 0 }),
+  Map({ v: 2 })
+])
+seqOfMaps.groupBy(x => x.get('v'))`}
+/>
+
+## Value equality
+
+<MemberLabel label="equals()" />
+
+True if this and the other Collection have value equality, as defined by `Immutable.is()`.
+
+<Signature code={`equals(other: unknown): boolean;`} />
+
+Note: This is equivalent to `Immutable.is(this, other)`, but provided to allow for chained expressions.
+
+<MemberLabel label="hashCode()" />
+
+Computes and returns the hashed identity for this Collection.
+
+<Signature code={`hashCode(): number;`} />
+
+The `hashCode` of a Collection is used to determine potential equality, and is used when adding this to a `Set` or as a key in a `Map`, enabling lookup via a different instance.
+
+```js
+import { Seq, Set } from 'immutable';
+
+const a = Seq([1, 2, 3]);
+const b = Seq([1, 2, 3]);
+assert.notStrictEqual(a, b); // different instances
+const set = Set([a]);
+assert.equal(set.has(b), true);
+```
+
+Note: hashCode() MUST return a Uint32 number. The easiest way to guarantee this is to return `myHash | 0` from a custom implementation.
+If two values have the same `hashCode`, they are [not guaranteed to be equal][Hash Collision]. If two values have different `hashCode`s, they must not be equal.
+
+Note: `hashCode()` is not guaranteed to always be called before `equals()`. Most but not all Immutable.js collections use hash codes to organize their internal data structures, while all Immutable.js collections use equality during lookups.
+
+[Hash Collision]: https://en.wikipedia.org/wiki/Collision_(computer_science)
+
+## Reading values
+
+<MemberLabel label="get()" />
+
+Returns the value associated with the provided key, or notSetValue if the Collection does not contain this key.
+
+Note: it is possible a key may be associated with an `undefined` value, so if `notSetValue` is not provided and this method returns `undefined`, that does not guarantee the key was not found.
+
+<Signature code={`get<NSV>(key: K, notSetValue: NSV): V | NSV;`} />
+<Signature code={`get(key: K): V | undefined;`} />
+
+<MemberLabel label="has()" />
+
+True if a key exists within this `Collection`, using `Immutable.is` to determine equality.
+
+<Signature code={`has(key: K): boolean;`} />
+
+<MemberLabel label="includes()" />
+
+True if a value exists within this `Collection`, using `Immutable.is` to determine equality.
+
+<Signature code={`includes(value: V): boolean;`} />
+
+<MemberLabel label="first()" />
+
+In case the `Collection` is not empty returns the first element of the `Collection`. In case the `Collection` is empty returns the optional default value if provided, if no default value is provided returns undefined.
+
+<Signature code={`first<NSV>(notSetValue: NSV): V | NSV;`} />
+<Signature code={`first(): V | undefined;`} />
+
+<MemberLabel label="last()" />
+
+In case the `Collection` is not empty returns the last element of the `Collection`. In case the `Collection` is empty returns the optional default value if provided, if no default value is provided returns undefined.
+
+<Signature code={`last<NSV>(notSetValue: NSV): V | NSV;`} />
+<Signature code={`last(): V | undefined;`} />
+
+## Reading deep values
+
+<MemberLabel label="getIn()" />
+
+Returns the value found by following a path of keys or indices through nested Collections.
+
+<Signature
+  code={`getIn(searchKeyPath: Iterable<unknown>, notSetValue?: unknown): unknown;`}
+/>
+
+<Repl
+  defaultValue={`const deepData = Seq({ x: Seq([ Seq({ y: 123 }) ]) });
+deepData.getIn(['x', 0, 'y'])`}
+/>
+
+Plain JavaScript Object or Arrays may be nested within an Immutable.js Collection, and getIn() can access those values as well:
+
+<Repl
+  defaultValue={`const deepData = Seq({ x: [ { y: 123 } ] });
+deepData.getIn(['x', 0, 'y'])`}
+/>
+
+<MemberLabel label="hasIn()" />
+
+True if the result of following a path of keys or indices through nested Collections results in a set value.
+
+<Signature code={`hasIn(searchKeyPath: Iterable<unknown>): boolean;`} />
+
+## Persistent changes
+
+<MemberLabel label="update()" />
+
+This can be very useful as a way to "chain" a normal function into a sequence of methods. RxJS calls this "let" and lodash calls it "thru".
+
+<Signature code={`update<R>(updater: (value: this) => R): R;`} />
+
+For example, to sum a Seq after mapping and filtering:
+
+<Repl
+  defaultValue={`function sum(collection) {
+  return collection.reduce((sum, x) => sum + x, 0);
+}
+Seq([1, 2, 3])
+  .map((x) => x + 1)
+  .filter((x) => x % 2 === 0)
+  .update(sum);`}
+/>
+
+## Conversion to JavaScript types
+
+<MemberLabel label="toJS()" />
+
+Deeply converts this Seq to equivalent native JavaScript Array or Object.
+
+<Signature code={`toJS(): Array<V> | { [key: string]: V };`} />
+
+`Collection.Indexed`, and `Collection.Set` become `Array`, while `Collection.Keyed` become `Object`, converting keys to Strings.
+
+<MemberLabel label="toJSON()" />
+
+Shallowly converts this Seq to equivalent native JavaScript Array or Object.
+
+<Signature code={`toJSON(): Array<V> | { [key: string]: V };`} />
+
+`Collection.Indexed`, and `Collection.Set` become `Array`, while `Collection.Keyed` become `Object`, converting keys to Strings.
+
+<MemberLabel label="toArray()" />
+
+Shallowly converts this collection to an Array.
+
+<Signature code={`toArray(): Array<V>;`} />
+
+`Collection.Indexed`, and `Collection.Set` produce an Array of values. `Collection.Keyed` produce an Array of [key, value] tuples.
+
+<MemberLabel label="toObject()" />
+
+Shallowly converts this Collection to an Object.
+
+<Signature code={`toObject(): { [key: string]: V };`} />
+
+Converts keys to Strings.
+
+## Conversion to Collections
+
+<MemberLabel label="toMap()" />
+
+Converts this Collection to a Map, Throws if keys are not hashable.
+
+<Signature code={`toMap(): Map<K, V>;`} />
+
+Note: This is equivalent to `Map(this.toKeyedSeq())`, but provided for convenience and to allow for chained expressions.
+
+<MemberLabel label="toOrderedMap()" />
+
+Converts this Collection to a Map, maintaining the order of iteration.
+
+<Signature code={`toOrderedMap(): OrderedMap<K, V>;`} />
+
+Note: This is equivalent to `OrderedMap(this.toKeyedSeq())`, but provided for convenience and to allow for chained expressions.
+
+<MemberLabel label="toSet()" />
+
+Converts this Collection to a Set, discarding keys. Throws if values are not hashable.
+
+<Signature code={`toSet(): Set<V>;`} />
+
+Note: This is equivalent to `Set(this)`, but provided to allow for chained expressions.
+
+<MemberLabel label="toOrderedSet()" />
+
+Converts this Collection to a Set, maintaining the order of iteration and discarding keys.
+
+<Signature code={`toOrderedSet(): OrderedSet<V>;`} />
+
+Note: This is equivalent to `OrderedSet(this.valueSeq())`, but provided for convenience and to allow for chained expressions.
+
+<MemberLabel label="toList()" />
+
+Converts this Collection to a List, discarding keys.
+
+<Signature code={`toList(): List<V>;`} />
+
+This is similar to `List(collection)`, but provided to allow for chained
+expressions. However, when called on `Map` or other keyed collections,
+`collection.toList()` discards the keys and creates a list of only the
+values, whereas `List(collection)` creates a list of entry tuples.
+
+<Repl
+  defaultValue={`const myMap = Seq({ a: 'Apple', b: 'Banana' })
+List(myMap)
+`}
+/>
+
+<Repl
+  defaultValue={`const myMap = Seq({ a: 'Apple', b: 'Banana' })
+myMap.toList()
+`}
+/>
+
+<MemberLabel label="toStack()" />
+
+Converts this Collection to a Stack, discarding keys. Throws if values are not hashable.
+
+<Signature code={`toStack(): Stack<V>;`} />
+
+Note: This is equivalent to `Stack(this)`, but provided to allow for chained expressions.
+
+## Conversion to Seq
+
+<MemberLabel label="toSeq()" />
+
+Converts this Collection to a Seq of the same kind (indexed, keyed, or set).
+
+<Signature code={`toSeq(): Seq<K, V>;`} />
+
+<MemberLabel label="toKeyedSeq()" />
+
+Returns a Seq.Keyed from this Collection where indices are treated as keys.
+
+<Signature code={`toKeyedSeq(): Seq.Keyed<K, V>;`} />
+
+This is useful if you want to operate on an Collection.Indexed and preserve the [index, value] pairs.
+
+The returned Seq will have identical iteration order as this Collection.
+
+```js
+import { Seq } from 'immutable';
+
+const indexedSeq = Seq(['A', 'B', 'C']);
+// Seq [ "A", "B", "C" ]
+indexedSeq.filter((v) => v === 'B');
+// Seq [ "B" ]
+const keyedSeq = indexedSeq.toKeyedSeq();
+// Seq { 0: "A", 1: "B", 2: "C" }
+keyedSeq.filter((v) => v === 'B');
+// Seq { 1: "B" }
+```
+
+<MemberLabel label="toIndexedSeq()" />
+
+Returns an Seq.Indexed of the values of this Collection, discarding keys.
+
+<Signature code={`toIndexedSeq(): Seq.Indexed<V>;`} />
+
+<MemberLabel label="toSetSeq()" />
+
+Returns a Seq.Set of the values of this Collection, discarding keys.
+
+<Signature code={`toSetSeq(): Seq.Set<V>;`} />
+
+## Iterators
+
+<MemberLabel label="keys()" />
+
+An iterator of this `Collection`'s keys.
+
+<Signature code={`keys(): IterableIterator<K>;`} />
+
+Note: this will return an ES6 iterator which does not support
+Immutable.js sequence algorithms. Use `keySeq` instead, if this is
+what you want.
+
+<MemberLabel label="values()" />
+
+An iterator of this `Collection`'s values.
+
+Note: this will return an ES6 iterator which does not support
+Immutable.js sequence algorithms. Use `valueSeq` instead, if this is
+what you want.
+
+<Signature code={`values(): IterableIterator<V>;`} />
+
+<MemberLabel label="entries()" />
+
+An iterator of this `Collection`'s entries as `[ key, value ]` tuples.
+
+Note: this will return an ES6 iterator which does not support
+Immutable.js sequence algorithms. Use `entrySeq` instead, if this is
+what you want.
+
+<Signature code={`entries(): IterableIterator<[K, V]>;`} />
+
+## Collections (Seq)
+
+<MemberLabel label="keySeq()" />
+
+Returns a new Seq.Indexed of the keys of this Collection,
+discarding values.
+
+<Signature code={`keySeq(): Seq.Indexed<K>;`} />
+
+<MemberLabel label="valueSeq()" />
+
+Returns an Seq.Indexed of the values of this Collection, discarding keys.
+
+<Signature code={`valueSeq(): Seq.Indexed<V>;`} />
+
+<MemberLabel label="entrySeq()" />
+
+Returns a new Seq.Indexed of [key, value] tuples.
+
+<Signature code={`entrySeq(): Seq.Indexed<[K, V]>;`} />
+
+## Side effects
+
+<MemberLabel label="forEach()" />
+
+The sideEffect is executed for every entry in the Seq.
+
+<Signature
+  code={`forEach(sideEffect: (value: V, key: K, iter: this) => unknown, context?: unknown): number;`}
+/>
+
+Unlike `Array#forEach`, if any call of `sideEffect` returns `false`, the iteration will stop. Returns the number of entries iterated (including the last iteration which returned `false`).
+
+## Creating subsets
+
+<MemberLabel label="slice()" />
+
+Returns a new Seq of the same type containing entries from begin up to but not including end.
+
+If begin is negative, it is offset from the end of the Seq. If end is negative, it is also offset from the end of the Seq. If end is not provided, it will default to the size of the Seq. If the requested slice is empty, returns the same type of empty Seq.
+
+<Signature code={`slice(begin?: number, end?: number): this;`} />
+
+<MemberLabel label="rest()" />
+
+Returns a new Seq of the same type containing all entries except the first.
+
+<Signature code={`rest(): this;`} />
+
+<MemberLabel label="butLast()" />
+
+Returns a new Seq of the same type containing all entries except the last.
+
+<Signature code={`butLast(): this;`} />
+
+<MemberLabel label="skip()" />
+
+Returns a new Seq of the same type containing all entries except the first amount.
+
+<Signature code={`skip(amount: number): this;`} />
+
+<MemberLabel label="skipLast()" />
+
+Returns a new Seq of the same type containing all entries except the last amount.
+
+<Signature code={`skipLast(amount: number): this;`} />
+
+<MemberLabel label="skipWhile()" />
+
+Returns a new Seq of the same type containing entries from the first entry for which predicate returns false.
+
+<Signature
+  code={`skipWhile(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): this;`}
+/>
+
+<MemberLabel label="skipUntil()" />
+
+Returns a new Seq of the same type containing entries from the first entry for which predicate returns true.
+
+<Signature
+  code={`skipUntil(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): this;`}
+/>
+
+<MemberLabel label="take()" />
+
+Returns a new Seq of the same type containing the first amount entries.
+
+<Signature code={`take(amount: number): this;`} />
+
+<MemberLabel label="takeLast()" />
+
+Returns a new Seq of the same type containing the last amount entries.
+
+<Signature code={`takeLast(amount: number): this;`} />
+
+<MemberLabel label="takeWhile()" />
+
+Returns a new Seq of the same type containing entries from the start until predicate returns false.
+
+<Signature
+  code={`takeWhile(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): this;`}
+/>
+
+<MemberLabel label="takeUntil()" />
+
+Returns a new Seq of the same type containing entries from the start until predicate returns true.
+
+<Signature
+  code={`takeUntil(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): this;`}
+/>
+
+## Combination
+
+<MemberLabel label="flatten()" />
+
+Flattens nested Collections.
+
+Will deeply flatten the Collection by default, returning a Collection of the same type, but a `depth` can be provided in the form of a number or boolean (where true means to shallowly flatten one level). A depth of 0 (or shallow: false) will deeply flatten.
+
+Flattens only other Collections, not Arrays or Objects.
+
+Note: `flatten(true)` operates on `Collection<unknown, Collection<K, V>>` and returns `Collection<K, V>`.
+
+<Signature code={`flatten(depth?: number): Collection;`} />
+<Signature code={`flatten(shallow?: boolean): Collection;`} />
+
+<MemberLabel label="reduce()" />
+
+Reduces the Collection to a value by calling the `reducer` for every entry in the Collection and passing along the reduced value.
+
+If `initialReduction` is not provided, the first item in the Collection will be used.
+
+@see `Array#reduce`.
+
+<Signature
+  code={`reduce<R>(reducer: (reduction, value, key, iter: this) => R): R;`}
+/>
+
+<MemberLabel label="reduceRight()" />
+
+Reduces the Collection in reverse (from the right side).
+
+Note: Similar to `this.reverse().reduce()`, and provided for parity with `Array#reduceRight`.
+
+<Signature
+  code={`reduceRight<R>(reducer: (reduction, value, key, iter: this) => R): R;`}
+/>
+
+<MemberLabel label="every()" />
+
+True if `predicate` returns true for all entries in the Collection.
+
+<Signature
+  code={`every(
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: unknown
+  ): boolean;`}
+/>
+
+<MemberLabel label="some()" />
+
+True if `predicate` returns true for any entry in the Collection.
+
+<Signature
+  code={`some(
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: unknown
+  ): boolean;`}
+/>
+
+<MemberLabel label="join()" />
+
+Joins values together as a string, inserting a separator between each. The default separator is `","`.
+
+<Signature code={`join(separator?: string): string;`} />
+
+<MemberLabel label="isEmpty()" />
+
+Returns true if this Collection includes no values.
+
+For some lazy `Seq`, `isEmpty` might need to iterate to determine emptiness. At most one iteration will occur.
+
+<Signature code={`isEmpty(): boolean;`} />
+
+<MemberLabel label="count()" />
+
+Returns the size of this Collection.
+
+Regardless of if this Collection can describe its size lazily (some Seqs cannot), this method will always return the correct size. E.g. it evaluates a lazy `Seq` if necessary.
+
+If `predicate` is provided, then this returns the count of entries in the Collection for which the `predicate` returns true.
+
+<Signature code={`count(): number;`} />
+<Signature
+  code={`count(predicate: (value: V, key: K, iter: this) => boolean, context?: unknown): number;`}
+/>
+
+<MemberLabel label="countBy()" />
+
+Returns a `Seq.Keyed` of counts, grouped by the return value of the `grouper` function.
+
+<Signature
+  code={`countBy<G>(grouper: (value: V, key: K, iter: this) => G, context?: unknown): Map<G, number>;`}
+/>
+
+Note: This is not a lazy operation.
+
+## Search for value
+
+<MemberLabel label="find()" />
+
+Returns the first value for which the `predicate` returns true.
+
+<Signature
+  code={`find(
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: unknown,
+    notSetValue?: V
+  ): V | undefined;`}
+/>
+
+<MemberLabel label="findLast()" />
+
+Returns the last value for which the `predicate` returns true.
+
+Note: `predicate` will be called for each entry in reverse.
+
+<Signature
+  code={`findLast(
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: unknown,
+    notSetValue?: V
+  ): V | undefined;`}
+/>
+
+<MemberLabel label="findEntry()" />
+
+Returns the first [key, value] entry for which the `predicate` returns true.
+
+<Signature
+  code={`findEntry(
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: unknown,
+    notSetValue?: V
+  ): [K, V] | undefined;`}
+/>
+
+<MemberLabel label="findLastEntry()" />
+
+Returns the last [key, value] entry for which the `predicate` returns true.
+
+Note: `predicate` will be called for each entry in reverse.
+
+<Signature
+  code={`findLastEntry(
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: unknown,
+    notSetValue?: V
+  ): [K, V] | undefined;`}
+/>
+
+<MemberLabel label="findKey()" />
+
+Returns the key for which the `predicate` returns true.
+
+<Signature
+  code={`findKey(
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: unknown
+  ): K | undefined;`}
+/>
+
+<MemberLabel label="findLastKey()" />
+
+Returns the last key for which the `predicate` returns true.
+
+<Signature
+  code={`findLastKey(
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: unknown
+  ): K | undefined;`}
+/>
+
+Note: `predicate` will be called for each entry in reverse.
+
+<MemberLabel label="keyOf()" />
+
+Returns the key associated with the search value, or undefined.
+
+<Signature code={`keyOf(searchValue: V): K | undefined;`} />
+
+<MemberLabel label="lastKeyOf()" />
+
+Returns the last key associated with the search value, or undefined.
+
+<Signature code={`lastKeyOf(searchValue: V): K | undefined;`} />
+
+<MemberLabel label="max()" />
+
+Returns the maximum value in this collection. If any values are comparatively equivalent, the first one found will be returned.
+
+<Signature code={`max(comparator?: Comparator<V>): V | undefined;`} />
+
+The `comparator` is used in the same way as <CodeLink to="sort" />. If it is not provided, the default comparator is `>`.
+
+When two values are considered equivalent, the first encountered will be returned. Otherwise, `max` will operate independent of the order of input as long as the comparator is commutative. The default comparator `>` is commutative _only_ when types do not differ.
+
+If `comparator` returns 0 and either value is NaN, undefined, or null, that value will be returned.
+
+<MemberLabel label="maxBy()" />
+
+Like `max`, but also accepts a `comparatorValueMapper` which allows for comparing by more sophisticated means:
+
+<Signature
+  code={`maxBy<C>(
+    comparatorValueMapper: (value: V, key: K, iter: this) => C,
+    comparator?: Comparator<C>
+  ): V | undefined;`}
+/>
+
+<Repl
+  defaultValue={`const l = Seq([
+  { name: 'Bob', avgHit: 1 },
+  { name: 'Max', avgHit: 3 },
+  { name: 'Lili', avgHit: 2 } ,
+]);
+l.maxBy(i => i.avgHit);
+`}
+/>
+
+<MemberLabel label="min()" />
+
+Returns the minimum value in this collection. If any values are comparatively equivalent, the first one found will be returned.
+
+<Signature code={`min(comparator?: Comparator<V>): V | undefined;`} />
+
+The `comparator` is used in the same way as <CodeLink to="sort" />. If it is not provided, the default comparator is `<`.
+
+When two values are considered equivalent, the first encountered will be returned. Otherwise, `min` will operate independent of the order of input as long as the comparator is commutative. The default comparator `<` is commutative _only_ when types do not differ.
+
+If `comparator` returns 0 and either value is NaN, undefined, or null, that value will be returned.
+
+<MemberLabel label="minBy()" />
+
+Like `min`, but also accepts a `comparatorValueMapper` which allows for comparing by more sophisticated means:
+
+<Signature
+  code={`minBy<C>(
+    comparatorValueMapper: (value: V, key: K, iter: this) => C,
+    comparator?: Comparator<C>
+  ): V | undefined;`}
+/>
+
+<Repl
+  defaultValue={`const l = Seq([
+  { name: 'Bob', avgHit: 1 },
+  { name: 'Max', avgHit: 3 },
+  { name: 'Lili', avgHit: 2 } ,
+]);
+l.minBy(i => i.avgHit);
+`}
+/>
+
+## Comparison
+
+<MemberLabel label="isSubset()" />
+
+True if `iter` includes every value in this Collection.
+
+<Signature code={`isSubset(iter: Iterable<V>): boolean;`} />
+
+<MemberLabel label="isSuperset()" />
+
+True if this Collection includes every value in `iter`.
+
+<Signature code={`isSuperset(iter: Iterable<V>): boolean;`} />

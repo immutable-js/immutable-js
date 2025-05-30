@@ -10,18 +10,6 @@ import shallowCopy from '../utils/shallowCopy';
  * A functional alternative to `collection.remove(key)` which will also work
  * with plain Objects and Arrays as an alternative for
  * `delete collectionCopy[key]`.
- *
- * <!-- runkit:activate -->
- * ```js
- * import { remove } from 'immutable';
- *
- * const originalArray = [ 'dog', 'frog', 'cat' ]
- * remove(originalArray, 1) // [ 'dog', 'cat' ]
- * console.log(originalArray) // [ 'dog', 'frog', 'cat' ]
- * const originalObject = { x: 123, y: 456 }
- * remove(originalObject, 'x') // { y: 456 }
- * console.log(originalObject) // { x: 123, y: 456 }
- * ```
  */
 export function remove<K, C extends Collection<K, unknown>>(
   collection: C,
@@ -39,13 +27,13 @@ export function remove<
   K extends keyof C,
 >(collection: C, key: K): C;
 export function remove<
-  K extends PropertyKey,
+  K,
   C extends
     | Collection<K, unknown>
     | Array<unknown>
     | { [key: PropertyKey]: unknown },
 >(collection: C, key: K): C;
-export function remove<K extends PropertyKey>(
+export function remove<K>(
   collection:
     | Collection<K, unknown>
     | Array<unknown>
@@ -67,6 +55,7 @@ export function remove<K extends PropertyKey>(
     // @ts-expect-error weird "remove" here,
     return collection.remove(key);
   }
+  // @ts-expect-error assert that key is a string, a number or a symbol here
   if (!hasOwnProperty.call(collection, key)) {
     return collection;
   }
@@ -75,6 +64,7 @@ export function remove<K extends PropertyKey>(
     // @ts-expect-error assert that key is a number here
     collectionCopy.splice(key, 1);
   } else {
+    // @ts-expect-error assert that key is a string, a number or a symbol here
     delete collectionCopy[key];
   }
   return collectionCopy;

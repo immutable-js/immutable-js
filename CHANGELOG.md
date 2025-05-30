@@ -8,6 +8,11 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+## 5.1.2
+
+- Revert previous assertion as it introduced a regression [#2102](https://github.com/immutable-js/immutable-js/pull/2102) by [@giggo1604](https://github.com/giggo1604)
+- Merge should work with empty record [#2103](https://github.com/immutable-js/immutable-js/pull/2103) by [@jdeniau](https://github.com/jdeniau)
+
 ## 5.1.1
 
 - Fix type copying

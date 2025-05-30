@@ -1,0 +1,80 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# fromJS()
+
+Deeply converts plain JS objects and arrays to Immutable Maps and Lists.
+
+<Signature
+  code={`function fromJS(
+    jsValue,
+    reviver?: (key, sequence, path) => unknown
+  ): Collection<unknown, unknown>;
+`}
+/>
+
+`fromJS` will convert Arrays and [array-like objects][2] to a List, and
+plain objects (without a custom prototype) to a Map. [Iterable objects][3]
+may be converted to List, Map, or Set.
+
+If a `reviver` is optionally provided, it will be called with every
+collection as a Seq (beginning with the most nested collections
+and proceeding to the top-level collection itself), along with the key
+referring to each collection and the parent JS object provided as `this`.
+For the top level, object, the key will be `""`. This `reviver` is expected
+to return a new Immutable Collection, allowing for custom conversions from
+deep JS objects. Finally, a `path` is provided which is the sequence of
+keys to this value from the starting value.
+
+`reviver` acts similarly to the [same parameter in `JSON.parse`][1].
+
+If `reviver` is not provided, the default behavior will convert Objects
+into Maps and Arrays into Lists like so:
+
+```js
+import { fromJS, isKeyed } from 'immutable';
+
+function (key, value) {
+  return isKeyed(value) ? value.toMap() : value.toList()
+}
+```
+
+Accordingly, this example converts native JS data to OrderedMap and List:
+
+```js
+import { fromJS, isKeyed } from 'immutable';
+
+fromJS({ a: { b: [10, 20, 30] }, c: 40 }, function (key, value, path) {
+  console.log(key, value, path);
+  return isKeyed(value) ? value.toOrderedMap() : value.toList();
+}) > 'b',
+  [10, 20, 30],
+  ['a', 'b'] > 'a',
+  { b: [10, 20, 30] },
+  ['a'] > '',
+  { a: { b: [10, 20, 30] }, c: 40 },
+  [];
+```
+
+Keep in mind, when using JS objects to construct Immutable Maps, that
+JavaScript Object properties are always strings, even if written in a
+quote-less shorthand, while Immutable Maps accept keys of any type.
+
+```js
+import { Map } from 'immutable';
+
+let obj = { 1: 'one' };
+Object.keys(obj); // [ "1" ]
+assert.equal(obj['1'], obj[1]); // "one" === "one"
+
+let map = Map(obj);
+assert.notEqual(map.get('1'), map.get(1)); // "one" !== undefined
+```
+
+Property access for JavaScript Objects first converts the key to a string,
+but since Immutable Map keys can be of any type the argument to `get()` is
+not altered.
+
+[1]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Example.3A_Using_the_reviver_parameter 'Using the reviver parameter'
+[2]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Indexed_collections#working_with_array-like_objects 'Working with array-like objects'
+[3]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#the_iterable_protocol 'The iterable protocol'

@@ -14,14 +14,6 @@ type Key = GetTypeParameters[1];
  *
  * A functional alternative to `collection.getIn(keypath)` which will also
  * work with plain Objects and Arrays.
- *
- * <!-- runkit:activate -->
- * ```js
- * import { getIn } from 'immutable';
- *
- * getIn({ x: { y: { z: 123 }}}, ['x', 'y', 'z']) // 123
- * getIn({ x: { y: { z: 123 }}}, ['x', 'q', 'p'], 'ifNotSet') // 'ifNotSet'
- * ```
  */
 export function getIn(
   collection: CollectionType,

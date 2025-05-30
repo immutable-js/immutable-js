@@ -55,21 +55,21 @@ test('#get', () => {
 
   expect(Map<number, number>().get<number>(4, 'a')).type.toRaiseError();
 
-  expect(Map({ a: 4, b: true }).get('a')).type.toBeNumber();
+  expect(Map({ a: 4, b: true }).get('a')).type.toBe<number>();
 
-  expect(Map({ a: 4, b: true }).get('b')).type.toBeBoolean();
+  expect(Map({ a: 4, b: true }).get('b')).type.toBe<boolean>();
 
   expect(
     Map({ a: Map({ b: true }) })
       .get('a')
       .get('b')
-  ).type.toBeBoolean();
+  ).type.toBe<boolean>();
 
   expect(Map({ a: 4 }).get('b')).type.toRaiseError();
 
-  expect(Map({ a: 4 }).get('b', undefined)).type.toBeUndefined();
+  expect(Map({ a: 4 }).get('b', undefined)).type.toBe<undefined>();
 
-  expect(Map({ 1: 4 }).get(1)).type.toBeNumber();
+  expect(Map({ 1: 4 }).get(1)).type.toBe<number>();
 
   expect(Map({ 1: 4 }).get(2)).type.toRaiseError();
 
@@ -77,7 +77,7 @@ test('#get', () => {
 
   const s1 = Symbol('s1');
 
-  expect(Map({ [s1]: 4 }).get(s1)).type.toBeNumber();
+  expect(Map({ [s1]: 4 }).get(s1)).type.toBe<number>();
 
   const s2 = Symbol('s2');
 
@@ -87,9 +87,9 @@ test('#get', () => {
 test('#getIn', () => {
   const result = Map({ a: 4, b: true }).getIn(['a']);
 
-  expect(result).type.toBeNumber();
+  expect(result).type.toBe<number>();
 
-  expect(Map({ a: 4, b: true }).getIn(['a'])).type.toBeNumber();
+  expect(Map({ a: 4, b: true }).getIn(['a'])).type.toBe<number>();
 
   expect(
     Map({ a: Map({ b: Map({ c: Map({ d: 4 }) }) }) }).getIn([
@@ -98,11 +98,11 @@ test('#getIn', () => {
       'c',
       'd',
     ])
-  ).type.toBeNumber();
+  ).type.toBe<number>();
 
-  expect(Map({ a: [1] }).getIn(['a', 0])).type.toBeNumber();
+  expect(Map({ a: [1] }).getIn(['a', 0])).type.toBe<number>();
 
-  expect(Map({ a: List([1]) }).getIn(['a', 0])).type.toBeNumber();
+  expect(Map({ a: List([1]) }).getIn(['a', 0])).type.toBe<number>();
 });
 
 test('#set', () => {
@@ -132,7 +132,7 @@ test('#set', () => {
 
   expect(
     Map<{ a: number; b?: string }>({ a: 1 }).set('b', 'b').get('a')
-  ).type.toBeNumber();
+  ).type.toBe<number>();
 
   expect(
     Map<{ a: number; b?: string }>({ a: 1 }).set('b', 'b').get('b')
@@ -154,7 +154,7 @@ test('#delete', () => {
 
   expect(Map<number, number>().delete('a')).type.toRaiseError();
 
-  expect(Map({ a: 1, b: 'b' }).delete('b')).type.toBeNever();
+  expect(Map({ a: 1, b: 'b' }).delete('b')).type.toBe<never>();
 
   expect(
     Map<{ a: number; b?: string }>({ a: 1, b: 'b' }).delete('b')
@@ -166,7 +166,7 @@ test('#delete', () => {
 
   expect(
     Map<{ a: number; b?: string }>({ a: 1, b: 'b' }).remove('b').get('a')
-  ).type.toBeNumber();
+  ).type.toBe<number>();
 
   expect(
     Map<{ a: number; b?: string }>({ a: 1, b: 'b' }).remove('b').get('b')
@@ -206,7 +206,7 @@ test('#clear', () => {
 });
 
 test('#update', () => {
-  expect(Map().update((v) => 1)).type.toBeNumber();
+  expect(Map().update((v) => 1)).type.toBe<number>();
 
   expect(
     Map<number, number>().update((v: Map<string> | undefined) => v)

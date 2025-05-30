@@ -1,4 +1,4 @@
-import type { ReactFragment, ReactNode } from 'react';
+import type { FocusEvent, JSX, MouseEvent, ReactNode } from 'react';
 import { Fragment, useCallback, useState } from 'react';
 import Link from 'next/link';
 import {
@@ -250,7 +250,7 @@ function Hover({
 }) {
   const [isOver, setIsOver] = useState(false);
   const mouseOver = useCallback(
-    (event) => {
+    (event: MouseEvent | FocusEvent) => {
       event.stopPropagation();
       setIsOver(true);
     },
@@ -413,15 +413,16 @@ function typeLength(type: Type): number {
   throw new Error('Type with unknown kind ' + JSON.stringify(type));
 }
 
-function interpose<T>(
+function interpose<T extends JSX.Element>(
   between: ReactNode,
   array: Array<T>
-): Array<T | ReactFragment> {
-  const result = [];
+): Array<JSX.Element> {
+  const result: Array<JSX.Element> = [];
   let i = 0;
   for (const value of array) {
     result.push(value, <Fragment key={`b:${i++}`}>{between}</Fragment>);
   }
   result.pop();
+
   return result;
 }

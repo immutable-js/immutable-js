@@ -7,15 +7,6 @@ import type { KeyPath } from '../../type-definitions/immutable';
  *
  * A functional alternative to `collection.removeIn(keypath)` which will also
  * work with plain Objects and Arrays.
- *
- * <!-- runkit:activate -->
- * ```js
- * import { removeIn } from 'immutable';
- *
- * const original = { x: { y: { z: 123 }}}
- * removeIn(original, ['x', 'y', 'z']) // { x: { y: {}}}
- * console.log(original) // { x: { y: { z: 123 }}}
- * ```
  */
 export function removeIn<
   K extends PropertyKey,

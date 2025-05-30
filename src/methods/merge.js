@@ -1,6 +1,7 @@
 import { KeyedCollection } from '../Collection';
 import { NOT_SET } from '../TrieUtils';
 import { update } from '../functional/update';
+import { isRecord } from '../predicates/isRecord';
 
 export function merge(...iters) {
   return mergeIntoKeyedWith(this, iters);
@@ -29,7 +30,9 @@ function mergeIntoKeyedWith(collection, collections, merger) {
     !collection.__ownerID &&
     iters.length === 1
   ) {
-    return collection.create(iters[0]);
+    return isRecord(collection)
+      ? collection // Record is empty and will not be updated: return the same instance
+      : collection.create(iters[0]);
   }
   return collection.withMutations((collection) => {
     const mergeIntoCollection = merger

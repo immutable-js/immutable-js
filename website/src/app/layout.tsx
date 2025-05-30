@@ -1,6 +1,8 @@
 import { Metadata } from 'next';
 import React from 'react';
+import { WorkerContextProvider } from './WorkerContext';
 import '../../styles/globals.css';
+import '../../styles/prism-theme.css';
 
 export const metadata: Metadata = {
   title: 'Immutable.js',
@@ -18,7 +20,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <WorkerContextProvider>{children}</WorkerContextProvider>
+      </body>
     </html>
   );
 }

@@ -1,0 +1,15 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# getIn()
+
+Returns the value at the provided key path starting at the provided collection, or notSetValue if the key path is not defined.
+
+A functional alternative to `collection.getIn(keypath)` which will also work with plain Objects and Arrays.
+
+<Signature code={`getIn(collection, keyPath, notSetValue?): any;`} />
+
+<Repl defaultValue={`getIn({ x: { y: { z: 123 }}}, ['x', 'y', 'z'])`} />
+<Repl
+  defaultValue={`getIn({ x: { y: { z: 123 }}}, ['x', 'q', 'p'], 'ifNotSet')`}
+/>

@@ -1,12 +1,22 @@
-@import url('//code.cdn.mozilla.net/fonts/fira.css');
+@import url('https://code.cdn.mozilla.net/fonts/fira.css');
+
+:root {
+  color-scheme: light dark;
+}
 
 html,
 body {
   --link-color: #4183c4;
+  --link-hover-color: #2b6db0;
   --header-color: #212325;
   --header-bg-color: #6dbcdb;
   --body-color: #626466;
   --code-block-bg-color: #f4f4f4;
+  --code-block-color: #484a4c;
+  --anchor-link-color: #9ca0a3;
+
+  background-color: #ffffff;
+  color: var(--body-color);
 
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-text-size-adjust: 100%;
@@ -14,6 +24,22 @@ body {
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-color-scheme: dark) {
+  html,
+  body {
+    --link-color: #79a6f6;
+    --link-hover-color: #5683d4;
+    --header-color: #e0e0e0;
+    --header-bg-color: #2b3a42;
+    --body-color: #c0c0c0;
+    --code-block-bg-color: #2e2e2e;
+    --code-block-color: #d1d5da;
+    --anchor-link-color: #616161;
+
+    background-color: #121212;
+  }
 }
 
 body,
@@ -40,8 +66,24 @@ h6 {
   color: var(--header-color);
 }
 
+h1 {
+  color: light-dark(#555, #fff);
+  font-size: 1.5em;
+  margin: 1rem 0;
+  font-weight: bold;
+}
+
+h1.mainTitle {
+  font-size: 2em;
+  margin: 1.34rem 0;
+}
+
 h2 {
-  margin: 4rem 0 1rem;
+  margin: 4rem 0 1 rem;
+  color: #9a9c9e;
+  font-size: 1.5em;
+  font-weight: 300;
+  margin: 3rem 0 2rem;
 }
 
 h3 {
@@ -50,18 +92,24 @@ h3 {
 
 h4 {
   margin: 1rem 0 0;
+  color: var(--body-color);
 }
 
-a {
+a,
+a > code {
   color: var(--link-color);
   text-decoration: none;
+}
+
+a:hover {
+  color: var(--link-hover-color);
 }
 
 pre,
 code {
   font-family: 'Fira Mono', Menlo, monospace;
-  background: #f9f8f7;
-  color: #484a4c;
+  background: var(--code-block-bg-color);
+  color: var(--code-block-color);
   font-size: 0.9375em;
   letter-spacing: -0.015em;
 }
@@ -88,6 +136,7 @@ blockquote > :last-child {
 
 /* Markdown */
 
+pre > code,
 .codeBlock {
   -webkit-overflow-scrolling: touch;
   background: var(--code-block-bg-color);
@@ -105,67 +154,6 @@ blockquote > :last-child {
 
 .t.blockParams {
   padding-left: 2ch;
-}
-
-/* TODO: not random colors */
-
-.token.punctuation,
-.token.ignore,
-.t.interfaceDef,
-.t.member,
-.t.callSig {
-  color: #808890;
-}
-
-.token.function,
-.token.class-name,
-.token.qualifier,
-.t.fnQualifier,
-.t.fnName {
-  color: #32308e;
-}
-
-.token.primitive,
-.t.primitive {
-  color: #922;
-}
-
-.token.number,
-.t.typeParam {
-  color: #905;
-}
-
-.t.typeQualifier,
-.t.typeName {
-  color: #013679;
-}
-
-.t.param {
-  color: #945277;
-}
-
-.t.memberName {
-  color: teal;
-}
-
-.token.block-keyword,
-.token.keyword,
-.t.keyword {
-  color: #a51;
-}
-
-.token.string,
-.token.regex {
-  color: #df5050;
-}
-
-.token.operator {
-  color: #a67f59;
-}
-
-.token.comment {
-  color: #998;
-  font-style: italic;
 }
 
 a.try-it {
@@ -190,6 +178,12 @@ a.try-it {
   position: relative;
 }
 
+@media only screen and (max-width: 1024px) {
+  .pageBody {
+    padding: 0;
+  }
+}
+
 .contents {
   margin: 0 auto;
   max-width: 1024px;
@@ -199,8 +193,13 @@ a.try-it {
   flex-direction: row-reverse;
 }
 
+.contents > .docContents {
+  flex-grow: 1;
+  max-width: calc(1024px - 340px); /* contents width minus sidebar */
+}
+
 img {
-  max-width: 1024px;
+  max-width: min(100%, 1024px);
 }
 
 .markdown h1 {
@@ -380,10 +379,6 @@ img {
     padding-top: 24px;
   }
 
-  .contents img {
-    max-width: 100%;
-  }
-
   .pageBody {
     padding: 0 12px;
   }
@@ -441,6 +436,16 @@ img {
 
 .toolBar .selected {
   color: #141420;
+}
+
+@media (prefers-color-scheme: dark) {
+  .toolBar {
+    color: #bbb;
+  }
+
+  .toolBar .selected {
+    color: #fff;
+  }
 }
 
 @media only screen and (max-width: 680px) {
@@ -531,21 +536,13 @@ img {
   background-color: rgba(112, 170, 220, 0.2);
 }
 
-.typeHeader {
-  color: #555;
-  font-size: 1.5em;
-  font-weight: normal;
-  margin: 1rem 0;
-  font-weight: bold;
-}
-
 .interfaceMember {
   padding-top: 4rem;
   margin-top: -5rem;
 }
 
 .infoHeader {
-  color: #555;
+  color: light-dark(#555, #fff);
   font-size: 10px;
   letter-spacing: 0.25ch;
   line-height: 16px;
@@ -608,4 +605,14 @@ img {
 
 p:last-child {
   margin-bottom: 0;
+}
+
+.memberLabel .anchorLink {
+  display: none;
+  margin-left: 0.25em;
+  color: var(--anchor-link-color);
+}
+
+.memberLabel:hover .anchorLink {
+  display: inline;
 }

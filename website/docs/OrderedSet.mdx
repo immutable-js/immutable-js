@@ -1,0 +1,38 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# OrderedSet
+
+A type of [`Set`](../Set/) that has the additional guarantee that the iteration order of values will be the order in which they were added.
+
+<Signature code={`type OrderedSet<T> extends Set<T>, OrderedCollection<T>`} />
+
+The iteration behavior of OrderedSet is the same as native ES6 Set.
+
+Note that `OrderedSet` are more expensive than non-ordered Set and may consume more memory. `OrderedSet#add` is amortized `O(log32 N)`, but not stable.
+
+## Similar API with `Set`
+
+`OrderedSet` has the exact same API as [`Set`](../Set/). The only new method is <CodeLink to="isOrderedSet">OrderedSet.isOrderedSet(maybeOrderedSet)</CodeLink> to check if a value is an `OrderedSet`.
+
+## Construction
+
+<MemberLabel label="OrderedSet()" />
+
+Create a new immutable OrderedSet containing the values of the provided collection-like.
+
+<Signature
+  code={`OrderedSet<T>(collection?: Iterable<T> | ArrayLike<T>): OrderedSet<T>`}
+/>
+
+Note: `OrderedSet` is a factory function and not a class, and does not use the `new` keyword during construction.
+
+<Repl defaultValue={`OrderedSet([1, 2, 3])`} />
+
+## Static Methods
+
+<MemberLabel label="OrderedSet.isOrderedSet()" />
+
+True if the provided value is an OrderedSet.
+
+<Signature code={`OrderedSet.isOrderedSet(maybeOrderedSet): boolean`} />

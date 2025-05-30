@@ -1,0 +1,16 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# get()
+
+Returns the value within the provided collection associated with the provided key, or notSetValue if the key is not defined in the collection.
+
+<Signature code={`get(collection, key, notSetValue?): any;`} />
+
+A functional alternative to `collection.get(key)` which will also work on plain Objects and Arrays as an alternative for `collection[key]`.
+
+<Repl defaultValue={`get([ 'dog', 'frog', 'cat' ], 2)`} />
+
+<Repl defaultValue={`get({ x: 123, y: 456 }, 'x')`} />
+
+<Repl defaultValue={`get({ x: 123, y: 456 }, 'z', 'ifNotSet')`} />

@@ -1,11 +1,12 @@
 import { getSidebarLinks } from '../../../../getSidebarLinks';
 import { getTypeDefs } from '../../../../static/getTypeDefs';
-import { getVersions } from '../../../../static/getVersions';
+import { getVersionFromGitTag } from '../../../../static/getVersions';
 import { TypeDocumentation } from '../../../../TypeDocumentation';
 import { getVersionFromParams } from '../../../getVersionFromParams';
+import { VERSION } from '../../currentVersion';
 
 export async function generateStaticParams() {
-  return getVersions()
+  return getVersionFromGitTag()
     .map((version) =>
       Object.values(getTypeDefs(version).types).map((def) => ({
         version,
@@ -21,10 +22,11 @@ type Params = {
 };
 
 type Props = {
-  params: Params;
+  params: Promise<Params>;
 };
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata(props: Props) {
+  const params = await props.params;
   const version = getVersionFromParams(params);
   const defs = getTypeDefs(version);
   const def = Object.values(defs.types).find((d) => d.label === params.type);
@@ -35,16 +37,18 @@ export async function generateMetadata({ params }: Props) {
 
   return {
     title: `${def.qualifiedName} — Immutable.js`,
+    robots: {
+      index: false,
+      follow: true,
+    },
+    alternates: {
+      canonical: `/docs/${VERSION}/${params.type}/`,
+    },
   };
 }
 
-export default function TypeDocPage({
-  // versions,
-  // version,
-  // def,
-  // sidebarLinks,
-  params,
-}: Props) {
+export default async function TypeDocPage(props: Props) {
+  const params = await props.params;
   const version = getVersionFromParams(params);
   const defs = getTypeDefs(version);
 

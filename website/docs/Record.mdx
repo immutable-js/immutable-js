@@ -1,0 +1,303 @@
+import Repl from '@/repl/Repl.tsx';
+import CodeLink from '@/mdx-components/CodeLink.tsx';
+
+# Record
+
+A record is similar to a JS object, but enforces a specific set of allowed string keys, and has default values.
+
+The `Record()` function produces new Record Factories, which when called create Record instances.
+
+<Repl
+  defaultValue={`const ABRecord = Record({ a: 1, b: 2 });
+const myRecord = ABRecord({ b: 3 });
+myRecord`}
+/>
+
+Records always have a value for the keys they define. `remove`ing a key from a record simply resets it to the default value for that key.
+
+```js
+myRecord.get('a'); // 1
+myRecord.get('b'); // 3
+const myRecordWithoutB = myRecord.remove('b');
+myRecordWithoutB.get('b'); // 2
+```
+
+Values provided to the constructor not found in the Record type will be ignored. For example, in this case, ABRecord is provided a key "x" even though only "a" and "b" have been defined. The value for "x" will be ignored for this record.
+
+```js
+const myRecord = ABRecord({ b: 3, x: 10 });
+myRecord.get('x'); // undefined
+```
+
+Because Records have a known set of string keys, property get access works as expected, however property sets will throw an Error.
+
+Note: IE8 does not support property access. Only use `get()` when supporting IE8.
+
+```js
+myRecord.b; // 3
+myRecord.b = 5; // throws Error
+```
+
+Record Types can be extended as well, allowing for custom methods on your Record. This is not a common pattern in functional environments, but is in many JS programs.
+
+However Record Types are more restricted than typical JavaScript classes. They do not use a class constructor, which also means they cannot use class properties (since those are technically part of a constructor).
+
+While Record Types can be syntactically created with the JavaScript `class` form, the resulting Record function is actually a factory function, not a class constructor. Even though Record Types are not classes, JavaScript currently requires the use of `new` when creating new Record instances if they are defined as a `class`.
+
+<Repl defaultValue={`class ABRecord extends Record({ a: 1, b: 2 }) {
+    getAB() {
+    return this.a + this.b;
+    }
+}
+
+var myRecord = new ABRecord({b: 3})
+myRecord.getAB()`} />
+
+**Typing Records:**
+
+Immutable.js exports two types designed to make it easier to use Records with typed code, `RecordOf<TProps>` and `RecordFactory<TProps>`.
+
+When defining a new kind of Record factory function, use a type that describes the values the record contains along with `RecordFactory<TProps>`. To type instances of the Record (which the factory function returns), use `RecordOf<TProps>`.
+
+Typically, new Record definitions will export both the Record factory function as well as the Record instance type for use in other code.
+
+```ts
+import type { RecordFactory, RecordOf } from 'immutable';
+
+// Use RecordFactory<TProps> for defining new Record factory functions.
+type Point3DProps = { x: number, y: number, z: number };
+
+const defaultValues: Point3DProps = { x: 0, y: 0, z: 0 };
+const makePoint3D: RecordFactory<Point3DProps> = Record(defaultValues);
+export makePoint3D;
+
+// Use RecordOf<T> for defining new instances of that Record.
+export type Point3D = RecordOf<Point3DProps>;
+const some3DPoint: Point3D = makePoint3D({ x: 10, y: 20, z: 30 });
+```
+
+**Typing Record Subclasses:**
+
+Records can be subclassed as a means to add additional methods to Record instances. This is generally discouraged in favor of a more functional API, since Subclasses have some minor overhead. However the ability to create a rich API on Record types can be quite valuable.
+
+When typing Subclasses, do not use `RecordFactory<TProps>`, instead apply the props type when subclassing:
+
+```ts
+type PersonProps = { name: string; age: number };
+
+const defaultValues: PersonProps = { name: 'Aristotle', age: 2400 };
+const PersonRecord = Record(defaultValues);
+
+class Person extends PersonRecord<PersonProps> {
+  getName(): string {
+    return this.get('name');
+  }
+
+  setName(name: string): this {
+    return this.set('name', name);
+  }
+}
+```
+
+**Choosing Records vs plain JavaScript objects**
+
+Records offer a persistently immutable alternative to plain JavaScript objects, however they're not required to be used within Immutable.js collections. In fact, the deep-access and deep-updating functions like `getIn()` and `setIn()` work with plain JavaScript Objects as well.
+
+Deciding to use Records or Objects in your application should be informed by the tradeoffs and relative benefits of each:
+
+- _Runtime immutability_: plain JS objects may be carefully treated as immutable, however Record instances will _throw_ if attempted to be mutated directly. Records provide this additional guarantee, however at some marginal runtime cost. While JS objects are mutable by nature, the use of type-checking tools like TypeScript or [Flow](https://medium.com/@gcanti/immutability-with-flow-faa050a1aef4) can help gain confidence in code written to favor immutability.
+
+- _Value equality_: Records use value equality when compared with `is()` or `record.equals()`. That is, two Records with the same keys and values are equal. Plain objects use _reference equality_. Two objects with the same keys and values are not equal since they are different objects. This is important to consider when using objects as keys in a `Map` or
+  values in a `Set`, which use equality when retrieving values.
+
+- _API methods_: Records have a full featured API, with methods like `.getIn()`, and `.equals()`. These can make working with these values easier, but comes at the cost of not allowing keys with those names.
+
+- _Default values_: Records provide default values for every key, which can be useful when constructing Records with often unchanging values. However default values can make using Flow and TypeScript more laborious.
+
+- _Serialization_: Records use a custom internal representation to efficiently store and update their values. Converting to and from this form isn't free. If converting Records to plain objects is common, consider sticking with plain objects to begin with.
+
+## Construction
+
+<MemberLabel label="Record()" />
+
+<Signature
+  code={`Record<TProps>(defaultValues: TProps, name?: string): Record.Factory<TProps>`}
+/>
+
+## Static methods
+
+<MemberLabel label="Record.isRecord()" />
+
+<Signature code={`Record.isRecord(maybeRecord: unknown): boolean`} />
+
+<MemberLabel label="Record.getDescriptiveName()" />
+
+<Signature code={`Record.getDescriptiveName(): string`} />
+
+## Reading values
+
+<MemberLabel label="has()" />
+
+<Signature code={`has(key: string): boolean`} />
+
+<MemberLabel label="get()" />
+
+<Signature
+  code={`get<K>(key: K): TProps[K]
+get<T>(key: string, notSetValue: T): T`}
+/>
+
+## Reading deep values
+
+<MemberLabel label="hasIn" />
+
+<Signature code={`hasIn(key: string): boolean`} />
+
+<MemberLabel label="getIn()" />
+
+<Signature
+  code={`getIn<K>(key: K): TProps[K]
+getIn<T>(key: string, notSetValue: T): T`}
+/>
+
+## Value equality
+
+<MemberLabel label="equals" />
+
+<Signature code={`equals(other: unknown): boolean`} />
+
+<MemberLabel label="hashCode" />
+
+<Signature code={`hashCode(): number`} />
+
+## Persistent changes
+
+<MemberLabel label="set" />
+
+<Signature code={`set<K>(key: K, value: TProps[K]): this`} />
+
+<MemberLabel label="update" />
+
+<Signature
+  code={`update<K>(key: K, updater: (value: TProps[K]) => TProps[K]): this;`}
+/>
+
+<MemberLabel label="merge" />
+
+<Signature code={`merge(...collections: Array<Partial<TProps>>>): this`} />
+
+<MemberLabel label="mergeDeep" />
+
+<Signature code={`mergeDeep(...collections: Array<Partial<TProps>>): this;`} />
+
+<MemberLabel label="mergeWith" />
+
+<Signature
+  code={`mergeWith(
+    merger: (oldVal: unknown, newVal: unknown, key: keyof TProps) => unknown,
+    ...collections: Array<Partial<TProps>>
+  ): this;`}
+/>
+
+<MemberLabel label="mergeDeepWith" />
+
+<Signature
+  code={`mergeDeepWith(
+    merger: (oldVal: unknown, newVal: unknown, key: unknown) => unknown,
+    ...collections: Array<Partial<TProps>>
+  ): this;`}
+/>
+
+<MemberLabel label="delete" alias="remove" />
+
+Returns a new instance of this Record type with the value for the specific key set to its default value.
+
+<Signature code={`delete<K extends keyof TProps>(key: K): this;`} />
+
+<MemberLabel label="clear" />
+
+Returns a new instance of this Record type with all values set to their default values.
+
+<Signature code={`clear(): this;`} />
+
+## Deep persistent changes
+
+<MemberLabel label="setIn" />
+
+<Signature code={`setIn(keyPath: Iterable, value): this;`} />
+
+<MemberLabel label="updateIn" />
+
+<Signature
+  code={`updateIn(keyPath: Iterable, updater: (value) => unknown): this;`}
+/>
+
+<MemberLabel label="mergeIn" />
+
+<Signature code={`mergeIn(...collections: Array<Partial<TProps>>): this;`} />
+
+<MemberLabel label="mergeDeepIn" />
+
+<Signature
+  code={`mergeDeepIn(...collections: Array<Partial<TProps>>): this;`}
+/>
+
+<MemberLabel label="deleteIn" alias="removeIn" />
+
+<Signature code={`deleteIn(keyPath: Iterable<unknown>): this;`} />
+
+## Conversion to JavaScript types
+
+<MemberLabel label="toJS" />
+
+Deeply converts this Record to equivalent native JavaScript Object.
+
+Note: This method may not be overridden. Objects with custom serialization to plain JS may override toJSON() instead.
+
+<Signature code={`toJS(): DeepCopy<TProps>;`} />
+
+<MemberLabel label="toJSON" />
+
+Shallowly converts this Record to equivalent native JavaScript Object.
+
+<Signature code={`toJSON(): TProps;`} />
+
+<MemberLabel label="toObject" />
+
+Shallowly converts this Record to equivalent JavaScript Object.
+
+<Signature code={`toObject(): TProps;`} />
+
+## Transient changes
+
+<MemberLabel label="withMutations" />
+
+Note: Not all methods can be used on a mutable collection or within `withMutations`! Only `set` may be used mutatively.
+
+See <CodeLink to="../Map#withMutations">Map#withMutations</CodeLink>
+
+<Signature code={`withMutations(mutator: (mutable: this) => unknown): this;`} />
+
+<MemberLabel label="asMutable" />
+
+See <CodeLink to="../Map#asMutable">Map#asMutable</CodeLink>
+
+<Signature code={`asMutable(): this;`} />
+
+<MemberLabel label="wasAltered" />
+
+See <CodeLink to="../Map#wasAltered">Map#wasAltered</CodeLink>
+
+<Signature code={`wasAltered(): boolean`} />
+
+<MemberLabel label="asImmutable" />
+
+See <CodeLink to="../Map#asImmutable">Map#asImmutable</CodeLink>
+
+<Signature code={`asImmutable(): this;`} />
+
+## Sequence algorithms
+
+<MemberLabel label="toSeq" />
+
+<Signature code={`toSeq(): Seq.Keyed<keyof TProps, TProps[keyof TProps]>;`} />

@@ -329,4 +329,21 @@ describe('merge', () => {
     const b = Map({ a: Map([[0, Map({ y: 2 })]]) });
     expect(mergeDeep(a, b)).toEqual({ a: Map([[0, Map({ y: 2 })]]) });
   });
+
+  it('works with an empty Record', () => {
+    class MyRecord extends Record({ a: 1 }) {}
+
+    const myRecord = new MyRecord();
+    expect(merge(myRecord, { a: 4 })).toEqual(
+      new MyRecord({
+        a: 4,
+      })
+    );
+
+    class MyEmptyRecord extends Record({}) {}
+
+    const myEmptyRecord = new MyEmptyRecord();
+    // merging with an empty record should return the same empty record instance
+    expect(merge(myEmptyRecord, { a: 4 })).toBe(myEmptyRecord);
+  });
 });
