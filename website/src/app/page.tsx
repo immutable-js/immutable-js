@@ -4,6 +4,15 @@ import { ImmutableConsole } from '../ImmutableConsole';
 import { MarkdownContent } from '../MarkdownContent';
 import { genMarkdownDoc } from '../static/genMarkdownDoc';
 import { getVersions } from '../static/getVersions';
+import { Metadata } from 'next';
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    verification: {
+      google: 'PdYYQG_2wv0zUJjqBIeuYliPcrOiAuTES4Q21OLy5uQ',
+    },
+  };
+}
 
 export default async function Page() {
   const versions = await getVersions();
