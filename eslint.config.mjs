@@ -3,7 +3,6 @@ import globals from 'globals';
 import pluginJest from 'eslint-plugin-jest';
 import importPlugin from 'eslint-plugin-import';
 import pluginReact from 'eslint-plugin-react';
-// eslint-disable-next-line import/no-unresolved
 import tseslint from 'typescript-eslint';
 
 /** @type {import('eslint').Linter.Config[]} */
@@ -155,6 +154,13 @@ export default tseslint.config(
       'no-var': 'off',
       'prefer-arrow-callback': 'off',
       '@typescript-eslint/no-require-imports': 'off',
+    },
+  },
+  {
+    settings: {
+      'import/resolver': {
+        typescript: {},
+      },
     },
   }
 );

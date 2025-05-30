@@ -41,7 +41,8 @@ export function WorkerContextProvider({ children }: Props): JSX.Element {
   useEffect(() => {
     // Create a worker from the external worker.js file
     workerRef.current = new Worker(
-      new URL('../worker/index.ts', import.meta.url)
+      new URL('../worker/index.ts', import.meta.url),
+      { type: 'module' }
     );
 
     workerRef.current.onmessage = (event: {
