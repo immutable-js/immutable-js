@@ -640,10 +640,7 @@ declare namespace Immutable {
     get<K extends keyof R>(key: K, notSetValue?: unknown): R[K];
     get<NSV>(key: unknown, notSetValue: NSV): NSV;
 
-    // TODO `<const P extends ...>` can be used after dropping support for TypeScript 4.x
-    // reference: https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-0.html#const-type-parameters
-    // after this change, `as const` assertions can be remove from the type tests
-    getIn<P extends ReadonlyArray<PropertyKey>>(
+    getIn<const P extends ReadonlyArray<PropertyKey>>(
       searchKeyPath: [...P],
       notSetValue?: unknown
     ): RetrievePath<R, P>;
@@ -4879,9 +4876,6 @@ declare namespace Immutable {
     updater: (value: V | NSV) => V
   ): { [key: string]: V };
 
-  // TODO `<const P extends ...>` can be used after dropping support for TypeScript 4.x
-  // reference: https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-0.html#const-type-parameters
-  // after this change, `as const` assertions can be remove from the type tests
   /**
    * Returns the value at the provided key path starting at the provided
    * collection, or notSetValue if the key path is not defined.
@@ -4889,17 +4883,20 @@ declare namespace Immutable {
    * A functional alternative to `collection.getIn(keypath)` which will also
    * work with plain Objects and Arrays.
    */
-  function getIn<C, P extends ReadonlyArray<PropertyKey>>(
+  function getIn<C, const P extends ReadonlyArray<PropertyKey>>(
     object: C,
     keyPath: [...P]
   ): RetrievePath<C, P>;
-  function getIn<C, P extends KeyPath<unknown>>(object: C, keyPath: P): unknown;
-  function getIn<C, P extends ReadonlyArray<PropertyKey>, NSV>(
+  function getIn<C, const P extends KeyPath<unknown>>(
+    object: C,
+    keyPath: P
+  ): unknown;
+  function getIn<C, const P extends ReadonlyArray<PropertyKey>, NSV>(
     collection: C,
     keyPath: [...P],
     notSetValue: NSV
   ): RetrievePath<C, P> extends never ? NSV : RetrievePath<C, P>;
-  function getIn<C, P extends KeyPath<unknown>, NSV>(
+  function getIn<C, const P extends KeyPath<unknown>, NSV>(
     object: C,
     keyPath: P,
     notSetValue: NSV
