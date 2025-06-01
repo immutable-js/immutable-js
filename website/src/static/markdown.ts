@@ -1,7 +1,11 @@
 import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import prism from 'prismjs';
-import type { TypeDefs, CallSignature, TypeDefinition } from '../TypeDefs';
+import type {
+  TypeDefs,
+  CallSignature,
+  TypeDefinition,
+} from '../app/docs/[version]/TypeDefs';
 
 export type MarkdownContext = {
   defs: TypeDefs;

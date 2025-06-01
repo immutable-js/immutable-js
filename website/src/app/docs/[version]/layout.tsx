@@ -1,7 +1,7 @@
 import { DocHeader } from '../../../DocHeader';
 import { ImmutableConsole } from '../../../ImmutableConsole';
 import { getVersions } from '../../../static/getVersions';
-import { getVersionFromParams } from '../../getVersionFromParams';
+import { getVersionFromParams } from './getVersionFromParams';
 
 export default async function VersionLayout(props: {
   children: React.ReactNode;

@@ -1,11 +1,11 @@
 import { Metadata } from 'next';
 import { getVersionFromGitTag } from '../../../static/getVersions';
-import { getTypeDefs } from '../../../static/getTypeDefs';
-import { DocOverview, getOverviewData } from '../../../DocOverview';
+import { getTypeDefs } from './getTypeDefs';
+import { DocOverview, getOverviewData } from './DocOverview';
 import { DocSearch } from '../../../DocSearch';
-import { SideBarV4 } from '../../../SidebarV4';
-import { getSidebarLinks } from '../../../getSidebarLinks';
-import { getVersionFromParams } from '../../getVersionFromParams';
+import { SideBarV4 } from './SidebarV4';
+import { getSidebarLinks } from './getSidebarLinks';
+import { getVersionFromParams } from './getVersionFromParams';
 import { VERSION } from '../currentVersion';
 
 export async function generateStaticParams() {

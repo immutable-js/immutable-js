@@ -4,9 +4,9 @@ import Link from 'next/link';
 import { Fragment, useEffect, useState } from 'react';
 import type { TypeDefinition } from './TypeDefs';
 import { collectMemberGroups } from './collectMemberGroups';
-import { ArrowDown } from './ArrowDown';
-import { SIDEBAR_LINKS } from './app/docs/currentVersion';
-import { SidebarLinks } from './sidebar';
+import { ArrowDown } from '../../../ArrowDown';
+import { SIDEBAR_LINKS } from '../currentVersion';
+import { SidebarLinks } from '../../../sidebar';
 
 function Links({
   links,
