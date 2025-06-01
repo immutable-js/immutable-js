@@ -1,9 +1,9 @@
-import { SetCollection, KeyedCollection } from './Collection';
+import { KeyedCollection, SetCollection } from './Collection';
+import { IndexedCollectionPrototype } from './CollectionImpl';
+import { emptyOrderedMap } from './OrderedMap';
+import { Set } from './Set';
 import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
 import { isOrderedSet } from './predicates/isOrderedSet';
-import { IndexedCollectionPrototype } from './CollectionImpl';
-import { Set } from './Set';
-import { emptyOrderedMap } from './OrderedMap';
 import assertNotInfinite from './utils/assertNotInfinite';
 
 export class OrderedSet extends Set {

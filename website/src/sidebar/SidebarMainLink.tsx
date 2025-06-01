@@ -1,7 +1,7 @@
-import { JSX } from 'react';
 import Link from 'next/link';
-import { ArrowDown } from '..//ArrowDown';
 import { usePathname } from 'next/navigation';
+import { JSX } from 'react';
+import { ArrowDown } from '../ArrowDown';
 
 type Props = {
   label: string;

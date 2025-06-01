@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
-import { fromJS, is, List, Map, OrderedMap, Record } from 'immutable';
 import fc, { type JsonValue } from 'fast-check';
+import { List, Map, OrderedMap, Record, fromJS, is } from 'immutable';
 
 describe('Conversion', () => {
   // Note: order of keys based on Map's hashing order

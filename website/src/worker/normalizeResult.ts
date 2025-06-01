@@ -1,8 +1,8 @@
 import {
   Element,
+  JsonMLElementList,
   explodeElement,
   isElement,
-  JsonMLElementList,
 } from './jsonml-types';
 
 export interface DevToolsFormatter {

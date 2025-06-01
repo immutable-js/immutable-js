@@ -1,6 +1,6 @@
-import { isKeyed } from './isKeyed';
-import { isIndexed } from './isIndexed';
 import type { Collection } from '../../type-definitions/immutable';
+import { isIndexed } from './isIndexed';
+import { isKeyed } from './isKeyed';
 
 /**
  * True if `maybeAssociative` is either a Keyed or Indexed Collection.

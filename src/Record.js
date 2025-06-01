@@ -1,27 +1,27 @@
-import { toJS } from './toJS';
 import { KeyedCollection } from './Collection';
-import { keyedSeqFromValue } from './Seq';
-import { List } from './List';
-import { ITERATE_ENTRIES, ITERATOR_SYMBOL } from './Iterator';
-import { isRecord, IS_RECORD_SYMBOL } from './predicates/isRecord';
 import { CollectionPrototype } from './CollectionImpl';
+import { ITERATE_ENTRIES, ITERATOR_SYMBOL } from './Iterator';
+import { List } from './List';
+import { keyedSeqFromValue } from './Seq';
 import { DELETE } from './TrieUtils';
-import { getIn } from './methods/getIn';
-import { setIn } from './methods/setIn';
+import { asImmutable } from './methods/asImmutable';
+import { asMutable } from './methods/asMutable';
 import { deleteIn } from './methods/deleteIn';
-import { update } from './methods/update';
-import { updateIn } from './methods/updateIn';
+import { getIn } from './methods/getIn';
 import { merge, mergeWith } from './methods/merge';
 import { mergeDeep, mergeDeepWith } from './methods/mergeDeep';
-import { mergeIn } from './methods/mergeIn';
 import { mergeDeepIn } from './methods/mergeDeepIn';
+import { mergeIn } from './methods/mergeIn';
+import { setIn } from './methods/setIn';
+import { update } from './methods/update';
+import { updateIn } from './methods/updateIn';
 import { withMutations } from './methods/withMutations';
-import { asMutable } from './methods/asMutable';
-import { asImmutable } from './methods/asImmutable';
 
+import { isImmutable } from './predicates/isImmutable';
+import { IS_RECORD_SYMBOL, isRecord } from './predicates/isRecord';
+import { toJS } from './toJS';
 import invariant from './utils/invariant';
 import quoteString from './utils/quoteString';
-import { isImmutable } from './predicates/isImmutable';
 
 function throwOnInvalidDefaultValues(defaultValues) {
   if (isRecord(defaultValues)) {

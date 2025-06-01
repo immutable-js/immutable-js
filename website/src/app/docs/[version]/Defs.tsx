@@ -1,13 +1,13 @@
+import Link from 'next/link';
 import type { FocusEvent, JSX, MouseEvent, ReactNode } from 'react';
 import { Fragment, useCallback, useState } from 'react';
-import Link from 'next/link';
 import {
-  TypeKind,
-  Type,
+  CallParam,
+  CallSignature,
   InterfaceDefinition,
   ObjectMember,
-  CallSignature,
-  CallParam,
+  Type,
+  TypeKind,
 } from './TypeDefs';
 
 export function InterfaceDef({

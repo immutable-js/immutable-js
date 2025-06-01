@@ -1,16 +1,16 @@
-import { expect, test } from 'tstyche';
 import {
+  List,
+  Map,
+  MapOf,
   get,
   getIn,
   has,
   hasIn,
-  set,
   remove,
+  set,
   update,
-  Map,
-  List,
-  MapOf,
 } from 'immutable';
+import { expect, test } from 'tstyche';
 
 test('get', () => {
   expect(get([1, 2, 3], 0)).type.toBe<number | undefined>();

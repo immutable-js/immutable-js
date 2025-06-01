@@ -1,29 +1,29 @@
+import { IndexedCollection } from './Collection';
+import { Iterator, hasIterator, iteratorDone, iteratorValue } from './Iterator';
 import {
   DELETE,
+  MASK,
+  MakeRef,
+  OwnerID,
   SHIFT,
   SIZE,
-  MASK,
-  OwnerID,
-  MakeRef,
   SetRef,
-  wrapIndex,
-  wholeSlice,
   resolveBegin,
   resolveEnd,
+  wholeSlice,
+  wrapIndex,
 } from './TrieUtils';
-import { IS_LIST_SYMBOL, isList } from './predicates/isList';
-import { IndexedCollection } from './Collection';
-import { hasIterator, Iterator, iteratorValue, iteratorDone } from './Iterator';
-import { setIn } from './methods/setIn';
+import { asImmutable } from './methods/asImmutable';
+import { asMutable } from './methods/asMutable';
 import { deleteIn } from './methods/deleteIn';
+import { mergeDeepIn } from './methods/mergeDeepIn';
+import { mergeIn } from './methods/mergeIn';
+import { setIn } from './methods/setIn';
 import { update } from './methods/update';
 import { updateIn } from './methods/updateIn';
-import { mergeIn } from './methods/mergeIn';
-import { mergeDeepIn } from './methods/mergeDeepIn';
-import { withMutations } from './methods/withMutations';
-import { asMutable } from './methods/asMutable';
-import { asImmutable } from './methods/asImmutable';
 import { wasAltered } from './methods/wasAltered';
+import { withMutations } from './methods/withMutations';
+import { IS_LIST_SYMBOL, isList } from './predicates/isList';
 import assertNotInfinite from './utils/assertNotInfinite';
 
 export class List extends IndexedCollection {

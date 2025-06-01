@@ -1,3 +1,4 @@
+/* eslint-disable import/order */
 import { Seq } from './Seq';
 import { OrderedMap } from './OrderedMap';
 import { List } from './List';

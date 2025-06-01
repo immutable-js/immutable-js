@@ -1,5 +1,5 @@
+import { Collection, Map, OrderedSet } from 'immutable';
 import { expect, pick, test } from 'tstyche';
-import { Collection, OrderedSet, Map } from 'immutable';
 
 test('#constructor', () => {
   expect(OrderedSet()).type.toBe<OrderedSet<unknown>>();

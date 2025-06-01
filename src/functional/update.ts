@@ -1,5 +1,5 @@
 import type { Collection, Record } from '../../type-definitions/immutable';
-import { updateIn, type PossibleCollection } from './updateIn';
+import { type PossibleCollection, updateIn } from './updateIn';
 
 type UpdaterFunction<V> = (value: V | undefined) => V | undefined;
 type UpdaterFunctionWithNSV<V, NSV> = (value: V | NSV) => V;

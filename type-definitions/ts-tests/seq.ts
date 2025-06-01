@@ -1,5 +1,5 @@
-import { expect, pick, test } from 'tstyche';
 import { Seq } from 'immutable';
+import { expect, pick, test } from 'tstyche';
 
 test('#constructor', () => {
   expect(Seq([1, 2, 3])).type.toBe<Seq.Indexed<number>>();
