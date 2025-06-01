@@ -13,9 +13,9 @@ import {
   TypeDoc,
   TypeKind,
   MemberDefinition,
-} from '../TypeDefs';
-import { markdown, MarkdownContext } from './markdown';
-import { stripUndefineds } from './stripUndefineds';
+} from './TypeDefs';
+import { markdown, MarkdownContext } from '../../../static/markdown';
+import { stripUndefineds } from '../../../static/stripUndefineds';
 
 const generatedTypeDefs = new Map<string, TypeDefs>();
 export function getTypeDefs(version: string) {

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Fragment } from 'react';
 import { CallSigDef, MemberDef } from './Defs';
-import { MarkdownContent } from './MarkdownContent';
+import { MarkdownContent } from '../../../MarkdownContent';
 import type { MemberDefinition } from './TypeDefs';
 
 export function MemberDoc({ member }: { member: MemberDefinition }) {

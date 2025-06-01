@@ -1,12 +1,8 @@
 import { Metadata } from 'next';
 import { DocSearch } from '../../DocSearch';
-import { SideBar } from '../../Sidebar';
+import { Sidebar } from '../../sidebar';
 import Playground from './Playground';
 import { VERSION } from '../docs/currentVersion';
-
-export async function generateStaticParams() {
-  // return [...getVersions().map((version) => ({ version }))];
-}
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -17,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function OverviewDocPage() {
   return (
     <>
-      <SideBar />
+      <Sidebar />
       <div key="Overview" className="docContents">
         <DocSearch />
         <h1>Playgroud ({VERSION})</h1>

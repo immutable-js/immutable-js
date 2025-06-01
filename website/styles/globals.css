@@ -47,6 +47,10 @@ body {
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body,
 input {
   color: var(--body-color);
@@ -257,6 +261,11 @@ img {
   float: left;
   left: -140px;
   top: var(--header-content-padding);
+}
+
+/* Anchor links: margin-top of 60px, like the header height */
+[id] {
+  scroll-margin-top: 60px;
 }
 
 .MenuButton__Toggle {

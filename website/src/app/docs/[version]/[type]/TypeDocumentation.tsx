@@ -2,13 +2,14 @@
 
 import { Fragment, useReducer } from 'react';
 
-import { InterfaceDef, CallSigDef } from './Defs';
-import { SideBar, SidebarLinks } from './Sidebar';
-import { MemberDoc } from './MemberDoc';
-import { MarkdownContent } from './MarkdownContent';
-import { collectMemberGroups } from './collectMemberGroups';
-import type { TypeDefinition, MemberDefinition } from './TypeDefs';
-import { DocSearch } from './DocSearch';
+import { InterfaceDef, CallSigDef } from '../Defs';
+import { SidebarLinks } from '../../../../sidebar';
+import { SideBarV4 } from '../SidebarV4';
+import { MemberDoc } from '../MemberDoc';
+import { MarkdownContent } from '../../../../MarkdownContent';
+import { collectMemberGroups } from '../collectMemberGroups';
+import type { TypeDefinition, MemberDefinition } from '../TypeDefs';
+import { DocSearch } from '../../../../DocSearch';
 
 const typeDefURL =
   'https://github.com/immutable-js/immutable-js/blob/main/type-definitions/immutable.d.ts';
@@ -46,7 +47,7 @@ export function TypeDocumentation({
 
   return (
     <>
-      <SideBar
+      <SideBarV4
         links={sidebarLinks}
         focus={def}
         toggleShowInherited={toggleShowInherited}

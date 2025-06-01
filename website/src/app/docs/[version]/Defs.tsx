@@ -96,7 +96,7 @@ export function CallSigDef({
   );
 }
 
-export function TypeDef({ type, prefix }: { type: Type; prefix?: number }) {
+function TypeDef({ type, prefix }: { type: Type; prefix?: number }) {
   switch (type.k) {
     case TypeKind.Never:
       return wrap('primitive', 'never');
