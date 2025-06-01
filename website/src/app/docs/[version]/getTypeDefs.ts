@@ -2,20 +2,20 @@ import { execSync } from 'child_process';
 import { readFileSync } from 'fs';
 import ts from 'typescript';
 
+import { MarkdownContext, markdown } from '../../../static/markdown';
+import { stripUndefineds } from '../../../static/stripUndefineds';
 import {
   CallParam,
   CallSignature,
-  TypeDefinition,
   InterfaceDefinition,
+  MemberDefinition,
   NamedType,
   Type,
+  TypeDefinition,
   TypeDefs,
   TypeDoc,
   TypeKind,
-  MemberDefinition,
 } from './TypeDefs';
-import { markdown, MarkdownContext } from '../../../static/markdown';
-import { stripUndefineds } from '../../../static/stripUndefineds';
 
 const generatedTypeDefs = new Map<string, TypeDefs>();
 export function getTypeDefs(version: string) {

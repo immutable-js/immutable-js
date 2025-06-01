@@ -1,12 +1,12 @@
 import { describe, expect, it } from '@jest/globals';
 import {
-  is,
-  isImmutable,
-  isValueObject,
   List,
   Map,
   Set,
   Stack,
+  is,
+  isImmutable,
+  isValueObject,
 } from 'immutable';
 
 describe('isImmutable', () => {

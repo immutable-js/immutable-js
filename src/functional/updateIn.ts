@@ -1,18 +1,18 @@
-import { isImmutable } from '../predicates/isImmutable';
-import coerceKeyPath from '../utils/coerceKeyPath';
-import isDataStructure from '../utils/isDataStructure';
-import quoteString from '../utils/quoteString';
-import { NOT_SET } from '../TrieUtils';
-import { emptyMap } from '../Map';
-import { get } from './get';
-import { remove } from './remove';
-import { set } from './set';
 import type {
   Collection,
   KeyPath,
   Record,
   RetrievePath,
 } from '../../type-definitions/immutable';
+import { emptyMap } from '../Map';
+import { NOT_SET } from '../TrieUtils';
+import { isImmutable } from '../predicates/isImmutable';
+import coerceKeyPath from '../utils/coerceKeyPath';
+import isDataStructure from '../utils/isDataStructure';
+import quoteString from '../utils/quoteString';
+import { get } from './get';
+import { remove } from './remove';
+import { set } from './set';
 
 /**
  * Returns a copy of the collection with the value at key path set to the

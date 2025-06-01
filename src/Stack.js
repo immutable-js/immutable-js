@@ -1,13 +1,13 @@
-import { wholeSlice, resolveBegin, resolveEnd, wrapIndex } from './TrieUtils';
 import { IndexedCollection } from './Collection';
+import { Iterator, iteratorDone, iteratorValue } from './Iterator';
 import { ArraySeq } from './Seq';
-import { Iterator, iteratorValue, iteratorDone } from './Iterator';
-import { IS_STACK_SYMBOL, isStack } from './predicates/isStack';
-import assertNotInfinite from './utils/assertNotInfinite';
+import { resolveBegin, resolveEnd, wholeSlice, wrapIndex } from './TrieUtils';
 import { asImmutable } from './methods/asImmutable';
 import { asMutable } from './methods/asMutable';
 import { wasAltered } from './methods/wasAltered';
 import { withMutations } from './methods/withMutations';
+import { IS_STACK_SYMBOL, isStack } from './predicates/isStack';
+import assertNotInfinite from './utils/assertNotInfinite';
 
 export class Stack extends IndexedCollection {
   // @pragma Construction

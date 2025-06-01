@@ -1,15 +1,15 @@
-import { expect, test } from 'tstyche';
 import {
   Collection,
   List,
   Map,
+  MapOf,
   OrderedMap,
-  Set,
   OrderedSet,
   Seq,
+  Set,
   Stack,
-  MapOf,
 } from 'immutable';
+import { expect, test } from 'tstyche';
 
 test('groupBy', () => {
   expect(Collection(['a', 'b', 'c', 'a']).groupBy((v) => v)).type.toBe<

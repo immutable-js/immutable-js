@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import { isCollection, isIndexed, isKeyed, Seq } from 'immutable';
+import { Seq, isCollection, isIndexed, isKeyed } from 'immutable';
 
 describe('Seq', () => {
   it('returns undefined if empty and first is called without default argument', () => {

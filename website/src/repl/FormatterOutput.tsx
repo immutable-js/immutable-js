@@ -1,5 +1,5 @@
 import { toHTML } from 'jsonml-html';
-import { useEffect, useRef, type JSX } from 'react';
+import { type JSX, useEffect, useRef } from 'react';
 import { Element, JsonMLElementList } from '../worker/jsonml-types';
 
 /**

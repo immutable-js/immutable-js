@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 import { DocSearch } from '../../DocSearch';
 import { Sidebar } from '../../sidebar';
-import Playground from './Playground';
 import { VERSION } from '../docs/currentVersion';
+import Playground from './Playground';
 
 export async function generateMetadata(): Promise<Metadata> {
   return {

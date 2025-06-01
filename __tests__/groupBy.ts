@@ -1,14 +1,14 @@
 import { describe, expect, it } from '@jest/globals';
 import {
   Collection,
-  Map,
-  Seq,
-  isOrdered,
-  OrderedMap,
   List,
+  Map,
+  OrderedMap,
   OrderedSet,
+  Seq,
   Set,
   Stack,
+  isOrdered,
 } from 'immutable';
 
 describe('groupBy', () => {

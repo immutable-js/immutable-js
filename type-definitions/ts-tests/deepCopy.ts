@@ -1,5 +1,5 @@
+import { Collection, DeepCopy, List, Map, Record, Seq, Set } from 'immutable';
 import { describe, expect, test } from 'tstyche';
-import { List, Map, Record, Set, Seq, DeepCopy, Collection } from 'immutable';
 
 describe('DeepCopy', () => {
   test('basic types', () => {

@@ -1,5 +1,5 @@
+import { Collection, List, Map, MapOf, fromJS } from 'immutable';
 import { expect, test } from 'tstyche';
-import { fromJS, Collection, List, Map, MapOf } from 'immutable';
 
 test('fromJS', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

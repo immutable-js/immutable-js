@@ -1,7 +1,7 @@
-import coerceKeyPath from '../utils/coerceKeyPath';
-import { NOT_SET } from '../TrieUtils';
-import { get } from './get';
 import type { KeyPath } from '../../type-definitions/immutable';
+import { NOT_SET } from '../TrieUtils';
+import coerceKeyPath from '../utils/coerceKeyPath';
+import { get } from './get';
 
 type GetType = typeof get;
 type GetTypeParameters = Parameters<GetType>;

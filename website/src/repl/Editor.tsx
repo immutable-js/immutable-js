@@ -1,11 +1,10 @@
-import { useEffect, useRef, type JSX } from 'react';
-import { basicSetup, minimalSetup } from 'codemirror';
-import { EditorView, gutter, keymap } from '@codemirror/view';
 import { defaultKeymap, indentWithTab } from '@codemirror/commands';
-import { EditorState, Extension } from '@codemirror/state';
 import { javascript } from '@codemirror/lang-javascript';
-// TODO activate this when we have a dark mode
+import { EditorState, Extension } from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
+import { EditorView, gutter, keymap } from '@codemirror/view';
+import { basicSetup, minimalSetup } from 'codemirror';
+import { type JSX, useEffect, useRef } from 'react';
 import useDarkMode from '../useDarkMode';
 
 type Props = {

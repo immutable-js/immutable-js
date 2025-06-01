@@ -2,11 +2,11 @@
 
 import Link from 'next/link';
 import { Fragment, useEffect, useState } from 'react';
+import { ArrowDown } from '../../../ArrowDown';
+import { SidebarLinks } from '../../../sidebar';
+import { SIDEBAR_LINKS } from '../currentVersion';
 import type { TypeDefinition } from './TypeDefs';
 import { collectMemberGroups } from './collectMemberGroups';
-import { ArrowDown } from '../../../ArrowDown';
-import { SIDEBAR_LINKS } from '../currentVersion';
-import { SidebarLinks } from '../../../sidebar';
 
 function Links({
   links,

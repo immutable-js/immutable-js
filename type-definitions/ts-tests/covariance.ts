@@ -1,4 +1,3 @@
-import { expect, test } from 'tstyche';
 import {
   List,
   Map,
@@ -8,6 +7,7 @@ import {
   Set,
   Stack,
 } from 'immutable';
+import { expect, test } from 'tstyche';
 
 class A {
   x: number;
