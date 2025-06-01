@@ -3,7 +3,8 @@
 import { Fragment, useReducer } from 'react';
 
 import { InterfaceDef, CallSigDef } from './Defs';
-import { SideBar, SidebarLinks } from './Sidebar';
+import { SidebarLinks } from './sidebar/Sidebar';
+import { SideBarV4 } from './SidebarV4';
 import { MemberDoc } from './MemberDoc';
 import { MarkdownContent } from './MarkdownContent';
 import { collectMemberGroups } from './collectMemberGroups';
@@ -46,7 +47,7 @@ export function TypeDocumentation({
 
   return (
     <>
-      <SideBar
+      <SideBarV4
         links={sidebarLinks}
         focus={def}
         toggleShowInherited={toggleShowInherited}

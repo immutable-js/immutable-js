@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { DocSearch } from '../../DocSearch';
-import { SideBar } from '../../Sidebar';
+import { Sidebar } from '../../sidebar';
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -13,7 +13,7 @@ export default async function BrowserExtensionPage() {
 
   return (
     <>
-      <SideBar />
+      <Sidebar />
       <div key="Overview" className="docContents">
         <DocSearch />
 
