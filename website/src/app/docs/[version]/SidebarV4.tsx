@@ -4,10 +4,9 @@ import Link from 'next/link';
 import { Fragment, useEffect, useState } from 'react';
 import type { TypeDefinition } from './TypeDefs';
 import { collectMemberGroups } from './collectMemberGroups';
-import { ArrowDown } from './ArrowDown';
-import { SIDEBAR_LINKS } from './app/docs/currentVersion';
-
-export type SidebarLinks = Array<{ label: string; url: string }>;
+import { ArrowDown } from '../../../ArrowDown';
+import { SIDEBAR_LINKS } from '../currentVersion';
+import { SidebarLinks } from '../../../sidebar';
 
 function Links({
   links,
@@ -130,7 +129,7 @@ function Focus({
   );
 }
 
-export function SideBar({
+export function SideBarV4({
   links = SIDEBAR_LINKS,
   focus,
   toggleShowInherited,

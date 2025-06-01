@@ -1,8 +1,8 @@
 import Link from 'next/link';
-import { MarkdownContent } from './MarkdownContent';
+import { MarkdownContent } from '../../../MarkdownContent';
 import type { TypeDefs, TypeDoc } from './TypeDefs';
 
-export type OverviewData = {
+type OverviewData = {
   doc: TypeDoc | null;
   api: Array<APIMember>;
 };

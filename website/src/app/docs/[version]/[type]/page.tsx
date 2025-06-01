@@ -1,8 +1,8 @@
-import { getSidebarLinks } from '../../../../getSidebarLinks';
-import { getTypeDefs } from '../../../../static/getTypeDefs';
+import { getSidebarLinks } from '../getSidebarLinks';
+import { getTypeDefs } from '../getTypeDefs';
 import { getVersionFromGitTag } from '../../../../static/getVersions';
-import { TypeDocumentation } from '../../../../TypeDocumentation';
-import { getVersionFromParams } from '../../../getVersionFromParams';
+import { TypeDocumentation } from './TypeDocumentation';
+import { getVersionFromParams } from '../getVersionFromParams';
 import { VERSION } from '../../currentVersion';
 
 export async function generateStaticParams() {

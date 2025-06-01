@@ -3,7 +3,7 @@ import CodeLink from '@/mdx-components/CodeLink.tsx';
 
 # Collection.Set
 
-Set Collections only represent values. They have no associated keys or indices. Duplicate values are possible in the lazy <CodeLink to="./Seq.Set" />s, however the concrete <CodeLink to="./Set" /> Collection does not allow duplicate values.
+Set Collections only represent values. They have no associated keys or indices. Duplicate values are possible in the lazy <CodeLink to="../Seq.Set" />s, however the concrete <CodeLink to="../Set" /> Collection does not allow duplicate values.
 
 <Signature code="type Collection.Set<T> extends Collection<T, T>" />
 
@@ -21,7 +21,7 @@ seq.forEach((v, k) => {
 
 <MemberLabel label="Collection.Set()" />
 
-Similar to <CodeLink to="./Collection#Collection()">Collection()</CodeLink>, but always returns a `Collection.Set`.
+Similar to <CodeLink to="../Collection#Collection()">Collection()</CodeLink>, but always returns a `Collection.Set`.
 
 <Signature code="Collection.Set<T>(collection?: Iterable<T> | ArrayLike<T>): Collection.Set<T>" />
 

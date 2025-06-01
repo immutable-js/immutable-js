@@ -1,24 +1,23 @@
 import { Metadata } from 'next';
 import { DocSearch } from '../../DocSearch';
 import { Sidebar } from '../../sidebar';
-import Playground from './Playground';
-import { VERSION } from '../docs/currentVersion';
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: `Playground — Immutable.js`,
+    title: `Devtools — Immutable.js`,
   };
 }
 
-export default function OverviewDocPage() {
+export default async function BrowserExtensionPage() {
+  const { default: MdxContent } = await import(`@/docs/BrowserExtension.mdx`);
+
   return (
     <>
       <Sidebar />
       <div key="Overview" className="docContents">
         <DocSearch />
-        <h1>Playgroud ({VERSION})</h1>
-        You can share or bookmark the url to get access to this playground.
-        <Playground />
+
+        <MdxContent />
       </div>
     </>
   );

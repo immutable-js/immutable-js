@@ -1,3 +1,4 @@
+import BurgerNav from './BurgerNav';
 import { HeaderLinks, HeaderLogoLink } from './Header';
 
 export function DocHeader({
@@ -14,6 +15,8 @@ export function DocHeader({
           <HeaderLogoLink />
           <HeaderLinks versions={versions} currentVersion={currentVersion} />
         </div>
+
+        <BurgerNav />
       </div>
     </div>
   );
