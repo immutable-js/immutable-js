@@ -1,11 +1,12 @@
 import { describe, expect, it } from '@jest/globals';
 import { Range, Seq } from 'immutable';
 import fc from 'fast-check';
+import invariant from '../src/utils/invariant';
 
 describe('KeyedSeq', () => {
   it('iterates equivalently', () => {
     fc.assert(
-      fc.property(fc.array(fc.integer()), (ints) => {
+      fc.property(fc.array(fc.integer()), (ints: Array<number>) => {
         const seq = Seq(ints);
         const keyed = seq.toKeyedSeq();
 
@@ -24,7 +25,7 @@ describe('KeyedSeq', () => {
   });
 
   it('maintains keys', () => {
-    const isEven = (x) => x % 2 === 0;
+    const isEven = (x: number): boolean => x % 2 === 0;
     const seq = Range(0, 100);
 
     // This is what we expect for IndexedSequences
@@ -39,6 +40,10 @@ describe('KeyedSeq', () => {
     const [indexed0, indexed1] = seq
       .partition(isEven)
       .map((part) => part.skip(10).take(5));
+
+    invariant(indexed0, 'indexed0 is not undefined');
+    invariant(indexed1, 'indexed0 is not undefined');
+
     expect(indexed0.entrySeq().toArray()).toEqual([
       [0, 21],
       [1, 23],
@@ -67,6 +72,10 @@ describe('KeyedSeq', () => {
     const [keyed0, keyed1] = keyed
       .partition(isEven)
       .map((part) => part.skip(10).take(5));
+
+    invariant(keyed0, 'keyed0 is not undefined');
+    invariant(keyed1, 'keyed1 is not undefined');
+
     expect(keyed0.entrySeq().toArray()).toEqual([
       [21, 21],
       [23, 23],

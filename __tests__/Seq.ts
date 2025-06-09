@@ -31,7 +31,7 @@ describe('Seq', () => {
   });
 
   it('accepts an object with a next property', () => {
-    expect(Seq({ a: 1, b: 2, next: (_) => _ }).size).toBe(3);
+    expect(Seq({ a: 1, b: 2, next: (_: unknown) => _ }).size).toBe(3);
   });
 
   it('accepts a collection string', () => {
@@ -39,10 +39,11 @@ describe('Seq', () => {
   });
 
   it('accepts arbitrary objects', () => {
-    function Foo() {
+    function Foo(this: { bar: string; baz: string }) {
       this.bar = 'bar';
       this.baz = 'baz';
     }
+    // @ts-expect-error -- any type for too complex object
     expect(Seq(new Foo()).size).toBe(2);
   });
 

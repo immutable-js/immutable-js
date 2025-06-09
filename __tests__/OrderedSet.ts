@@ -63,7 +63,7 @@ describe('OrderedSet', () => {
    * @see https://github.com/immutable-js/immutable-js/issues/1716
    */
   it('handles `subtract` when Set contains >=32 elements', () => {
-    const fillArray = (nb) =>
+    const fillArray = (nb: number) =>
       Array(nb)
         .fill(1)
         .map((el, i) => i + 1);

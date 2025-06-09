@@ -234,8 +234,9 @@ describe('slice', () => {
         (valuesLen, args) => {
           const a = Range(0, valuesLen).toArray();
           const v = List(a);
-          const slicedV = v.slice.apply(v, args);
-          const slicedA = a.slice.apply(a, args);
+
+          const slicedV = v.slice(...args);
+          const slicedA = a.slice(...args);
           expect(slicedV.toArray()).toEqual(slicedA);
         }
       )
@@ -251,8 +252,8 @@ describe('slice', () => {
           const a: Array<number> = [];
           entries.forEach((entry) => (a[entry[0]] = entry[1]));
           const s = Seq(a);
-          const slicedS = s.slice.apply(s, args);
-          const slicedA = a.slice.apply(a, args);
+          const slicedS = s.slice(...args);
+          const slicedA = a.slice(...args);
           expect(slicedS.toArray()).toEqual(slicedA);
         }
       )

@@ -51,12 +51,15 @@ describe('splice', () => {
     fc.assert(
       fc.property(
         fc.array(fc.integer()),
-        fc.array(fc.sparseArray(fc.integer())),
-        (values, args) => {
+        fc.integer(),
+        fc.integer(),
+        fc.array(fc.integer()),
+        (values, index, removeNum, insertValues) => {
           const v = List(values);
           const a = values.slice(); // clone
-          const splicedV = v.splice.apply(v, args); // persistent
-          a.splice.apply(a, args); // mutative
+
+          const splicedV = v.splice(index, removeNum, ...insertValues); // persistent
+          a.splice(index, removeNum, ...insertValues); // mutative
           expect(splicedV.toArray()).toEqual(a);
         }
       )

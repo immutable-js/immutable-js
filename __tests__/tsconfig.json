@@ -1,12 +1,7 @@
 {
+  "extends": "../tsconfig.json",
+  "include": ["./"],
   "compilerOptions": {
-    "noEmit": true,
-    // TODO: add additional strictness
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "target": "esnext",
-    "moduleResolution": "node",
-    "skipLibCheck": true,
     "paths": {
       "immutable": ["../type-definitions/immutable.d.ts"]
     }

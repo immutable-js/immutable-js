@@ -3,13 +3,14 @@ import {
   fromJS,
   List,
   Map,
-  MapOf,
+  type MapOf,
   removeIn,
   Seq,
   Set,
   setIn,
   updateIn,
 } from 'immutable';
+import invariant from '../src/utils/invariant';
 
 describe('updateIn', () => {
   it('deep edit', () => {
@@ -81,6 +82,7 @@ describe('updateIn', () => {
         this.length = values.length;
 
         for (let i = 0; i < values.length; i++) {
+          // @ts-expect-error -- TypeScript does not know that this is a valid index
           this[i] = values[i];
         }
       }
@@ -100,6 +102,8 @@ describe('updateIn', () => {
         if (index < 0 || index >= this.length) {
           throw new RangeError('Index out of bounds');
         }
+
+        invariant(typeof this[index] !== 'undefined', 'Index out of bounds');
 
         return this[index];
       }
