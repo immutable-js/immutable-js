@@ -42,6 +42,7 @@ describe('Issue #1220 : Seq.rest() throws an exception when invoked on a single 
       (typeof Symbol === 'function' && Symbol.iterator) || '@@iterator';
 
     const r = Seq([1]).rest();
+    // @ts-expect-error -- any type for too complex object
     const i = r[ITERATOR_SYMBOL]();
     expect(i.next()).toEqual({ value: undefined, done: true });
   });

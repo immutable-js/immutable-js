@@ -43,6 +43,7 @@ describe('Seq', () => {
       this.bar = 'bar';
       this.baz = 'baz';
     }
+    // @ts-expect-error -- any type for too complex object
     expect(Seq(new Foo()).size).toBe(2);
   });
 

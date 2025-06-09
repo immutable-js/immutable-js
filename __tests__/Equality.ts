@@ -3,14 +3,14 @@ import { is, List, Map, Seq, Set } from 'immutable';
 import fc from 'fast-check';
 
 describe('Equality', () => {
-  function expectIs(left, right) {
+  function expectIs(left: unknown, right: unknown): void {
     const comparison = is(left, right);
     expect(comparison).toBe(true);
     const commutative = is(right, left);
     expect(commutative).toBe(true);
   }
 
-  function expectIsNot(left, right) {
+  function expectIsNot(left: unknown, right: unknown): void {
     const comparison = is(left, right);
     expect(comparison).toBe(false);
     const commutative = is(right, left);

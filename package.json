@@ -106,6 +106,7 @@
     "@types/prismjs": "^1.26.3",
     "@types/random-seed": "0.3.5",
     "@types/react": "19.1.0",
+    "@types/transducers-js": "^0.4.8",
     "benchmark": "2.1.4",
     "codemirror": "^6.0.1",
     "colors": "1.4.0",

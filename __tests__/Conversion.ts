@@ -135,6 +135,7 @@ describe('Conversion', () => {
           return new Point(sequence);
         }
 
+        // @ts-expect-error -- any type for too complex object
         return Array.isArray(this[key])
           ? sequence.toList()
           : sequence.toOrderedMap();
@@ -154,6 +155,7 @@ describe('Conversion', () => {
         expect(arguments.length).toBe(3);
         paths.push(keypath);
 
+        // @ts-expect-error -- any type for too complex object
         return Array.isArray(this[key])
           ? sequence.toList()
           : sequence.toOrderedMap();
