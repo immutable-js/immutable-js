@@ -81,6 +81,7 @@ describe('updateIn', () => {
         this.length = values.length;
 
         for (let i = 0; i < values.length; i++) {
+          // @ts-expect-error -- TypeScript does not know that this is a valid index
           this[i] = values[i];
         }
       }

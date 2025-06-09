@@ -1,5 +1,13 @@
 import { describe, expect, it } from '@jest/globals';
-import { fromJS, is, List, Map, OrderedMap, Record } from 'immutable';
+import {
+  type Collection,
+  fromJS,
+  is,
+  List,
+  Map,
+  OrderedMap,
+  Record,
+} from 'immutable';
 import fc, { type JsonValue } from 'fast-check';
 
 describe('Conversion', () => {
@@ -126,7 +134,7 @@ describe('Conversion', () => {
           // @ts-expect-error -- to convert to real typing
           return new Point(sequence);
         }
-        // @ts-expect-error unknown any type
+
         return Array.isArray(this[key])
           ? sequence.toList()
           : sequence.toOrderedMap();
@@ -145,7 +153,7 @@ describe('Conversion', () => {
       function (this: typeof js, key: any, sequence, keypath) {
         expect(arguments.length).toBe(3);
         paths.push(keypath);
-        // @ts-expect-error unknown any type
+
         return Array.isArray(this[key])
           ? sequence.toList()
           : sequence.toOrderedMap();
