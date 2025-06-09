@@ -32,7 +32,7 @@ describe('groupBy', () => {
         isObject ? objectConstructor : iterableConstructor
       );
 
-      const grouped = col.groupBy((v) => v);
+      const grouped = col.groupBy((v: unknown) => v);
 
       // all groupBy should be instance of Map
       expect(Map.isMap(grouped)).toBe(true);

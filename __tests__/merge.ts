@@ -242,15 +242,18 @@ describe('merge', () => {
     ).toBe(true);
   });
 
-  const map = { type: 'Map', value: Map({ b: 5, c: 9 }) };
-  const object = { type: 'object', value: { b: 7, d: 12 } };
-  const RecordFactory = Record({ a: 1, b: 2 });
-  const record = { type: 'Record', value: RecordFactory({ b: 3 }) };
-  const list = { type: 'List', value: List(['5']) };
-  const array = { type: 'array', value: ['9'] };
-  const set = { type: 'Set', value: Set('3') };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  type TypeValue = { type: any; value: any };
 
-  const incompatibleTypes = [
+  const map: TypeValue = { type: 'Map', value: Map({ b: 5, c: 9 }) };
+  const object: TypeValue = { type: 'object', value: { b: 7, d: 12 } };
+  const RecordFactory = Record({ a: 1, b: 2 });
+  const record: TypeValue = { type: 'Record', value: RecordFactory({ b: 3 }) };
+  const list: TypeValue = { type: 'List', value: List(['5']) };
+  const array: TypeValue = { type: 'array', value: ['9'] };
+  const set: TypeValue = { type: 'Set', value: Set('3') };
+
+  const incompatibleTypes: Array<[TypeValue, TypeValue]> = [
     [map, list],
     [map, array],
     [map, set],

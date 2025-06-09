@@ -1,5 +1,13 @@
 import { describe, expect, it } from '@jest/globals';
-import { fromJS, is, List, Map, OrderedMap, Record } from 'immutable';
+import {
+  type Collection,
+  fromJS,
+  is,
+  List,
+  Map,
+  OrderedMap,
+  Record,
+} from 'immutable';
 import fc, { type JsonValue } from 'fast-check';
 
 describe('Conversion', () => {
@@ -113,15 +121,26 @@ describe('Conversion', () => {
   });
 
   it('Converts deep JSON with custom conversion', () => {
-    const seq = fromJS(js, function (key, sequence) {
-      if (key === 'point') {
-        // @ts-expect-error -- to convert to real typing
-        return new Point(sequence);
+    const seq = fromJS(
+      js,
+      function (
+        this: typeof js,
+        key: PropertyKey,
+        sequence:
+          | Collection.Keyed<string, unknown>
+          | Collection.Indexed<unknown>
+      ) {
+        if (key === 'point') {
+          // @ts-expect-error -- to convert to real typing
+          return new Point(sequence);
+        }
+
+        // @ts-expect-error -- any type for too complex object
+        return Array.isArray(this[key])
+          ? sequence.toList()
+          : sequence.toOrderedMap();
       }
-      return Array.isArray(this[key])
-        ? sequence.toList()
-        : sequence.toOrderedMap();
-    });
+    );
     expect(seq).toEqual(immutableOrderedData);
     expect(seq.toString()).toEqual(immutableOrderedDataString);
   });
@@ -129,13 +148,19 @@ describe('Conversion', () => {
   it('Converts deep JSON with custom conversion including keypath if requested', () => {
     const paths: Array<Array<string | number> | undefined> = [];
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const seq1 = fromJS(js, function (key, sequence, keypath) {
-      expect(arguments.length).toBe(3);
-      paths.push(keypath);
-      return Array.isArray(this[key])
-        ? sequence.toList()
-        : sequence.toOrderedMap();
-    });
+    const seq1 = fromJS(
+      js,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      function (this: typeof js, key: any, sequence, keypath) {
+        expect(arguments.length).toBe(3);
+        paths.push(keypath);
+
+        // @ts-expect-error -- any type for too complex object
+        return Array.isArray(this[key])
+          ? sequence.toList()
+          : sequence.toOrderedMap();
+      }
+    );
     expect(paths).toEqual([
       [],
       ['deepList'],

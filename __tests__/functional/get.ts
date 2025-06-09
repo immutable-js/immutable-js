@@ -1,5 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 import { get, Map, List, Range } from 'immutable';
+import invariant from '../../src/utils/invariant';
 
 describe('get', () => {
   it('for immutable structure', () => {
@@ -26,8 +27,10 @@ describe('get', () => {
         {
           x: 'xx',
           y: 'yy',
-          get: function (key: string) {
-            return `${this[key].toUpperCase()}`;
+          get: function (this, key: string) {
+            invariant(typeof this[key] === 'string', 'this[key] is a string');
+
+            return this[key].toUpperCase();
           },
         },
         'x'

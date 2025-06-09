@@ -2,7 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 import { Seq, Stack } from 'immutable';
 import fc from 'fast-check';
 
-function arrayOfSize(s) {
+function arrayOfSize(s: number): Array<number> {
   const a = new Array(s);
   for (let ii = 0; ii < s; ii++) {
     a[ii] = ii;

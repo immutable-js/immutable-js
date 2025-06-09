@@ -2,6 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 import { fromJS, List, Map, Range, Seq, Set } from 'immutable';
 import fc from 'fast-check';
 import { create as createSeed } from 'random-seed';
+import invariant from '../src/utils/invariant';
 
 function arrayOfSize(s: number) {
   const a = new Array(s);
@@ -480,6 +481,8 @@ describe('List', () => {
   });
 
   it.each(['remove', 'delete'])('remove removes any index', (fn) => {
+    invariant(fn === 'remove' || fn === 'delete', 'Invalid function name');
+
     let v = List.of('a', 'b', 'c')[fn](2)[fn](0);
     expect(v.size).toBe(1);
     expect(v.get(0)).toBe('b');
@@ -732,7 +735,7 @@ describe('List', () => {
     expect(v5.toJS().filter((item) => item === 0)).toHaveLength(0);
 
     // execute the same test as `v` but for the 2000 first integers
-    const isOkV1 = (v) =>
+    const isOkV1 = (v: number): boolean =>
       List.of()
         .set(v, v)
         .push('pushed-value')
@@ -763,7 +766,7 @@ describe('List', () => {
 
   it('forEach iteration terminates when callback returns false', () => {
     const a: Array<number> = [];
-    function count(x) {
+    function count(x: number): void | false {
       if (x > 2) {
         return false;
       }
@@ -984,7 +987,7 @@ describe('List', () => {
 
   // Note: NaN is the only value not equal to itself. The isNaN() built-in
   // function returns true for any non-numeric value, not just the NaN value.
-  function isNaNValue(value) {
+  function isNaNValue(value: unknown): boolean {
     return value !== value;
   }
 

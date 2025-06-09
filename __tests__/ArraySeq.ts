@@ -30,7 +30,7 @@ describe('ArraySequence', () => {
 
   it('efficiently chains iteration methods', () => {
     const i = Seq('abcdefghijklmnopqrstuvwxyz'.split(''));
-    function studly(letter, index) {
+    function studly(letter: string, index: number): string {
       return index % 2 === 0 ? letter : letter.toUpperCase();
     }
     const result = i
