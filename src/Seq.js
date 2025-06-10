@@ -107,8 +107,9 @@ export const IndexedSeq = (value) =>
       : isRecord(value)
         ? value.toSeq().entrySeq()
         : indexedSeqFromValue(value);
-IndexedSeq.of = function (/*...values*/) {
-  return IndexedSeq(arguments);
+
+IndexedSeq.of = function (...values) {
+  return IndexedSeq(values);
 };
 export class IndexedSeqImpl extends SeqImpl {
   toIndexedSeq() {
@@ -125,8 +126,8 @@ export const SetSeq = (value) =>
     : IndexedSeq(value)
   ).toSetSeq();
 
-SetSeq.of = function (/*...values*/) {
-  return SetSeq(arguments);
+SetSeq.of = function (...values) {
+  return SetSeq(values);
 };
 
 export class SetSeqImpl extends SeqImpl {

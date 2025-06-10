@@ -16,8 +16,8 @@ export const Stack = (value) =>
       ? value
       : emptyStack().pushAll(value);
 
-Stack.of = function (/*...values*/) {
-  return Stack(arguments);
+Stack.of = function (...values) {
+  return Stack(values);
 };
 
 export class StackImpl extends IndexedCollectionImpl {
@@ -46,15 +46,15 @@ export class StackImpl extends IndexedCollectionImpl {
 
   // @pragma Modification
 
-  push(/*...values*/) {
-    if (arguments.length === 0) {
+  push(...values) {
+    if (values.length === 0) {
       return this;
     }
-    const newSize = this.size + arguments.length;
+    const newSize = this.size + values.length;
     let head = this._head;
-    for (let ii = arguments.length - 1; ii >= 0; ii--) {
+    for (let ii = values.length - 1; ii >= 0; ii--) {
       head = {
-        value: arguments[ii],
+        value: values[ii],
         next: head,
       };
     }

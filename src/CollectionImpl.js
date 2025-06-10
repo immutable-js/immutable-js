@@ -27,7 +27,6 @@ import {
   wrapIndex,
 } from './TrieUtils';
 
-import arrCopy from './utils/arrCopy';
 import assertNotInfinite from './utils/assertNotInfinite';
 import deepEqual from './utils/deepEqual';
 import mixin from './utils/mixin';
@@ -579,7 +578,7 @@ mixin(IndexedCollectionImpl, {
     return reify(this, sliceFactory(this, begin, end, false));
   },
 
-  splice(index, removeNum /*, ...values*/) {
+  splice(index, removeNum, ...values) {
     const numArgs = arguments.length;
     removeNum = Math.max(removeNum || 0, 0);
     if (numArgs === 0 || (numArgs === 2 && !removeNum)) {
@@ -594,7 +593,7 @@ mixin(IndexedCollectionImpl, {
       this,
       numArgs === 1
         ? spliced
-        : spliced.concat(arrCopy(arguments, 2), this.slice(index + removeNum))
+        : spliced.concat(values, this.slice(index + removeNum))
     );
   },
 
@@ -636,12 +635,16 @@ mixin(IndexedCollectionImpl, {
     return reify(this, interposeFactory(this, separator));
   },
 
-  interleave(/*...collections*/) {
-    const collections = [this].concat(arrCopy(arguments));
-    const zipped = zipWithFactory(this.toSeq(), IndexedSeq.of, collections);
+  interleave(...collections) {
+    const thisAndCollections = [this].concat(collections);
+    const zipped = zipWithFactory(
+      this.toSeq(),
+      IndexedSeq.of,
+      thisAndCollections
+    );
     const interleaved = zipped.flatten(true);
     if (zipped.size) {
-      interleaved.size = zipped.size * collections.length;
+      interleaved.size = zipped.size * thisAndCollections.length;
     }
     return reify(this, interleaved);
   },
@@ -658,20 +661,25 @@ mixin(IndexedCollectionImpl, {
     return reify(this, skipWhileFactory(this, predicate, context, false));
   },
 
-  zip(/*, ...collections */) {
-    const collections = [this].concat(arrCopy(arguments));
-    return reify(this, zipWithFactory(this, defaultZipper, collections));
+  zip(...collections) {
+    const thisAndCollections = [this].concat(collections);
+
+    return reify(this, zipWithFactory(this, defaultZipper, thisAndCollections));
   },
 
-  zipAll(/*, ...collections */) {
-    const collections = [this].concat(arrCopy(arguments));
-    return reify(this, zipWithFactory(this, defaultZipper, collections, true));
+  zipAll(...collections) {
+    const thisAndCollections = [this].concat(collections);
+
+    return reify(
+      this,
+      zipWithFactory(this, defaultZipper, thisAndCollections, true)
+    );
   },
 
-  zipWith(zipper /*, ...collections */) {
-    const collections = arrCopy(arguments);
-    collections[0] = this;
-    return reify(this, zipWithFactory(this, zipper, collections));
+  zipWith(zipper, ...collections) {
+    const thisAndCollections = [this].concat(collections);
+
+    return reify(this, zipWithFactory(this, zipper, thisAndCollections));
   },
 });
 
@@ -743,8 +751,8 @@ function neg(predicate) {
   };
 }
 
-function defaultZipper() {
-  return arrCopy(arguments);
+function defaultZipper(...values) {
+  return values;
 }
 
 function defaultNegComparator(a, b) {

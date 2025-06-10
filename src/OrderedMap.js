@@ -16,8 +16,8 @@ export const OrderedMap = (value) =>
           assertNotInfinite(iter.size);
           iter.forEach((v, k) => map.set(k, v));
         });
-OrderedMap.of = function (/*...values*/) {
-  return OrderedMap(arguments);
+OrderedMap.of = function (...values) {
+  return OrderedMap(values);
 };
 export class OrderedMapImpl extends MapImpl {
   create(value) {

@@ -49,8 +49,8 @@ export const List = (value) => {
   });
 };
 
-List.of = function (/*...values*/) {
-  return List(arguments);
+List.of = function (...values) {
+  return List(values);
 };
 
 export class ListImpl extends IndexedCollectionImpl {
@@ -110,8 +110,7 @@ export class ListImpl extends IndexedCollectionImpl {
     return emptyList();
   }
 
-  push(/*...values*/) {
-    const values = arguments;
+  push(...values) {
     const oldSize = this.size;
     return this.withMutations((list) => {
       setListBounds(list, 0, oldSize + values.length);
@@ -125,8 +124,7 @@ export class ListImpl extends IndexedCollectionImpl {
     return setListBounds(this, 0, -1);
   }
 
-  unshift(/*...values*/) {
-    const values = arguments;
+  unshift(...values) {
     return this.withMutations((list) => {
       setListBounds(list, -values.length);
       for (let ii = 0; ii < values.length; ii++) {
@@ -158,14 +156,14 @@ export class ListImpl extends IndexedCollectionImpl {
 
   // @pragma Composition
 
-  concat(/*...collections*/) {
+  concat(...collections) {
     const seqs = [];
-    for (let i = 0; i < arguments.length; i++) {
-      const argument = arguments[i];
+    for (let i = 0; i < collections.length; i++) {
+      const collection = collections[i];
       const seq = IndexedCollection(
-        typeof argument !== 'string' && hasIterator(argument)
-          ? argument
-          : [argument]
+        typeof collection !== 'string' && hasIterator(collection)
+          ? collection
+          : [collection]
       );
       if (seq.size !== 0) {
         seqs.push(seq);
