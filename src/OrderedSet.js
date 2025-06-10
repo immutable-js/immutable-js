@@ -17,8 +17,8 @@ export const OrderedSet = (value) =>
           iter.forEach((v) => set.add(v));
         });
 
-OrderedSet.of = function (/*...values*/) {
-  return OrderedSet(arguments);
+OrderedSet.of = function (...values) {
+  return OrderedSet(values);
 };
 
 OrderedSet.fromKeys = function (value) {

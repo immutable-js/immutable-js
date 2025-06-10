@@ -27,8 +27,8 @@ export const Set = (value) =>
           iter.forEach((v) => set.add(v));
         });
 
-Set.of = function (/*...values*/) {
-  return Set(arguments);
+Set.of = function (...values) {
+  return Set(values);
 };
 
 Set.fromKeys = (value) => Set(KeyedCollection(value).keySeq());
