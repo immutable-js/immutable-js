@@ -6174,7 +6174,7 @@ function defaultConverter(k, v) {
   return isIndexed(v) ? v.toList() : isKeyed(v) ? v.toMap() : v.toSet();
 }
 
-var version = "5.1.2";
+var version = "5.1.3";
 
 // Note: Iterable is deprecated
 var Iterable = Collection;
