@@ -28,105 +28,25 @@
     (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.Immutable = {}));
 })(this, (function (exports) { 'use strict';
 
-    // Used for setting prototype methods that IE8 chokes on.
-    var DELETE = 'delete';
-    // Constants describing the size of trie nodes.
-    var SHIFT = 5; // Resulted in best performance after ______?
-    var SIZE = 1 << SHIFT;
-    var MASK = SIZE - 1;
-    // A consistent shared value representing "not set" which equals nothing other
-    // than itself, and nothing that could be provided externally.
-    var NOT_SET = {};
-    // Boolean references, Rough equivalent of `bool &`.
-    function MakeRef() {
-        return { value: false };
-    }
-    function SetRef(ref) {
-        if (ref) {
-            ref.value = true;
-        }
-    }
-    // A function which returns a value representing an "owner" for transient writes
-    // to tries. The return value will only ever equal itself, and will not equal
-    // the return of any subsequent call of this function.
-    function OwnerID() { }
-    function ensureSize(iter) {
-        // @ts-expect-error size should exists on Collection
-        if (iter.size === undefined) {
-            // @ts-expect-error size should exists on Collection, __iterate does exist on Collection
-            iter.size = iter.__iterate(returnTrue);
-        }
-        // @ts-expect-error size should exists on Collection
-        return iter.size;
-    }
-    function wrapIndex(iter, index) {
-        // This implements "is array index" which the ECMAString spec defines as:
-        //
-        //     A String property name P is an array index if and only if
-        //     ToString(ToUint32(P)) is equal to P and ToUint32(P) is not equal
-        //     to 2^32−1.
-        //
-        // http://www.ecma-international.org/ecma-262/6.0/#sec-array-exotic-objects
-        if (typeof index !== 'number') {
-            var uint32Index = index >>> 0; // N >>> 0 is shorthand for ToUint32
-            if ('' + uint32Index !== index || uint32Index === 4294967295) {
-                return NaN;
-            }
-            index = uint32Index;
-        }
-        return index < 0 ? ensureSize(iter) + index : index;
-    }
-    function returnTrue() {
-        return true;
-    }
-    function wholeSlice(begin, end, size) {
-        return (((begin === 0 && !isNeg(begin)) ||
-            (size !== undefined && begin <= -size)) &&
-            (end === undefined || (size !== undefined && end >= size)));
-    }
-    function resolveBegin(begin, size) {
-        return resolveIndex(begin, size, 0);
-    }
-    function resolveEnd(end, size) {
-        return resolveIndex(end, size, size);
-    }
-    function resolveIndex(index, size, defaultIndex) {
-        // Sanitize indices using this shorthand for ToInt32(argument)
-        // http://www.ecma-international.org/ecma-262/6.0/#sec-toint32
-        return index === undefined
-            ? defaultIndex
-            : isNeg(index)
-                ? size === Infinity
-                    ? size
-                    : Math.max(0, size + index) | 0
-                : size === undefined || size === index
-                    ? index
-                    : Math.min(size, index) | 0;
-    }
-    function isNeg(value) {
-        // Account for -0 which is negative, but not less than 0.
-        return value < 0 || (value === 0 && 1 / value === -Infinity);
-    }
-
-    // Note: value is unchanged to not break immutable-devtools.
-    var IS_COLLECTION_SYMBOL = '@@__IMMUTABLE_ITERABLE__@@';
+    var IS_INDEXED_SYMBOL = '@@__IMMUTABLE_INDEXED__@@';
     /**
-     * True if `maybeCollection` is a Collection, or any of its subclasses.
+     * True if `maybeIndexed` is a Collection.Indexed, or any of its subclasses.
      *
      * ```js
-     * import { isCollection, Map, List, Stack } from 'immutable';
+     * import { isIndexed, Map, List, Stack, Set } from 'immutable';
      *
-     * isCollection([]); // false
-     * isCollection({}); // false
-     * isCollection(Map()); // true
-     * isCollection(List()); // true
-     * isCollection(Stack()); // true
+     * isIndexed([]); // false
+     * isIndexed({}); // false
+     * isIndexed(Map()); // false
+     * isIndexed(List()); // true
+     * isIndexed(Stack()); // true
+     * isIndexed(Set()); // false
      * ```
      */
-    function isCollection(maybeCollection) {
-        return Boolean(maybeCollection &&
-            // @ts-expect-error: maybeCollection is typed as `{}`, need to change in 6.0 to `maybeCollection && typeof maybeCollection === 'object' && IS_COLLECTION_SYMBOL in maybeCollection`
-            maybeCollection[IS_COLLECTION_SYMBOL]);
+    function isIndexed(maybeIndexed) {
+        return Boolean(maybeIndexed &&
+            // @ts-expect-error: maybeIndexed is typed as `{}`, need to change in 6.0 to `maybeIndexed && typeof maybeIndexed === 'object' && IS_INDEXED_SYMBOL in maybeIndexed`
+            maybeIndexed[IS_INDEXED_SYMBOL]);
     }
 
     var IS_KEYED_SYMBOL = '@@__IMMUTABLE_KEYED__@@';
@@ -149,27 +69,6 @@
             maybeKeyed[IS_KEYED_SYMBOL]);
     }
 
-    var IS_INDEXED_SYMBOL = '@@__IMMUTABLE_INDEXED__@@';
-    /**
-     * True if `maybeIndexed` is a Collection.Indexed, or any of its subclasses.
-     *
-     * ```js
-     * import { isIndexed, Map, List, Stack, Set } from 'immutable';
-     *
-     * isIndexed([]); // false
-     * isIndexed({}); // false
-     * isIndexed(Map()); // false
-     * isIndexed(List()); // true
-     * isIndexed(Stack()); // true
-     * isIndexed(Set()); // false
-     * ```
-     */
-    function isIndexed(maybeIndexed) {
-        return Boolean(maybeIndexed &&
-            // @ts-expect-error: maybeIndexed is typed as `{}`, need to change in 6.0 to `maybeIndexed && typeof maybeIndexed === 'object' && IS_INDEXED_SYMBOL in maybeIndexed`
-            maybeIndexed[IS_INDEXED_SYMBOL]);
-    }
-
     /**
      * True if `maybeAssociative` is either a Keyed or Indexed Collection.
      *
@@ -186,6 +85,27 @@
      */
     function isAssociative(maybeAssociative) {
         return isKeyed(maybeAssociative) || isIndexed(maybeAssociative);
+    }
+
+    // Note: value is unchanged to not break immutable-devtools.
+    var IS_COLLECTION_SYMBOL = '@@__IMMUTABLE_ITERABLE__@@';
+    /**
+     * True if `maybeCollection` is a Collection, or any of its subclasses.
+     *
+     * ```js
+     * import { isCollection, Map, List, Stack } from 'immutable';
+     *
+     * isCollection([]); // false
+     * isCollection({}); // false
+     * isCollection(Map()); // true
+     * isCollection(List()); // true
+     * isCollection(Stack()); // true
+     * ```
+     */
+    function isCollection(maybeCollection) {
+        return Boolean(maybeCollection &&
+            // @ts-expect-error: maybeCollection is typed as `{}`, need to change in 6.0 to `maybeCollection && typeof maybeCollection === 'object' && IS_COLLECTION_SYMBOL in maybeCollection`
+            maybeCollection[IS_COLLECTION_SYMBOL]);
     }
 
     var Collection = function Collection(value) {
@@ -235,52 +155,6 @@
     Collection.Keyed = KeyedCollection;
     Collection.Indexed = IndexedCollection;
     Collection.Set = SetCollection;
-
-    var IS_SEQ_SYMBOL = '@@__IMMUTABLE_SEQ__@@';
-    /**
-     * True if `maybeSeq` is a Seq.
-     */
-    function isSeq(maybeSeq) {
-        return Boolean(maybeSeq &&
-            // @ts-expect-error: maybeSeq is typed as `{}`, need to change in 6.0 to `maybeSeq && typeof maybeSeq === 'object' && MAYBE_SEQ_SYMBOL in maybeSeq`
-            maybeSeq[IS_SEQ_SYMBOL]);
-    }
-
-    var IS_RECORD_SYMBOL = '@@__IMMUTABLE_RECORD__@@';
-    /**
-     * True if `maybeRecord` is a Record.
-     */
-    function isRecord(maybeRecord) {
-        return Boolean(maybeRecord &&
-            // @ts-expect-error: maybeRecord is typed as `{}`, need to change in 6.0 to `maybeRecord && typeof maybeRecord === 'object' && IS_RECORD_SYMBOL in maybeRecord`
-            maybeRecord[IS_RECORD_SYMBOL]);
-    }
-
-    /**
-     * True if `maybeImmutable` is an Immutable Collection or Record.
-     *
-     * Note: Still returns true even if the collections is within a `withMutations()`.
-     *
-     * ```js
-     * import { isImmutable, Map, List, Stack } from 'immutable';
-     * isImmutable([]); // false
-     * isImmutable({}); // false
-     * isImmutable(Map()); // true
-     * isImmutable(List()); // true
-     * isImmutable(Stack()); // true
-     * isImmutable(Map().asMutable()); // true
-     * ```
-     */
-    function isImmutable(maybeImmutable) {
-        return isCollection(maybeImmutable) || isRecord(maybeImmutable);
-    }
-
-    var IS_ORDERED_SYMBOL = '@@__IMMUTABLE_ORDERED__@@';
-    function isOrdered(maybeOrdered) {
-        return Boolean(maybeOrdered &&
-            // @ts-expect-error: maybeOrdered is typed as `{}`, need to change in 6.0 to `maybeOrdered && typeof maybeOrdered === 'object' && IS_ORDERED_SYMBOL in maybeOrdered`
-            maybeOrdered[IS_ORDERED_SYMBOL]);
-    }
 
     var ITERATE_KEYS = 0;
     var ITERATE_VALUES = 1;
@@ -363,6 +237,132 @@
     function isKeysIterable(maybeIterable) {
       var iteratorFn = getIteratorFn(maybeIterable);
       return iteratorFn && iteratorFn === maybeIterable.keys;
+    }
+
+    // Used for setting prototype methods that IE8 chokes on.
+    var DELETE = 'delete';
+    // Constants describing the size of trie nodes.
+    var SHIFT = 5; // Resulted in best performance after ______?
+    var SIZE = 1 << SHIFT;
+    var MASK = SIZE - 1;
+    // A consistent shared value representing "not set" which equals nothing other
+    // than itself, and nothing that could be provided externally.
+    var NOT_SET = {};
+    // Boolean references, Rough equivalent of `bool &`.
+    function MakeRef() {
+        return { value: false };
+    }
+    function SetRef(ref) {
+        if (ref) {
+            ref.value = true;
+        }
+    }
+    // A function which returns a value representing an "owner" for transient writes
+    // to tries. The return value will only ever equal itself, and will not equal
+    // the return of any subsequent call of this function.
+    function OwnerID() { }
+    function ensureSize(iter) {
+        // @ts-expect-error size should exists on Collection
+        if (iter.size === undefined) {
+            // @ts-expect-error size should exists on Collection, __iterate does exist on Collection
+            iter.size = iter.__iterate(returnTrue);
+        }
+        // @ts-expect-error size should exists on Collection
+        return iter.size;
+    }
+    function wrapIndex(iter, index) {
+        // This implements "is array index" which the ECMAString spec defines as:
+        //
+        //     A String property name P is an array index if and only if
+        //     ToString(ToUint32(P)) is equal to P and ToUint32(P) is not equal
+        //     to 2^32−1.
+        //
+        // http://www.ecma-international.org/ecma-262/6.0/#sec-array-exotic-objects
+        if (typeof index !== 'number') {
+            var uint32Index = index >>> 0; // N >>> 0 is shorthand for ToUint32
+            if ('' + uint32Index !== index || uint32Index === 4294967295) {
+                return NaN;
+            }
+            index = uint32Index;
+        }
+        return index < 0 ? ensureSize(iter) + index : index;
+    }
+    function returnTrue() {
+        return true;
+    }
+    function wholeSlice(begin, end, size) {
+        return (((begin === 0 && !isNeg(begin)) ||
+            (size !== undefined && begin <= -size)) &&
+            (end === undefined || (size !== undefined && end >= size)));
+    }
+    function resolveBegin(begin, size) {
+        return resolveIndex(begin, size, 0);
+    }
+    function resolveEnd(end, size) {
+        return resolveIndex(end, size, size);
+    }
+    function resolveIndex(index, size, defaultIndex) {
+        // Sanitize indices using this shorthand for ToInt32(argument)
+        // http://www.ecma-international.org/ecma-262/6.0/#sec-toint32
+        return index === undefined
+            ? defaultIndex
+            : isNeg(index)
+                ? size === Infinity
+                    ? size
+                    : Math.max(0, size + index) | 0
+                : size === undefined || size === index
+                    ? index
+                    : Math.min(size, index) | 0;
+    }
+    function isNeg(value) {
+        // Account for -0 which is negative, but not less than 0.
+        return value < 0 || (value === 0 && 1 / value === -Infinity);
+    }
+
+    var IS_RECORD_SYMBOL = '@@__IMMUTABLE_RECORD__@@';
+    /**
+     * True if `maybeRecord` is a Record.
+     */
+    function isRecord(maybeRecord) {
+        return Boolean(maybeRecord &&
+            // @ts-expect-error: maybeRecord is typed as `{}`, need to change in 6.0 to `maybeRecord && typeof maybeRecord === 'object' && IS_RECORD_SYMBOL in maybeRecord`
+            maybeRecord[IS_RECORD_SYMBOL]);
+    }
+
+    /**
+     * True if `maybeImmutable` is an Immutable Collection or Record.
+     *
+     * Note: Still returns true even if the collections is within a `withMutations()`.
+     *
+     * ```js
+     * import { isImmutable, Map, List, Stack } from 'immutable';
+     * isImmutable([]); // false
+     * isImmutable({}); // false
+     * isImmutable(Map()); // true
+     * isImmutable(List()); // true
+     * isImmutable(Stack()); // true
+     * isImmutable(Map().asMutable()); // true
+     * ```
+     */
+    function isImmutable(maybeImmutable) {
+        return isCollection(maybeImmutable) || isRecord(maybeImmutable);
+    }
+
+    var IS_ORDERED_SYMBOL = '@@__IMMUTABLE_ORDERED__@@';
+    function isOrdered(maybeOrdered) {
+        return Boolean(maybeOrdered &&
+            // @ts-expect-error: maybeOrdered is typed as `{}`, need to change in 6.0 to `maybeOrdered && typeof maybeOrdered === 'object' && IS_ORDERED_SYMBOL in maybeOrdered`
+            maybeOrdered[IS_ORDERED_SYMBOL]);
+    }
+
+    var IS_SEQ_SYMBOL = '@@__IMMUTABLE_SEQ__@@';
+    /**
+     * True if `maybeSeq` is a Seq.
+     */
+    function isSeq(maybeSeq) {
+        return Boolean(maybeSeq &&
+            // @ts-expect-error: maybeSeq is typed as `{}`, need to change in 6.0 to `maybeSeq && typeof maybeSeq === 'object' && MAYBE_SEQ_SYMBOL in maybeSeq`
+            maybeSeq[IS_SEQ_SYMBOL]);
     }
 
     var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -751,115 +751,12 @@
           : undefined;
     }
 
-    var IS_MAP_SYMBOL = '@@__IMMUTABLE_MAP__@@';
-    /**
-     * True if `maybeMap` is a Map.
-     *
-     * Also true for OrderedMaps.
-     */
-    function isMap(maybeMap) {
-        return Boolean(maybeMap &&
-            // @ts-expect-error: maybeMap is typed as `{}`, need to change in 6.0 to `maybeMap && typeof maybeMap === 'object' && IS_MAP_SYMBOL in maybeMap`
-            maybeMap[IS_MAP_SYMBOL]);
+    function asImmutable() {
+      return this.__ensureOwner();
     }
 
-    /**
-     * True if `maybeOrderedMap` is an OrderedMap.
-     */
-    function isOrderedMap(maybeOrderedMap) {
-        return isMap(maybeOrderedMap) && isOrdered(maybeOrderedMap);
-    }
-
-    /**
-     * True if `maybeValue` is a JavaScript Object which has *both* `equals()`
-     * and `hashCode()` methods.
-     *
-     * Any two instances of *value objects* can be compared for value equality with
-     * `Immutable.is()` and can be used as keys in a `Map` or members in a `Set`.
-     */
-    function isValueObject(maybeValue) {
-        return Boolean(maybeValue &&
-            // @ts-expect-error: maybeValue is typed as `{}`
-            typeof maybeValue.equals === 'function' &&
-            // @ts-expect-error: maybeValue is typed as `{}`
-            typeof maybeValue.hashCode === 'function');
-    }
-
-    /**
-     * An extension of the "same-value" algorithm as [described for use by ES6 Map
-     * and Set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#Key_equality)
-     *
-     * NaN is considered the same as NaN, however -0 and 0 are considered the same
-     * value, which is different from the algorithm described by
-     * [`Object.is`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is).
-     *
-     * This is extended further to allow Objects to describe the values they
-     * represent, by way of `valueOf` or `equals` (and `hashCode`).
-     *
-     * Note: because of this extension, the key equality of Immutable.Map and the
-     * value equality of Immutable.Set will differ from ES6 Map and Set.
-     *
-     * ### Defining custom values
-     *
-     * The easiest way to describe the value an object represents is by implementing
-     * `valueOf`. For example, `Date` represents a value by returning a unix
-     * timestamp for `valueOf`:
-     *
-     *     var date1 = new Date(1234567890000); // Fri Feb 13 2009 ...
-     *     var date2 = new Date(1234567890000);
-     *     date1.valueOf(); // 1234567890000
-     *     assert( date1 !== date2 );
-     *     assert( Immutable.is( date1, date2 ) );
-     *
-     * Note: overriding `valueOf` may have other implications if you use this object
-     * where JavaScript expects a primitive, such as implicit string coercion.
-     *
-     * For more complex types, especially collections, implementing `valueOf` may
-     * not be performant. An alternative is to implement `equals` and `hashCode`.
-     *
-     * `equals` takes another object, presumably of similar type, and returns true
-     * if it is equal. Equality is symmetrical, so the same result should be
-     * returned if this and the argument are flipped.
-     *
-     *     assert( a.equals(b) === b.equals(a) );
-     *
-     * `hashCode` returns a 32bit integer number representing the object which will
-     * be used to determine how to store the value object in a Map or Set. You must
-     * provide both or neither methods, one must not exist without the other.
-     *
-     * Also, an important relationship between these methods must be upheld: if two
-     * values are equal, they *must* return the same hashCode. If the values are not
-     * equal, they might have the same hashCode; this is called a hash collision,
-     * and while undesirable for performance reasons, it is acceptable.
-     *
-     *     if (a.equals(b)) {
-     *       assert( a.hashCode() === b.hashCode() );
-     *     }
-     *
-     * All Immutable collections are Value Objects: they implement `equals()`
-     * and `hashCode()`.
-     */
-    function is(valueA, valueB) {
-        if (valueA === valueB || (valueA !== valueA && valueB !== valueB)) {
-            return true;
-        }
-        if (!valueA || !valueB) {
-            return false;
-        }
-        if (typeof valueA.valueOf === 'function' &&
-            typeof valueB.valueOf === 'function') {
-            valueA = valueA.valueOf();
-            valueB = valueB.valueOf();
-            if (valueA === valueB || (valueA !== valueA && valueB !== valueB)) {
-                return true;
-            }
-            if (!valueA || !valueB) {
-                return false;
-            }
-        }
-        return !!(isValueObject(valueA) &&
-            isValueObject(valueB) &&
-            valueA.equals(valueB));
+    function asMutable() {
+      return this.__ownerID ? this : this.__ensureOwner(new OwnerID());
     }
 
     var imul =
@@ -2128,255 +2025,102 @@
       return a > b ? 1 : a < b ? -1 : 0;
     }
 
-    // http://jsperf.com/copy-array-inline
-    function arrCopy(arr, offset) {
-        offset = offset || 0;
-        var len = Math.max(0, arr.length - offset);
-        var newArr = new Array(len);
-        for (var ii = 0; ii < len; ii++) {
-            // @ts-expect-error We may want to guard for undefined values with `if (arr[ii + offset] !== undefined`, but ths should not happen by design
-            newArr[ii] = arr[ii + offset];
-        }
-        return newArr;
+    /**
+     * True if `maybeValue` is a JavaScript Object which has *both* `equals()`
+     * and `hashCode()` methods.
+     *
+     * Any two instances of *value objects* can be compared for value equality with
+     * `Immutable.is()` and can be used as keys in a `Map` or members in a `Set`.
+     */
+    function isValueObject(maybeValue) {
+        return Boolean(maybeValue &&
+            // @ts-expect-error: maybeValue is typed as `{}`
+            typeof maybeValue.equals === 'function' &&
+            // @ts-expect-error: maybeValue is typed as `{}`
+            typeof maybeValue.hashCode === 'function');
     }
 
-    function invariant(condition, error) {
-        if (!condition)
-            { throw new Error(error); }
-    }
-
-    function assertNotInfinite(size) {
-        invariant(size !== Infinity, 'Cannot perform this action with an infinite size.');
-    }
-
-    function coerceKeyPath(keyPath) {
-        if (isArrayLike(keyPath) && typeof keyPath !== 'string') {
-            return keyPath;
-        }
-        if (isOrdered(keyPath)) {
-            return keyPath.toArray();
-        }
-        throw new TypeError('Invalid keyPath: expected Ordered Collection or Array: ' + keyPath);
-    }
-
-    var toString = Object.prototype.toString;
-    function isPlainObject(value) {
-        // The base prototype's toString deals with Argument objects and native namespaces like Math
-        if (!value ||
-            typeof value !== 'object' ||
-            toString.call(value) !== '[object Object]') {
-            return false;
-        }
-        var proto = Object.getPrototypeOf(value);
-        if (proto === null) {
+    /**
+     * An extension of the "same-value" algorithm as [described for use by ES6 Map
+     * and Set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#Key_equality)
+     *
+     * NaN is considered the same as NaN, however -0 and 0 are considered the same
+     * value, which is different from the algorithm described by
+     * [`Object.is`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is).
+     *
+     * This is extended further to allow Objects to describe the values they
+     * represent, by way of `valueOf` or `equals` (and `hashCode`).
+     *
+     * Note: because of this extension, the key equality of Immutable.Map and the
+     * value equality of Immutable.Set will differ from ES6 Map and Set.
+     *
+     * ### Defining custom values
+     *
+     * The easiest way to describe the value an object represents is by implementing
+     * `valueOf`. For example, `Date` represents a value by returning a unix
+     * timestamp for `valueOf`:
+     *
+     *     var date1 = new Date(1234567890000); // Fri Feb 13 2009 ...
+     *     var date2 = new Date(1234567890000);
+     *     date1.valueOf(); // 1234567890000
+     *     assert( date1 !== date2 );
+     *     assert( Immutable.is( date1, date2 ) );
+     *
+     * Note: overriding `valueOf` may have other implications if you use this object
+     * where JavaScript expects a primitive, such as implicit string coercion.
+     *
+     * For more complex types, especially collections, implementing `valueOf` may
+     * not be performant. An alternative is to implement `equals` and `hashCode`.
+     *
+     * `equals` takes another object, presumably of similar type, and returns true
+     * if it is equal. Equality is symmetrical, so the same result should be
+     * returned if this and the argument are flipped.
+     *
+     *     assert( a.equals(b) === b.equals(a) );
+     *
+     * `hashCode` returns a 32bit integer number representing the object which will
+     * be used to determine how to store the value object in a Map or Set. You must
+     * provide both or neither methods, one must not exist without the other.
+     *
+     * Also, an important relationship between these methods must be upheld: if two
+     * values are equal, they *must* return the same hashCode. If the values are not
+     * equal, they might have the same hashCode; this is called a hash collision,
+     * and while undesirable for performance reasons, it is acceptable.
+     *
+     *     if (a.equals(b)) {
+     *       assert( a.hashCode() === b.hashCode() );
+     *     }
+     *
+     * All Immutable collections are Value Objects: they implement `equals()`
+     * and `hashCode()`.
+     */
+    function is(valueA, valueB) {
+        if (valueA === valueB || (valueA !== valueA && valueB !== valueB)) {
             return true;
         }
-        // Iteratively going up the prototype chain is needed for cross-realm environments (differing contexts, iframes, etc)
-        var parentProto = proto;
-        var nextProto = Object.getPrototypeOf(proto);
-        while (nextProto !== null) {
-            parentProto = nextProto;
-            nextProto = Object.getPrototypeOf(parentProto);
+        if (!valueA || !valueB) {
+            return false;
         }
-        return parentProto === proto;
-    }
-
-    /**
-     * Returns true if the value is a potentially-persistent data structure, either
-     * provided by Immutable.js or a plain Array or Object.
-     */
-    function isDataStructure(value) {
-        return (typeof value === 'object' &&
-            (isImmutable(value) || Array.isArray(value) || isPlainObject(value)));
-    }
-
-    /**
-     * Converts a value to a string, adding quotes if a string was provided.
-     */
-    function quoteString(value) {
-        try {
-            return typeof value === 'string' ? JSON.stringify(value) : String(value);
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        }
-        catch (_ignoreError) {
-            return JSON.stringify(value);
-        }
-    }
-
-    /**
-     * Returns true if the key is defined in the provided collection.
-     *
-     * A functional alternative to `collection.has(key)` which will also work with
-     * plain Objects and Arrays as an alternative for
-     * `collection.hasOwnProperty(key)`.
-     */
-    function has(collection, key) {
-        return isImmutable(collection)
-            ? // @ts-expect-error key might be a number or symbol, which is not handled be Record key type
-                collection.has(key)
-            : // @ts-expect-error key might be anything else than PropertyKey, and will return false in that case but runtime is OK
-                isDataStructure(collection) && hasOwnProperty.call(collection, key);
-    }
-
-    function get(collection, key, notSetValue) {
-        return isImmutable(collection)
-            ? collection.get(key, notSetValue)
-            : !has(collection, key)
-                ? notSetValue
-                : // @ts-expect-error weird "get" here,
-                    typeof collection.get === 'function'
-                        ? // @ts-expect-error weird "get" here,
-                            collection.get(key)
-                        : // @ts-expect-error key is unknown here,
-                            collection[key];
-    }
-
-    function shallowCopy(from) {
-        if (Array.isArray(from)) {
-            return arrCopy(from);
-        }
-        var to = {};
-        for (var key in from) {
-            if (hasOwnProperty.call(from, key)) {
-                to[key] = from[key];
+        if (typeof valueA.valueOf === 'function' &&
+            typeof valueB.valueOf === 'function') {
+            valueA = valueA.valueOf();
+            valueB = valueB.valueOf();
+            if (valueA === valueB || (valueA !== valueA && valueB !== valueB)) {
+                return true;
+            }
+            if (!valueA || !valueB) {
+                return false;
             }
         }
-        return to;
-    }
-
-    function remove(collection, key) {
-        if (!isDataStructure(collection)) {
-            throw new TypeError('Cannot update non-data-structure value: ' + collection);
-        }
-        if (isImmutable(collection)) {
-            // @ts-expect-error weird "remove" here,
-            if (!collection.remove) {
-                throw new TypeError('Cannot update immutable value without .remove() method: ' + collection);
-            }
-            // @ts-expect-error weird "remove" here,
-            return collection.remove(key);
-        }
-        // @ts-expect-error assert that key is a string, a number or a symbol here
-        if (!hasOwnProperty.call(collection, key)) {
-            return collection;
-        }
-        var collectionCopy = shallowCopy(collection);
-        if (Array.isArray(collectionCopy)) {
-            // @ts-expect-error assert that key is a number here
-            collectionCopy.splice(key, 1);
-        }
-        else {
-            // @ts-expect-error assert that key is a string, a number or a symbol here
-            delete collectionCopy[key];
-        }
-        return collectionCopy;
-    }
-
-    function set(collection, key, value) {
-        if (!isDataStructure(collection)) {
-            throw new TypeError('Cannot update non-data-structure value: ' + collection);
-        }
-        if (isImmutable(collection)) {
-            // @ts-expect-error weird "set" here,
-            if (!collection.set) {
-                throw new TypeError('Cannot update immutable value without .set() method: ' + collection);
-            }
-            // @ts-expect-error weird "set" here,
-            return collection.set(key, value);
-        }
-        // @ts-expect-error mix of key and string here. Probably need a more fine type here
-        if (hasOwnProperty.call(collection, key) && value === collection[key]) {
-            return collection;
-        }
-        var collectionCopy = shallowCopy(collection);
-        // @ts-expect-error mix of key and string here. Probably need a more fine type here
-        collectionCopy[key] = value;
-        return collectionCopy;
-    }
-
-    function updateIn$1(collection, keyPath, notSetValue, updater) {
-        if (!updater) {
-            // handle the fact that `notSetValue` is optional here, in that case `updater` is the updater function
-            // @ts-expect-error updater is a function here
-            updater = notSetValue;
-            notSetValue = undefined;
-        }
-        var updatedValue = updateInDeeply(isImmutable(collection), 
-        // @ts-expect-error type issues with Record and mixed types
-        collection, coerceKeyPath(keyPath), 0, notSetValue, updater);
-        // @ts-expect-error mixed return type
-        return updatedValue === NOT_SET ? notSetValue : updatedValue;
-    }
-    function updateInDeeply(inImmutable, existing, keyPath, i, notSetValue, updater) {
-        var wasNotSet = existing === NOT_SET;
-        if (i === keyPath.length) {
-            var existingValue = wasNotSet ? notSetValue : existing;
-            // @ts-expect-error mixed type with optional value
-            var newValue = updater(existingValue);
-            // @ts-expect-error mixed type
-            return newValue === existingValue ? existing : newValue;
-        }
-        if (!wasNotSet && !isDataStructure(existing)) {
-            throw new TypeError('Cannot update within non-data-structure value in path [' +
-                Array.from(keyPath).slice(0, i).map(quoteString) +
-                ']: ' +
-                existing);
-        }
-        var key = keyPath[i];
-        var nextExisting = wasNotSet ? NOT_SET : get(existing, key, NOT_SET);
-        var nextUpdated = updateInDeeply(nextExisting === NOT_SET ? inImmutable : isImmutable(nextExisting), 
-        // @ts-expect-error mixed type
-        nextExisting, keyPath, i + 1, notSetValue, updater);
-        return nextUpdated === nextExisting
-            ? existing
-            : nextUpdated === NOT_SET
-                ? remove(existing, key)
-                : set(wasNotSet ? (inImmutable ? emptyMap() : {}) : existing, key, nextUpdated);
-    }
-
-    /**
-     * Returns a copy of the collection with the value at the key path set to the
-     * provided value.
-     *
-     * A functional alternative to `collection.setIn(keypath)` which will also
-     * work with plain Objects and Arrays.
-     */
-    function setIn$1(collection, keyPath, value) {
-        return updateIn$1(collection, keyPath, NOT_SET, function () { return value; });
-    }
-
-    function setIn(keyPath, v) {
-      return setIn$1(this, keyPath, v);
-    }
-
-    /**
-     * Returns a copy of the collection with the value at the key path removed.
-     *
-     * A functional alternative to `collection.removeIn(keypath)` which will also
-     * work with plain Objects and Arrays.
-     */
-    function removeIn(collection, keyPath) {
-        return updateIn$1(collection, keyPath, function () { return NOT_SET; });
-    }
-
-    function deleteIn(keyPath) {
-      return removeIn(this, keyPath);
+        return !!(isValueObject(valueA) &&
+            isValueObject(valueB) &&
+            valueA.equals(valueB));
     }
 
     function update$1(collection, key, notSetValue, updater) {
-        return updateIn$1(
+        return updateIn(
         // @ts-expect-error Index signature for type string is missing in type V[]
         collection, [key], notSetValue, updater);
-    }
-
-    function update(key, notSetValue, updater) {
-      return arguments.length === 1
-        ? key(this)
-        : update$1(this, key, notSetValue, updater);
-    }
-
-    function updateIn(keyPath, notSetValue, updater) {
-      return updateIn$1(this, keyPath, notSetValue, updater);
     }
 
     function merge$1() {
@@ -2429,6 +2173,62 @@
           iters[ii].forEach(mergeIntoCollection);
         }
       });
+    }
+
+    var toString = Object.prototype.toString;
+    function isPlainObject(value) {
+        // The base prototype's toString deals with Argument objects and native namespaces like Math
+        if (!value ||
+            typeof value !== 'object' ||
+            toString.call(value) !== '[object Object]') {
+            return false;
+        }
+        var proto = Object.getPrototypeOf(value);
+        if (proto === null) {
+            return true;
+        }
+        // Iteratively going up the prototype chain is needed for cross-realm environments (differing contexts, iframes, etc)
+        var parentProto = proto;
+        var nextProto = Object.getPrototypeOf(proto);
+        while (nextProto !== null) {
+            parentProto = nextProto;
+            nextProto = Object.getPrototypeOf(parentProto);
+        }
+        return parentProto === proto;
+    }
+
+    /**
+     * Returns true if the value is a potentially-persistent data structure, either
+     * provided by Immutable.js or a plain Array or Object.
+     */
+    function isDataStructure(value) {
+        return (typeof value === 'object' &&
+            (isImmutable(value) || Array.isArray(value) || isPlainObject(value)));
+    }
+
+    // http://jsperf.com/copy-array-inline
+    function arrCopy(arr, offset) {
+        offset = offset || 0;
+        var len = Math.max(0, arr.length - offset);
+        var newArr = new Array(len);
+        for (var ii = 0; ii < len; ii++) {
+            // @ts-expect-error We may want to guard for undefined values with `if (arr[ii + offset] !== undefined`, but ths should not happen by design
+            newArr[ii] = arr[ii + offset];
+        }
+        return newArr;
+    }
+
+    function shallowCopy(from) {
+        if (Array.isArray(from)) {
+            return arrCopy(from);
+        }
+        var to = {};
+        for (var key in from) {
+            if (hasOwnProperty.call(from, key)) {
+                to[key] = from[key];
+            }
+        }
+        return to;
     }
 
     function merge(collection) {
@@ -2548,19 +2348,48 @@
       return mergeDeepWithSources(this, iters, merger);
     }
 
-    function mergeIn(keyPath) {
-      var iters = [], len = arguments.length - 1;
-      while ( len-- > 0 ) iters[ len ] = arguments[ len + 1 ];
-
-      return updateIn$1(this, keyPath, emptyMap(), function (m) { return mergeWithSources(m, iters); });
-    }
-
     function mergeDeepIn(keyPath) {
       var iters = [], len = arguments.length - 1;
       while ( len-- > 0 ) iters[ len ] = arguments[ len + 1 ];
 
-      return updateIn$1(this, keyPath, emptyMap(), function (m) { return mergeDeepWithSources(m, iters); }
+      return updateIn(this, keyPath, emptyMap(), function (m) { return mergeDeepWithSources(m, iters); }
       );
+    }
+
+    function mergeIn(keyPath) {
+      var iters = [], len = arguments.length - 1;
+      while ( len-- > 0 ) iters[ len ] = arguments[ len + 1 ];
+
+      return updateIn(this, keyPath, emptyMap(), function (m) { return mergeWithSources(m, iters); });
+    }
+
+    /**
+     * Returns a copy of the collection with the value at the key path set to the
+     * provided value.
+     *
+     * A functional alternative to `collection.setIn(keypath)` which will also
+     * work with plain Objects and Arrays.
+     */
+    function setIn$1(collection, keyPath, value) {
+        return updateIn(collection, keyPath, NOT_SET, function () { return value; });
+    }
+
+    function setIn(keyPath, v) {
+      return setIn$1(this, keyPath, v);
+    }
+
+    function update(key, notSetValue, updater) {
+      return arguments.length === 1
+        ? key(this)
+        : update$1(this, key, notSetValue, updater);
+    }
+
+    function updateIn$1(keyPath, notSetValue, updater) {
+      return updateIn(this, keyPath, notSetValue, updater);
+    }
+
+    function wasAltered() {
+      return this.__altered;
     }
 
     function withMutations(fn) {
@@ -2569,16 +2398,25 @@
       return mutable.wasAltered() ? mutable.__ensureOwner(this.__ownerID) : this;
     }
 
-    function asMutable() {
-      return this.__ownerID ? this : this.__ensureOwner(new OwnerID());
+    var IS_MAP_SYMBOL = '@@__IMMUTABLE_MAP__@@';
+    /**
+     * True if `maybeMap` is a Map.
+     *
+     * Also true for OrderedMaps.
+     */
+    function isMap(maybeMap) {
+        return Boolean(maybeMap &&
+            // @ts-expect-error: maybeMap is typed as `{}`, need to change in 6.0 to `maybeMap && typeof maybeMap === 'object' && IS_MAP_SYMBOL in maybeMap`
+            maybeMap[IS_MAP_SYMBOL]);
     }
 
-    function asImmutable() {
-      return this.__ensureOwner();
+    function invariant(condition, error) {
+        if (!condition)
+            { throw new Error(error); }
     }
 
-    function wasAltered() {
-      return this.__altered;
+    function assertNotInfinite(size) {
+        invariant(size !== Infinity, 'Cannot perform this action with an infinite size.');
     }
 
     var Map = /*@__PURE__*/(function (KeyedCollection) {
@@ -2715,7 +2553,7 @@
     MapPrototype.setIn = setIn;
     MapPrototype.removeIn = MapPrototype.deleteIn = deleteIn;
     MapPrototype.update = update;
-    MapPrototype.updateIn = updateIn;
+    MapPrototype.updateIn = updateIn$1;
     MapPrototype.merge = MapPrototype.concat = merge$1;
     MapPrototype.mergeWith = mergeWith$1;
     MapPrototype.mergeDeep = mergeDeep;
@@ -3357,6 +3195,161 @@
     var MAX_BITMAP_INDEXED_SIZE = SIZE / 2;
     var MIN_HASH_ARRAY_MAP_SIZE = SIZE / 4;
 
+    function coerceKeyPath(keyPath) {
+        if (isArrayLike(keyPath) && typeof keyPath !== 'string') {
+            return keyPath;
+        }
+        if (isOrdered(keyPath)) {
+            return keyPath.toArray();
+        }
+        throw new TypeError('Invalid keyPath: expected Ordered Collection or Array: ' + keyPath);
+    }
+
+    /**
+     * Converts a value to a string, adding quotes if a string was provided.
+     */
+    function quoteString(value) {
+        try {
+            return typeof value === 'string' ? JSON.stringify(value) : String(value);
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        }
+        catch (_ignoreError) {
+            return JSON.stringify(value);
+        }
+    }
+
+    /**
+     * Returns true if the key is defined in the provided collection.
+     *
+     * A functional alternative to `collection.has(key)` which will also work with
+     * plain Objects and Arrays as an alternative for
+     * `collection.hasOwnProperty(key)`.
+     */
+    function has(collection, key) {
+        return isImmutable(collection)
+            ? // @ts-expect-error key might be a number or symbol, which is not handled be Record key type
+                collection.has(key)
+            : // @ts-expect-error key might be anything else than PropertyKey, and will return false in that case but runtime is OK
+                isDataStructure(collection) && hasOwnProperty.call(collection, key);
+    }
+
+    function get(collection, key, notSetValue) {
+        return isImmutable(collection)
+            ? collection.get(key, notSetValue)
+            : !has(collection, key)
+                ? notSetValue
+                : // @ts-expect-error weird "get" here,
+                    typeof collection.get === 'function'
+                        ? // @ts-expect-error weird "get" here,
+                            collection.get(key)
+                        : // @ts-expect-error key is unknown here,
+                            collection[key];
+    }
+
+    function remove(collection, key) {
+        if (!isDataStructure(collection)) {
+            throw new TypeError('Cannot update non-data-structure value: ' + collection);
+        }
+        if (isImmutable(collection)) {
+            // @ts-expect-error weird "remove" here,
+            if (!collection.remove) {
+                throw new TypeError('Cannot update immutable value without .remove() method: ' + collection);
+            }
+            // @ts-expect-error weird "remove" here,
+            return collection.remove(key);
+        }
+        // @ts-expect-error assert that key is a string, a number or a symbol here
+        if (!hasOwnProperty.call(collection, key)) {
+            return collection;
+        }
+        var collectionCopy = shallowCopy(collection);
+        if (Array.isArray(collectionCopy)) {
+            // @ts-expect-error assert that key is a number here
+            collectionCopy.splice(key, 1);
+        }
+        else {
+            // @ts-expect-error assert that key is a string, a number or a symbol here
+            delete collectionCopy[key];
+        }
+        return collectionCopy;
+    }
+
+    function set(collection, key, value) {
+        if (!isDataStructure(collection)) {
+            throw new TypeError('Cannot update non-data-structure value: ' + collection);
+        }
+        if (isImmutable(collection)) {
+            // @ts-expect-error weird "set" here,
+            if (!collection.set) {
+                throw new TypeError('Cannot update immutable value without .set() method: ' + collection);
+            }
+            // @ts-expect-error weird "set" here,
+            return collection.set(key, value);
+        }
+        // @ts-expect-error mix of key and string here. Probably need a more fine type here
+        if (hasOwnProperty.call(collection, key) && value === collection[key]) {
+            return collection;
+        }
+        var collectionCopy = shallowCopy(collection);
+        // @ts-expect-error mix of key and string here. Probably need a more fine type here
+        collectionCopy[key] = value;
+        return collectionCopy;
+    }
+
+    function updateIn(collection, keyPath, notSetValue, updater) {
+        if (!updater) {
+            // handle the fact that `notSetValue` is optional here, in that case `updater` is the updater function
+            // @ts-expect-error updater is a function here
+            updater = notSetValue;
+            notSetValue = undefined;
+        }
+        var updatedValue = updateInDeeply(isImmutable(collection), 
+        // @ts-expect-error type issues with Record and mixed types
+        collection, coerceKeyPath(keyPath), 0, notSetValue, updater);
+        // @ts-expect-error mixed return type
+        return updatedValue === NOT_SET ? notSetValue : updatedValue;
+    }
+    function updateInDeeply(inImmutable, existing, keyPath, i, notSetValue, updater) {
+        var wasNotSet = existing === NOT_SET;
+        if (i === keyPath.length) {
+            var existingValue = wasNotSet ? notSetValue : existing;
+            // @ts-expect-error mixed type with optional value
+            var newValue = updater(existingValue);
+            // @ts-expect-error mixed type
+            return newValue === existingValue ? existing : newValue;
+        }
+        if (!wasNotSet && !isDataStructure(existing)) {
+            throw new TypeError('Cannot update within non-data-structure value in path [' +
+                Array.from(keyPath).slice(0, i).map(quoteString) +
+                ']: ' +
+                existing);
+        }
+        var key = keyPath[i];
+        var nextExisting = wasNotSet ? NOT_SET : get(existing, key, NOT_SET);
+        var nextUpdated = updateInDeeply(nextExisting === NOT_SET ? inImmutable : isImmutable(nextExisting), 
+        // @ts-expect-error mixed type
+        nextExisting, keyPath, i + 1, notSetValue, updater);
+        return nextUpdated === nextExisting
+            ? existing
+            : nextUpdated === NOT_SET
+                ? remove(existing, key)
+                : set(wasNotSet ? (inImmutable ? emptyMap() : {}) : existing, key, nextUpdated);
+    }
+
+    /**
+     * Returns a copy of the collection with the value at the key path removed.
+     *
+     * A functional alternative to `collection.removeIn(keypath)` which will also
+     * work with plain Objects and Arrays.
+     */
+    function removeIn(collection, keyPath) {
+        return updateIn(collection, keyPath, function () { return NOT_SET; });
+    }
+
+    function deleteIn(keyPath) {
+      return removeIn(this, keyPath);
+    }
+
     var IS_LIST_SYMBOL = '@@__IMMUTABLE_LIST__@@';
     /**
      * True if `maybeList` is a List.
@@ -3616,7 +3609,7 @@
     ListPrototype.setIn = setIn;
     ListPrototype.deleteIn = ListPrototype.removeIn = deleteIn;
     ListPrototype.update = update;
-    ListPrototype.updateIn = updateIn;
+    ListPrototype.updateIn = updateIn$1;
     ListPrototype.mergeIn = mergeIn;
     ListPrototype.mergeDeepIn = mergeDeepIn;
     ListPrototype.withMutations = withMutations;
@@ -4048,6 +4041,13 @@
       return size < SIZE ? 0 : ((size - 1) >>> SHIFT) << SHIFT;
     }
 
+    /**
+     * True if `maybeOrderedMap` is an OrderedMap.
+     */
+    function isOrderedMap(maybeOrderedMap) {
+        return isMap(maybeOrderedMap) && isOrdered(maybeOrderedMap);
+    }
+
     var OrderedMap = /*@__PURE__*/(function (Map) {
       function OrderedMap(value) {
         // eslint-disable-next-line no-constructor-return
@@ -4446,25 +4446,6 @@
       return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
     }
 
-    var IS_SET_SYMBOL = '@@__IMMUTABLE_SET__@@';
-    /**
-     * True if `maybeSet` is a Set.
-     *
-     * Also true for OrderedSets.
-     */
-    function isSet(maybeSet) {
-        return Boolean(maybeSet &&
-            // @ts-expect-error: maybeSet is typed as `{}`,  need to change in 6.0 to `maybeSeq && typeof maybeSet === 'object' && MAYBE_SET_SYMBOL in maybeSet`
-            maybeSet[IS_SET_SYMBOL]);
-    }
-
-    /**
-     * True if `maybeOrderedSet` is an OrderedSet.
-     */
-    function isOrderedSet(maybeOrderedSet) {
-        return isSet(maybeOrderedSet) && isOrdered(maybeOrderedSet);
-    }
-
     function deepEqual(a, b) {
         if (a === b) {
             return true;
@@ -4535,44 +4516,154 @@
     }
 
     /**
-     * Contributes additional methods to a constructor
+     * Returns a lazy seq of nums from start (inclusive) to end
+     * (exclusive), by step, where start defaults to 0, step to 1, and end to
+     * infinity. When start is equal to end, returns empty list.
      */
-    function mixin(ctor, 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-    methods) {
-        var keyCopier = function (key) {
-            // @ts-expect-error how to handle symbol ?
-            ctor.prototype[key] = methods[key];
-        };
-        Object.keys(methods).forEach(keyCopier);
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
-        Object.getOwnPropertySymbols &&
-            Object.getOwnPropertySymbols(methods).forEach(keyCopier);
-        return ctor;
-    }
+    var Range = /*@__PURE__*/(function (IndexedSeq) {
+      function Range(start, end, step) {
+        if ( step === void 0 ) step = 1;
 
-    function toJS(value) {
-      if (!value || typeof value !== 'object') {
-        return value;
-      }
-      if (!isCollection(value)) {
-        if (!isDataStructure(value)) {
-          return value;
+        if (!(this instanceof Range)) {
+          // eslint-disable-next-line no-constructor-return
+          return new Range(start, end, step);
         }
-        value = Seq(value);
+        invariant(step !== 0, 'Cannot step a Range by 0');
+        invariant(
+          start !== undefined,
+          'You must define a start value when using Range'
+        );
+        invariant(
+          end !== undefined,
+          'You must define an end value when using Range'
+        );
+
+        step = Math.abs(step);
+        if (end < start) {
+          step = -step;
+        }
+        this._start = start;
+        this._end = end;
+        this._step = step;
+        this.size = Math.max(0, Math.ceil((end - start) / step - 1) + 1);
+        if (this.size === 0) {
+          if (EMPTY_RANGE) {
+            // eslint-disable-next-line no-constructor-return
+            return EMPTY_RANGE;
+          }
+          // eslint-disable-next-line @typescript-eslint/no-this-alias
+          EMPTY_RANGE = this;
+        }
       }
-      if (isKeyed(value)) {
-        var result$1 = {};
-        value.__iterate(function (v, k) {
-          result$1[k] = toJS(v);
+
+      if ( IndexedSeq ) Range.__proto__ = IndexedSeq;
+      Range.prototype = Object.create( IndexedSeq && IndexedSeq.prototype );
+      Range.prototype.constructor = Range;
+
+      Range.prototype.toString = function toString () {
+        return this.size === 0
+          ? 'Range []'
+          : ("Range [ " + (this._start) + "..." + (this._end) + (this._step !== 1 ? ' by ' + this._step : '') + " ]");
+      };
+
+      Range.prototype.get = function get (index, notSetValue) {
+        return this.has(index)
+          ? this._start + wrapIndex(this, index) * this._step
+          : notSetValue;
+      };
+
+      Range.prototype.includes = function includes (searchValue) {
+        var possibleIndex = (searchValue - this._start) / this._step;
+        return (
+          possibleIndex >= 0 &&
+          possibleIndex < this.size &&
+          possibleIndex === Math.floor(possibleIndex)
+        );
+      };
+
+      Range.prototype.slice = function slice (begin, end) {
+        if (wholeSlice(begin, end, this.size)) {
+          return this;
+        }
+        begin = resolveBegin(begin, this.size);
+        end = resolveEnd(end, this.size);
+        if (end <= begin) {
+          return new Range(0, 0);
+        }
+        return new Range(
+          this.get(begin, this._end),
+          this.get(end, this._end),
+          this._step
+        );
+      };
+
+      Range.prototype.indexOf = function indexOf (searchValue) {
+        var offsetValue = searchValue - this._start;
+        if (offsetValue % this._step === 0) {
+          var index = offsetValue / this._step;
+          if (index >= 0 && index < this.size) {
+            return index;
+          }
+        }
+        return -1;
+      };
+
+      Range.prototype.lastIndexOf = function lastIndexOf (searchValue) {
+        return this.indexOf(searchValue);
+      };
+
+      Range.prototype.__iterate = function __iterate (fn, reverse) {
+        var size = this.size;
+        var step = this._step;
+        var value = reverse ? this._start + (size - 1) * step : this._start;
+        var i = 0;
+        while (i !== size) {
+          if (fn(value, reverse ? size - ++i : i++, this) === false) {
+            break;
+          }
+          value += reverse ? -step : step;
+        }
+        return i;
+      };
+
+      Range.prototype.__iterator = function __iterator (type, reverse) {
+        var size = this.size;
+        var step = this._step;
+        var value = reverse ? this._start + (size - 1) * step : this._start;
+        var i = 0;
+        return new Iterator(function () {
+          if (i === size) {
+            return iteratorDone();
+          }
+          var v = value;
+          value += reverse ? -step : step;
+          return iteratorValue(type, reverse ? size - ++i : i++, v);
         });
-        return result$1;
-      }
-      var result = [];
-      value.__iterate(function (v) {
-        result.push(toJS(v));
-      });
-      return result;
+      };
+
+      Range.prototype.equals = function equals (other) {
+        return other instanceof Range
+          ? this._start === other._start &&
+              this._end === other._end &&
+              this._step === other._step
+          : deepEqual(this, other);
+      };
+
+      return Range;
+    }(IndexedSeq));
+
+    var EMPTY_RANGE;
+
+    var IS_SET_SYMBOL = '@@__IMMUTABLE_SET__@@';
+    /**
+     * True if `maybeSet` is a Set.
+     *
+     * Also true for OrderedSets.
+     */
+    function isSet(maybeSet) {
+        return Boolean(maybeSet &&
+            // @ts-expect-error: maybeSet is typed as `{}`,  need to change in 6.0 to `maybeSeq && typeof maybeSet === 'object' && MAYBE_SET_SYMBOL in maybeSet`
+            maybeSet[IS_SET_SYMBOL]);
     }
 
     var Set = /*@__PURE__*/(function (SetCollection) {
@@ -4818,145 +4909,6 @@
     }
 
     /**
-     * Returns a lazy seq of nums from start (inclusive) to end
-     * (exclusive), by step, where start defaults to 0, step to 1, and end to
-     * infinity. When start is equal to end, returns empty list.
-     */
-    var Range = /*@__PURE__*/(function (IndexedSeq) {
-      function Range(start, end, step) {
-        if ( step === void 0 ) step = 1;
-
-        if (!(this instanceof Range)) {
-          // eslint-disable-next-line no-constructor-return
-          return new Range(start, end, step);
-        }
-        invariant(step !== 0, 'Cannot step a Range by 0');
-        invariant(
-          start !== undefined,
-          'You must define a start value when using Range'
-        );
-        invariant(
-          end !== undefined,
-          'You must define an end value when using Range'
-        );
-
-        step = Math.abs(step);
-        if (end < start) {
-          step = -step;
-        }
-        this._start = start;
-        this._end = end;
-        this._step = step;
-        this.size = Math.max(0, Math.ceil((end - start) / step - 1) + 1);
-        if (this.size === 0) {
-          if (EMPTY_RANGE) {
-            // eslint-disable-next-line no-constructor-return
-            return EMPTY_RANGE;
-          }
-          // eslint-disable-next-line @typescript-eslint/no-this-alias
-          EMPTY_RANGE = this;
-        }
-      }
-
-      if ( IndexedSeq ) Range.__proto__ = IndexedSeq;
-      Range.prototype = Object.create( IndexedSeq && IndexedSeq.prototype );
-      Range.prototype.constructor = Range;
-
-      Range.prototype.toString = function toString () {
-        return this.size === 0
-          ? 'Range []'
-          : ("Range [ " + (this._start) + "..." + (this._end) + (this._step !== 1 ? ' by ' + this._step : '') + " ]");
-      };
-
-      Range.prototype.get = function get (index, notSetValue) {
-        return this.has(index)
-          ? this._start + wrapIndex(this, index) * this._step
-          : notSetValue;
-      };
-
-      Range.prototype.includes = function includes (searchValue) {
-        var possibleIndex = (searchValue - this._start) / this._step;
-        return (
-          possibleIndex >= 0 &&
-          possibleIndex < this.size &&
-          possibleIndex === Math.floor(possibleIndex)
-        );
-      };
-
-      Range.prototype.slice = function slice (begin, end) {
-        if (wholeSlice(begin, end, this.size)) {
-          return this;
-        }
-        begin = resolveBegin(begin, this.size);
-        end = resolveEnd(end, this.size);
-        if (end <= begin) {
-          return new Range(0, 0);
-        }
-        return new Range(
-          this.get(begin, this._end),
-          this.get(end, this._end),
-          this._step
-        );
-      };
-
-      Range.prototype.indexOf = function indexOf (searchValue) {
-        var offsetValue = searchValue - this._start;
-        if (offsetValue % this._step === 0) {
-          var index = offsetValue / this._step;
-          if (index >= 0 && index < this.size) {
-            return index;
-          }
-        }
-        return -1;
-      };
-
-      Range.prototype.lastIndexOf = function lastIndexOf (searchValue) {
-        return this.indexOf(searchValue);
-      };
-
-      Range.prototype.__iterate = function __iterate (fn, reverse) {
-        var size = this.size;
-        var step = this._step;
-        var value = reverse ? this._start + (size - 1) * step : this._start;
-        var i = 0;
-        while (i !== size) {
-          if (fn(value, reverse ? size - ++i : i++, this) === false) {
-            break;
-          }
-          value += reverse ? -step : step;
-        }
-        return i;
-      };
-
-      Range.prototype.__iterator = function __iterator (type, reverse) {
-        var size = this.size;
-        var step = this._step;
-        var value = reverse ? this._start + (size - 1) * step : this._start;
-        var i = 0;
-        return new Iterator(function () {
-          if (i === size) {
-            return iteratorDone();
-          }
-          var v = value;
-          value += reverse ? -step : step;
-          return iteratorValue(type, reverse ? size - ++i : i++, v);
-        });
-      };
-
-      Range.prototype.equals = function equals (other) {
-        return other instanceof Range
-          ? this._start === other._start &&
-              this._end === other._end &&
-              this._step === other._step
-          : deepEqual(this, other);
-      };
-
-      return Range;
-    }(IndexedSeq));
-
-    var EMPTY_RANGE;
-
-    /**
      * Returns the value at the provided key path starting at the provided
      * collection, or notSetValue if the key path is not defined.
      *
@@ -5001,6 +4953,47 @@
         object[k] = v;
       });
       return object;
+    }
+
+    function toJS(value) {
+      if (!value || typeof value !== 'object') {
+        return value;
+      }
+      if (!isCollection(value)) {
+        if (!isDataStructure(value)) {
+          return value;
+        }
+        value = Seq(value);
+      }
+      if (isKeyed(value)) {
+        var result$1 = {};
+        value.__iterate(function (v, k) {
+          result$1[k] = toJS(v);
+        });
+        return result$1;
+      }
+      var result = [];
+      value.__iterate(function (v) {
+        result.push(toJS(v));
+      });
+      return result;
+    }
+
+    /**
+     * Contributes additional methods to a constructor
+     */
+    function mixin(ctor, 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+    methods) {
+        var keyCopier = function (key) {
+            // @ts-expect-error how to handle symbol ?
+            ctor.prototype[key] = methods[key];
+        };
+        Object.keys(methods).forEach(keyCopier);
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
+        Object.getOwnPropertySymbols &&
+            Object.getOwnPropertySymbols(methods).forEach(keyCopier);
+        return ctor;
     }
 
     Collection.Iterator = Iterator;
@@ -5726,6 +5719,13 @@
       return (a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2))) | 0; // int
     }
 
+    /**
+     * True if `maybeOrderedSet` is an OrderedSet.
+     */
+    function isOrderedSet(maybeOrderedSet) {
+        return isSet(maybeOrderedSet) && isOrdered(maybeOrderedSet);
+    }
+
     var OrderedSet = /*@__PURE__*/(function (Set) {
       function OrderedSet(value) {
         // eslint-disable-next-line no-constructor-return
@@ -5992,7 +5992,7 @@
     RecordPrototype.mergeDeepIn = mergeDeepIn;
     RecordPrototype.setIn = setIn;
     RecordPrototype.update = update;
-    RecordPrototype.updateIn = updateIn;
+    RecordPrototype.updateIn = updateIn$1;
     RecordPrototype.withMutations = withMutations;
     RecordPrototype.asMutable = asMutable;
     RecordPrototype.asImmutable = asImmutable;
@@ -6182,6 +6182,8 @@
 
     var version = "5.1.3";
 
+    /* eslint-disable import/order */
+
     // Note: Iterable is deprecated
     var Iterable = Collection;
 
@@ -6230,7 +6232,7 @@
     exports.set = set;
     exports.setIn = setIn$1;
     exports.update = update$1;
-    exports.updateIn = updateIn$1;
+    exports.updateIn = updateIn;
     exports.version = version;
 
 }));
