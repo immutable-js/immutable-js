@@ -1,5 +1,5 @@
-var typescript = require('typescript');
 const makeSynchronous = require('make-synchronous');
+var typescript = require('typescript');
 
 const TYPESCRIPT_OPTIONS = {
   noEmitOnError: true,

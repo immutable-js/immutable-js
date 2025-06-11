@@ -1,13 +1,13 @@
 import { describe, expect, it } from '@jest/globals';
 import {
-  fromJS,
   List,
   Map,
+  Record,
+  Set,
+  fromJS,
   merge,
   mergeDeep,
   mergeDeepWith,
-  Record,
-  Set,
 } from 'immutable';
 
 describe('merge', () => {

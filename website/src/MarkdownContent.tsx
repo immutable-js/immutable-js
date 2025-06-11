@@ -1,7 +1,7 @@
 'use client';
 
-import { memo, MouseEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { MouseEvent, memo } from 'react';
 
 type Props = {
   contents: string;

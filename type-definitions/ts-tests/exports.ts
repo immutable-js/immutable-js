@@ -1,8 +1,8 @@
 // Some tests look like they are repeated in order to avoid false positives.
 
-import { expect, test } from 'tstyche';
 import * as Immutable from 'immutable';
 import {
+  Collection,
   List,
   Map,
   OrderedMap,
@@ -12,8 +12,8 @@ import {
   Seq,
   Set,
   Stack,
-  Collection,
 } from 'immutable';
+import { expect, test } from 'tstyche';
 
 test('named imports', () => {
   expect(List).type.toBe<typeof List>();

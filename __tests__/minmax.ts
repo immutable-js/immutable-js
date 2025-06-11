@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
-import { is, Seq } from 'immutable';
 import fc from 'fast-check';
+import { Seq, is } from 'immutable';
 
 const genHeterogeneousishArray = fc.oneof(
   fc.sparseArray(fc.string()),

@@ -1,15 +1,15 @@
-import { expect, pick, test } from 'tstyche';
 import {
   List,
   get,
-  set,
-  remove,
-  update,
-  setIn,
-  removeIn,
-  updateIn,
   merge,
+  remove,
+  removeIn,
+  set,
+  setIn,
+  update,
+  updateIn,
 } from 'immutable';
+import { expect, pick, test } from 'tstyche';
 
 test('#constructor', () => {
   expect(List()).type.toBe<List<unknown>>();

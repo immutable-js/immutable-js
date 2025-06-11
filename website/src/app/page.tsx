@@ -1,10 +1,10 @@
 import fs from 'fs';
+import { Metadata } from 'next';
 import { Header } from '../Header';
 import { ImmutableConsole } from '../ImmutableConsole';
 import { MarkdownContent } from '../MarkdownContent';
 import { genMarkdownDoc } from '../static/genMarkdownDoc';
 import { getVersions } from '../static/getVersions';
-import { Metadata } from 'next';
 
 export async function generateMetadata(): Promise<Metadata> {
   return {

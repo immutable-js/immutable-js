@@ -1,7 +1,7 @@
-import { wholeSlice, resolveBegin, resolveEnd } from './TrieUtils';
+import { Iterator, iteratorDone, iteratorValue } from './Iterator';
 import { IndexedSeq } from './Seq';
+import { resolveBegin, resolveEnd, wholeSlice } from './TrieUtils';
 import { is } from './is';
-import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 
 import deepEqual from './utils/deepEqual';
 

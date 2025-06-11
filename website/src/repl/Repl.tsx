@@ -1,10 +1,10 @@
 'use client';
 import dynamic from 'next/dynamic';
-import React, { useCallback, useEffect, useState, type JSX } from 'react';
+import React, { type JSX, useCallback, useEffect, useState } from 'react';
+import { useWorkerContext } from '../app/WorkerContext';
+import { Element, JsonMLElementList } from '../worker/jsonml-types';
 import { Editor } from './Editor';
 import FormatterOutput from './FormatterOutput';
-import { Element, JsonMLElementList } from '../worker/jsonml-types';
-import { useWorkerContext } from '../app/WorkerContext';
 import './repl.css';
 
 type Props = {

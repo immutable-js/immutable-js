@@ -1,5 +1,5 @@
-import { expect, pick, test } from 'tstyche';
 import { Collection, Stack } from 'immutable';
+import { expect, pick, test } from 'tstyche';
 
 test('#constructor', () => {
   expect(Stack()).type.toBe<Stack<unknown>>();

@@ -1,9 +1,9 @@
+import { getVersionFromGitTag } from '../../../../static/getVersions';
+import { VERSION } from '../../currentVersion';
 import { getSidebarLinks } from '../getSidebarLinks';
 import { getTypeDefs } from '../getTypeDefs';
-import { getVersionFromGitTag } from '../../../../static/getVersions';
-import { TypeDocumentation } from './TypeDocumentation';
 import { getVersionFromParams } from '../getVersionFromParams';
-import { VERSION } from '../../currentVersion';
+import { TypeDocumentation } from './TypeDocumentation';
 
 export async function generateStaticParams() {
   return getVersionFromGitTag()

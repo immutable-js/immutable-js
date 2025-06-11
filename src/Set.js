@@ -1,15 +1,14 @@
-import { Collection, SetCollection, KeyedCollection } from './Collection';
-import { isOrdered } from './predicates/isOrdered';
-import { IS_SET_SYMBOL, isSet } from './predicates/isSet';
+import { Collection, KeyedCollection, SetCollection } from './Collection';
 import { emptyMap } from './Map';
-import { DELETE } from './TrieUtils';
 import { sortFactory } from './Operations';
-import assertNotInfinite from './utils/assertNotInfinite';
+import { OrderedSet } from './OrderedSet';
+import { DELETE } from './TrieUtils';
 import { asImmutable } from './methods/asImmutable';
 import { asMutable } from './methods/asMutable';
 import { withMutations } from './methods/withMutations';
-
-import { OrderedSet } from './OrderedSet';
+import { isOrdered } from './predicates/isOrdered';
+import { IS_SET_SYMBOL, isSet } from './predicates/isSet';
+import assertNotInfinite from './utils/assertNotInfinite';
 
 export class Set extends SetCollection {
   // @pragma Construction
