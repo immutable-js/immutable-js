@@ -10,6 +10,10 @@ test('#constructor', () => {
 
   expect(Map([['a', 'a']])).type.toBe<Map<string, string>>();
 
+  expect(Map([] as ReadonlyArray<readonly [number, string]>)).type.toBe<
+    Map<number, string>
+  >();
+
   expect(Map(List<[number, string]>([[1, 'a']]))).type.toBe<
     Map<number, string>
   >();
