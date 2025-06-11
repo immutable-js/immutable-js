@@ -1,36 +1,35 @@
-import { is } from './is';
 import { Collection, KeyedCollection } from './Collection';
-import { IS_MAP_SYMBOL, isMap } from './predicates/isMap';
-import { isOrdered } from './predicates/isOrdered';
+import { hash } from './Hash';
+import { Iterator, iteratorDone, iteratorValue } from './Iterator';
+import { sortFactory } from './Operations';
+import { OrderedMap } from './OrderedMap';
 import {
   DELETE,
-  SHIFT,
-  SIZE,
   MASK,
+  MakeRef,
   NOT_SET,
   OwnerID,
-  MakeRef,
+  SHIFT,
+  SIZE,
   SetRef,
 } from './TrieUtils';
-import { hash } from './Hash';
-import { Iterator, iteratorValue, iteratorDone } from './Iterator';
-import { sortFactory } from './Operations';
-import arrCopy from './utils/arrCopy';
-import assertNotInfinite from './utils/assertNotInfinite';
-import { setIn } from './methods/setIn';
+import { is } from './is';
+import { asImmutable } from './methods/asImmutable';
+import { asMutable } from './methods/asMutable';
 import { deleteIn } from './methods/deleteIn';
-import { update } from './methods/update';
-import { updateIn } from './methods/updateIn';
 import { merge, mergeWith } from './methods/merge';
 import { mergeDeep, mergeDeepWith } from './methods/mergeDeep';
-import { mergeIn } from './methods/mergeIn';
 import { mergeDeepIn } from './methods/mergeDeepIn';
-import { withMutations } from './methods/withMutations';
-import { asMutable } from './methods/asMutable';
-import { asImmutable } from './methods/asImmutable';
+import { mergeIn } from './methods/mergeIn';
+import { setIn } from './methods/setIn';
+import { update } from './methods/update';
+import { updateIn } from './methods/updateIn';
 import { wasAltered } from './methods/wasAltered';
-
-import { OrderedMap } from './OrderedMap';
+import { withMutations } from './methods/withMutations';
+import { IS_MAP_SYMBOL, isMap } from './predicates/isMap';
+import { isOrdered } from './predicates/isOrdered';
+import arrCopy from './utils/arrCopy';
+import assertNotInfinite from './utils/assertNotInfinite';
 
 export class Map extends KeyedCollection {
   // @pragma Construction

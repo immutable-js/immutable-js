@@ -1,6 +1,6 @@
-import { getDocFiles, getDocDetail } from '../../../../utils/doc';
-import { Sidebar, FocusType } from '../../../../sidebar';
 import { DocSearch } from '../../../../DocSearch';
+import { FocusType, Sidebar } from '../../../../sidebar';
+import { getDocDetail, getDocFiles } from '../../../../utils/doc';
 
 export async function generateStaticParams() {
   const docFiles = getDocFiles();

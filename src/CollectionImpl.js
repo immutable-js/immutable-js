@@ -1,73 +1,71 @@
 import {
   Collection,
-  KeyedCollection,
   IndexedCollection,
+  KeyedCollection,
   SetCollection,
 } from './Collection';
-import { IS_COLLECTION_SYMBOL } from './predicates/isCollection';
-import { isKeyed, IS_KEYED_SYMBOL } from './predicates/isKeyed';
-import { isIndexed, IS_INDEXED_SYMBOL } from './predicates/isIndexed';
-import { isOrdered, IS_ORDERED_SYMBOL } from './predicates/isOrdered';
-import { is } from './is';
+import { hash } from './Hash';
+import {
+  ITERATE_ENTRIES,
+  ITERATE_KEYS,
+  ITERATE_VALUES,
+  ITERATOR_SYMBOL,
+  Iterator,
+} from './Iterator';
+import { List } from './List';
+import { Map } from './Map';
+import { imul, smi } from './Math';
+import {
+  FromEntriesSequence,
+  ToIndexedSequence,
+  ToKeyedSequence,
+  ToSetSequence,
+  concatFactory,
+  countByFactory,
+  filterFactory,
+  flatMapFactory,
+  flattenFactory,
+  flipFactory,
+  groupByFactory,
+  interposeFactory,
+  mapFactory,
+  maxFactory,
+  partitionFactory,
+  reify,
+  reverseFactory,
+  skipWhileFactory,
+  sliceFactory,
+  sortFactory,
+  takeWhileFactory,
+  zipWithFactory,
+} from './Operations';
+import { OrderedMap } from './OrderedMap';
+import { OrderedSet } from './OrderedSet';
+import { Range } from './Range';
+import { ArraySeq, IndexedSeq, KeyedSeq, SetSeq } from './Seq';
+import { Set } from './Set';
+import { Stack } from './Stack';
 import {
   NOT_SET,
   ensureSize,
-  wrapIndex,
-  returnTrue,
   resolveBegin,
+  returnTrue,
+  wrapIndex,
 } from './TrieUtils';
-import { hash } from './Hash';
-import { imul, smi } from './Math';
-import {
-  Iterator,
-  ITERATOR_SYMBOL,
-  ITERATE_KEYS,
-  ITERATE_VALUES,
-  ITERATE_ENTRIES,
-} from './Iterator';
-
+import { is } from './is';
+import { getIn } from './methods/getIn';
+import { hasIn } from './methods/hasIn';
+import { toObject } from './methods/toObject';
+import { IS_COLLECTION_SYMBOL } from './predicates/isCollection';
+import { isIndexed, IS_INDEXED_SYMBOL } from './predicates/isIndexed';
+import { isKeyed, IS_KEYED_SYMBOL } from './predicates/isKeyed';
+import { isOrdered, IS_ORDERED_SYMBOL } from './predicates/isOrdered';
+import { toJS } from './toJS';
 import arrCopy from './utils/arrCopy';
 import assertNotInfinite from './utils/assertNotInfinite';
 import deepEqual from './utils/deepEqual';
 import mixin from './utils/mixin';
 import quoteString from './utils/quoteString';
-
-import { toJS } from './toJS';
-import { Map } from './Map';
-import { OrderedMap } from './OrderedMap';
-import { List } from './List';
-import { Set } from './Set';
-import { OrderedSet } from './OrderedSet';
-import { Stack } from './Stack';
-import { Range } from './Range';
-import { KeyedSeq, IndexedSeq, SetSeq, ArraySeq } from './Seq';
-import {
-  reify,
-  ToKeyedSequence,
-  ToIndexedSequence,
-  ToSetSequence,
-  FromEntriesSequence,
-  flipFactory,
-  mapFactory,
-  reverseFactory,
-  filterFactory,
-  countByFactory,
-  groupByFactory,
-  sliceFactory,
-  takeWhileFactory,
-  skipWhileFactory,
-  concatFactory,
-  flattenFactory,
-  flatMapFactory,
-  interposeFactory,
-  sortFactory,
-  maxFactory,
-  zipWithFactory,
-  partitionFactory,
-} from './Operations';
-import { getIn } from './methods/getIn';
-import { hasIn } from './methods/hasIn';
-import { toObject } from './methods/toObject';
 
 export { Collection, CollectionPrototype, IndexedCollectionPrototype };
 

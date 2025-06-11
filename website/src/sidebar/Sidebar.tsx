@@ -2,8 +2,8 @@
 
 import { Fragment, useState } from 'react';
 import { SIDEBAR_LINKS } from '../app/docs/currentVersion';
-import SidebarMainLink from './SidebarMainLink';
 import Focus, { FocusType } from './Focus';
+import SidebarMainLink from './SidebarMainLink';
 
 export type SidebarLinks = Array<{ label: string; url: string }>;
 

@@ -1,5 +1,5 @@
-import { getIn } from './getIn';
 import { NOT_SET } from '../TrieUtils';
+import { getIn } from './getIn';
 
 type GetInParameters = Parameters<typeof getIn>;
 

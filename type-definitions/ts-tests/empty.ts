@@ -1,5 +1,5 @@
+import { Collection, Seq } from 'immutable';
 import { expect, test } from 'tstyche';
-import { Seq, Collection } from 'immutable';
 
 test('typed empty Seq', () => {
   expect(Seq()).type.toBe<Seq<unknown, unknown>>();

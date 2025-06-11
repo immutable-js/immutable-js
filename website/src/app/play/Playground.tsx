@@ -1,7 +1,7 @@
 'use client';
 
 import Repl from '../../repl/Repl';
-import { stringToBytes, bytesToString } from './encoder';
+import { bytesToString, stringToBytes } from './encoder';
 
 export default function Playground() {
   {

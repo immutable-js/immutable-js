@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { SIDEBAR_LINKS, VERSION } from '../currentVersion';
-import { Sidebar } from '../../../sidebar';
 import { DocSearch } from '../../../DocSearch';
+import { Sidebar } from '../../../sidebar';
+import { SIDEBAR_LINKS, VERSION } from '../currentVersion';
 
 export async function generateMetadata(): Promise<Metadata> {
   return {

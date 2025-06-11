@@ -1,5 +1,5 @@
-import { Seq } from './Seq';
 import { hasIterator } from './Iterator';
+import { Seq } from './Seq';
 import { isImmutable } from './predicates/isImmutable';
 import { isIndexed } from './predicates/isIndexed';
 import { isKeyed } from './predicates/isKeyed';

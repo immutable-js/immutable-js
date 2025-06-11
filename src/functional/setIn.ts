@@ -1,6 +1,6 @@
-import { updateIn, type PossibleCollection } from './updateIn';
-import { NOT_SET } from '../TrieUtils';
 import type { KeyPath } from '../../type-definitions/immutable';
+import { NOT_SET } from '../TrieUtils';
+import { type PossibleCollection, updateIn } from './updateIn';
 
 /**
  * Returns a copy of the collection with the value at the key path set to the

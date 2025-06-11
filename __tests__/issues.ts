@@ -1,6 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
 import {
-  fromJS,
   List,
   Map,
   OrderedMap,
@@ -8,6 +7,7 @@ import {
   Record,
   Seq,
   Set,
+  fromJS,
 } from 'immutable';
 
 describe('Issue #1175', () => {

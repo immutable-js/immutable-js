@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-import { expect, test } from 'tstyche';
 import {
   Collection,
   List,
@@ -9,6 +8,7 @@ import {
   Seq,
   Set,
 } from 'immutable';
+import { expect, test } from 'tstyche';
 
 abstract class A {}
 class B extends A {}

@@ -1,5 +1,5 @@
-import { expect, pick, test } from 'tstyche';
 import { List, Map, MapOf, Record, RecordOf, Set } from 'immutable';
+import { expect, pick, test } from 'tstyche';
 
 test('Factory', () => {
   const PointXY = Record({ x: 0, y: 0 });
