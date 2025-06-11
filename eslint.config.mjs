@@ -67,6 +67,13 @@ export default tseslintConfig(
         'error',
         {
           alphabetize: { order: 'asc' },
+          pathGroups: [
+            {
+              pattern: 'immutable',
+              group: 'builtin',
+              position: 'before',
+            },
+          ],
           // warnOnUnassignedImports: true,
         },
       ],

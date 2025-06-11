@@ -1,6 +1,6 @@
+import { Seq } from 'immutable';
 import { describe, expect, it } from '@jest/globals';
 import fc from 'fast-check';
-import { Seq } from 'immutable';
 
 describe('join', () => {
   it('string-joins sequences with commas by default', () => {

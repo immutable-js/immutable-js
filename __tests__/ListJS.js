@@ -1,5 +1,5 @@
-import { describe, expect, it } from '@jest/globals';
 import { List } from 'immutable';
+import { describe, expect, it } from '@jest/globals';
 
 const NON_NUMBERS = {
   array: ['not', 'a', 'number'],

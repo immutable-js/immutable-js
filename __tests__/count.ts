@@ -1,5 +1,5 @@
-import { describe, expect, it } from '@jest/globals';
 import { Range, Seq } from 'immutable';
+import { describe, expect, it } from '@jest/globals';
 
 describe('count', () => {
   it('counts sequences with known lengths', () => {
