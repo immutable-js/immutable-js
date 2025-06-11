@@ -2,8 +2,8 @@ import path from 'path';
 import { babel } from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
-import terser from '@rollup/plugin-terser';
 import resolve from '@rollup/plugin-node-resolve';
+import terser from '@rollup/plugin-terser';
 import copyright from './copyright.mjs';
 
 const SRC_DIR = path.resolve('src');
