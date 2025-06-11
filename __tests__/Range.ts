@@ -1,6 +1,6 @@
+import { Range } from 'immutable';
 import { describe, expect, it } from '@jest/globals';
 import fc from 'fast-check';
-import { Range } from 'immutable';
 
 describe('Range', () => {
   it('fixed range', () => {

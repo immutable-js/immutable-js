@@ -1,5 +1,5 @@
-import { describe, expect, it } from '@jest/globals';
 import { type Comparator, List, OrderedSet, PairSorting, Seq } from 'immutable';
+import { describe, expect, it } from '@jest/globals';
 
 const sourceNumbers: readonly number[] = [3, 4, 5, 6, 7, 9, 10, 12, 90, 92, 95];
 

@@ -1,6 +1,6 @@
+import { List, Map, Range, Seq, Set, fromJS } from 'immutable';
 import { describe, expect, it } from '@jest/globals';
 import fc from 'fast-check';
-import { List, Map, Range, Seq, Set, fromJS } from 'immutable';
 import { create as createSeed } from 'random-seed';
 import invariant from '../src/utils/invariant';
 
@@ -112,7 +112,7 @@ describe('List', () => {
     expect(out.getIn(['c', 0])).toEqual('v');
     expect(out.get('a')).toBeInstanceOf(Array);
     expect(out.get('b')).toBeInstanceOf(Array);
-    expect(out.get('c')).toBeInstanceOf(Map);
+    expect(Map.isMap(out.get('c'))).toBe(true);
     expect(out.get('c')?.keySeq().first()).toBe(0);
   });
 
