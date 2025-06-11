@@ -1,8 +1,8 @@
 import pluginJs from '@eslint/js';
-import globals from 'globals';
-import pluginJest from 'eslint-plugin-jest';
 import importPlugin from 'eslint-plugin-import';
+import pluginJest from 'eslint-plugin-jest';
 import pluginReact from 'eslint-plugin-react';
+import globals from 'globals';
 import {
   config as tseslintConfig,
   configs as tseslintConfigs,
@@ -60,6 +60,14 @@ export default tseslintConfig(
         'error',
         {
           argsIgnorePattern: '^_',
+        },
+      ],
+      'sort-imports': 'off',
+      'import/order': [
+        'error',
+        {
+          alphabetize: { order: 'asc' },
+          // warnOnUnassignedImports: true,
         },
       ],
     },

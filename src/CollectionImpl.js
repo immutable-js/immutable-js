@@ -6,7 +6,6 @@ import {
   SetCollectionImpl,
 } from './Collection';
 import { hash } from './Hash';
-import { is } from './is';
 import {
   ITERATE_ENTRIES,
   ITERATE_KEYS,
@@ -14,29 +13,9 @@ import {
   Iterator,
   ITERATOR_SYMBOL,
 } from './Iterator';
-import { imul, smi } from './Math';
-import { IS_COLLECTION_SYMBOL } from './predicates/isCollection';
-import { IS_INDEXED_SYMBOL, isIndexed } from './predicates/isIndexed';
-import { IS_KEYED_SYMBOL, isKeyed } from './predicates/isKeyed';
-import { IS_ORDERED_SYMBOL, isOrdered } from './predicates/isOrdered';
-import {
-  ensureSize,
-  NOT_SET,
-  resolveBegin,
-  returnTrue,
-  wrapIndex,
-} from './TrieUtils';
-
-import assertNotInfinite from './utils/assertNotInfinite';
-import deepEqual from './utils/deepEqual';
-import mixin from './utils/mixin';
-import quoteString from './utils/quoteString';
-
 import { List } from './List';
 import { Map } from './Map';
-import { getIn } from './methods/getIn';
-import { hasIn } from './methods/hasIn';
-import { toObject } from './methods/toObject';
+import { imul, smi } from './Math';
 import {
   concatFactory,
   countByFactory,
@@ -73,7 +52,26 @@ import {
 } from './Seq';
 import { Set } from './Set';
 import { Stack } from './Stack';
+import {
+  ensureSize,
+  NOT_SET,
+  resolveBegin,
+  returnTrue,
+  wrapIndex,
+} from './TrieUtils';
+import { is } from './is';
+import { getIn } from './methods/getIn';
+import { hasIn } from './methods/hasIn';
+import { toObject } from './methods/toObject';
+import { IS_COLLECTION_SYMBOL } from './predicates/isCollection';
+import { IS_INDEXED_SYMBOL, isIndexed } from './predicates/isIndexed';
+import { IS_KEYED_SYMBOL, isKeyed } from './predicates/isKeyed';
+import { IS_ORDERED_SYMBOL, isOrdered } from './predicates/isOrdered';
 import { toJS } from './toJS';
+import assertNotInfinite from './utils/assertNotInfinite';
+import deepEqual from './utils/deepEqual';
+import mixin from './utils/mixin';
+import quoteString from './utils/quoteString';
 
 export { Collection, CollectionPrototype, IndexedCollectionPrototype };
 

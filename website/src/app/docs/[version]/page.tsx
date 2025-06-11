@@ -1,12 +1,12 @@
 import { Metadata } from 'next';
-import { getVersionFromGitTag } from '../../../static/getVersions';
-import { getTypeDefs } from './getTypeDefs';
-import { DocOverview, getOverviewData } from './DocOverview';
 import { DocSearch } from '../../../DocSearch';
+import { getVersionFromGitTag } from '../../../static/getVersions';
+import { VERSION } from '../currentVersion';
+import { DocOverview, getOverviewData } from './DocOverview';
 import { SideBarV4 } from './SidebarV4';
 import { getSidebarLinks } from './getSidebarLinks';
+import { getTypeDefs } from './getTypeDefs';
 import { getVersionFromParams } from './getVersionFromParams';
-import { VERSION } from '../currentVersion';
 
 export async function generateStaticParams() {
   return [...getVersionFromGitTag().map((version) => ({ version }))];

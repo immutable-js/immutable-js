@@ -617,7 +617,7 @@ declare namespace Immutable {
    * but since Immutable Map keys can be of any type the argument to `get()` is
    * not altered.
    */
-  function Map<K, V>(collection?: Iterable<[K, V]>): Map<K, V>;
+  function Map<K, V>(collection?: Iterable<readonly [K, V]>): Map<K, V>;
   function Map<R extends { [key in PropertyKey]: unknown }>(obj: R): MapOf<R>;
   function Map<V>(obj: { [key: string]: V }): Map<string, V>;
   function Map<K extends string | symbol, V>(obj: { [P in K]?: V }): Map<K, V>;

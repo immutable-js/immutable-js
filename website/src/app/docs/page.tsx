@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
+import { DocHeader } from '../../DocHeader';
+import { ImmutableConsole } from '../../ImmutableConsole';
 import { getVersions } from '../../static/getVersions';
 import RedirectExistingDocs from './redirect-client';
-import { ImmutableConsole } from '../../ImmutableConsole';
-import { DocHeader } from '../../DocHeader';
 
 export const metadata: Metadata = {
   title: 'Documentation — Immutable.js',

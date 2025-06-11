@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
-import { is, List, Map, Seq, Set } from 'immutable';
 import fc from 'fast-check';
+import { List, Map, Seq, Set, is } from 'immutable';
 
 describe('Equality', () => {
   function expectIs(left: unknown, right: unknown): void {

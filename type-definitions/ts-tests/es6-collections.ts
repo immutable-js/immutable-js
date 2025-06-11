@@ -1,5 +1,5 @@
-import { expect, test } from 'tstyche';
 import { Map as ImmutableMap, Set as ImmutableSet } from 'immutable';
+import { expect, test } from 'tstyche';
 
 test('immutable.js collections', () => {
   const mapImmutable: ImmutableMap<string, number> = ImmutableMap<

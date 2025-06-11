@@ -1,4 +1,4 @@
-import { describe, it, expect } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
 // @ts-expect-error immutable is loaded automatically
 import * as Immutable from 'immutable';
 import normalizeResult from './normalizeResult';

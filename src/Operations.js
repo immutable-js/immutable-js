@@ -1,22 +1,9 @@
 import {
-  NOT_SET,
-  ensureSize,
-  wrapIndex,
-  wholeSlice,
-  resolveBegin,
-  resolveEnd,
-} from './TrieUtils';
-import {
   Collection,
   KeyedCollection,
   SetCollection,
   IndexedCollection,
 } from './Collection';
-import { isCollection } from './predicates/isCollection';
-import { IS_KEYED_SYMBOL, isKeyed } from './predicates/isKeyed';
-import { IS_INDEXED_SYMBOL, isIndexed } from './predicates/isIndexed';
-import { isOrdered, IS_ORDERED_SYMBOL } from './predicates/isOrdered';
-import { isSeq } from './predicates/isSeq';
 import {
   getIterator,
   Iterator,
@@ -26,6 +13,8 @@ import {
   ITERATE_VALUES,
   ITERATE_ENTRIES,
 } from './Iterator';
+import { Map } from './Map';
+import { OrderedMap } from './OrderedMap';
 import {
   SeqImpl,
   KeyedSeq,
@@ -38,9 +27,19 @@ import {
   IndexedSeqImpl,
   SetSeqImpl,
 } from './Seq';
-
-import { Map } from './Map';
-import { OrderedMap } from './OrderedMap';
+import {
+  NOT_SET,
+  ensureSize,
+  wrapIndex,
+  wholeSlice,
+  resolveBegin,
+  resolveEnd,
+} from './TrieUtils';
+import { isCollection } from './predicates/isCollection';
+import { IS_INDEXED_SYMBOL, isIndexed } from './predicates/isIndexed';
+import { IS_KEYED_SYMBOL, isKeyed } from './predicates/isKeyed';
+import { isOrdered, IS_ORDERED_SYMBOL } from './predicates/isOrdered';
+import { isSeq } from './predicates/isSeq';
 
 export class ToKeyedSequence extends KeyedSeqImpl {
   constructor(indexed, useKeys) {

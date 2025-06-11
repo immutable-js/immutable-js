@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
-import { Range, Seq } from 'immutable';
 import fc from 'fast-check';
+import { Range, Seq } from 'immutable';
 import invariant from '../src/utils/invariant';
 
 describe('KeyedSeq', () => {

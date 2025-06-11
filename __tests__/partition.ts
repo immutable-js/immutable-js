@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import {
+  Map as IMap,
+  Set as ISet,
+  List,
+  Seq,
   isAssociative,
   isIndexed,
   isKeyed,
@@ -7,10 +11,6 @@ import {
   isMap,
   isSeq,
   isSet,
-  List,
-  Map as IMap,
-  Seq,
-  Set as ISet,
 } from 'immutable';
 
 describe('partition', () => {

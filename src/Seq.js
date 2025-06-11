@@ -1,12 +1,4 @@
-import { wrapIndex } from './TrieUtils';
 import { CollectionImpl } from './Collection';
-import { IS_SEQ_SYMBOL, isSeq } from './predicates/isSeq';
-import { isImmutable } from './predicates/isImmutable';
-import { isCollection } from './predicates/isCollection';
-import { isKeyed } from './predicates/isKeyed';
-import { isAssociative } from './predicates/isAssociative';
-import { isRecord } from './predicates/isRecord';
-import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
 import {
   Iterator,
   iteratorValue,
@@ -17,7 +9,14 @@ import {
   isEntriesIterable,
   isKeysIterable,
 } from './Iterator';
-
+import { wrapIndex } from './TrieUtils';
+import { isAssociative } from './predicates/isAssociative';
+import { isCollection } from './predicates/isCollection';
+import { isImmutable } from './predicates/isImmutable';
+import { isKeyed } from './predicates/isKeyed';
+import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
+import { isRecord } from './predicates/isRecord';
+import { IS_SEQ_SYMBOL, isSeq } from './predicates/isSeq';
 import hasOwnProperty from './utils/hasOwnProperty';
 import isArrayLike from './utils/isArrayLike';
 

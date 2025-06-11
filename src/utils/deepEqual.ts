@@ -1,13 +1,13 @@
-import { is } from '../is';
-import { NOT_SET } from '../TrieUtils';
-import { isCollection } from '../predicates/isCollection';
-import { isKeyed } from '../predicates/isKeyed';
-import { isIndexed } from '../predicates/isIndexed';
-import { isAssociative } from '../predicates/isAssociative';
-import { isOrdered } from '../predicates/isOrdered';
 import type { Collection } from '../../type-definitions/immutable';
-import type { RepeatImpl as Repeat } from '../Repeat';
 import type { RangeImpl as Range } from '../Range';
+import type { RepeatImpl as Repeat } from '../Repeat';
+import { NOT_SET } from '../TrieUtils';
+import { is } from '../is';
+import { isAssociative } from '../predicates/isAssociative';
+import { isCollection } from '../predicates/isCollection';
+import { isIndexed } from '../predicates/isIndexed';
+import { isKeyed } from '../predicates/isKeyed';
+import { isOrdered } from '../predicates/isOrdered';
 
 export default function deepEqual(
   a: Range | Repeat | Collection<unknown, unknown>,

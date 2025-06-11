@@ -1,5 +1,5 @@
+import { List, Map, MapOf, OrderedMap } from 'immutable';
 import { expect, pick, test } from 'tstyche';
-import { Map, List, MapOf, OrderedMap } from 'immutable';
 
 test('#constructor', () => {
   expect(Map()).type.toBe<Map<unknown, unknown>>();
@@ -9,6 +9,10 @@ test('#constructor', () => {
   expect(Map([[1, 'a']])).type.toBe<Map<number, string>>();
 
   expect(Map([['a', 'a']])).type.toBe<Map<string, string>>();
+
+  expect(Map([] as ReadonlyArray<readonly [number, string]>)).type.toBe<
+    Map<number, string>
+  >();
 
   expect(Map(List<[number, string]>([[1, 'a']]))).type.toBe<
     Map<number, string>

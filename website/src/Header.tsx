@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
-
-import { SVGSet } from './SVGSet';
+import { useEffect, useState } from 'react';
 import { Logo } from './Logo';
+import { SVGSet } from './SVGSet';
 import { StarBtn } from './StarBtn';
 import { isMobile } from './isMobile';
 

@@ -1,12 +1,12 @@
 import { describe, expect, it } from '@jest/globals';
 import {
-  fromJS,
   List,
   Map,
   type MapOf,
-  removeIn,
   Seq,
   Set,
+  fromJS,
+  removeIn,
   setIn,
   updateIn,
 } from 'immutable';

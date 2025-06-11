@@ -1,9 +1,8 @@
-import { wrapIndex, wholeSlice, resolveBegin, resolveEnd } from './TrieUtils';
-import { IndexedSeqImpl } from './Seq';
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
-
-import invariant from './utils/invariant';
+import { IndexedSeqImpl } from './Seq';
+import { wrapIndex, wholeSlice, resolveBegin, resolveEnd } from './TrieUtils';
 import deepEqual from './utils/deepEqual';
+import invariant from './utils/invariant';
 
 /**
  * Returns a lazy seq of nums from start (inclusive) to end

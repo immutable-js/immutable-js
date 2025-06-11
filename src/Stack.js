@@ -1,13 +1,13 @@
-import { wholeSlice, resolveBegin, resolveEnd, wrapIndex } from './TrieUtils';
 import { IndexedCollection, IndexedCollectionImpl } from './Collection';
-import { ArraySeq } from './Seq';
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
-import { IS_STACK_SYMBOL, isStack } from './predicates/isStack';
-import assertNotInfinite from './utils/assertNotInfinite';
+import { ArraySeq } from './Seq';
+import { wholeSlice, resolveBegin, resolveEnd, wrapIndex } from './TrieUtils';
 import { asImmutable } from './methods/asImmutable';
 import { asMutable } from './methods/asMutable';
 import { wasAltered } from './methods/wasAltered';
 import { withMutations } from './methods/withMutations';
+import { IS_STACK_SYMBOL, isStack } from './predicates/isStack';
+import assertNotInfinite from './utils/assertNotInfinite';
 
 export const Stack = (value) =>
   value === undefined || value === null
