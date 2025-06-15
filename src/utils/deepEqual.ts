@@ -1,6 +1,6 @@
 import type { Collection } from '../../type-definitions/immutable';
-import type { Range } from '../Range';
-import type { Repeat } from '../Repeat';
+import type { RangeImpl as Range } from '../Range';
+import type { RepeatImpl as Repeat } from '../Repeat';
 import { NOT_SET } from '../TrieUtils';
 import { is } from '../is';
 import { isAssociative } from '../predicates/isAssociative';
