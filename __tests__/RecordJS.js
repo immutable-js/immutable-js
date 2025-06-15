@@ -1,5 +1,5 @@
-import { Record } from 'immutable';
 import { describe, expect, it } from '@jest/globals';
+import { Record } from 'immutable';
 
 describe('Record', () => {
   it('defines a record factory', () => {

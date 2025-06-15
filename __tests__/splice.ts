@@ -1,6 +1,6 @@
-import { List, Range, Seq } from 'immutable';
 import { describe, expect, it } from '@jest/globals';
 import fc from 'fast-check';
+import { List, Range, Seq } from 'immutable';
 
 describe('splice', () => {
   it('splices a sequence only removing elements', () => {

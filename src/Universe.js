@@ -67,7 +67,8 @@ import {
   collectionXCastKeyedSequenceOpReverse,
   collectionXCastKeyedSequenceOpMap,
 } from './collection/collectionX';
-import { probeIsKeyed, probeIsIndexed } from './probe';
+import { isIndexed } from './predicates/isIndexed';
+import { isKeyed } from './predicates/isKeyed';
 import { toJS } from './toJS';
 import transformToMethods from './transformToMethods';
 
@@ -85,20 +86,20 @@ Object.assign(
   transformToMethods({
     toJS,
     toSeq: (cx) =>
-      probeIsIndexed(cx)
+      isIndexed(cx)
         ? cx.toIndexedSeq()
-        : probeIsKeyed(cx)
+        : isKeyed(cx)
           ? cx.toKeyedSeq()
           : cx.toSetSeq(),
     toSetSeq: collectionCastSetSeqCreate,
     toOrderedMap: (cx) => MapOrdered(collectionCastKeyedSeqCreate(cx)),
-    toOrderedSet: (cx) => SetOrdered(probeIsKeyed(cx) ? cx.valueSeq() : cx),
-    toSet: (cx) => Set(probeIsKeyed(cx) ? cx.valueSeq() : cx),
+    toOrderedSet: (cx) => SetOrdered(isKeyed(cx) ? cx.valueSeq() : cx),
+    toSet: (cx) => Set(isKeyed(cx) ? cx.valueSeq() : cx),
     toIndexedSeq: collectionCastIndexedSeqCreate,
     toKeyedSeq: (cx) => collectionCastKeyedSeqCreate(cx, true),
     toMap: (cx) => Map(collectionCastKeyedSeqCreate(cx, true)),
-    toList: (cx) => List(probeIsKeyed(cx) ? cx.valueSeq() : cx),
-    toStack: (cx) => Stack(probeIsKeyed(cx) ? cx.valueSeq() : cx),
+    toList: (cx) => List(isKeyed(cx) ? cx.valueSeq() : cx),
+    toStack: (cx) => Stack(isKeyed(cx) ? cx.valueSeq() : cx),
     entrySeq: collectionXOpEntrySeq,
     fromEntrySeq: collectionKeyedSeqFromEntriesCreate,
     countBy: collectionXOpCountBy,

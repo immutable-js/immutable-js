@@ -4,8 +4,7 @@ import {
   iteratorDone,
   ITERATE_ENTRIES,
 } from '../Iterator';
-
-import { probeIsCollection } from '../probe';
+import { isCollection } from '../predicates/isCollection';
 
 const factoryFlatten = (cx, makeSequence, depth, useKeys) => {
   const flatSequence = makeSequence(cx);
@@ -17,7 +16,7 @@ const factoryFlatten = (cx, makeSequence, depth, useKeys) => {
     let stopped = false;
     function flatDeep(iter, currentDepth) {
       iter.__iterate((v, k) => {
-        if ((!depth || currentDepth < depth) && probeIsCollection(v)) {
+        if ((!depth || currentDepth < depth) && isCollection(v)) {
           flatDeep(v, currentDepth + 1);
         } else {
           iterations++;
@@ -49,7 +48,7 @@ const factoryFlatten = (cx, makeSequence, depth, useKeys) => {
         if (type === ITERATE_ENTRIES) {
           v = v[1];
         }
-        if ((!depth || stack.length < depth) && probeIsCollection(v)) {
+        if ((!depth || stack.length < depth) && isCollection(v)) {
           stack.push(iterator);
           iterator = v.__iterator(type, reverse);
         } else {

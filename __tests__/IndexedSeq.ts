@@ -1,5 +1,5 @@
-import { Seq } from 'immutable';
 import { describe, expect, it } from '@jest/globals';
+import { Seq } from 'immutable';
 
 describe('IndexedSequence', () => {
   it('maintains skipped offset', () => {

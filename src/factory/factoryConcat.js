@@ -1,5 +1,7 @@
 import { collectionConcatCreate } from '../collection/collectionConcat';
-import { probeIsIndexed, probeIsCollection, probeIsKeyed } from '../probe';
+import { isCollection } from '../predicates/isCollection';
+import { isIndexed } from '../predicates/isIndexed';
+import { isKeyed } from '../predicates/isKeyed';
 
 const factoryConcat = (
   collection,
@@ -8,11 +10,11 @@ const factoryConcat = (
   indexedseqfromval,
   values
 ) => {
-  const isKeyedCollection = probeIsKeyed(collection);
+  const isKeyedCollection = isKeyed(collection);
   const iters = [collection]
     .concat(values)
     .map((v) => {
-      if (!probeIsCollection(v)) {
+      if (!isCollection(v)) {
         v = isKeyedCollection
           ? keyedseqfromval(v)
           : indexedseqfromval(Array.isArray(v) ? v : [v]);
@@ -32,8 +34,8 @@ const factoryConcat = (
     const singleton = iters[0];
     if (
       singleton === collection ||
-      (isKeyedCollection && probeIsKeyed(singleton)) ||
-      (probeIsIndexed(collection) && probeIsIndexed(singleton))
+      (isKeyedCollection && isKeyed(singleton)) ||
+      (isIndexed(collection) && isIndexed(singleton))
     ) {
       return singleton;
     }

@@ -1,4 +1,4 @@
-import { Iterator, iteratorValue, iteratorDone } from './Iterator';
+import { Iterator, iteratorValue, iteratorDone, hasIterator } from './Iterator';
 
 import { SeqIndexed, SeqIndexedWhenNotIndexed } from './Seq';
 import {
@@ -31,7 +31,7 @@ import {
   kernelIndexedVNodeOpRemoveAfter,
 } from './collection/kernelIndexed';
 import { DELETE, IS_LIST_SYMBOL, SHAPE_LIST, DONE } from './const';
-import { probeIsList, probeHasIterator } from './probe';
+import { isList } from './predicates/isList';
 import transformToMethods from './transformToMethods';
 import { flagSpread, assertNotInfinite } from './utils';
 
@@ -346,7 +346,7 @@ const listConcat = (cx, collections) => {
   for (let i = 0; i < collections.length; i++) {
     const argument = collections[i];
     const seq = SeqIndexedWhenNotIndexed(
-      typeof argument !== 'string' && probeHasIterator(argument)
+      typeof argument !== 'string' && hasIterator(argument)
         ? argument
         : [argument]
     );
@@ -497,7 +497,7 @@ const List = (value) => {
   if (value === undefined || value === null) {
     return listCreateEmpty();
   }
-  if (probeIsList(value)) {
+  if (isList(value)) {
     return value;
   }
   const iter = SeqIndexed(value);
@@ -523,7 +523,7 @@ const List = (value) => {
 };
 
 Object.assign(List, {
-  isList: probeIsList,
+  isList,
   of: (...args) => List(args),
 });
 

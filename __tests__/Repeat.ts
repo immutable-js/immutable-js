@@ -1,5 +1,5 @@
-import { Repeat } from 'immutable';
 import { describe, expect, it } from '@jest/globals';
+import { Repeat } from 'immutable';
 
 describe('Repeat', () => {
   it('fixed repeat', () => {

@@ -1,3 +1,4 @@
+import { describe, expect, it } from '@jest/globals';
 import {
   Collection,
   List,
@@ -9,7 +10,6 @@ import {
   Stack,
   isOrdered,
 } from 'immutable';
-import { describe, expect, it } from '@jest/globals';
 
 describe('groupBy', () => {
   it.each`

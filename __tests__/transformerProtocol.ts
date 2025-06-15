@@ -1,5 +1,5 @@
-import { List, Map, Set, Stack } from 'immutable';
 import { describe, expect, it } from '@jest/globals';
+import { List, Map, Set, Stack } from 'immutable';
 import * as t from 'transducers-js';
 
 describe('Transformer Protocol', () => {

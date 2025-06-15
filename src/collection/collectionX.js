@@ -33,14 +33,11 @@ import { factoryMap } from '../factory/factoryMap';
 import { factoryReverse } from '../factory/factoryReverse';
 import { factorySlice } from '../factory/factorySlice';
 import { factoryZipWith } from '../factory/factoryZipWith';
-import {
-  probeIsMergeable,
-  probeIsIndexed,
-  probeIsImmutable,
-  probeIsDataStructure,
-  probeIsKeyed,
-  probeIsSeq,
-} from '../probe';
+import { isImmutable } from '../predicates/isImmutable';
+import { isIndexed } from '../predicates/isIndexed';
+import { isKeyed } from '../predicates/isKeyed';
+import { isSeq } from '../predicates/isSeq';
+import { probeIsMergeable } from '../probe';
 import {
   shallowCopy,
   hasOwnProperty,
@@ -48,6 +45,7 @@ import {
   quoteString,
   coerceKeyPath,
 } from '../utils';
+import isDataStructure from '../utils/isDataStructure';
 import {
   collectionOrAnyOpGet,
   collectionOrAnyOpSet,
@@ -60,7 +58,7 @@ import { collectionSeqCreate } from './collectionSeq.js';
 const collectionXReify = (cx, seq) => {
   return cx === seq
     ? cx
-    : probeIsSeq(cx)
+    : isSeq(cx)
       ? seq
       : cx.create
         ? cx.create(seq)
@@ -68,17 +66,17 @@ const collectionXReify = (cx, seq) => {
 };
 
 const collectionXProbeCreator = (cx) =>
-  probeIsKeyed(cx)
+  isKeyed(cx)
     ? SeqKeyedWhenNotKeyed
-    : probeIsIndexed(cx)
+    : isIndexed(cx)
       ? SeqIndexedWhenNotIndexed
       : SeqSetWhenNotAssociative;
 
 const collectionXMakeSequence = (cx) => {
   return Object.create(
-    probeIsKeyed(cx)
+    isKeyed(cx)
       ? collectionKeyedSeqPropertiesCreate()
-      : probeIsIndexed(cx)
+      : isIndexed(cx)
         ? collectionIndexedSeqPropertiesCreate()
         : collectionSeqCreate()
   );
@@ -300,12 +298,12 @@ const collectionXOpEntrySeq = (cx) => {
 };
 
 const collectionXOpMergeWithSources = (collection, sources, merger) => {
-  if (!probeIsDataStructure(collection)) {
+  if (!isDataStructure(collection)) {
     throw new TypeError(
       'Cannot merge into non-data-structure value: ' + collection
     );
   }
-  if (probeIsImmutable(collection)) {
+  if (isImmutable(collection)) {
     return typeof merger === 'function' && collection.mergeWith
       ? collection.mergeWith(merger, ...sources)
       : collection.merge
@@ -349,8 +347,8 @@ const collectionXOpMergeWithSources = (collection, sources, merger) => {
  */
 const collectionXOpDeepMergerWith = (merger, collectionCreate) => {
   function deepMerger(oldValue, newValue, key) {
-    return probeIsDataStructure(oldValue) &&
-      probeIsDataStructure(newValue) &&
+    return isDataStructure(oldValue) &&
+      isDataStructure(newValue) &&
       probeIsMergeable(oldValue, newValue)
       ? collectionXOpMergeWithSources(
           oldValue,
@@ -595,7 +593,7 @@ const collectionXOrAnyOpUpdateInDeeply = (
     // @ts-expect-error mixed type
     return newValue === existingValue ? existing : newValue;
   }
-  if (!wasNotSet && !probeIsDataStructure(existing)) {
+  if (!wasNotSet && !isDataStructure(existing)) {
     throw new TypeError(
       'Cannot update within non-data-structure value in path [' +
         Array.from(keyPath).slice(0, i).map(quoteString) +
@@ -615,7 +613,7 @@ const collectionXOrAnyOpUpdateInDeeply = (
     ? NOT_SET
     : collectionOrAnyOpGet(existing, key, NOT_SET);
   const nextUpdated = collectionXOrAnyOpUpdateInDeeply(
-    nextExisting === NOT_SET ? inImmutable : probeIsImmutable(nextExisting),
+    nextExisting === NOT_SET ? inImmutable : isImmutable(nextExisting),
     // @ts-expect-error mixed type
     nextExisting,
     keyPath,
@@ -643,7 +641,7 @@ const collectionXOrAnyOpUpdateIn = (cx, keyPath, notSetValue, updater) => {
     notSetValue = undefined;
   }
   const updatedValue = collectionXOrAnyOpUpdateInDeeply(
-    probeIsImmutable(cx),
+    isImmutable(cx),
     // @ts-expect-error type issues with Record and mixed types
     cx,
     coerceKeyPath(keyPath),

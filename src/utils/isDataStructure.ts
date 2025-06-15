@@ -1,5 +1,5 @@
 import type { Collection, Record } from '../../type-definitions/immutable';
-import { probeIsImmutable } from '../probe';
+import { isImmutable } from '../predicates/isImmutable';
 import isPlainObj from './isPlainObj';
 
 /**
@@ -15,6 +15,6 @@ export default function isDataStructure(
   | object {
   return (
     typeof value === 'object' &&
-    (probeIsImmutable(value) || Array.isArray(value) || isPlainObj(value))
+    (isImmutable(value) || Array.isArray(value) || isPlainObj(value))
   );
 }

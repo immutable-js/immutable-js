@@ -1,9 +1,7 @@
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 import { wrapIndex } from './TrieUtils';
-
 import { collectionIndexedSeqPropertiesCreate } from './collection/collectionIndexedSeq';
-
-import { probeIsImmutable } from './probe';
+import { isImmutable } from './predicates/isImmutable';
 import transformToMethods from './transformToMethods';
 
 const indexedSeqArrayOpGet = (cx, index, notSetValue) => {
@@ -72,7 +70,7 @@ const seqArrayCreateEmpty = ((cache) => () => {
 const SeqArray = (value) =>
   value === undefined || value === null
     ? seqArrayCreateEmpty([])
-    : probeIsImmutable(value)
+    : isImmutable(value)
       ? value.toSeq()
       : seqArrayCreate(value);
 

@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import {
   Map as IMap,
   Set as ISet,
@@ -11,7 +12,6 @@ import {
   isSeq,
   isSet,
 } from 'immutable';
-import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 describe('partition', () => {
   let isOdd: jest.Mock<(x: number) => number>;

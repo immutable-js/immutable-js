@@ -2,19 +2,14 @@ import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 import { SeqIndexedWhenNotIndexed } from './Seq';
 import { SeqArray } from './SeqArray';
 import { wholeSlice, resolveBegin, resolveEnd, wrapIndex } from './TrieUtils';
-
 import {
   collectionOpAsMutable,
   collectionOpAsImmutable,
 } from './collection/collection';
-
 import { collectionIndexedPropertiesCreate } from './collection/collectionIndexed';
-
 import { IS_STACK_SYMBOL, SHAPE_STACK } from './const';
-import { probeIsStack } from './probe';
-
+import { isStack } from './predicates/isStack';
 import transformToMethods from './transformToMethods';
-
 import { assertNotInfinite, flagSpread } from './utils';
 
 const stackOpToString = (cx) => {
@@ -63,7 +58,7 @@ const stackOpPushAll = (cx, iter) => {
   if (iter.size === 0) {
     return cx;
   }
-  if (cx.size === 0 && probeIsStack(iter)) {
+  if (cx.size === 0 && isStack(iter)) {
     return iter;
   }
   assertNotInfinite(iter.size);
@@ -236,11 +231,11 @@ const stackCreateEmpty = ((cache) => () => {
 const Stack = (value) =>
   value === undefined || value === null
     ? stackCreateEmpty()
-    : probeIsStack(value)
+    : isStack(value)
       ? value
       : stackCreateEmpty().pushAll(value);
 
 Stack.of = (...args) => Stack(args);
-Stack.isStack = probeIsStack;
+Stack.isStack = isStack;
 
 export { Stack };

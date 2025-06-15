@@ -1,5 +1,5 @@
-import { update } from 'immutable';
 import { describe, expect, it } from '@jest/globals';
+import { update } from 'immutable';
 
 describe('update', () => {
   it('for immutable structure', () => {

@@ -1,5 +1,5 @@
-import { List, Map, Record, Seq, isKeyed } from 'immutable';
 import { describe, expect, it } from '@jest/globals';
+import { List, Map, Record, Seq, isKeyed } from 'immutable';
 
 describe('Record', () => {
   it('defines a constructor', () => {

@@ -1,9 +1,10 @@
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 import { wholeSlice, resolveBegin, resolveEnd } from './TrieUtils';
 import { collectionIndexedSeqPropertiesCreate } from './collection/collectionIndexedSeq';
-import { probeIsSameDeep, probeIsSame, probeIsRepeat } from './probe';
-
+import { is } from './is';
+import { probeIsRepeat } from './probe';
 import transformToMethods from './transformToMethods';
+import { deepEqual } from './utils';
 
 /**
  * Returns a lazy Seq of `value` repeated `times` times. When `times` is
@@ -21,7 +22,7 @@ const repeatOpGet = (cx, index, notSetValue) => {
 };
 
 const repeatOpIncludes = (cx, searchValue) => {
-  return probeIsSame(cx._value, searchValue);
+  return is(cx._value, searchValue);
 };
 
 const repeatOpSlice = (cx, begin, end) => {
@@ -39,14 +40,14 @@ const repeatOpReverse = (cx) => {
 };
 
 const repeatOpIndexOf = (cx, searchValue) => {
-  if (probeIsSame(cx._value, searchValue)) {
+  if (is(cx._value, searchValue)) {
     return 0;
   }
   return -1;
 };
 
 const repeatOpLastIndexOf = (cx, searchValue) => {
-  if (probeIsSame(cx._value, searchValue)) {
+  if (is(cx._value, searchValue)) {
     return cx.size;
   }
   return -1;
@@ -74,9 +75,9 @@ const repeatOpIterator = (cx, type, reverse) => {
 };
 
 const repeatOpEquals = (cx, other) => {
-  return probeIsRepeat(other)
-    ? probeIsSame(cx._value, other._value)
-    : probeIsSameDeep(cx, other);
+  return probeIsRepeat(other) // TODO should be `return other instanceof Repeat`
+    ? is(cx._value, other._value)
+    : deepEqual(cx, other);
 };
 
 const repeatPropertiesCreate = ((cache) => () => {

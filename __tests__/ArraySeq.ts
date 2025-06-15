@@ -1,5 +1,5 @@
-import { Seq } from 'immutable';
 import { describe, expect, it } from '@jest/globals';
+import { Seq } from 'immutable';
 
 describe('ArraySequence', () => {
   it('every is true when predicate is true for all entries', () => {

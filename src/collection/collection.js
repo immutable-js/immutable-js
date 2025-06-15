@@ -10,23 +10,20 @@ import {
   ITERATOR_SYMBOL,
 } from '../const';
 import { factoryMax } from '../factory/factoryMax';
-import {
-  probeIsSame,
-  probeIsImmutable,
-  probeIsOrdered,
-  probeIsKeyed,
-  probeIsDataStructure,
-  probeIsSameDeep,
-} from '../probe';
+import { is } from '../is';
+import { isImmutable } from '../predicates/isImmutable';
+import { isKeyed } from '../predicates/isKeyed';
+import { isOrdered } from '../predicates/isOrdered';
 import transformToMethods from '../transformToMethods';
-
 import {
   coerceKeyPath,
   shallowCopy,
   quoteString,
   assertNotInfinite,
   hasOwnProperty,
+  deepEqual,
 } from '../utils';
+import isDataStructure from '../utils/isDataStructure';
 
 function neg(predicate) {
   return function () {
@@ -73,8 +70,8 @@ function hashCollection(collection) {
   if (collection.size === Infinity) {
     return 0;
   }
-  const ordered = probeIsOrdered(collection);
-  const keyed = probeIsKeyed(collection);
+  const ordered = isOrdered(collection);
+  const keyed = isKeyed(collection);
   let h = ordered ? 1 : 0;
 
   collection.__iterate(
@@ -146,7 +143,7 @@ const collectionOpToStringMapper = (cx, value) => {
 const collectionOpToArray = (cx) => {
   assertNotInfinite(cx.size);
   const array = new Array(cx.size || 0);
-  const useTuples = probeIsKeyed(cx);
+  const useTuples = isKeyed(cx);
 
   let i = 0;
   cx.__iterate((v, k) => {
@@ -299,7 +296,7 @@ const collectionOpIsEmpty = (cx) => {
 const collectionOpGet = (cx, searchKey, notSetValue) => {
   return collectionOpFind(
     cx,
-    (_, key) => probeIsSame(key, searchKey),
+    (_, key) => is(key, searchKey),
     undefined,
     notSetValue
   );
@@ -322,7 +319,7 @@ const collectionOpGet = (cx, searchKey, notSetValue) => {
  * ```
  */
 const collectionOrAnyOpGet = (collection, key, notSetValue) => {
-  return probeIsImmutable(collection)
+  return isImmutable(collection)
     ? collection.get(key, notSetValue)
     : !collectionOrAnyOpHas(collection, key)
       ? notSetValue
@@ -381,11 +378,11 @@ const collectionOrAnyOpGetIn = (cx, searchKeyPath, notSetValue) => {
  */
 
 const collectionOrAnyOpHas = (collection, key) => {
-  return probeIsImmutable(collection)
+  return isImmutable(collection)
     ? // @ts-expect-error key might be a number or symbol, which is not handled be Record key type
       collection.has(key)
     : // @ts-expect-error key might be anything else than PropertyKey, and will return false in that case but runtime is OK
-      probeIsDataStructure(collection) && hasOwnProperty.call(collection, key);
+      isDataStructure(collection) && hasOwnProperty.call(collection, key);
 };
 
 const collectionOpHas = (cx, searchKey) => {
@@ -411,7 +408,7 @@ const collectionOrAnyOpHasIn = (cx, keyPath) => {
 };
 
 const collectionOpKeyOf = (cx, searchValue) => {
-  return cx.findKey((value) => probeIsSame(value, searchValue));
+  return cx.findKey((value) => is(value, searchValue));
 };
 
 /**
@@ -435,10 +432,10 @@ const collectionOpKeyOf = (cx, searchValue) => {
  * ```
  */
 const collectionOrAnyOpSet = (cx, key, value) => {
-  if (!probeIsDataStructure(cx)) {
+  if (!isDataStructure(cx)) {
     throw new TypeError('Cannot update non-data-structure value: ' + cx);
   }
-  if (probeIsImmutable(cx)) {
+  if (isImmutable(cx)) {
     // @ts-expect-error weird "set" here,
     if (!cx.set) {
       throw new TypeError(
@@ -479,10 +476,10 @@ const collectionOrAnyOpSet = (cx, key, value) => {
  * ```
  */
 const collectionOrAnyOpRemove = (cx, key) => {
-  if (!probeIsDataStructure(cx)) {
+  if (!isDataStructure(cx)) {
     throw new TypeError('Cannot update non-data-structure value: ' + cx);
   }
-  if (probeIsImmutable(cx)) {
+  if (isImmutable(cx)) {
     // @ts-expect-error weird "remove" here,
     if (!cx.remove) {
       throw new TypeError(
@@ -595,7 +592,7 @@ const collectionOpValues = (collection) => {
 };
 
 const collectionOpEquals = (cx, other) => {
-  return probeIsSameDeep(cx, other);
+  return deepEqual(cx, other);
 };
 
 const collectionOpEntries = (collection) => {
@@ -603,7 +600,7 @@ const collectionOpEntries = (collection) => {
 };
 
 const collectionOpIncludes = (cx, searchValue) => {
-  return cx.some((value) => probeIsSame(value, searchValue));
+  return cx.some((value) => is(value, searchValue));
 };
 
 const collectionOpInspect = (cx) => {

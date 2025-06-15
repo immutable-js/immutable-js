@@ -1,5 +1,5 @@
-import { List, Seq, Set } from 'immutable';
 import { describe, expect, it } from '@jest/globals';
+import { List, Seq, Set } from 'immutable';
 
 describe('concat', () => {
   it('concats two sequences', () => {
