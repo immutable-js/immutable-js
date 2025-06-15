@@ -6,7 +6,6 @@ import {
 } from '../Iterator';
 import { NOT_SET } from '../const';
 
-
 import { probeIsIndexed, probeIsOrdered, probeIsKeyed } from '../probe';
 
 const factoryCountBy = (cx, grouper, context, mapCreate) => {

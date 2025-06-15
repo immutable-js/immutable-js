@@ -1,8 +1,5 @@
-import {
-  IS_KEYED_SYMBOL,
-} from '../const';
+import { IS_KEYED_SYMBOL } from '../const';
 import transformToMethods from '../transformToMethods';
-
 
 import { collectionPropertiesCreate } from './collection';
 
@@ -21,7 +18,7 @@ const collectionKeyedPropertiesCreate = ((cache) => () => {
         toString: collectionSetSeqKeyedOpToString,
         valueSeq: (cx) => {
           return cx.toIndexedSeq();
-        }
+        },
       })
     ))
   );

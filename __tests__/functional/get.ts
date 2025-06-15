@@ -1,6 +1,6 @@
 import { get, Map, List, Range } from 'immutable';
 import { describe, expect, it } from '@jest/globals';
-import { utilInvariant } from '../../src/util';
+import { utilInvariant } from '../../src/utils';
 
 describe('get', () => {
   it('for immutable structure', () => {

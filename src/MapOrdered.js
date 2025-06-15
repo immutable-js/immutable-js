@@ -7,14 +7,7 @@ import { IS_ORDERED_SYMBOL, DELETE, NOT_SET } from './const';
 import { probeIsMapOrdered } from './probe';
 import transformToMethods from './transformToMethods';
 
-
-
-import { utilAssertNotInfinite } from './util';
-
-
-
-
-
+import { assertNotInfinite } from './utils';
 
 const mapOrderedOpUpdate = (omap, k, v) => {
   const map = omap._map;
@@ -170,7 +163,7 @@ const MapOrdered = (value) =>
       ? value
       : collectionOpWithMutations(mapOrderedCreateEmpty(), (map) => {
           const iter = SeqKeyedWhenNotKeyed(value);
-          utilAssertNotInfinite(iter.size);
+          assertNotInfinite(iter.size);
           iter.forEach((v, k) => map.set(k, v));
         });
 

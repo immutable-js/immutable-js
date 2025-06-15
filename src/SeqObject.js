@@ -1,17 +1,14 @@
-
-
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 
-import {
-  collectionKeyedSeqPropertiesCreate,
-} from './collection/collectionKeyedSeq.js';
+import { collectionKeyedSeqPropertiesCreate } from './collection/collectionKeyedSeq.js';
 
 import { IS_ORDERED_SYMBOL } from './const';
-import { probeIsImmutable, probeHasOwnProperty } from './probe';
+import { probeIsImmutable } from './probe';
 import transformToMethods from './transformToMethods';
+import { hasOwnProperty } from './utils';
 
 const seqObjectOpHas = (cx, key) => {
-  return probeHasOwnProperty.call(cx._object, key);
+  return hasOwnProperty.call(cx._object, key);
 };
 
 const seqObjectOpGet = (cx, key, notSetValue) => {

@@ -1,12 +1,7 @@
-
-
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
-
 
 import { SeqKeyed, SeqWhenNotCollection } from './Seq';
 import { MakeRef } from './TrieUtils';
-
-
 
 import {
   collectionOpForEach,
@@ -32,7 +27,7 @@ import {
 } from './const';
 import { probeIsMap, probeIsOrdered } from './probe';
 import transformToMethods from './transformToMethods';
-import { utilQuoteString, utilAssertNotInfinite } from './util';
+import { utilQuoteString, assertNotInfinite } from './utils';
 
 class MapIterator extends Iterator {
   constructor(map, type, reverse) {
@@ -300,7 +295,7 @@ const Map = (value) =>
       : collectionOpWithMutations(mapCreateEmpty(), (map) => {
           const iter = SeqKeyed(value);
 
-          utilAssertNotInfinite(iter.size);
+          assertNotInfinite(iter.size);
 
           collectionOpForEach(iter, (v, k) => mapUpdate(map, k, v));
         });

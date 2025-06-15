@@ -1,16 +1,13 @@
-
-
 import { mapOrderedCreateEmpty } from './MapOrdered';
 
 import { SeqSetWhenNotAssociative, SeqKeyedWhenNotKeyed } from './Seq';
 import { setPropertiesCreate } from './Set';
 
-
 import { IS_ORDERED_SYMBOL } from './const';
 import { probeIsOrderedSet } from './probe';
 
 import transformToMethods from './transformToMethods';
-import { utilAssertNotInfinite } from './util';
+import { assertNotInfinite } from './utils';
 
 const setOrderedOpToString = (cx) => {
   return cx.__toString('OrderedSet {', '}');
@@ -55,7 +52,7 @@ const SetOrdered = (value) => {
       ? value
       : setOrderedCreateEmpty().withMutations((set) => {
           const iter = SeqSetWhenNotAssociative(value);
-          utilAssertNotInfinite(iter.size);
+          assertNotInfinite(iter.size);
           iter.forEach((v) => set.add(v));
         });
 };

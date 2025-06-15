@@ -1,7 +1,7 @@
 import { Range, Seq } from 'immutable';
 import { describe, expect, it } from '@jest/globals';
 import fc from 'fast-check';
-import { utilInvariant } from '../src/util';
+import { utilInvariant } from '../src/utils';
 
 describe('KeyedSeq', () => {
   it('iterates equivalently', () => {

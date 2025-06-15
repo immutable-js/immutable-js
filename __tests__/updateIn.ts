@@ -10,7 +10,7 @@ import {
   updateIn,
 } from 'immutable';
 import { describe, expect, it } from '@jest/globals';
-import { utilInvariant } from '../src/util';
+import { utilInvariant } from '../src/utils';
 
 describe('updateIn', () => {
   it('deep edit', () => {

@@ -8,10 +8,7 @@ import {
 import { probeIsImmutable, probeIsRecord } from '../probe';
 import transformToMethods from '../transformToMethods';
 
-
-import { utilQuoteString } from '../util';
-
-
+import { utilQuoteString } from '../utils';
 
 import {
   collectionPropertiesCreate,

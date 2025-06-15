@@ -4,8 +4,6 @@ import { ITERATE_VALUES } from '../const';
 
 import transformToMethods from '../transformToMethods';
 
-
-
 import { collectionIndexedSeqPropertiesCreate } from './collectionIndexedSeq.js';
 
 const collectionCastIndexedSeqOpIncludes = (cx, value) => {

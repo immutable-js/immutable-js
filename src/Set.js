@@ -1,6 +1,3 @@
-
-
-
 import { mapCreateEmpty } from './Map';
 
 import {
@@ -26,7 +23,7 @@ import {
 } from './probe';
 import transformToMethods from './transformToMethods';
 
-import { utilAssertNotInfinite, utilFlagSpread } from './util';
+import { assertNotInfinite, flagSpread } from './utils';
 
 const setOpUpdate = (set, newMap) => {
   if (set.__ownerID) {
@@ -197,11 +194,11 @@ const setPropertiesCreate = ((cache) => () => {
         add: setOpAdd,
         map: setOpMap,
         withMutations: collectionOpWithMutations,
-        merge: utilFlagSpread(setOpUnion),
-        concat: utilFlagSpread(setOpUnion),
-        union: utilFlagSpread(setOpUnion),
-        intersect: utilFlagSpread(setOpIntersect),
-        subtract: utilFlagSpread(setOpSubtract),
+        merge: flagSpread(setOpUnion),
+        concat: flagSpread(setOpUnion),
+        union: flagSpread(setOpUnion),
+        intersect: flagSpread(setOpIntersect),
+        subtract: flagSpread(setOpSubtract),
         contains: setOpHas,
         __ensureOwner: setOpEnsureOwner,
         __iterate: setOpIterate,
@@ -242,7 +239,7 @@ const Set = (value) =>
       ? value
       : collectionOpWithMutations(setCreateEmpty(), (set) => {
           const iter = setCollection(value);
-          utilAssertNotInfinite(iter.size);
+          assertNotInfinite(iter.size);
           iter.forEach((v) => set.add(v));
         });
 
@@ -258,9 +255,7 @@ Set.union = (sets) => {
 
 Set.intersect = (sets) => {
   sets = SeqWhenNotCollection(sets).toArray();
-  return sets.length
-    ? setOpIntersect(Set(sets.pop()), sets)
-    : setCreateEmpty();
+  return sets.length ? setOpIntersect(Set(sets.pop()), sets) : setCreateEmpty();
 };
 
 export { Set, setPropertiesCreate, setCreateEmpty };

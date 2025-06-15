@@ -1,7 +1,6 @@
 import { IS_ORDERED_SYMBOL, IS_INDEXED_SYMBOL } from '../const';
 import transformToMethods from '../transformToMethods';
 
-
 import {
   collectionOpIndexedFindIndex,
   collectionOpIndexedIndexOf,

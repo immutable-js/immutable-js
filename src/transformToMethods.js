@@ -50,13 +50,13 @@ const methodArgs = [
 
 const methodArgsSpread = [
   // these wrappers for spread functions, eg
-  // 
+  //
   // concat(...values) {}
   // splice(index, removeNum, ...values) {}
   // interleave(...collections) {}
   // zip(...collections) {}
   // zipAll(...collections) {}
-  // zipWith(zipper, ...collections) {}  
+  // zipWith(zipper, ...collections) {}
   (fn) =>
     function (...a1) {
       return fn(this, a1);

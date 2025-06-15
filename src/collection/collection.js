@@ -17,21 +17,16 @@ import {
   probeIsKeyed,
   probeIsDataStructure,
   probeIsSameDeep,
-  probeCoerceKeyPath,
 } from '../probe';
 import transformToMethods from '../transformToMethods';
 
-
 import {
-  utilCopyShallow,
-  utilQuoteString,
-  utilHasOwnProperty,
-  utilAssertNotInfinite,
-} from '../util';
-
-
-
-
+  coerceKeyPath,
+  shallowCopy,
+  quoteString,
+  assertNotInfinite,
+  hasOwnProperty,
+} from '../utils';
 
 function neg(predicate) {
   return function () {
@@ -47,7 +42,7 @@ const collectionReduce = (
   useFirst,
   reverse
 ) => {
-  utilAssertNotInfinite(cx.size);
+  assertNotInfinite(cx.size);
   cx.__iterate((v, k, c) => {
     if (useFirst) {
       useFirst = false;
@@ -145,11 +140,11 @@ const collectionOpKeySeq = (cx) => {
 };
 
 const collectionOpToStringMapper = (cx, value) => {
-  return utilQuoteString(value);
+  return quoteString(value);
 };
 
 const collectionOpToArray = (cx) => {
-  utilAssertNotInfinite(cx.size);
+  assertNotInfinite(cx.size);
   const array = new Array(cx.size || 0);
   const useTuples = probeIsKeyed(cx);
 
@@ -222,7 +217,7 @@ const collectionOpIndexedLast = (cx, notSetValue) => {
 };
 
 const collectionOpSome = (cx, predicate, context) => {
-  utilAssertNotInfinite(cx.size);
+  assertNotInfinite(cx.size);
   let returnValue = false;
   cx.__iterate((v, k, c) => {
     if (predicate.call(context, v, k, c)) {
@@ -234,7 +229,7 @@ const collectionOpSome = (cx, predicate, context) => {
 };
 
 const collectionOpEvery = (cx, predicate, context) => {
-  utilAssertNotInfinite(cx.size);
+  assertNotInfinite(cx.size);
   let returnValue = true;
   cx.__iterate((v, k, c) => {
     if (!predicate.call(context, v, k, c)) {
@@ -246,7 +241,7 @@ const collectionOpEvery = (cx, predicate, context) => {
 };
 
 const collectionOpForEach = (cx, sideEffect, context) => {
-  utilAssertNotInfinite(cx.size);
+  assertNotInfinite(cx.size);
 
   return cx.__iterate(context ? sideEffect.bind(context) : sideEffect);
 };
@@ -355,7 +350,7 @@ const collectionOrAnyOpGet = (collection, key, notSetValue) => {
  * ```
  */
 const collectionOrAnyOpGetIn = (cx, searchKeyPath, notSetValue) => {
-  const keyPath = probeCoerceKeyPath(searchKeyPath);
+  const keyPath = coerceKeyPath(searchKeyPath);
   let i = 0;
   while (i !== keyPath.length) {
     // @ts-expect-error keyPath[i++] can not be undefined by design
@@ -390,8 +385,7 @@ const collectionOrAnyOpHas = (collection, key) => {
     ? // @ts-expect-error key might be a number or symbol, which is not handled be Record key type
       collection.has(key)
     : // @ts-expect-error key might be anything else than PropertyKey, and will return false in that case but runtime is OK
-      probeIsDataStructure(collection) &&
-        utilHasOwnProperty.call(collection, key);
+      probeIsDataStructure(collection) && hasOwnProperty.call(collection, key);
 };
 
 const collectionOpHas = (cx, searchKey) => {
@@ -442,9 +436,7 @@ const collectionOpKeyOf = (cx, searchValue) => {
  */
 const collectionOrAnyOpSet = (cx, key, value) => {
   if (!probeIsDataStructure(cx)) {
-    throw new TypeError(
-      'Cannot update non-data-structure value: ' + cx
-    );
+    throw new TypeError('Cannot update non-data-structure value: ' + cx);
   }
   if (probeIsImmutable(cx)) {
     // @ts-expect-error weird "set" here,
@@ -458,10 +450,10 @@ const collectionOrAnyOpSet = (cx, key, value) => {
     return cx.set(key, value);
   }
   // @ts-expect-error mix of key and string here. Probably need a more fine type here
-  if (utilHasOwnProperty.call(cx, key) && value === cx[key]) {
+  if (hasOwnProperty.call(cx, key) && value === cx[key]) {
     return cx;
   }
-  const collectionCopy = utilCopyShallow(cx);
+  const collectionCopy = shallowCopy(cx);
   // @ts-expect-error mix of key and string here. Probably need a more fine type here
   collectionCopy[key] = value;
   return collectionCopy;
@@ -488,9 +480,7 @@ const collectionOrAnyOpSet = (cx, key, value) => {
  */
 const collectionOrAnyOpRemove = (cx, key) => {
   if (!probeIsDataStructure(cx)) {
-    throw new TypeError(
-      'Cannot update non-data-structure value: ' + cx
-    );
+    throw new TypeError('Cannot update non-data-structure value: ' + cx);
   }
   if (probeIsImmutable(cx)) {
     // @ts-expect-error weird "remove" here,
@@ -502,10 +492,10 @@ const collectionOrAnyOpRemove = (cx, key) => {
     // @ts-expect-error weird "remove" here,
     return cx.remove(key);
   }
-  if (!utilHasOwnProperty.call(cx, key)) {
+  if (!hasOwnProperty.call(cx, key)) {
     return cx;
   }
-  const collectionCopy = utilCopyShallow(cx);
+  const collectionCopy = shallowCopy(cx);
   if (Array.isArray(collectionCopy)) {
     // @ts-expect-error assert that key is a number here
     collectionCopy.splice(key, 1);
@@ -516,7 +506,7 @@ const collectionOrAnyOpRemove = (cx, key) => {
 };
 
 const collectionOpToObject = (cx) => {
-  utilAssertNotInfinite(cx.size);
+  assertNotInfinite(cx.size);
   const object = {};
   cx.__iterate((v, k) => {
     object[k] = v;
@@ -558,7 +548,7 @@ const collectionOpMinBy = (cx, mapper, comparator) => {
 };
 
 const collectionOpJoin = (cx, separator) => {
-  utilAssertNotInfinite(cx.size);
+  assertNotInfinite(cx.size);
   separator = separator !== undefined ? '' + separator : ',';
   let joined = '';
   let isFirst = true;

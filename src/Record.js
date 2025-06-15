@@ -1,6 +1,5 @@
 import { List } from './List';
 
-
 import { SeqKeyed } from './Seq';
 
 import { collectionOpWithMutations } from './collection/collection';
@@ -11,7 +10,7 @@ import {
 } from './collection/collectionRecord';
 
 import { probeIsRecord, probeIsKeyed } from './probe';
-import { utilAssignNamedPropAccessor } from './util';
+import { utilAssignNamedPropAccessor } from './utils';
 
 const recordOpNameGet = (record) => {
   return record.constructor.displayName || record.constructor.name || 'Record';

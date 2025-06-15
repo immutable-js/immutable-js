@@ -1,7 +1,6 @@
 import { IS_SEQ_SYMBOL, IS_INDEXED_SYMBOL } from '../const';
 import transformToMethods from '../transformToMethods';
 
-
 import { collectionIndexedPropertiesCreate } from './collectionIndexed';
 
 import {

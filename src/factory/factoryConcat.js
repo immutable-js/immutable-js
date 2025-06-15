@@ -1,7 +1,6 @@
 import { collectionConcatCreate } from '../collection/collectionConcat';
 import { probeIsIndexed, probeIsCollection, probeIsKeyed } from '../probe';
 
-
 const factoryConcat = (
   collection,
   SeqKeyed,

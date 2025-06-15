@@ -12,14 +12,11 @@ import { probeIsSame } from '../probe';
 
 import transformToMethods from '../transformToMethods';
 import {
-  utilArrCopy,
+  arrCopy,
   utilArrSetAt,
   utilArrSpliceIn,
   utilArrSpliceOut,
-} from '../util';
-
-
-
+} from '../utils';
 
 const MAX_ARRAY_MAP_SIZE = SIZE / 4;
 const MAX_BITMAP_INDEXED_SIZE = SIZE / 2;
@@ -148,7 +145,7 @@ const kernelKeyedHashCollisionOpUpdate = (
   }
 
   const isEditable = ownerID && ownerID === nhc.ownerID;
-  const newEntries = isEditable ? entries : utilArrCopy(entries);
+  const newEntries = isEditable ? entries : arrCopy(entries);
 
   if (exists) {
     if (removed) {
@@ -541,7 +538,7 @@ const kernelKeyedArrayMapOpUpdate = (
   }
 
   const isEditable = ownerID && ownerID === nam.ownerID;
-  const newEntries = isEditable ? entries : utilArrCopy(entries);
+  const newEntries = isEditable ? entries : arrCopy(entries);
 
   if (exists) {
     if (removed) {
