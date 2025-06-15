@@ -10,7 +10,7 @@ import {
   updateIn,
 } from 'immutable';
 import { describe, expect, it } from '@jest/globals';
-import invariant from '../src/utils/invariant';
+import { utilInvariant } from '../src/util';
 
 describe('updateIn', () => {
   it('deep edit', () => {
@@ -103,7 +103,10 @@ describe('updateIn', () => {
           throw new RangeError('Index out of bounds');
         }
 
-        invariant(typeof this[index] !== 'undefined', 'Index out of bounds');
+        utilInvariant(
+          typeof this[index] !== 'undefined',
+          'Index out of bounds'
+        );
 
         return this[index];
       }

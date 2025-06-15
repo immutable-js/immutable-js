@@ -2,7 +2,7 @@ import { List, Map, Range, Seq, Set, fromJS } from 'immutable';
 import { describe, expect, it } from '@jest/globals';
 import fc from 'fast-check';
 import { create as createSeed } from 'random-seed';
-import invariant from '../src/utils/invariant';
+import { utilInvariant } from '../src/util';
 
 function arrayOfSize(s: number) {
   const a = new Array(s);
@@ -481,7 +481,7 @@ describe('List', () => {
   });
 
   it.each(['remove', 'delete'])('remove removes any index', (fn) => {
-    invariant(fn === 'remove' || fn === 'delete', 'Invalid function name');
+    utilInvariant(fn === 'remove' || fn === 'delete', 'Invalid function name');
 
     let v = List.of('a', 'b', 'c')[fn](2)[fn](0);
     expect(v.size).toBe(1);

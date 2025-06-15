@@ -1,10 +1,14 @@
-import { hasIterator } from './Iterator';
+import { Map } from './Map';
 import { Seq } from './Seq';
-import { isImmutable } from './predicates/isImmutable';
-import { isIndexed } from './predicates/isIndexed';
-import { isKeyed } from './predicates/isKeyed';
-import isArrayLike from './utils/isArrayLike';
-import isPlainObj from './utils/isPlainObj';
+
+import {
+  probeHasIterator,
+  probeIsArrayLike,
+  probeIsPlainObject,
+  probeIsKeyed,
+  probeIsImmutable,
+  probeIsIndexed,
+} from './probe';
 
 export function fromJS(value, converter) {
   return fromJSWith(
@@ -20,8 +24,10 @@ export function fromJS(value, converter) {
 function fromJSWith(stack, converter, value, key, keyPath, parentValue) {
   if (
     typeof value !== 'string' &&
-    !isImmutable(value) &&
-    (isArrayLike(value) || hasIterator(value) || isPlainObj(value))
+    !probeIsImmutable(value) &&
+    (probeIsArrayLike(value) ||
+      probeHasIterator(value) ||
+      probeIsPlainObject(value))
   ) {
     if (~stack.indexOf(value)) {
       throw new TypeError('Cannot convert circular structure to Immutable');
@@ -47,5 +53,9 @@ function fromJSWith(stack, converter, value, key, keyPath, parentValue) {
 
 function defaultConverter(k, v) {
   // Effectively the opposite of "Collection.toSeq()"
-  return isIndexed(v) ? v.toList() : isKeyed(v) ? v.toMap() : v.toSet();
+  return probeIsIndexed(v)
+    ? v.toList()
+    : probeIsKeyed(v)
+      ? v.toMap(Map)
+      : v.toSet();
 }

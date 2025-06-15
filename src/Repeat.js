@@ -1,101 +1,127 @@
+
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
-import { IndexedSeqImpl } from './Seq';
 import { wholeSlice, resolveBegin, resolveEnd } from './TrieUtils';
-import { is } from './is';
-import deepEqual from './utils/deepEqual';
+import { collectionIndexedSeqPropertiesCreate } from './collection/collectionIndexedSeq';
+import { probeIsSameDeep, probeIsSame, probeIsRepeat } from './probe';
+
+import transformToMethods from './transformToMethods';
 
 /**
  * Returns a lazy Seq of `value` repeated `times` times. When `times` is
  * undefined, returns an infinite sequence of `value`.
  */
-export const Repeat = (value, times) => {
-  const size = times === undefined ? Infinity : Math.max(0, times);
-  if (size === 0) {
-    if (!EMPTY_REPEAT) {
-      EMPTY_REPEAT = new RepeatImpl(value, 0);
-    }
-    return EMPTY_REPEAT;
+const repeatOpToString = (cx) => {
+  if (cx.size === 0) {
+    return 'Repeat []';
   }
-  return new RepeatImpl(value, size);
+  return 'Repeat [ ' + cx._value + ' ' + cx.size + ' times ]';
 };
 
-export class RepeatImpl extends IndexedSeqImpl {
-  constructor(value, size) {
-    super();
+const repeatOpGet = (cx, index, notSetValue) => {
+  return cx.has(index) ? cx._value : notSetValue;
+};
 
-    this._value = value;
-    this.size = size;
+const repeatOpIncludes = (cx, searchValue) => {
+  return probeIsSame(cx._value, searchValue);
+};
+
+const repeatOpSlice = (cx, begin, end) => {
+  const size = cx.size;
+  return wholeSlice(begin, end, size)
+    ? cx
+    : repeatCreate(
+        cx._value,
+        resolveEnd(end, size) - resolveBegin(begin, size)
+      );
+};
+
+const repeatOpReverse = (cx) => {
+  return cx;
+};
+
+const repeatOpIndexOf = (cx, searchValue) => {
+  if (probeIsSame(cx._value, searchValue)) {
+    return 0;
   }
+  return -1;
+};
 
-  toString() {
-    if (this.size === 0) {
-      return 'Repeat []';
+const repeatOpLastIndexOf = (cx, searchValue) => {
+  if (probeIsSame(cx._value, searchValue)) {
+    return cx.size;
+  }
+  return -1;
+};
+
+const repeatOpIterate = (cx, fn, reverse) => {
+  const size = cx.size;
+  let i = 0;
+  while (i !== size) {
+    if (fn(cx._value, reverse ? size - ++i : i++, cx) === false) {
+      break;
     }
-    return 'Repeat [ ' + this._value + ' ' + this.size + ' times ]';
   }
+  return i;
+};
 
-  get(index, notSetValue) {
-    return this.has(index) ? this._value : notSetValue;
-  }
+const repeatOpIterator = (cx, type, reverse) => {
+  const size = cx.size;
+  let i = 0;
+  return new Iterator(() =>
+    i === size
+      ? iteratorDone()
+      : iteratorValue(type, reverse ? size - ++i : i++, cx._value)
+  );
+};
 
-  includes(searchValue) {
-    return is(this._value, searchValue);
-  }
+const repeatOpEquals = (cx, other) => {
+  return probeIsRepeat(other)
+    ? probeIsSame(cx._value, other._value)
+    : probeIsSameDeep(cx, other);
+};
 
-  slice(begin, end) {
-    const size = this.size;
-    return wholeSlice(begin, end, size)
-      ? this
-      : new RepeatImpl(
-          this._value,
-          resolveEnd(end, size) - resolveBegin(begin, size)
-        );
-  }
+const repeatPropertiesCreate = ((cache) => () => {
+  return (
+    cache ||
+    (cache = Object.assign(
+      {},
+      collectionIndexedSeqPropertiesCreate(),
+      transformToMethods({
+        toString: repeatOpToString,
+        get: repeatOpGet,
+        includes: repeatOpIncludes,
+        slice: repeatOpSlice,
+        reverse: repeatOpReverse,
+        indexOf: repeatOpIndexOf,
+        lastIndexOf: repeatOpLastIndexOf,
+        equals: repeatOpEquals,
+        __iterate: repeatOpIterate,
+        __iterator: repeatOpIterator,
+      })
+    ))
+  );
+})();
 
-  reverse() {
-    return this;
-  }
+const repeatCreate = (value, size) => {
+  const repeat = Object.create(repeatPropertiesCreate());
+  repeat._value = value;
+  repeat.size = size;
 
-  indexOf(searchValue) {
-    if (is(this._value, searchValue)) {
-      return 0;
-    }
-    return -1;
-  }
+  return repeat;
+};
 
-  lastIndexOf(searchValue) {
-    if (is(this._value, searchValue)) {
-      return this.size;
-    }
-    return -1;
-  }
+const repeatCreateEmpty = ((cache) => () => {
+  return cache || (cache = repeatCreate(undefined, 0));
+})();
 
-  __iterate(fn, reverse) {
-    const size = this.size;
-    let i = 0;
-    while (i !== size) {
-      if (fn(this._value, reverse ? size - ++i : i++, this) === false) {
-        break;
-      }
-    }
-    return i;
-  }
+/**
+ * Returns a lazy Seq of `value` repeated `times` times. When `times` is
+ * undefined, returns an infinite sequence of `value`.
+ */
+const Repeat = (value, times) => {
+  const size = times === undefined ? Infinity : Math.max(0, times);
 
-  __iterator(type, reverse) {
-    const size = this.size;
-    let i = 0;
-    return new Iterator(() =>
-      i === size
-        ? iteratorDone()
-        : iteratorValue(type, reverse ? size - ++i : i++, this._value)
-    );
-  }
+  return size === 0 ? repeatCreateEmpty() : repeatCreate(value, size);
+};
 
-  equals(other) {
-    return other instanceof Repeat
-      ? is(this._value, other._value)
-      : deepEqual(this, other);
-  }
-}
-
-let EMPTY_REPEAT;
+export { Repeat, repeatCreate };

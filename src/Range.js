@@ -1,21 +1,143 @@
+
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
-import { IndexedSeqImpl } from './Seq';
 import { wrapIndex, wholeSlice, resolveBegin, resolveEnd } from './TrieUtils';
-import deepEqual from './utils/deepEqual';
-import invariant from './utils/invariant';
+
+
+import { collectionIndexedSeqPropertiesCreate } from './collection/collectionIndexedSeq';
+
+import { SHAPE_RANGE } from './const';
+import { probeIsSameDeep } from './probe';
+
+import transformToMethods from './transformToMethods';
+
+import { utilInvariant } from './util';
+
+const rangeOpToString = (cx) =>
+  cx.size === 0
+    ? 'Range []'
+    : `Range [ ${cx._start}...${cx._end}${cx._step !== 1 ? ' by ' + cx._step : ''} ]`;
+
+const rangeOpGet = (cx, index, notSetValue) => {
+  return cx.has(index)
+    ? cx._start + wrapIndex(cx, index) * cx._step
+    : notSetValue;
+};
+
+const rangeOpIncludes = (cx, searchValue) => {
+  const possibleIndex = (searchValue - cx._start) / cx._step;
+  return (
+    possibleIndex >= 0 &&
+    possibleIndex < cx.size &&
+    possibleIndex === Math.floor(possibleIndex)
+  );
+};
+
+const rangeOpSlice = (cx, begin, end) => {
+  if (wholeSlice(begin, end, cx.size)) {
+    return cx;
+  }
+  begin = resolveBegin(begin, cx.size);
+  end = resolveEnd(end, cx.size);
+  if (end <= begin) {
+    return Range(0, 0);
+  }
+  return Range(cx.get(begin, cx._end), cx.get(end, cx._end), cx._step);
+};
+
+const rangeOpIndexOf = (cx, searchValue) => {
+  const offsetValue = searchValue - cx._start;
+  if (offsetValue % cx._step === 0) {
+    const index = offsetValue / cx._step;
+    if (index >= 0 && index < cx.size) {
+      return index;
+    }
+  }
+  return -1;
+};
+
+const rangeOpIterate = (cx, fn, reverse) => {
+  const size = cx.size;
+  const step = cx._step;
+  let value = reverse ? cx._start + (size - 1) * step : cx._start;
+  let i = 0;
+  while (i !== size) {
+    if (fn(value, reverse ? size - ++i : i++, cx) === false) {
+      break;
+    }
+    value += reverse ? -step : step;
+  }
+  return i;
+};
+
+const rangeOpIterator = (cx, type, reverse) => {
+  const size = cx.size;
+  const step = cx._step;
+  let value = reverse ? cx._start + (size - 1) * step : cx._start;
+  let i = 0;
+  return new Iterator(() => {
+    if (i === size) {
+      return iteratorDone();
+    }
+    const v = value;
+    value += reverse ? -step : step;
+    return iteratorValue(type, reverse ? size - ++i : i++, v);
+  });
+};
+
+const rangeOpEquals = (cx, other) => {
+  return other && other.__shape === SHAPE_RANGE
+    ? cx._start === other._start &&
+        cx._end === other._end &&
+        cx._step === other._step
+    : probeIsSameDeep(cx, other);
+};
+
+const RangeCreate = ((cache) => (start, end, step, size) => {
+  const range = Object.create(
+    cache ||
+      (cache = Object.assign(
+        {},
+        collectionIndexedSeqPropertiesCreate(),
+        transformToMethods({
+          toString: rangeOpToString,
+          get: rangeOpGet,
+          includes: rangeOpIncludes,
+          slice: rangeOpSlice,
+          indexOf: rangeOpIndexOf,
+          lastIndexOf: (cx, searchValue) => cx.indexOf(searchValue),
+          __iterate: rangeOpIterate,
+          __iterator: rangeOpIterator,
+          equals: rangeOpEquals,
+        })
+      ))
+  );
+
+  range._start = start;
+  range._end = end;
+  range._step = step;
+  range.size = size;
+  range.__shape = SHAPE_RANGE;
+
+  return range;
+})();
+
+let EMPTY_RANGE;
 
 /**
  * Returns a lazy seq of nums from start (inclusive) to end
  * (exclusive), by step, where start defaults to 0, step to 1, and end to
  * infinity. When start is equal to end, returns empty list.
  */
-export const Range = (start, end, step = 1) => {
-  invariant(step !== 0, 'Cannot step a Range by 0');
-  invariant(
+const Range = (start, end, step = 1) => {
+  utilInvariant(step !== 0, 'Cannot step a Range by 0');
+  utilInvariant(
     start !== undefined,
     'You must define a start value when using Range'
   );
-  invariant(end !== undefined, 'You must define an end value when using Range');
+  utilInvariant(
+    end !== undefined,
+    'You must define an end value when using Range'
+  );
 
   step = Math.abs(step);
   if (end < start) {
@@ -24,110 +146,11 @@ export const Range = (start, end, step = 1) => {
   const size = Math.max(0, Math.ceil((end - start) / step - 1) + 1);
   if (size === 0) {
     if (!EMPTY_RANGE) {
-      EMPTY_RANGE = new RangeImpl(start, end, step, 0);
+      EMPTY_RANGE = RangeCreate(start, end, step, 0);
     }
     return EMPTY_RANGE;
   }
-  return new RangeImpl(start, end, step, size);
+  return RangeCreate(start, end, step, size);
 };
-export class RangeImpl extends IndexedSeqImpl {
-  constructor(start, end, step, size) {
-    super();
 
-    this._start = start;
-    this._end = end;
-    this._step = step;
-    this.size = size;
-  }
-
-  toString() {
-    return this.size === 0
-      ? 'Range []'
-      : `Range [ ${this._start}...${this._end}${this._step !== 1 ? ' by ' + this._step : ''} ]`;
-  }
-
-  get(index, notSetValue) {
-    return this.has(index)
-      ? this._start + wrapIndex(this, index) * this._step
-      : notSetValue;
-  }
-
-  includes(searchValue) {
-    const possibleIndex = (searchValue - this._start) / this._step;
-    return (
-      possibleIndex >= 0 &&
-      possibleIndex < this.size &&
-      possibleIndex === Math.floor(possibleIndex)
-    );
-  }
-
-  slice(begin, end) {
-    if (wholeSlice(begin, end, this.size)) {
-      return this;
-    }
-    begin = resolveBegin(begin, this.size);
-    end = resolveEnd(end, this.size);
-    if (end <= begin) {
-      return Range(0, 0);
-    }
-    return Range(
-      this.get(begin, this._end),
-      this.get(end, this._end),
-      this._step
-    );
-  }
-
-  indexOf(searchValue) {
-    const offsetValue = searchValue - this._start;
-    if (offsetValue % this._step === 0) {
-      const index = offsetValue / this._step;
-      if (index >= 0 && index < this.size) {
-        return index;
-      }
-    }
-    return -1;
-  }
-
-  lastIndexOf(searchValue) {
-    return this.indexOf(searchValue);
-  }
-
-  __iterate(fn, reverse) {
-    const size = this.size;
-    const step = this._step;
-    let value = reverse ? this._start + (size - 1) * step : this._start;
-    let i = 0;
-    while (i !== size) {
-      if (fn(value, reverse ? size - ++i : i++, this) === false) {
-        break;
-      }
-      value += reverse ? -step : step;
-    }
-    return i;
-  }
-
-  __iterator(type, reverse) {
-    const size = this.size;
-    const step = this._step;
-    let value = reverse ? this._start + (size - 1) * step : this._start;
-    let i = 0;
-    return new Iterator(() => {
-      if (i === size) {
-        return iteratorDone();
-      }
-      const v = value;
-      value += reverse ? -step : step;
-      return iteratorValue(type, reverse ? size - ++i : i++, v);
-    });
-  }
-
-  equals(other) {
-    return other instanceof Range
-      ? this._start === other._start &&
-          this._end === other._end &&
-          this._step === other._step
-      : deepEqual(this, other);
-  }
-}
-
-let EMPTY_RANGE;
+export { Range };

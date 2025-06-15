@@ -1,227 +1,250 @@
-import { IndexedCollection, IndexedCollectionImpl } from './Collection';
+
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
-import { ArraySeq } from './Seq';
+import { SeqIndexedWhenNotIndexed } from './Seq';
+import { SeqArray } from './SeqArray';
 import { wholeSlice, resolveBegin, resolveEnd, wrapIndex } from './TrieUtils';
-import { asImmutable } from './methods/asImmutable';
-import { asMutable } from './methods/asMutable';
-import { wasAltered } from './methods/wasAltered';
-import { withMutations } from './methods/withMutations';
-import { IS_STACK_SYMBOL, isStack } from './predicates/isStack';
-import assertNotInfinite from './utils/assertNotInfinite';
 
-export const Stack = (value) =>
-  value === undefined || value === null
-    ? emptyStack()
-    : isStack(value)
-      ? value
-      : emptyStack().pushAll(value);
+import {
+  collectionOpAsMutable,
+  collectionOpAsImmutable,
+} from './collection/collection';
 
-Stack.of = function (...values) {
-  return Stack(values);
+import { collectionIndexedPropertiesCreate } from './collection/collectionIndexed';
+
+
+
+
+import { IS_STACK_SYMBOL, SHAPE_STACK } from './const';
+import { probeIsStack } from './probe';
+
+import transformToMethods from './transformToMethods';
+
+import { utilAssertNotInfinite, utilFlagSpread } from './util';
+
+const stackOpToString = (cx) => {
+  return cx.__toString('Stack [', ']');
 };
 
-export class StackImpl extends IndexedCollectionImpl {
-  create(value) {
-    return Stack(value);
+const stackOpGet = (cx, index, notSetValue) => {
+  let head = cx._head;
+  index = wrapIndex(cx, index);
+  while (head && index--) {
+    head = head.next;
   }
+  return head ? head.value : notSetValue;
+};
 
-  toString() {
-    return this.__toString('Stack [', ']');
+const stackOpPeek = (cx) => {
+  return cx._head && cx._head.value;
+};
+
+// @pragma Modification
+
+const stackOpPush = (cx, values) => {
+  if (values.length === 0) {
+    return cx;
   }
-
-  // @pragma Access
-
-  get(index, notSetValue) {
-    let head = this._head;
-    index = wrapIndex(this, index);
-    while (head && index--) {
-      head = head.next;
-    }
-    return head ? head.value : notSetValue;
+  const newSize = cx.size + values.length;
+  let head = cx._head;
+  for (let ii = values.length - 1; ii >= 0; ii--) {
+    head = {
+      value: values[ii],
+      next: head,
+    };
   }
-
-  peek() {
-    return this._head && this._head.value;
+  if (cx.__ownerID) {
+    cx.size = newSize;
+    cx._head = head;
+    cx.__hash = undefined;
+    cx.__altered = true;
+    return cx;
   }
+  return stackCreate(newSize, head);
+};
 
-  // @pragma Modification
-
-  push(...values) {
-    if (values.length === 0) {
-      return this;
-    }
-    const newSize = this.size + values.length;
-    let head = this._head;
-    for (let ii = values.length - 1; ii >= 0; ii--) {
-      head = {
-        value: values[ii],
-        next: head,
-      };
-    }
-    if (this.__ownerID) {
-      this.size = newSize;
-      this._head = head;
-      this.__hash = undefined;
-      this.__altered = true;
-      return this;
-    }
-    return makeStack(newSize, head);
+const stackOpPushAll = (cx, iter) => {
+  iter = SeqIndexedWhenNotIndexed(iter);
+  if (iter.size === 0) {
+    return cx;
   }
-
-  pushAll(iter) {
-    iter = IndexedCollection(iter);
-    if (iter.size === 0) {
-      return this;
-    }
-    if (this.size === 0 && isStack(iter)) {
-      return iter;
-    }
-    assertNotInfinite(iter.size);
-    let newSize = this.size;
-    let head = this._head;
-    iter.__iterate((value) => {
-      newSize++;
-      head = {
-        value: value,
-        next: head,
-      };
-    }, /* reverse */ true);
-    if (this.__ownerID) {
-      this.size = newSize;
-      this._head = head;
-      this.__hash = undefined;
-      this.__altered = true;
-      return this;
-    }
-    return makeStack(newSize, head);
+  if (cx.size === 0 && probeIsStack(iter)) {
+    return iter;
   }
-
-  pop() {
-    return this.slice(1);
+  utilAssertNotInfinite(iter.size);
+  let newSize = cx.size;
+  let head = cx._head;
+  iter.__iterate((value) => {
+    newSize++;
+    head = {
+      value: value,
+      next: head,
+    };
+  }, /* reverse */ true);
+  if (cx.__ownerID) {
+    cx.size = newSize;
+    cx._head = head;
+    cx.__hash = undefined;
+    cx.__altered = true;
+    return cx;
   }
+  return stackCreate(newSize, head);
+};
 
-  clear() {
-    if (this.size === 0) {
-      return this;
-    }
-    if (this.__ownerID) {
-      this.size = 0;
-      this._head = undefined;
-      this.__hash = undefined;
-      this.__altered = true;
-      return this;
-    }
-    return emptyStack();
+const stackOpPop = (cx) => {
+  return cx.slice(1);
+};
+
+const stackOpClear = (cx) => {
+  if (cx.size === 0) {
+    return cx;
   }
-
-  slice(begin, end) {
-    if (wholeSlice(begin, end, this.size)) {
-      return this;
-    }
-    let resolvedBegin = resolveBegin(begin, this.size);
-    const resolvedEnd = resolveEnd(end, this.size);
-    if (resolvedEnd !== this.size) {
-      // super.slice(begin, end);
-      return IndexedCollectionImpl.prototype.slice.call(this, begin, end);
-    }
-    const newSize = this.size - resolvedBegin;
-    let head = this._head;
-    while (resolvedBegin--) {
-      head = head.next;
-    }
-    if (this.__ownerID) {
-      this.size = newSize;
-      this._head = head;
-      this.__hash = undefined;
-      this.__altered = true;
-      return this;
-    }
-    return makeStack(newSize, head);
+  if (cx.__ownerID) {
+    cx.size = 0;
+    cx._head = undefined;
+    cx.__hash = undefined;
+    cx.__altered = true;
+    return cx;
   }
+  return stackCreateEmpty();
+};
 
-  // @pragma Mutability
-
-  __ensureOwner(ownerID) {
-    if (ownerID === this.__ownerID) {
-      return this;
-    }
-    if (!ownerID) {
-      if (this.size === 0) {
-        return emptyStack();
-      }
-      this.__ownerID = ownerID;
-      this.__altered = false;
-      return this;
-    }
-    return makeStack(this.size, this._head, ownerID, this.__hash);
+const stackOpSlice = (cx, begin, end) => {
+  if (wholeSlice(begin, end, cx.size)) {
+    return cx;
   }
+  let resolvedBegin = resolveBegin(begin, cx.size);
+  const resolvedEnd = resolveEnd(end, cx.size);
+  if (resolvedEnd !== cx.size) {
+    return cx.slice(begin, end)
+  }
+  const newSize = cx.size - resolvedBegin;
+  let head = cx._head;
+  while (resolvedBegin--) {
+    head = head.next;
+  }
+  if (cx.__ownerID) {
+    cx.size = newSize;
+    cx._head = head;
+    cx.__hash = undefined;
+    cx.__altered = true;
+    return cx;
+  }
+  return stackCreate(newSize, head);
+};
 
-  // @pragma Iteration
+// @pragma Mutability
 
-  __iterate(fn, reverse) {
-    if (reverse) {
-      return new ArraySeq(this.toArray()).__iterate(
-        (v, k) => fn(v, k, this),
-        reverse
-      );
+const stackOpEnsureOwner = (cx, ownerID) => {
+  if (ownerID === cx.__ownerID) {
+    return cx;
+  }
+  if (!ownerID) {
+    if (cx.size === 0) {
+      return stackCreateEmpty();
     }
-    let iterations = 0;
-    let node = this._head;
-    while (node) {
-      if (fn(node.value, iterations++, this) === false) {
-        break;
-      }
+    cx.__ownerID = ownerID;
+    cx.__altered = false;
+    return cx;
+  }
+  return stackCreate(cx.size, cx._head, ownerID, cx.__hash);
+};
+
+// @pragma Iteration
+
+const stackOpIterate = (cx, fn, reverse) => {
+  if (reverse) {
+    return SeqArray(cx.toArray()).__iterate((v, k) => fn(v, k, cx), reverse);
+  }
+  let iterations = 0;
+  let node = cx._head;
+  while (node) {
+    if (fn(node.value, iterations++, cx) === false) {
+      break;
+    }
+    node = node.next;
+  }
+  return iterations;
+};
+
+const stackOpIterator = (cx, type, reverse) => {
+  if (reverse) {
+    return SeqArray(cx.toArray()).__iterator(type, reverse);
+  }
+  let iterations = 0;
+  let node = cx._head;
+  return new Iterator(() => {
+    if (node) {
+      const value = node.value;
       node = node.next;
+      return iteratorValue(type, iterations++, value);
     }
-    return iterations;
-  }
-
-  __iterator(type, reverse) {
-    if (reverse) {
-      return new ArraySeq(this.toArray()).__iterator(type, reverse);
-    }
-    let iterations = 0;
-    let node = this._head;
-    return new Iterator(() => {
-      if (node) {
-        const value = node.value;
-        node = node.next;
-        return iteratorValue(type, iterations++, value);
-      }
-      return iteratorDone();
-    });
-  }
-}
-
-Stack.isStack = isStack;
-
-const StackPrototype = StackImpl.prototype;
-StackPrototype[IS_STACK_SYMBOL] = true;
-StackPrototype.shift = StackPrototype.pop;
-StackPrototype.unshift = StackPrototype.push;
-StackPrototype.unshiftAll = StackPrototype.pushAll;
-StackPrototype.withMutations = withMutations;
-StackPrototype.wasAltered = wasAltered;
-StackPrototype.asImmutable = asImmutable;
-StackPrototype['@@transducer/init'] = StackPrototype.asMutable = asMutable;
-StackPrototype['@@transducer/step'] = function (result, arr) {
-  return result.unshift(arr);
-};
-StackPrototype['@@transducer/result'] = function (obj) {
-  return obj.asImmutable();
+    return iteratorDone();
+  });
 };
 
-function makeStack(size, head, ownerID, hash) {
-  const map = Object.create(StackPrototype);
-  map.size = size;
-  map._head = head;
-  map.__ownerID = ownerID;
-  map.__hash = hash;
-  map.__altered = false;
-  return map;
-}
+const stackPropertiesCreate = ((cache) => () => {
+  cache =
+    cache ||
+    (cache = Object.assign(
+      {},
+      collectionIndexedPropertiesCreate(),
+      {
+        [IS_STACK_SYMBOL]: true,
+        create: Stack,
+        ['@@transducer/init']: function () {
+          return collectionOpAsMutable(this);
+        },
+        ['@@transducer/step']: function (result, arr) {
+          return result.unshift(arr);
+        },
+        ['@@transducer/result']: function (obj) {
+          return collectionOpAsImmutable(obj);
+        },
+      },
+      transformToMethods({
+        toString: stackOpToString,
+        get: stackOpGet,
+        peek: stackOpPeek,
+        push: utilFlagSpread(stackOpPush),
+        unshift: utilFlagSpread(stackOpPush),
+        pushAll: stackOpPushAll,
+        unshiftAll: stackOpPushAll,
+        pop: stackOpPop,
+        shift: stackOpPop,
+        clear: stackOpClear,
+        slice: stackOpSlice,
+        __ensureOwner: stackOpEnsureOwner,
+        __iterate: stackOpIterate,
+        __iterator: stackOpIterator,
+      })
+    ));
 
-let EMPTY_STACK;
-function emptyStack() {
-  return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
-}
+  return cache;
+})();
+
+const stackCreate = (size, head, ownerID, hash) => {
+  const stack = Object.create(stackPropertiesCreate());
+  stack.size = size;
+  stack._head = head;
+  stack.__ownerID = ownerID;
+  stack.__hash = hash;
+  stack.__altered = false;
+  stack.__shape = SHAPE_STACK;
+  return stack;
+};
+
+const stackCreateEmpty = ((cache) => () => {
+  return cache || (cache = stackCreate(0));
+})();
+
+const Stack = (value) =>
+  value === undefined || value === null
+    ? stackCreateEmpty()
+    : probeIsStack(value)
+      ? value
+      : stackCreateEmpty().pushAll(value);
+
+Stack.of = (...args) => Stack(args);
+Stack.isStack = probeIsStack;
+
+export { Stack };

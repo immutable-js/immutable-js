@@ -1,237 +1,266 @@
+
+
+
+import { mapCreateEmpty } from './Map';
+
 import {
-  Collection,
-  SetCollectionImpl,
-  KeyedCollection,
-  SetCollection,
-} from './Collection';
-import { emptyMap } from './Map';
-import { sortFactory } from './Operations';
-import { OrderedSet } from './OrderedSet';
-import { DELETE } from './TrieUtils';
-import { asImmutable } from './methods/asImmutable';
-import { asMutable } from './methods/asMutable';
-import { withMutations } from './methods/withMutations';
-import { isOrdered } from './predicates/isOrdered';
-import { IS_SET_SYMBOL, isSet } from './predicates/isSet';
-import assertNotInfinite from './utils/assertNotInfinite';
+  SeqIndexed,
+  SeqKeyedWhenNotKeyed,
+  SeqWhenNotCollection,
+  SeqSetWhenNotAssociative,
+} from './Seq';
 
-export const Set = (value) =>
-  value === undefined || value === null
-    ? emptySet()
-    : isSet(value) && !isOrdered(value)
-      ? value
-      : emptySet().withMutations((set) => {
-          const iter = SetCollection(value);
-          assertNotInfinite(iter.size);
-          iter.forEach((v) => set.add(v));
-        });
+import {
+  collectionOpWithMutations,
+  collectionOpAsMutable,
+  collectionPropertiesCreate,
+} from './collection/collection';
 
-Set.of = function (...values) {
-  return Set(values);
-};
+import { collectionCastSetSeqCreate } from './collection/collectionCastSetSeq';
+import { DELETE, IS_SET_SYMBOL, SHAPE_SET } from './const';
+import {
+  probeIsSet,
+  probeIsOrdered,
+  probeIsCollection,
+  probeIsAssociative,
+} from './probe';
+import transformToMethods from './transformToMethods';
 
-Set.fromKeys = (value) => Set(KeyedCollection(value).keySeq());
+import { utilAssertNotInfinite, utilFlagSpread } from './util';
 
-Set.intersect = (sets) => {
-  sets = Collection(sets).toArray();
-  return sets.length
-    ? SetPrototype.intersect.apply(Set(sets.pop()), sets)
-    : emptySet();
-};
-
-Set.union = (sets) => {
-  const setArray = Collection(sets).toArray();
-  return setArray.length
-    ? SetPrototype.union.apply(Set(setArray.pop()), setArray)
-    : emptySet();
-};
-
-export class SetImpl extends SetCollectionImpl {
-  create(value) {
-    return Set(value);
-  }
-
-  toString() {
-    return this.__toString('Set {', '}');
-  }
-
-  // @pragma Access
-
-  has(value) {
-    return this._map.has(value);
-  }
-
-  // @pragma Modification
-
-  add(value) {
-    return updateSet(this, this._map.set(value, value));
-  }
-
-  remove(value) {
-    return updateSet(this, this._map.remove(value));
-  }
-
-  clear() {
-    return updateSet(this, this._map.clear());
-  }
-
-  // @pragma Composition
-
-  map(mapper, context) {
-    // keep track if the set is altered by the map function
-    let didChanges = false;
-
-    const newMap = updateSet(
-      this,
-      this._map.mapEntries(([, v]) => {
-        const mapped = mapper.call(context, v, v, this);
-
-        if (mapped !== v) {
-          didChanges = true;
-        }
-
-        return [mapped, mapped];
-      }, context)
-    );
-
-    return didChanges ? newMap : this;
-  }
-
-  union(...iters) {
-    iters = iters.filter((x) => x.size !== 0);
-    if (iters.length === 0) {
-      return this;
-    }
-    if (this.size === 0 && !this.__ownerID && iters.length === 1) {
-      return Set(iters[0]);
-    }
-    return this.withMutations((set) => {
-      for (let ii = 0; ii < iters.length; ii++) {
-        if (typeof iters[ii] === 'string') {
-          set.add(iters[ii]);
-        } else {
-          SetCollection(iters[ii]).forEach((value) => set.add(value));
-        }
-      }
-    });
-  }
-
-  intersect(...iters) {
-    if (iters.length === 0) {
-      return this;
-    }
-    iters = iters.map((iter) => SetCollection(iter));
-    const toRemove = [];
-    this.forEach((value) => {
-      if (!iters.every((iter) => iter.includes(value))) {
-        toRemove.push(value);
-      }
-    });
-    return this.withMutations((set) => {
-      toRemove.forEach((value) => {
-        set.remove(value);
-      });
-    });
-  }
-
-  subtract(...iters) {
-    if (iters.length === 0) {
-      return this;
-    }
-    iters = iters.map((iter) => SetCollection(iter));
-    const toRemove = [];
-    this.forEach((value) => {
-      if (iters.some((iter) => iter.includes(value))) {
-        toRemove.push(value);
-      }
-    });
-    return this.withMutations((set) => {
-      toRemove.forEach((value) => {
-        set.remove(value);
-      });
-    });
-  }
-
-  sort(comparator) {
-    // Late binding
-    return OrderedSet(sortFactory(this, comparator));
-  }
-
-  sortBy(mapper, comparator) {
-    // Late binding
-    return OrderedSet(sortFactory(this, comparator, mapper));
-  }
-
-  wasAltered() {
-    return this._map.wasAltered();
-  }
-
-  __iterate(fn, reverse) {
-    return this._map.__iterate((k) => fn(k, k, this), reverse);
-  }
-
-  __iterator(type, reverse) {
-    return this._map.__iterator(type, reverse);
-  }
-
-  __ensureOwner(ownerID) {
-    if (ownerID === this.__ownerID) {
-      return this;
-    }
-    const newMap = this._map.__ensureOwner(ownerID);
-    if (!ownerID) {
-      if (this.size === 0) {
-        return this.__empty();
-      }
-      this.__ownerID = ownerID;
-      this._map = newMap;
-      return this;
-    }
-    return this.__make(newMap, ownerID);
-  }
-}
-
-Set.isSet = isSet;
-
-const SetPrototype = SetImpl.prototype;
-SetPrototype[IS_SET_SYMBOL] = true;
-SetPrototype[DELETE] = SetPrototype.remove;
-SetPrototype.merge = SetPrototype.concat = SetPrototype.union;
-SetPrototype.withMutations = withMutations;
-SetPrototype.asImmutable = asImmutable;
-SetPrototype['@@transducer/init'] = SetPrototype.asMutable = asMutable;
-SetPrototype['@@transducer/step'] = function (result, arr) {
-  return result.add(arr);
-};
-SetPrototype['@@transducer/result'] = function (obj) {
-  return obj.asImmutable();
-};
-
-SetPrototype.__empty = emptySet;
-SetPrototype.__make = makeSet;
-
-function updateSet(set, newMap) {
+const setOpUpdate = (set, newMap) => {
   if (set.__ownerID) {
     set.size = newMap.size;
     set._map = newMap;
     return set;
   }
+
   return newMap === set._map
     ? set
     : newMap.size === 0
       ? set.__empty()
       : set.__make(newMap);
-}
+};
 
-function makeSet(map, ownerID) {
-  const set = Object.create(SetPrototype);
+const setOpIterate = (cx, fn, reverse) => {
+  return cx._map.__iterate((k) => fn(k, k, cx), reverse);
+};
+
+const setOpMap = (cx, mapper, context) => {
+  // keep track if the set is altered by the map function
+  let didChanges = false;
+
+  const newMap = setOpUpdate(
+    cx,
+    cx._map.mapEntries(([, v]) => {
+      const mapped = mapper.call(context, v, v, cx);
+
+      if (mapped !== v) {
+        didChanges = true;
+      }
+
+      return [mapped, mapped];
+    }, context)
+  );
+
+  return didChanges ? newMap : cx;
+};
+
+const setOpIterator = (cx, type, reverse) => {
+  return cx._map.__iterator(type, reverse);
+};
+
+const setOpEnsureOwner = (cx, ownerID) => {
+  if (ownerID === cx.__ownerID) {
+    return cx;
+  }
+
+  const newMap = cx._map.__ensureOwner(ownerID);
+  if (!ownerID) {
+    if (cx.size === 0) {
+      return cx.__empty();
+    }
+    cx.__ownerID = ownerID;
+    cx._map = newMap;
+    return cx;
+  }
+  return cx.__make(newMap, ownerID);
+};
+
+const setOpToString = (cx) => {
+  return cx.__toString('Set {', '}');
+};
+
+const setOpHas = (cx, value) => {
+  return cx._map.has(value);
+};
+
+const setOpAdd = (cx, value) => {
+  return setOpUpdate(cx, cx._map.set(value, value));
+};
+
+const setOpRemove = (cx, value) => {
+  return setOpUpdate(cx, cx._map.remove(value));
+};
+
+const setOpClear = (cx) => {
+  return setOpUpdate(cx, cx._map.clear());
+};
+
+const setOpWasAltered = (cx) => {
+  return cx._map.wasAltered();
+};
+
+const setOpUnion = (cx, iters) => {
+  iters = iters.filter((x) => x.size !== 0);
+  if (iters.length === 0) {
+    return cx;
+  }
+  if (cx.size === 0 && !cx.__ownerID && iters.length === 1) {
+    return Set(iters[0]);
+  }
+  return collectionOpWithMutations(cx, (set) => {
+    for (let ii = 0; ii < iters.length; ii++) {
+      if (typeof iters[ii] === 'string') {
+        set.add(iters[ii]);
+      } else {
+        SeqSetWhenNotAssociative(iters[ii]).forEach((value) => set.add(value));
+      }
+    }
+  });
+};
+
+const setOpIntersect = (cx, iters) => {
+  if (iters.length === 0) {
+    return cx;
+  }
+  iters = iters.map((iter) => SeqSetWhenNotAssociative(iter));
+  const toRemove = [];
+  cx.forEach((value) => {
+    if (!iters.every((iter) => iter.includes(value))) {
+      toRemove.push(value);
+    }
+  });
+  return collectionOpWithMutations(cx, (set) => {
+    toRemove.forEach((value) => {
+      set.remove(value);
+    });
+  });
+};
+
+const setOpSubtract = (cx, iters) => {
+  if (iters.length === 0) {
+    return cx;
+  }
+  iters = iters.map((iter) => SeqSetWhenNotAssociative(iter));
+  const toRemove = [];
+  cx.forEach((value) => {
+    if (iters.some((iter) => iter.includes(value))) {
+      toRemove.push(value);
+    }
+  });
+  return collectionOpWithMutations(cx, (set) => {
+    toRemove.forEach((value) => {
+      set.remove(value);
+    });
+  });
+};
+
+const setPropertiesCreate = ((cache) => () => {
+  cache =
+    cache ||
+    (cache = Object.assign(
+      {},
+      collectionPropertiesCreate(),
+      {
+        __make: setCreate,
+        __empty: setCreateEmpty,
+        create: Set,
+        ['@@transducer/init']() {
+          return collectionOpAsMutable(this);
+        },
+        ['@@transducer/step']: (result, arr) => {
+          return result.add(arr);
+        },
+        ['@@transducer/result']: (obj) => {
+          return obj.asImmutable();
+        },
+      },
+      transformToMethods({
+        [IS_SET_SYMBOL]: true,
+        toString: setOpToString,
+        wasAltered: setOpWasAltered,
+        remove: setOpRemove,
+        [DELETE]: setOpRemove,
+        clear: setOpClear,
+        has: setOpHas,
+        add: setOpAdd,
+        map: setOpMap,
+        withMutations: collectionOpWithMutations,
+        merge: utilFlagSpread(setOpUnion),
+        concat: utilFlagSpread(setOpUnion),
+        union: utilFlagSpread(setOpUnion),
+        intersect: utilFlagSpread(setOpIntersect),
+        subtract: utilFlagSpread(setOpSubtract),
+        contains: setOpHas,
+        __ensureOwner: setOpEnsureOwner,
+        __iterate: setOpIterate,
+        __iterator: setOpIterator,
+      })
+    ));
+
+  // existing tests expect ref-equal keys, values, iterator
+  cache.keys = cache.values;
+
+  return cache;
+})();
+
+const setCreate = (map, ownerID) => {
+  const set = Object.create(setPropertiesCreate());
   set.size = map ? map.size : 0;
   set._map = map;
   set.__ownerID = ownerID;
+  set.__shape = SHAPE_SET;
   return set;
-}
+};
 
-let EMPTY_SET;
-function emptySet() {
-  return EMPTY_SET || (EMPTY_SET = makeSet(emptyMap()));
-}
+const setCreateEmpty = ((cache) => () => {
+  return cache || (cache = setCreate(mapCreateEmpty()));
+})();
+
+const setCollection = (value) =>
+  collectionCastSetSeqCreate(
+    probeIsCollection(value) && !probeIsAssociative(value)
+      ? value
+      : SeqIndexed(value)
+  );
+
+const Set = (value) =>
+  value === undefined || value === null
+    ? setCreateEmpty()
+    : probeIsSet(value) && !probeIsOrdered(value)
+      ? value
+      : collectionOpWithMutations(setCreateEmpty(), (set) => {
+          const iter = setCollection(value);
+          utilAssertNotInfinite(iter.size);
+          iter.forEach((v) => set.add(v));
+        });
+
+Set.isSet = probeIsSet;
+Set.of = (...args) => Set(args);
+Set.fromKeys = (value) => Set(SeqKeyedWhenNotKeyed(value).keySeq());
+Set.union = (sets) => {
+  const setArray = SeqWhenNotCollection(sets).toArray();
+  return setArray.length
+    ? setOpUnion(Set(setArray.pop()), setArray)
+    : setCreateEmpty();
+};
+
+Set.intersect = (sets) => {
+  sets = SeqWhenNotCollection(sets).toArray();
+  return sets.length
+    ? setOpIntersect(Set(sets.pop()), sets)
+    : setCreateEmpty();
+};
+
+export { Set, setPropertiesCreate, setCreateEmpty };
