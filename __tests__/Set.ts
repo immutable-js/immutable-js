@@ -1,5 +1,5 @@
-import { List, Map, OrderedSet, Seq, Set, fromJS, is } from 'immutable';
 import { describe, expect, it, jest } from '@jest/globals';
+import { List, Map, OrderedSet, Seq, Set, fromJS, is } from 'immutable';
 
 describe('Set', () => {
   it('accepts array of values', () => {

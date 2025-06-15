@@ -1,3 +1,4 @@
+import { describe, expect, it } from '@jest/globals';
 import {
   List,
   Map,
@@ -9,7 +10,6 @@ import {
   setIn,
   updateIn,
 } from 'immutable';
-import { describe, expect, it } from '@jest/globals';
 import invariant from '../src/utils/invariant';
 
 describe('updateIn', () => {

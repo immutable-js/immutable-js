@@ -1,5 +1,5 @@
-import { Range } from 'immutable';
 import { describe, expect, it } from '@jest/globals';
+import { Range } from 'immutable';
 
 describe('get', () => {
   it('gets any index', () => {

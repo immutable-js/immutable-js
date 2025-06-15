@@ -1,5 +1,5 @@
-import { Seq } from 'immutable';
 import { describe, expect, it } from '@jest/globals';
+import { Seq } from 'immutable';
 
 describe('find', () => {
   it('find returns notSetValue when match is not found', () => {
