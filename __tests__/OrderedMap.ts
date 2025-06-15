@@ -1,5 +1,5 @@
-import { OrderedMap, Range, Seq } from 'immutable';
 import { describe, expect, it } from '@jest/globals';
+import { OrderedMap, Range, Seq } from 'immutable';
 
 describe('OrderedMap', () => {
   it('converts from object', () => {

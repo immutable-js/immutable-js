@@ -5,10 +5,8 @@ import {
   ITERATE_KEYS,
   ITERATE_VALUES,
 } from '../Iterator';
-
 import { wrapIndex, wholeSlice, resolveBegin, resolveEnd } from '../TrieUtils';
-
-import { probeIsSeq } from '../probe';
+import { isSeq } from '../predicates/isSeq';
 
 const factorySlice = (collection, makeSequence, begin, end, useKeys) => {
   const originalSize = collection.size;
@@ -48,7 +46,7 @@ const factorySlice = (collection, makeSequence, begin, end, useKeys) => {
   sliceSeq.size =
     sliceSize === 0 ? sliceSize : (collection.size && sliceSize) || undefined;
 
-  if (!useKeys && probeIsSeq(collection) && sliceSize >= 0) {
+  if (!useKeys && isSeq(collection) && sliceSize >= 0) {
     sliceSeq.get = function (index, notSetValue) {
       index = wrapIndex(this, index);
       return index >= 0 && index < sliceSize

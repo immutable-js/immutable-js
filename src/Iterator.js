@@ -49,6 +49,19 @@ function iteratorDone() {
   return { value: undefined, done: true };
 }
 
+export function hasIterator(maybeIterable) {
+  if (Array.isArray(maybeIterable)) {
+    // IE11 trick as it does not support `Symbol.iterator`
+    return true;
+  }
+
+  return !!getIteratorFn(maybeIterable);
+}
+
+export function isIterator(maybeIterator) {
+  return maybeIterator && typeof maybeIterator.next === 'function';
+}
+
 function getIterator(iterable) {
   const iteratorFn = getIteratorFn(iterable);
   return iteratorFn && iteratorFn.call(iterable);

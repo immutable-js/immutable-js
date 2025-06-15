@@ -1,3 +1,4 @@
+import { describe, expect, it } from '@jest/globals';
 import {
   List,
   Map,
@@ -8,7 +9,6 @@ import {
   mergeDeep,
   mergeDeepWith,
 } from 'immutable';
-import { describe, expect, it } from '@jest/globals';
 
 describe('merge', () => {
   it('merges two maps', () => {

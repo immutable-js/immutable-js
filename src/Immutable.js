@@ -35,25 +35,23 @@ import {
 import { fromJS } from './fromJS';
 
 // Functional predicates
-import {
-  probeIsSame as is,
-  probeIsPlainObject as isPlainObject,
-  probeIsIndexed as isIndexed,
-  probeIsValueObject as isValueObject,
-  probeIsList as isList,
-  probeIsSet as isSet,
-  probeIsRecord as isRecord,
-  probeIsImmutable as isImmutable,
-  probeIsCollection as isCollection,
-  probeIsAssociative as isAssociative,
-  probeIsOrderedMap as isOrderedMap,
-  probeIsOrdered as isOrdered,
-  probeIsOrderedSet as isOrderedSet,
-  probeIsKeyed as isKeyed,
-  probeIsStack as isStack,
-  probeIsSeq as isSeq,
-  probeIsMap as isMap,
-} from './probe';
+import { is } from './is';
+import { isAssociative } from './predicates/isAssociative';
+import { isCollection } from './predicates/isCollection';
+import { isImmutable } from './predicates/isImmutable';
+import { isIndexed } from './predicates/isIndexed';
+import { isKeyed } from './predicates/isKeyed';
+import { isList } from './predicates/isList';
+import { isMap } from './predicates/isMap';
+import { isOrdered } from './predicates/isOrdered';
+import { isOrderedMap } from './predicates/isOrderedMap';
+import { isOrderedSet } from './predicates/isOrderedSet';
+import { isRecord } from './predicates/isRecord';
+import { isSeq } from './predicates/isSeq';
+import { isSet } from './predicates/isSet';
+import { isStack } from './predicates/isStack';
+import { isValueObject } from './predicates/isValueObject';
+import isPlainObject from './utils/isPlainObj';
 
 // user-friendly interface mapped to internal interface
 const merge = (cx, ...sources) => collectionXOpMergeWithSources(cx, sources);

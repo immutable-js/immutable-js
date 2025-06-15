@@ -1,26 +1,20 @@
-import { isEntriesIterable, isKeysIterable } from './Iterator';
-
+import { hasIterator, isEntriesIterable, isKeysIterable } from './Iterator';
 import { SeqArray, seqArrayCreateEmpty } from './SeqArray.js';
-
 import { SeqObject } from './SeqObject.js';
-
 import { collectionIndexedSeqFromCollectionCreate } from './collection/collectionIndexedSeqFromCollection';
-import {
-  probeHasIterator,
-  probeIsArrayLike,
-  probeIsAssociative,
-  probeIsImmutable,
-  probeIsCollection,
-  probeIsIndexed,
-  probeIsRecord,
-  probeIsKeyed,
-  probeIsSeq,
-} from './probe';
+import { isAssociative } from './predicates/isAssociative';
+import { isCollection } from './predicates/isCollection';
+import { isImmutable } from './predicates/isImmutable';
+import { isIndexed } from './predicates/isIndexed';
+import { isKeyed } from './predicates/isKeyed';
+import { isRecord } from './predicates/isRecord';
+import { isSeq } from './predicates/isSeq';
+import { isArrayLike } from './utils';
 
 const maybeIndexedSeqFromValue = (value) => {
-  return probeIsArrayLike(value)
+  return isArrayLike(value)
     ? SeqArray(value)
-    : probeHasIterator(value)
+    : hasIterator(value)
       ? collectionIndexedSeqFromCollectionCreate(value)
       : undefined;
 };
@@ -70,7 +64,7 @@ const SeqFromValue = (value) => {
 const Seq = (value) => {
   return value === undefined || value === null
     ? seqArrayCreateEmpty()
-    : probeIsImmutable(value)
+    : isImmutable(value)
       ? value.toSeq()
       : SeqFromValue(value);
 };
@@ -78,55 +72,53 @@ const Seq = (value) => {
 const SeqKeyed = (value) =>
   value === undefined || value === null
     ? seqArrayCreateEmpty().toKeyedSeq()
-    : probeIsCollection(value)
-      ? probeIsKeyed(value)
+    : isCollection(value)
+      ? isKeyed(value)
         ? value.toSeq()
         : value.fromEntrySeq()
-      : probeIsRecord(value)
+      : isRecord(value)
         ? value.toSeq()
         : SeqKeyedFromValue(value);
 
 const SeqIndexed = (value) =>
   value === undefined || value === null
     ? seqArrayCreateEmpty()
-    : probeIsCollection(value)
-      ? probeIsKeyed(value)
+    : isCollection(value)
+      ? isKeyed(value)
         ? value.entrySeq()
         : value.toIndexedSeq()
-      : probeIsRecord(value)
+      : isRecord(value)
         ? value.toSeq().entrySeq()
         : SeqIndexedFromValue(value);
 
 // Was Collection/1
 const SeqWhenNotCollection = (value) =>
-  probeIsCollection(value) ? value : Seq(value);
+  isCollection(value) ? value : Seq(value);
 
 // WAS KeyedCollection/1
 const SeqKeyedWhenNotKeyed = (value) =>
-  probeIsKeyed(value) ? value : SeqKeyed(value);
+  isKeyed(value) ? value : SeqKeyed(value);
 
 // WAS IndexedCollection/1
 const SeqIndexedWhenNotIndexed = (value) =>
-  probeIsIndexed(value) ? value : SeqIndexed(value);
+  isIndexed(value) ? value : SeqIndexed(value);
 
 const SeqSet = (value) => {
   return (
-    probeIsCollection(value) && !probeIsAssociative(value)
-      ? value
-      : SeqIndexed(value)
+    isCollection(value) && !isAssociative(value) ? value : SeqIndexed(value)
   ).toSetSeq();
 };
 
 // WAS SetCollection/1
 const SeqSetWhenNotAssociative = (value) =>
-  probeIsCollection(value) && !probeIsAssociative(value)
+  isCollection(value) && !isAssociative(value)
     ? value
     : SeqIndexed(value).toSetSeq();
 
 SeqIndexed.of = (...values) => SeqIndexed(values);
 SeqSet.of = (...values) => SeqSet(...values);
 
-Seq.isSeq = probeIsSeq;
+Seq.isSeq = isSeq;
 Seq.Indexed = SeqIndexed;
 Seq.Keyed = SeqKeyed;
 Seq.Set = SeqSet;

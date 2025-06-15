@@ -4,9 +4,8 @@ import { SeqKeyedWhenNotKeyed } from './Seq';
 import { SIZE } from './TrieUtils';
 import { collectionOpWithMutations } from './collection/collection';
 import { IS_ORDERED_SYMBOL, DELETE, NOT_SET } from './const';
-import { probeIsMapOrdered } from './probe';
+import { isOrderedMap } from './predicates/isOrderedMap';
 import transformToMethods from './transformToMethods';
-
 import { assertNotInfinite } from './utils';
 
 const mapOrderedOpUpdate = (omap, k, v) => {
@@ -159,7 +158,7 @@ const mapOrderedCreateEmpty = (
 const MapOrdered = (value) =>
   value === undefined || value === null
     ? mapOrderedCreateEmpty()
-    : probeIsMapOrdered(value)
+    : isOrderedMap(value)
       ? value
       : collectionOpWithMutations(mapOrderedCreateEmpty(), (map) => {
           const iter = SeqKeyedWhenNotKeyed(value);
@@ -168,7 +167,6 @@ const MapOrdered = (value) =>
         });
 
 MapOrdered.of = (...args) => MapOrdered(args);
-MapOrdered.isOrderedMap = probeIsMapOrdered;
-MapOrdered.isMapOrdered = probeIsMapOrdered;
+MapOrdered.isOrderedMap = isOrderedMap;
 
 export { MapOrdered, mapOrderedCreate, mapOrderedCreateEmpty };

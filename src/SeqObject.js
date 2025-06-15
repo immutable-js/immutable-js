@@ -1,9 +1,7 @@
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
-
 import { collectionKeyedSeqPropertiesCreate } from './collection/collectionKeyedSeq.js';
-
 import { IS_ORDERED_SYMBOL } from './const';
-import { probeIsImmutable } from './probe';
+import { isImmutable } from './predicates/isImmutable';
 import transformToMethods from './transformToMethods';
 import { hasOwnProperty } from './utils';
 
@@ -85,7 +83,7 @@ const seqObjectCreateEmpty = ((cache) => () => {
 const SeqObject = (value) =>
   value === undefined || value === null
     ? seqObjectCreateEmpty({})
-    : probeIsImmutable(value)
+    : isImmutable(value)
       ? value.toSeq()
       : seqObjectCreate(value);
 

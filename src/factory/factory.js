@@ -5,8 +5,9 @@ import {
   ITERATE_ENTRIES,
 } from '../Iterator';
 import { NOT_SET } from '../const';
-
-import { probeIsIndexed, probeIsOrdered, probeIsKeyed } from '../probe';
+import { isIndexed } from '../predicates/isIndexed';
+import { isKeyed } from '../predicates/isKeyed';
+import { isOrdered } from '../predicates/isOrdered';
 
 const factoryCountBy = (cx, grouper, context, mapCreate) => {
   const groups = mapCreate().asMutable();
@@ -25,8 +26,8 @@ const factoryGroupBy = (
   grouper,
   context
 ) => {
-  const isKeyedIter = probeIsKeyed(cx);
-  const groups = (probeIsOrdered(cx) ? MapOrdered() : Map()).asMutable();
+  const isKeyedIter = isKeyed(cx);
+  const groups = (isOrdered(cx) ? MapOrdered() : Map()).asMutable();
   cx.__iterate((v, k) => {
     groups.update(
       grouper.call(context, v, k, cx),
@@ -76,7 +77,7 @@ const factoryPartition = (
   predicate,
   context
 ) => {
-  const isKeyedIter = probeIsKeyed(collection);
+  const isKeyedIter = isKeyed(collection);
   const groups = [[], []];
   collection.__iterate((v, k) => {
     groups[predicate.call(context, v, k, collection) ? 1 : 0].push(
@@ -165,7 +166,7 @@ const factorySort = (
   if (!comparator) {
     comparator = defaultComparator;
   }
-  const isKeyedCollection = probeIsKeyed(collection);
+  const isKeyedCollection = isKeyed(collection);
   let index = 0;
   const entries = collection
     .toSeq()
@@ -185,7 +186,7 @@ const factorySort = (
     );
   return isKeyedCollection
     ? SeqKeyed(entries)
-    : probeIsIndexed(collection)
+    : isIndexed(collection)
       ? SeqIndexed(entries)
       : SeqSet(entries);
 };

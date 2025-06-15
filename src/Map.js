@@ -1,8 +1,6 @@
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
-
 import { SeqKeyed, SeqWhenNotCollection } from './Seq';
 import { MakeRef } from './TrieUtils';
-
 import {
   collectionOpForEach,
   collectionOpWithMutations,
@@ -10,9 +8,7 @@ import {
   collectionOpAsMutable,
   collectionOpToObject,
 } from './collection/collection';
-
 import { collectionKeyedPropertiesCreate } from './collection/collectionKeyed';
-
 import {
   kernelKeyedArrayMapCreate,
   kernelKeyedOpUpdateOrCreate,
@@ -25,7 +21,8 @@ import {
   SHAPE_MAP,
   ITERATOR_SYMBOL,
 } from './const';
-import { probeIsMap, probeIsOrdered } from './probe';
+import { isMap } from './predicates/isMap';
+import { isOrdered } from './predicates/isOrdered';
 import transformToMethods from './transformToMethods';
 import { assertNotInfinite, quoteString } from './utils';
 
@@ -290,7 +287,7 @@ const mapCreateEmpty = (
 const Map = (value) =>
   value === undefined || value === null
     ? mapCreateEmpty()
-    : probeIsMap(value) && !probeIsOrdered(value)
+    : isMap(value) && !isOrdered(value)
       ? value
       : collectionOpWithMutations(mapCreateEmpty(), (map) => {
           const iter = SeqKeyed(value);
@@ -300,6 +297,6 @@ const Map = (value) =>
           collectionOpForEach(iter, (v, k) => mapUpdate(map, k, v));
         });
 
-Map.isMap = probeIsMap;
+Map.isMap = isMap;
 
 export { Map, mapPropertiesCreate, mapCreate, mapCreateEmpty };

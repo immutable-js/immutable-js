@@ -2,14 +2,12 @@ import type { Collection } from '../../type-definitions/immutable';
 import type { Range } from '../Range';
 import type { Repeat } from '../Repeat';
 import { NOT_SET } from '../const';
-import {
-  probeIsAssociative,
-  probeIsCollection,
-  probeIsIndexed,
-  probeIsKeyed,
-  probeIsOrdered,
-  probeIsSame,
-} from '../probe';
+import { is } from '../is';
+import { isAssociative } from '../predicates/isAssociative';
+import { isCollection } from '../predicates/isCollection';
+import { isIndexed } from '../predicates/isIndexed';
+import { isKeyed } from '../predicates/isKeyed';
+import { isOrdered } from '../predicates/isOrdered';
 
 export default function deepEqual(
   a: typeof Range | typeof Repeat | Collection<unknown, unknown>,
@@ -20,7 +18,7 @@ export default function deepEqual(
   }
 
   if (
-    !probeIsCollection(b) ||
+    !isCollection(b) ||
     // @ts-expect-error size should exists on Collection
     (a.size !== undefined && b.size !== undefined && a.size !== b.size) ||
     // @ts-expect-error __hash exists on Collection
@@ -29,10 +27,10 @@ export default function deepEqual(
       b.__hash !== undefined &&
       // @ts-expect-error __hash exists on Collection
       a.__hash !== b.__hash) ||
-    probeIsKeyed(a) !== probeIsKeyed(b) ||
-    probeIsIndexed(a) !== probeIsIndexed(b) ||
+    isKeyed(a) !== isKeyed(b) ||
+    isIndexed(a) !== isIndexed(b) ||
     // @ts-expect-error Range extends Collection, which implements [Symbol.iterator], so it is valid
-    probeIsOrdered(a) !== probeIsOrdered(b)
+    isOrdered(a) !== isOrdered(b)
   ) {
     return false;
   }
@@ -42,20 +40,16 @@ export default function deepEqual(
     return true;
   }
 
-  const notAssociative = !probeIsAssociative(a);
+  const notAssociative = !isAssociative(a);
 
   // @ts-expect-error Range extends Collection, which implements [Symbol.iterator], so it is valid
-  if (probeIsOrdered(a)) {
+  if (isOrdered(a)) {
     const entries = a.entries();
     // @ts-expect-error need to cast as boolean
     return (
       b.every((v, k) => {
         const entry = entries.next().value;
-        return (
-          entry &&
-          probeIsSame(entry[1], v) &&
-          (notAssociative || probeIsSame(entry[0], k))
-        );
+        return entry && is(entry[1], v) && (notAssociative || is(entry[0], k));
       }) && entries.next().done
     );
   }
@@ -86,9 +80,9 @@ export default function deepEqual(
             !a.has(v)
           : flipped
             ? // @ts-expect-error type of `get` does not "catch" the version with `notSetValue`
-              !probeIsSame(v, a.get(k, NOT_SET))
+              !is(v, a.get(k, NOT_SET))
             : // @ts-expect-error type of `get` does not "catch" the version with `notSetValue`
-              !probeIsSame(a.get(k, NOT_SET), v)
+              !is(a.get(k, NOT_SET), v)
       ) {
         allEqual = false;
         return false;

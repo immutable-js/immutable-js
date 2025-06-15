@@ -1,6 +1,6 @@
-import { hash } from 'immutable';
 import { describe, expect, it } from '@jest/globals';
 import fc from 'fast-check';
+import { hash } from 'immutable';
 
 describe('hash', () => {
   it('stable hash of well known values', () => {

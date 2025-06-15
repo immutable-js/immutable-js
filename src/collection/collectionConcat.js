@@ -6,10 +6,8 @@ import {
   ITERATE_ENTRIES,
   ITERATE_VALUES,
 } from '../const';
-
-import { probeIsKeyed } from '../probe';
+import { isKeyed } from '../predicates/isKeyed';
 import transformToMethods from '../transformToMethods';
-
 import { collectionSeqPropertiesCreate } from './collectionSeq';
 
 const collectionConcatOpIterateUncached = (cx, fn, reverse) => {
@@ -22,7 +20,7 @@ const collectionConcatOpIterateUncached = (cx, fn, reverse) => {
   }
 
   let iterableIndex = 0;
-  const useKeys = probeIsKeyed(cx);
+  const useKeys = isKeyed(cx);
   const iteratorType = useKeys ? ITERATE_ENTRIES : ITERATE_VALUES;
   let currentIterator = cx._wrappedIterables[iterableIndex].__iterator(
     iteratorType,

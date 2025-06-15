@@ -8,7 +8,7 @@ import {
   SHAPE_NODEHASHCOLLISION,
   SHAPE_NODEBITMAPINDEXED,
 } from '../const';
-import { probeIsSame } from '../probe';
+import { is } from '../is';
 
 import transformToMethods from '../transformToMethods';
 import { arrCopy, utilArrSetAt, spliceIn, spliceOut, setAt } from '../utils';
@@ -121,7 +121,7 @@ const kernelKeyedHashCollisionOpUpdate = (
   let idx = 0;
   const len = entries.length;
   for (; idx < len; idx++) {
-    if (probeIsSame(key, entries[idx][0])) {
+    if (is(key, entries[idx][0])) {
       break;
     }
   }
@@ -224,7 +224,7 @@ const kernelKeyedOpMergeInto = (node, ownerID, shift, keyHash, entry) => {
 };
 
 const kernelKeyedOpGet = (nv, shift, keyHash, key, notSetValue) => {
-  return probeIsSame(key, nv.entry[0]) ? nv.entry[1] : notSetValue;
+  return is(key, nv.entry[0]) ? nv.entry[1] : notSetValue;
 };
 
 const kernelKeyedOpUpdate = (
@@ -238,7 +238,7 @@ const kernelKeyedOpUpdate = (
   didAlter
 ) => {
   const removed = value === NOT_SET;
-  const keyMatch = probeIsSame(key, nv.entry[0]);
+  const keyMatch = is(key, nv.entry[0]);
   if (keyMatch ? value === nv.entry[1] : removed) {
     return nv;
   }
@@ -487,7 +487,7 @@ const kernelKeyedArrayEntryNodeOpGet = (
 ) => {
   const entries = nam.entries;
   for (let ii = 0, len = entries.length; ii < len; ii++) {
-    if (probeIsSame(key, entries[ii][0])) {
+    if (is(key, entries[ii][0])) {
       return entries[ii][1];
     }
   }
@@ -510,7 +510,7 @@ const kernelKeyedArrayMapOpUpdate = (
   let idx = 0;
   const len = entries.length;
   for (; idx < len; idx++) {
-    if (probeIsSame(key, entries[idx][0])) {
+    if (is(key, entries[idx][0])) {
       break;
     }
   }

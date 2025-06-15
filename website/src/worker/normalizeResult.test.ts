@@ -1,6 +1,6 @@
 // @ts-expect-error immutable is loaded automatically
-import * as Immutable from 'immutable';
 import { describe, expect, it } from '@jest/globals';
+import * as Immutable from 'immutable';
 import normalizeResult from './normalizeResult';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports -- import does not work

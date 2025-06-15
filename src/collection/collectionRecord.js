@@ -5,7 +5,8 @@ import {
   IS_RECORD_SYMBOL,
   DELETE,
 } from '../const';
-import { probeIsImmutable, probeIsRecord } from '../probe';
+import { isImmutable } from '../predicates/isImmutable';
+import { isRecord } from '../predicates/isRecord';
 import transformToMethods from '../transformToMethods';
 
 import { quoteString } from '../utils';
@@ -17,13 +18,13 @@ import {
 } from './collection';
 
 const collectionRecordAssertValidDefaultValues = (defaultValues) => {
-  if (probeIsRecord(defaultValues)) {
+  if (isRecord(defaultValues)) {
     throw new Error(
       'Can not call `Record` with an immutable Record as default values. Use a plain javascript object instead.'
     );
   }
 
-  if (probeIsImmutable(defaultValues)) {
+  if (isImmutable(defaultValues)) {
     throw new Error(
       'Can not call `Record` with an immutable Collection as default values. Use a plain javascript object instead.'
     );
@@ -123,7 +124,7 @@ const recordOpToString = (cx) => {
 const recordOpEquals = (cx, other) => {
   return (
     cx === other ||
-    (probeIsRecord(other) && recordOpToSeq(cx).equals(recordOpToSeq(other)))
+    (isRecord(other) && recordOpToSeq(cx).equals(recordOpToSeq(other)))
   );
 };
 

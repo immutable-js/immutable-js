@@ -1,10 +1,7 @@
 import { Iterator, iteratorValue } from '../Iterator';
-
 import { IS_ORDERED_SYMBOL, ITERATE_VALUES } from '../const';
-
-import { probeIsCollection } from '../probe';
+import { isCollection } from '../predicates/isCollection';
 import transformToMethods from '../transformToMethods';
-
 import { collectionKeyedSeqPropertiesCreate } from './collectionKeyedSeq';
 
 const collectionKeyedSeqFromEntriesOpEntrySeq = (cx) => {
@@ -23,7 +20,7 @@ const collectionKeyedSeqFromEntriesOpIterate = (cx, fn, reverse) => {
     // in the parent iteration.
     if (entry) {
       validateEntry(entry);
-      const indexedCollection = probeIsCollection(entry);
+      const indexedCollection = isCollection(entry);
       return fn(
         indexedCollection ? entry.get(1) : entry[1],
         indexedCollection ? entry.get(0) : entry[0],
@@ -46,7 +43,7 @@ const collectionKeyedSeqFromEntriesOpIterator = (cx, type, reverse) => {
       // in the parent iteration.
       if (entry) {
         validateEntry(entry);
-        const indexedCollection = probeIsCollection(entry);
+        const indexedCollection = isCollection(entry);
         return iteratorValue(
           type,
           indexedCollection ? entry.get(0) : entry[0],

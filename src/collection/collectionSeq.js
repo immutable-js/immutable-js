@@ -3,9 +3,9 @@ import {
   getIterator,
   iteratorValue,
   iteratorDone,
+  isIterator,
 } from '../Iterator';
 import { IS_SEQ_SYMBOL } from '../const';
-import { probeIsIterator } from '../probe';
 import transformToMethods from '../transformToMethods';
 
 import { collectionPropertiesCreate } from './collection';
@@ -17,7 +17,7 @@ const collectionSeqOpIterateUncached = (cx, fn, reverse) => {
   const collection = cx._collection;
   const iterator = getIterator(collection);
   let iterations = 0;
-  if (probeIsIterator(iterator)) {
+  if (isIterator(iterator)) {
     let step;
     while (!(step = iterator.next()).done) {
       if (fn(step.value, iterations++, cx) === false) {
@@ -34,7 +34,7 @@ const collectionSeqOpIteratorUncached = (cx, type, reverse) => {
   }
   const collection = cx._collection;
   const iterator = getIterator(collection);
-  if (!probeIsIterator(iterator)) {
+  if (!isIterator(iterator)) {
     return new Iterator(iteratorDone);
   }
   let iterations = 0;

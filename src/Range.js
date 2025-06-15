@@ -4,11 +4,10 @@ import { wrapIndex, wholeSlice, resolveBegin, resolveEnd } from './TrieUtils';
 import { collectionIndexedSeqPropertiesCreate } from './collection/collectionIndexedSeq';
 
 import { SHAPE_RANGE } from './const';
-import { probeIsSameDeep } from './probe';
 
 import transformToMethods from './transformToMethods';
 
-import { utilInvariant } from './utils';
+import { deepEqual, utilInvariant } from './utils';
 
 const rangeOpToString = (cx) =>
   cx.size === 0
@@ -87,7 +86,7 @@ const rangeOpEquals = (cx, other) => {
     ? cx._start === other._start &&
         cx._end === other._end &&
         cx._step === other._step
-    : probeIsSameDeep(cx, other);
+    : deepEqual(cx, other);
 };
 
 const RangeCreate = ((cache) => (start, end, step, size) => {

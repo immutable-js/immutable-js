@@ -1,15 +1,12 @@
 import { List } from './List';
-
 import { SeqKeyed } from './Seq';
-
 import { collectionOpWithMutations } from './collection/collection';
-
 import {
   collectionRecordPropertiesCreate,
   collectionRecordAssertValidDefaultValues,
 } from './collection/collectionRecord';
-
-import { probeIsRecord, probeIsKeyed } from './probe';
+import { isKeyed } from './predicates/isKeyed';
+import { isRecord } from './predicates/isRecord';
 import { invariant } from './utils';
 
 const recordOpNameGet = (record) => {
@@ -63,7 +60,7 @@ const Record = (defaultValues, name) => {
     this.__ownerID = undefined;
 
     const collectionKeyedCreateBest = (value) => {
-      return probeIsKeyed(value) ? value : SeqKeyed(value);
+      return isKeyed(value) ? value : SeqKeyed(value);
     };
 
     this._values = collectionOpWithMutations(List(), (l) => {
@@ -89,7 +86,7 @@ const Record = (defaultValues, name) => {
   return RecordType;
 };
 
-Record.isRecord = probeIsRecord;
+Record.isRecord = isRecord;
 Record.getDescriptiveName = recordOpNameGet;
 
 function setProp(prototype, name) {

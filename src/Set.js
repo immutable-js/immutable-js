@@ -1,28 +1,22 @@
 import { mapCreateEmpty } from './Map';
-
 import {
   SeqIndexed,
   SeqKeyedWhenNotKeyed,
   SeqWhenNotCollection,
   SeqSetWhenNotAssociative,
 } from './Seq';
-
 import {
   collectionOpWithMutations,
   collectionOpAsMutable,
   collectionPropertiesCreate,
 } from './collection/collection';
-
 import { collectionCastSetSeqCreate } from './collection/collectionCastSetSeq';
 import { DELETE, IS_SET_SYMBOL, SHAPE_SET } from './const';
-import {
-  probeIsSet,
-  probeIsOrdered,
-  probeIsCollection,
-  probeIsAssociative,
-} from './probe';
+import { isAssociative } from './predicates/isAssociative';
+import { isCollection } from './predicates/isCollection';
+import { isOrdered } from './predicates/isOrdered';
+import { isSet } from './predicates/isSet';
 import transformToMethods from './transformToMethods';
-
 import { assertNotInfinite, flagSpread } from './utils';
 
 const setOpUpdate = (set, newMap) => {
@@ -227,15 +221,13 @@ const setCreateEmpty = ((cache) => () => {
 
 const setCollection = (value) =>
   collectionCastSetSeqCreate(
-    probeIsCollection(value) && !probeIsAssociative(value)
-      ? value
-      : SeqIndexed(value)
+    isCollection(value) && !isAssociative(value) ? value : SeqIndexed(value)
   );
 
 const Set = (value) =>
   value === undefined || value === null
     ? setCreateEmpty()
-    : probeIsSet(value) && !probeIsOrdered(value)
+    : isSet(value) && !isOrdered(value)
       ? value
       : collectionOpWithMutations(setCreateEmpty(), (set) => {
           const iter = setCollection(value);
@@ -243,7 +235,7 @@ const Set = (value) =>
           iter.forEach((v) => set.add(v));
         });
 
-Set.isSet = probeIsSet;
+Set.isSet = isSet;
 Set.of = (...args) => Set(args);
 Set.fromKeys = (value) => Set(SeqKeyedWhenNotKeyed(value).keySeq());
 Set.union = (sets) => {
