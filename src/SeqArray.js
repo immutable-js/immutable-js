@@ -1,7 +1,5 @@
-
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 import { wrapIndex } from './TrieUtils';
-
 
 import { collectionIndexedSeqPropertiesCreate } from './collection/collectionIndexedSeq';
 

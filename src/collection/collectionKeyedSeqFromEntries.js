@@ -1,4 +1,3 @@
-
 import { Iterator, iteratorValue } from '../Iterator';
 
 import { IS_ORDERED_SYMBOL, ITERATE_VALUES } from '../const';

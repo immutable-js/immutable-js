@@ -1,4 +1,3 @@
-
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 import { SeqIndexedWhenNotIndexed } from './Seq';
 import { SeqArray } from './SeqArray';
@@ -11,15 +10,12 @@ import {
 
 import { collectionIndexedPropertiesCreate } from './collection/collectionIndexed';
 
-
-
-
 import { IS_STACK_SYMBOL, SHAPE_STACK } from './const';
 import { probeIsStack } from './probe';
 
 import transformToMethods from './transformToMethods';
 
-import { utilAssertNotInfinite, utilFlagSpread } from './util';
+import { assertNotInfinite, flagSpread } from './utils';
 
 const stackOpToString = (cx) => {
   return cx.__toString('Stack [', ']');
@@ -70,7 +66,7 @@ const stackOpPushAll = (cx, iter) => {
   if (cx.size === 0 && probeIsStack(iter)) {
     return iter;
   }
-  utilAssertNotInfinite(iter.size);
+  assertNotInfinite(iter.size);
   let newSize = cx.size;
   let head = cx._head;
   iter.__iterate((value) => {
@@ -115,7 +111,7 @@ const stackOpSlice = (cx, begin, end) => {
   let resolvedBegin = resolveBegin(begin, cx.size);
   const resolvedEnd = resolveEnd(end, cx.size);
   if (resolvedEnd !== cx.size) {
-    return cx.slice(begin, end)
+    return cx.slice(begin, end);
   }
   const newSize = cx.size - resolvedBegin;
   let head = cx._head;
@@ -205,8 +201,8 @@ const stackPropertiesCreate = ((cache) => () => {
         toString: stackOpToString,
         get: stackOpGet,
         peek: stackOpPeek,
-        push: utilFlagSpread(stackOpPush),
-        unshift: utilFlagSpread(stackOpPush),
+        push: flagSpread(stackOpPush),
+        unshift: flagSpread(stackOpPush),
         pushAll: stackOpPushAll,
         unshiftAll: stackOpPushAll,
         pop: stackOpPop,

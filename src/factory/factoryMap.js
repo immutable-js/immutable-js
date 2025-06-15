@@ -1,7 +1,6 @@
 import { Iterator, iteratorValue, ITERATE_ENTRIES } from '../Iterator';
 import { NOT_SET } from '../const';
 
-
 const factoryMap = (collection, makeSequence, mapper, context) => {
   const mappedSequence = makeSequence(collection);
   mappedSequence.size = collection.size;

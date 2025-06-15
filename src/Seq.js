@@ -1,6 +1,5 @@
 import { isEntriesIterable, isKeysIterable } from './Iterator';
 
-
 import { SeqArray, seqArrayCreateEmpty } from './SeqArray.js';
 
 import { SeqObject } from './SeqObject.js';

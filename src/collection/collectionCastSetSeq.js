@@ -1,15 +1,8 @@
-import {
-  Iterator,
-  iteratorValue,
-} from '../Iterator';
+import { Iterator, iteratorValue } from '../Iterator';
 import { ITERATE_VALUES } from '../const';
 import transformToMethods from '../transformToMethods';
 
-
-
-import {
-  collectionSeqPropertiesCreate,
-} from './collectionSeq';
+import { collectionSeqPropertiesCreate } from './collectionSeq';
 
 const collectionCastSetSeqOpHas = (cx, key) => {
   return cx._iter.includes(key);

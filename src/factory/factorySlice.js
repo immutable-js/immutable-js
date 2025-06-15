@@ -73,7 +73,7 @@ const factorySlice = (collection, makeSequence, begin, end, useKeys) => {
         iterations++;
         return (
           fn(v, useKeys ? k : iterations - 1, sliceSeq) !== false &&
-            iterations !== sliceSize
+          iterations !== sliceSize
         );
       }
     });

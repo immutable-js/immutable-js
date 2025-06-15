@@ -1,4 +1,3 @@
-
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 import { wholeSlice, resolveBegin, resolveEnd } from './TrieUtils';
 import { collectionIndexedSeqPropertiesCreate } from './collection/collectionIndexedSeq';

@@ -1,15 +1,6 @@
-
 import { Map, mapCreateEmpty } from '../Map';
 
 import { MapOrdered } from '../MapOrdered';
-
-
-
-
-
-
-
-
 
 import {
   SeqKeyed,
@@ -47,16 +38,16 @@ import {
   probeIsIndexed,
   probeIsImmutable,
   probeIsDataStructure,
-  probeCoerceKeyPath,
   probeIsKeyed,
   probeIsSeq,
 } from '../probe';
 import {
-  utilCopyShallow,
-  utilHasOwnProperty,
-  utilArrCopy,
-  utilQuoteString,
-} from '../util';
+  shallowCopy,
+  hasOwnProperty,
+  arrCopy,
+  quoteString,
+  coerceKeyPath,
+} from '../utils';
 import {
   collectionOrAnyOpGet,
   collectionOrAnyOpSet,
@@ -127,7 +118,7 @@ const collectionXIndexedOpInterpose = (cx, separator) => {
 };
 
 const collectionXIndexedOpInterleave = (cx, collections) => {
-  const collectionsJoined = [cx].concat(utilArrCopy(collections));
+  const collectionsJoined = [cx].concat(arrCopy(collections));
   // const zipper = SeqIndexed.of
   const zipper = SeqIndexed.of;
   const zipped = factoryZipWith(
@@ -150,11 +141,7 @@ const collectionXOpToStringDetails = (cx, head, tail) => {
     return head + tail;
   }
   return (
-    head +
-    ' ' +
-    cx.toSeq().map(cx.__toStringMapper).join(', ') +
-    ' ' +
-    tail
+    head + ' ' + cx.toSeq().map(cx.__toStringMapper).join(', ') + ' ' + tail
   );
 };
 
@@ -312,11 +299,7 @@ const collectionXOpEntrySeq = (cx) => {
   return entriesSequence;
 };
 
-const collectionXOpMergeWithSources = (
-  collection,
-  sources,
-  merger
-) => {
+const collectionXOpMergeWithSources = (collection, sources, merger) => {
   if (!probeIsDataStructure(collection)) {
     throw new TypeError(
       'Cannot merge into non-data-structure value: ' + collection
@@ -336,18 +319,18 @@ const collectionXOpMergeWithSources = (
     ? (value) => {
         // Copy on write
         if (merged === collection) {
-          merged = utilCopyShallow(merged);
+          merged = shallowCopy(merged);
         }
         merged.push(value);
       }
     : (value, key) => {
-        const hasVal = utilHasOwnProperty.call(merged, key);
+        const hasVal = hasOwnProperty.call(merged, key);
         const nextVal =
           hasVal && merger ? merger(merged[key], value, key) : value;
         if (!hasVal || nextVal !== merged[key]) {
           // Copy on write
           if (merged === collection) {
-            merged = utilCopyShallow(merged);
+            merged = shallowCopy(merged);
           }
           merged[key] = nextVal;
         }
@@ -433,7 +416,8 @@ const collectionXKeyedOpMapEntries = (cx, mapper, context) => {
   let iterations = 0;
   return collectionXReify(
     cx,
-    cx.toSeq()
+    cx
+      .toSeq()
       .map((v, k) => mapper.call(context, [k, v], iterations++, cx))
       .fromEntrySeq()
   );
@@ -485,11 +469,11 @@ const collectionXOpSort = (cx, comparator) => {
 };
 
 function defaultZipper(...args) {
-  return utilArrCopy(args);
+  return arrCopy(args);
 }
 
 const collectionXIndexedOpZip = (cx, collections) => {
-  collections = [cx].concat(utilArrCopy(collections));
+  collections = [cx].concat(arrCopy(collections));
   return collectionXReify(
     cx,
     factoryZipWith(
@@ -504,7 +488,7 @@ const collectionXIndexedOpZip = (cx, collections) => {
 };
 
 const collectionXIndexedOpZipAll = (cx, collections) => {
-  collections = [cx].concat(utilArrCopy(collections));
+  collections = [cx].concat(arrCopy(collections));
   return collectionXReify(
     cx,
     factoryZipWith(
@@ -520,7 +504,7 @@ const collectionXIndexedOpZipAll = (cx, collections) => {
 };
 
 const collectionXIndexedOpZipWith = (cx, zipper, collections) => {
-  collections = [cx].concat(utilArrCopy(collections));
+  collections = [cx].concat(arrCopy(collections));
 
   return collectionXReify(
     cx,
@@ -614,7 +598,7 @@ const collectionXOrAnyOpUpdateInDeeply = (
   if (!wasNotSet && !probeIsDataStructure(existing)) {
     throw new TypeError(
       'Cannot update within non-data-structure value in path [' +
-        Array.from(keyPath).slice(0, i).map(utilQuoteString) +
+        Array.from(keyPath).slice(0, i).map(quoteString) +
         ']: ' +
         existing
     );
@@ -651,12 +635,7 @@ const collectionXOrAnyOpUpdateInDeeply = (
         );
 };
 
-const collectionXOrAnyOpUpdateIn = (
-  cx,
-  keyPath,
-  notSetValue,
-  updater
-) => {
+const collectionXOrAnyOpUpdateIn = (cx, keyPath, notSetValue, updater) => {
   if (!updater) {
     // handle the fact that `notSetValue` is optional here, in that case `updater` is the updater function
     // @ts-expect-error updater is a function here
@@ -667,7 +646,7 @@ const collectionXOrAnyOpUpdateIn = (
     probeIsImmutable(cx),
     // @ts-expect-error type issues with Record and mixed types
     cx,
-    probeCoerceKeyPath(keyPath),
+    coerceKeyPath(keyPath),
     0,
     notSetValue,
     updater,

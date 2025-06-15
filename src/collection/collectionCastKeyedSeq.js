@@ -1,7 +1,6 @@
 import { IS_ORDERED_SYMBOL } from '../const';
 import transformToMethods from '../transformToMethods';
 
-
 import { collectionKeyedSeqPropertiesCreate } from './collectionKeyedSeq';
 
 const collectionCastKeyedSequenceOpToKeyedSeq = (cx) => {

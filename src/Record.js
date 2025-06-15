@@ -1,6 +1,5 @@
 import { List } from './List';
 
-
 import { SeqKeyed } from './Seq';
 
 import { collectionOpWithMutations } from './collection/collection';
@@ -11,7 +10,7 @@ import {
 } from './collection/collectionRecord';
 
 import { probeIsRecord, probeIsKeyed } from './probe';
-import { utilAssignNamedPropAccessor } from './util';
+import { invariant } from './utils';
 
 const recordOpNameGet = (record) => {
   return record.constructor.displayName || record.constructor.name || 'Record';
@@ -57,7 +56,7 @@ const Record = (defaultValues, name) => {
             );
           /* eslint-enable no-console */
         } else {
-          utilAssignNamedPropAccessor(RecordTypePrototype, propName);
+          setProp(RecordTypePrototype, propName);
         }
       }
     }
@@ -92,5 +91,22 @@ const Record = (defaultValues, name) => {
 
 Record.isRecord = probeIsRecord;
 Record.getDescriptiveName = recordOpNameGet;
+
+function setProp(prototype, name) {
+  try {
+    Object.defineProperty(prototype, name, {
+      get: function () {
+        return this.get(name);
+      },
+      set: function (value) {
+        invariant(this.__ownerID, 'Cannot set on an immutable record.');
+        this.set(name, value);
+      },
+    });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO enable eslint here
+  } catch (error) {
+    // Object.defineProperty failed. Probably IE8.
+  }
+}
 
 export { Record };

@@ -1,4 +1,3 @@
-
 import { Iterator, iteratorDone } from '../Iterator';
 import {
   IS_KEYED_SYMBOL,
@@ -8,13 +7,10 @@ import {
   ITERATE_VALUES,
 } from '../const';
 
-
 import { probeIsKeyed } from '../probe';
 import transformToMethods from '../transformToMethods';
 
-import {
-  collectionSeqPropertiesCreate,
-} from './collectionSeq';
+import { collectionSeqPropertiesCreate } from './collectionSeq';
 
 const collectionConcatOpIterateUncached = (cx, fn, reverse) => {
   if (cx._wrappedIterables.length === 0) {

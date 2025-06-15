@@ -1,7 +1,5 @@
-
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 import { wrapIndex, wholeSlice, resolveBegin, resolveEnd } from './TrieUtils';
-
 
 import { collectionIndexedSeqPropertiesCreate } from './collection/collectionIndexedSeq';
 
@@ -10,7 +8,7 @@ import { probeIsSameDeep } from './probe';
 
 import transformToMethods from './transformToMethods';
 
-import { utilInvariant } from './util';
+import { utilInvariant } from './utils';
 
 const rangeOpToString = (cx) =>
   cx.size === 0

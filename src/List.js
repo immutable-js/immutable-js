@@ -1,8 +1,3 @@
-
-
-
-
-
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 
 import { SeqIndexed, SeqIndexedWhenNotIndexed } from './Seq';
@@ -26,7 +21,6 @@ import {
 
 import { collectionIndexedPropertiesCreate } from './collection/collectionIndexed.js';
 
-
 import {
   kernelIndexedOpIterate,
   kernelIndexedOpFindVNodeFor,
@@ -39,7 +33,7 @@ import {
 import { DELETE, IS_LIST_SYMBOL, SHAPE_LIST, DONE } from './const';
 import { probeIsList, probeHasIterator } from './probe';
 import transformToMethods from './transformToMethods';
-import { utilFlagSpread, utilAssertNotInfinite } from './util';
+import { flagSpread, assertNotInfinite } from './utils';
 
 const listToString = (cx) => {
   return cx.__toString('List [', ']');
@@ -462,12 +456,12 @@ const listPropertiesCreate = (
         remove: listRemove,
         insert: listInsert,
         clear: listClear,
-        push: utilFlagSpread(listPush),
+        push: flagSpread(listPush),
         pop: (cx) => listBoundsSet(cx, 0, -1),
-        unshift: utilFlagSpread(listUnshift),
+        unshift: flagSpread(listUnshift),
         shift: (cx) => listBoundsSet(cx, 1),
         shuffle: (cx, random) => listShuffle(cx, random),
-        concat: utilFlagSpread(listConcat),
+        concat: flagSpread(listConcat),
         setSize: (cx, size) => listBoundsSet(cx, 0, size),
         map: listMap,
         slice: listSlice,
@@ -511,7 +505,7 @@ const List = (value) => {
   if (size === 0) {
     return listCreateEmpty();
   }
-  utilAssertNotInfinite(size);
+  assertNotInfinite(size);
   if (size > 0 && size < SIZE) {
     return listCreate(
       0,

@@ -1,7 +1,6 @@
 import { IS_SEQ_SYMBOL, IS_KEYED_SYMBOL } from '../const';
 import transformToMethods from '../transformToMethods';
 
-
 import { collectionKeyedPropertiesCreate } from './collectionKeyed';
 
 import {

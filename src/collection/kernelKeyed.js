@@ -11,15 +11,7 @@ import {
 import { probeIsSame } from '../probe';
 
 import transformToMethods from '../transformToMethods';
-import {
-  utilArrCopy,
-  utilArrSetAt,
-  utilArrSpliceIn,
-  utilArrSpliceOut,
-} from '../util';
-
-
-
+import { arrCopy, utilArrSetAt, spliceIn, spliceOut, setAt } from '../utils';
 
 const MAX_ARRAY_MAP_SIZE = SIZE / 4;
 const MAX_BITMAP_INDEXED_SIZE = SIZE / 2;
@@ -148,7 +140,7 @@ const kernelKeyedHashCollisionOpUpdate = (
   }
 
   const isEditable = ownerID && ownerID === nhc.ownerID;
-  const newEntries = isEditable ? entries : utilArrCopy(entries);
+  const newEntries = isEditable ? entries : arrCopy(entries);
 
   if (exists) {
     if (removed) {
@@ -446,9 +438,9 @@ const kernelKeyedBitmapIndexedOpUpdate = (
   const newBitmap = exists ? (newNode ? bitmap : bitmap ^ bit) : bitmap | bit;
   const newNodes = exists
     ? newNode
-      ? utilArrSetAt(nodes, idx, newNode, isEditable)
-      : utilArrSpliceOut(nodes, idx, isEditable)
-    : utilArrSpliceIn(nodes, idx, newNode, isEditable);
+      ? setAt(nodes, idx, newNode, isEditable)
+      : spliceOut(nodes, idx, isEditable)
+    : spliceIn(nodes, idx, newNode, isEditable);
 
   if (isEditable) {
     nbi.bitmap = newBitmap;
@@ -541,7 +533,7 @@ const kernelKeyedArrayMapOpUpdate = (
   }
 
   const isEditable = ownerID && ownerID === nam.ownerID;
-  const newEntries = isEditable ? entries : utilArrCopy(entries);
+  const newEntries = isEditable ? entries : arrCopy(entries);
 
   if (exists) {
     if (removed) {

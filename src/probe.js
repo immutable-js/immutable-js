@@ -284,32 +284,6 @@ const probeIsDataStructure = (any) => {
   );
 };
 
-const probeIsArrayLike = (value) => {
-  if (Array.isArray(value) || typeof value === 'string') {
-    return true;
-  }
-
-  // @ts-expect-error "Type 'unknown' is not assignable to type 'boolean'" : convert to Boolean
-  return (
-    value &&
-    typeof value === 'object' &&
-    // @ts-expect-error check that `'length' in value &&`
-    Number.isInteger(value.length) &&
-    // @ts-expect-error check that `'length' in value &&`
-    value.length >= 0 &&
-    // @ts-expect-error check that `'length' in value &&`
-    (value.length === 0
-      ? // Only {length: 0} is considered Array-like.
-        Object.keys(value).length === 1
-      : // An object is only Array-like if it has a property where the last value
-        // in the array-like may be found (which could be undefined).
-        // @ts-expect-error check that `'length' in value &&`
-        value.hasOwnProperty(value.length - 1))
-  );
-};
-
-const probeHasOwnProperty = Object.prototype.hasOwnProperty;
-
 const probeIsIterator = (maybeIterator) => {
   return maybeIterator && typeof maybeIterator.next === 'function';
 };
@@ -520,18 +494,6 @@ const probeIsSameDeep = (a, b) => {
   );
 };
 
-const probeCoerceKeyPath = (keyPath) => {
-  if (probeIsArrayLike(keyPath) && typeof keyPath !== 'string') {
-    return keyPath;
-  }
-  if (probeIsOrdered(keyPath)) {
-    return keyPath.toArray();
-  }
-  throw new TypeError(
-    'Invalid keyPath: expected Ordered Collection or Array: ' + keyPath
-  );
-};
-
 export {
   probeIsImmutable,
   probeIsAssociative,
@@ -552,12 +514,9 @@ export {
   probeIsIndexed,
   probeIsPlainObject,
   probeIsDataStructure,
-  probeIsArrayLike,
   probeIsSame,
   probeIsSameDeep,
-  probeHasOwnProperty,
   probeHasIterator,
   probeIsIterator,
   probeIsMergeable,
-  probeCoerceKeyPath,
 };

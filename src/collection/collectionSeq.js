@@ -8,10 +8,7 @@ import { IS_SEQ_SYMBOL } from '../const';
 import { probeIsIterator } from '../probe';
 import transformToMethods from '../transformToMethods';
 
-
 import { collectionPropertiesCreate } from './collection';
-
-
 
 const collectionSeqOpIterateUncached = (cx, fn, reverse) => {
   if (reverse) {

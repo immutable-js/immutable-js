@@ -1,4 +1,3 @@
-
 import { Iterator, iteratorValue, ITERATE_ENTRIES } from '../Iterator';
 
 import { ensureSize } from '../TrieUtils';

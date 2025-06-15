@@ -49,7 +49,7 @@ import {
   collectionXOpMerge,
   collectionXOpMergeDeep,
   collectionXOpMergeDeepWith,
-  collectionXOpMergeDeepIn,  
+  collectionXOpMergeDeepIn,
   collectionXOpIsSubset,
   collectionXOpIsSuperset,
   collectionXIndexedOpZip,
@@ -71,14 +71,7 @@ import { probeIsKeyed, probeIsIndexed } from './probe';
 import { toJS } from './toJS';
 import transformToMethods from './transformToMethods';
 
-import { utilFlagSpread } from './util';
-
-
-
-
-
-
-
+import { flagSpread } from './utils';
 
 Object.assign(
   collectionPropertiesCreate(),
@@ -117,7 +110,7 @@ Object.assign(
     map: collectionXOpMap,
     sortBy: collectionXOpSortBy,
     sort: collectionXOpSort,
-    concat: utilFlagSpread(collectionXOpConcat),
+    concat: flagSpread(collectionXOpConcat),
     flip: collectionXOpFlip,
     filter: collectionXOpFilter,
     filterNot: collectionXOpFilterNot,
@@ -153,9 +146,9 @@ Object.assign(
 Object.assign(
   setOrderedPropertiesCreate(),
   transformToMethods({
-    zip: utilFlagSpread(collectionXIndexedOpZip),
-    zipWith: utilFlagSpread(collectionXIndexedOpZipWith),
-    zipAll: utilFlagSpread(collectionXIndexedOpZipAll),
+    zip: flagSpread(collectionXIndexedOpZip),
+    zipWith: flagSpread(collectionXIndexedOpZipWith),
+    zipAll: flagSpread(collectionXIndexedOpZipAll),
   })
 );
 
@@ -167,11 +160,11 @@ Object.assign(
     slice: collectionXIndexedOpSlice,
     lastKeyOf: collectionXOpLastKeyOf,
     interpose: collectionXIndexedOpInterpose,
-    zip: utilFlagSpread(collectionXIndexedOpZip),
-    zipWith: utilFlagSpread(collectionXIndexedOpZipWith),
-    zipAll: utilFlagSpread(collectionXIndexedOpZipAll),
-    interleave: utilFlagSpread(collectionXIndexedOpInterleave),
-    splice: utilFlagSpread(collectionXIndexedOpSplice),
+    zip: flagSpread(collectionXIndexedOpZip),
+    zipWith: flagSpread(collectionXIndexedOpZipWith),
+    zipAll: flagSpread(collectionXIndexedOpZipAll),
+    interleave: flagSpread(collectionXIndexedOpInterleave),
+    splice: flagSpread(collectionXIndexedOpSplice),
     toKeyedSeq: (cx) => collectionCastKeyedSeqCreate(cx, false),
     keySeq: (cx) => Range(0, cx.size),
   })
@@ -180,12 +173,12 @@ Object.assign(
 Object.assign(
   collectionRecordPropertiesCreate(),
   transformToMethods({
-    mergeWith: utilFlagSpread(collectionXOpMergeWith),
-    merge: utilFlagSpread(collectionXOpMerge),
-    mergeIn: utilFlagSpread(collectionXOpMergeIn),
-    mergeDeep: utilFlagSpread(collectionXOpMergeDeep),
-    mergeDeepWith: utilFlagSpread(collectionXOpMergeDeepWith),
-    mergeDeepIn: utilFlagSpread(collectionXOpMergeDeepIn),
+    mergeWith: flagSpread(collectionXOpMergeWith),
+    merge: flagSpread(collectionXOpMerge),
+    mergeIn: flagSpread(collectionXOpMergeIn),
+    mergeDeep: flagSpread(collectionXOpMergeDeep),
+    mergeDeepWith: flagSpread(collectionXOpMergeDeepWith),
+    mergeDeepIn: flagSpread(collectionXOpMergeDeepIn),
     deleteIn: collectionXOrAnyOpRemoveIn,
     removeIn: collectionXOrAnyOpRemoveIn,
   })
@@ -202,13 +195,13 @@ Object.assign(
 Object.assign(
   mapPropertiesCreate(),
   transformToMethods({
-    mergeWith: utilFlagSpread(collectionXOpMergeWith),
-    merge: utilFlagSpread(collectionXOpMerge),
-    concat: utilFlagSpread(collectionXOpMerge),
-    mergeIn: utilFlagSpread(collectionXOpMergeIn),
-    mergeDeep: utilFlagSpread(collectionXOpMergeDeep),
-    mergeDeepWith: utilFlagSpread(collectionXOpMergeDeepWith),
-    mergeDeepIn: utilFlagSpread(collectionXOpMergeDeepIn),
+    mergeWith: flagSpread(collectionXOpMergeWith),
+    merge: flagSpread(collectionXOpMerge),
+    concat: flagSpread(collectionXOpMerge),
+    mergeIn: flagSpread(collectionXOpMergeIn),
+    mergeDeep: flagSpread(collectionXOpMergeDeep),
+    mergeDeepWith: flagSpread(collectionXOpMergeDeepWith),
+    mergeDeepIn: flagSpread(collectionXOpMergeDeepIn),
     deleteIn: collectionXOrAnyOpRemoveIn,
     removeIn: collectionXOrAnyOpRemoveIn,
   })

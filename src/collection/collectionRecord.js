@@ -8,10 +8,7 @@ import {
 import { probeIsImmutable, probeIsRecord } from '../probe';
 import transformToMethods from '../transformToMethods';
 
-
-import { utilQuoteString } from '../util';
-
-
+import { quoteString } from '../utils';
 
 import {
   collectionPropertiesCreate,
@@ -118,7 +115,7 @@ const recordOpToString = (cx) => {
   let k;
   for (let i = 0, l = keys.length; i !== l; i++) {
     k = keys[i];
-    str += (i ? ', ' : '') + k + ': ' + utilQuoteString(cx.get(k));
+    str += (i ? ', ' : '') + k + ': ' + quoteString(cx.get(k));
   }
   return str + ' }';
 };
