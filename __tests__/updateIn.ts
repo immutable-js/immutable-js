@@ -10,7 +10,7 @@ import {
   setIn,
   updateIn,
 } from 'immutable';
-import { utilInvariant } from '../src/utils';
+import { invariant } from '../src/utils';
 
 describe('updateIn', () => {
   it('deep edit', () => {
@@ -103,10 +103,7 @@ describe('updateIn', () => {
           throw new RangeError('Index out of bounds');
         }
 
-        utilInvariant(
-          typeof this[index] !== 'undefined',
-          'Index out of bounds'
-        );
+        invariant(typeof this[index] !== 'undefined', 'Index out of bounds');
 
         return this[index];
       }

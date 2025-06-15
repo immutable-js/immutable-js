@@ -7,7 +7,7 @@ import { SHAPE_RANGE } from './const';
 
 import transformToMethods from './transformToMethods';
 
-import { deepEqual, utilInvariant } from './utils';
+import { deepEqual, invariant } from './utils';
 
 const rangeOpToString = (cx) =>
   cx.size === 0
@@ -126,15 +126,12 @@ let EMPTY_RANGE;
  * infinity. When start is equal to end, returns empty list.
  */
 const Range = (start, end, step = 1) => {
-  utilInvariant(step !== 0, 'Cannot step a Range by 0');
-  utilInvariant(
+  invariant(step !== 0, 'Cannot step a Range by 0');
+  invariant(
     start !== undefined,
     'You must define a start value when using Range'
   );
-  utilInvariant(
-    end !== undefined,
-    'You must define an end value when using Range'
-  );
+  invariant(end !== undefined, 'You must define an end value when using Range');
 
   step = Math.abs(step);
   if (end < start) {
