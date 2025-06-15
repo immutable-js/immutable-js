@@ -10,7 +10,7 @@ import {
   setIn,
   updateIn,
 } from 'immutable';
-import invariant from '../src/utils/invariant';
+import { invariant } from '../src/utils';
 
 describe('updateIn', () => {
   it('deep edit', () => {
