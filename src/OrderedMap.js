@@ -119,7 +119,7 @@ const mapOrderedPropertiesCreate = (
         {},
         mapPropertiesCreate(),
         {
-          create: MapOrdered,
+          create: OrderedMap,
         },
         transformToMethods({
           [IS_ORDERED_SYMBOL]: true,
@@ -155,7 +155,7 @@ const mapOrderedCreateEmpty = (
     cache || (cache = mapOrderedCreate(mapCreateEmpty(), listCreateEmpty()))
 )();
 
-const MapOrdered = (value) =>
+const OrderedMap = (value) =>
   value === undefined || value === null
     ? mapOrderedCreateEmpty()
     : isOrderedMap(value)
@@ -166,7 +166,7 @@ const MapOrdered = (value) =>
           iter.forEach((v, k) => map.set(k, v));
         });
 
-MapOrdered.of = (...args) => MapOrdered(args);
-MapOrdered.isOrderedMap = isOrderedMap;
+OrderedMap.of = (...args) => OrderedMap(args);
+OrderedMap.isOrderedMap = isOrderedMap;
 
-export { MapOrdered, mapOrderedCreate, mapOrderedCreateEmpty };
+export { OrderedMap, mapOrderedCreate, mapOrderedCreateEmpty };

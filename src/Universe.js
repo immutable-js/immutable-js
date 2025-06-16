@@ -1,6 +1,6 @@
 import { listPropertiesCreate, List } from './List';
 import { Map, mapCreateEmpty, mapPropertiesCreate } from './Map';
-import { MapOrdered } from './MapOrdered';
+import { OrderedMap } from './OrderedMap';
 import { Range } from './Range';
 import {
   SeqWhenNotCollection,
@@ -8,7 +8,7 @@ import {
   SeqKeyedWhenNotKeyed,
 } from './Seq';
 import { Set } from './Set';
-import { SetOrdered, setOrderedPropertiesCreate } from './SetOrdered';
+import { OrderedSet, setOrderedPropertiesCreate } from './OrderedSet';
 import { Stack } from './Stack';
 import { collectionPropertiesCreate } from './collection/collection';
 import { collectionCastIndexedSeqCreate } from './collection/collectionCastIndexedSeq.js';
@@ -92,8 +92,8 @@ Object.assign(
           ? cx.toKeyedSeq()
           : cx.toSetSeq(),
     toSetSeq: collectionCastSetSeqCreate,
-    toOrderedMap: (cx) => MapOrdered(collectionCastKeyedSeqCreate(cx)),
-    toOrderedSet: (cx) => SetOrdered(isKeyed(cx) ? cx.valueSeq() : cx),
+    toOrderedMap: (cx) => OrderedMap(collectionCastKeyedSeqCreate(cx)),
+    toOrderedSet: (cx) => OrderedSet(isKeyed(cx) ? cx.valueSeq() : cx),
     toSet: (cx) => Set(isKeyed(cx) ? cx.valueSeq() : cx),
     toIndexedSeq: collectionCastIndexedSeqCreate,
     toKeyedSeq: (cx) => collectionCastKeyedSeqCreate(cx, true),
