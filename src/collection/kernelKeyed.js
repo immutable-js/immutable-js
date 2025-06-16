@@ -11,12 +11,7 @@ import {
 import { is } from '../is';
 
 import transformToMethods from '../transformToMethods';
-import {
-  arrCopy,
-  utilArrSetAt,
-  utilArrSpliceIn,
-  utilArrSpliceOut,
-} from '../utils';
+import { arrCopy, setAt, utilArrSpliceIn, utilArrSpliceOut } from '../utils';
 
 const MAX_ARRAY_MAP_SIZE = SIZE / 4;
 const MAX_BITMAP_INDEXED_SIZE = SIZE / 2;
@@ -86,7 +81,7 @@ const kernelKeyedHashArrayMapOpUpdate = (
   }
 
   const isEditable = ownerID && ownerID === nham.ownerID;
-  const newNodes = utilArrSetAt(nodes, idx, newNode, isEditable);
+  const newNodes = setAt(nodes, idx, newNode, isEditable);
 
   if (isEditable) {
     nham.count = newCount;
@@ -443,7 +438,7 @@ const kernelKeyedBitmapIndexedOpUpdate = (
   const newBitmap = exists ? (newNode ? bitmap : bitmap ^ bit) : bitmap | bit;
   const newNodes = exists
     ? newNode
-      ? utilArrSetAt(nodes, idx, newNode, isEditable)
+      ? setAt(nodes, idx, newNode, isEditable)
       : utilArrSpliceOut(nodes, idx, isEditable)
     : utilArrSpliceIn(nodes, idx, newNode, isEditable);
 

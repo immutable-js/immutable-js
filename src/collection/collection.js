@@ -13,18 +13,10 @@ import { factoryMax } from '../factory/factoryMax';
 import { getIn } from '../functional/getIn';
 import { hasIn } from '../functional/hasIn';
 import { is } from '../is';
-import { isImmutable } from '../predicates/isImmutable';
 import { isKeyed } from '../predicates/isKeyed';
 import { isOrdered } from '../predicates/isOrdered';
 import transformToMethods from '../transformToMethods';
-import {
-  shallowCopy,
-  quoteString,
-  assertNotInfinite,
-  hasOwnProperty,
-  deepEqual,
-} from '../utils';
-import isDataStructure from '../utils/isDataStructure';
+import { quoteString, assertNotInfinite, deepEqual } from '../utils';
 
 function neg(predicate) {
   return function () {
