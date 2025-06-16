@@ -10,7 +10,7 @@ const setOrderedOpToString = (cx) => {
   return cx.__toString('OrderedSet {', '}');
 };
 
-const setOrderedPropertiesCreate = (
+export const setOrderedPropertiesCreate = (
   (cache) => () =>
     (cache =
       cache ||
@@ -29,7 +29,7 @@ const setOrderedPropertiesCreate = (
       )))
 )();
 
-const setOrderedCreate = (map, ownerID) => {
+export const setOrderedCreate = (map, ownerID) => {
   const oset = Object.create(setOrderedPropertiesCreate());
   oset.size = map ? map.size : 0;
   oset._map = map;
@@ -37,12 +37,12 @@ const setOrderedCreate = (map, ownerID) => {
   return oset;
 };
 
-const setOrderedCreateEmpty = (
+export const setOrderedCreateEmpty = (
   (cache) => () =>
     cache || (cache = setOrderedCreate(mapOrderedCreateEmpty()))
 )();
 
-const OrderedSet = (value) => {
+export const OrderedSet = (value) => {
   return value === undefined || value === null
     ? setOrderedCreateEmpty()
     : isOrderedSet(value)
@@ -58,10 +58,3 @@ OrderedSet.isOrderedSet = isOrderedSet;
 OrderedSet.of = (...args) => OrderedSet(args);
 OrderedSet.fromKeys = (value) =>
   OrderedSet(SeqKeyedWhenNotKeyed(value).keySeq());
-
-export {
-  OrderedSet,
-  setOrderedPropertiesCreate,
-  setOrderedCreate,
-  setOrderedCreateEmpty,
-};

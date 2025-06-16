@@ -136,7 +136,7 @@ const mapOrderedPropertiesCreate = (
       )))
 )();
 
-const mapOrderedCreate = (map, list, ownerID, hash) => {
+export const mapOrderedCreate = (map, list, ownerID, hash) => {
   const omap = Object.create(mapOrderedPropertiesCreate());
   omap.size = map ? map.size : 0;
 
@@ -150,12 +150,12 @@ const mapOrderedCreate = (map, list, ownerID, hash) => {
   return omap;
 };
 
-const mapOrderedCreateEmpty = (
+export const mapOrderedCreateEmpty = (
   (cache) => () =>
     cache || (cache = mapOrderedCreate(mapCreateEmpty(), listCreateEmpty()))
 )();
 
-const OrderedMap = (value) =>
+export const OrderedMap = (value) =>
   value === undefined || value === null
     ? mapOrderedCreateEmpty()
     : isOrderedMap(value)
@@ -168,5 +168,3 @@ const OrderedMap = (value) =>
 
 OrderedMap.of = (...args) => OrderedMap(args);
 OrderedMap.isOrderedMap = isOrderedMap;
-
-export { OrderedMap, mapOrderedCreate, mapOrderedCreateEmpty };

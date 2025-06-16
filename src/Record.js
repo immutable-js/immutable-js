@@ -13,7 +13,7 @@ const recordOpNameGet = (record) => {
   return record.constructor.displayName || record.constructor.name || 'Record';
 };
 
-const Record = (defaultValues, name) => {
+export const Record = (defaultValues, name) => {
   let hasInitialized;
 
   collectionRecordAssertValidDefaultValues(defaultValues);
@@ -105,5 +105,3 @@ function setProp(prototype, name) {
     // Object.defineProperty failed. Probably IE8.
   }
 }
-
-export { Record };

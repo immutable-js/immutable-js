@@ -429,7 +429,7 @@ const list__ensureOwner = (cx, ownerID) => {
   );
 };
 
-const listPropertiesCreate = (
+export const listPropertiesCreate = (
   (cache) => () =>
     cache ||
     (cache = Object.assign(
@@ -489,11 +489,11 @@ const listCreate = (origin, capacity, level, root, tail, ownerID, hash) => {
   return list;
 };
 
-const listCreateEmpty = () => {
+export const listCreateEmpty = () => {
   return listCreate(0, 0, SHIFT);
 };
 
-const List = (value) => {
+export const List = (value) => {
   if (value === undefined || value === null) {
     return listCreateEmpty();
   }
@@ -526,5 +526,3 @@ Object.assign(List, {
   isList,
   of: (...args) => List(args),
 });
-
-export { List, listPropertiesCreate, listCreateEmpty };

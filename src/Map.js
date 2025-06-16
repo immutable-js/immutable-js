@@ -188,7 +188,7 @@ const mapOpToStringMapper = (m, v, k) => {
   return quoteString(k) + ': ' + quoteString(v);
 };
 
-const mapPropertiesCreate = ((cache) => () => {
+export const mapPropertiesCreate = ((cache) => () => {
   return (
     cache ||
     (cache = Object.assign(
@@ -228,7 +228,7 @@ const mapPropertiesCreate = ((cache) => () => {
   );
 })();
 
-const mapCreate = (size, root, ownerID, hash) => {
+export const mapCreate = (size, root, ownerID, hash) => {
   const map = Object.create(mapPropertiesCreate());
 
   map[ITERATOR_SYMBOL] = map.entries;
@@ -279,12 +279,12 @@ const mapUpdate = (map, k, v) => {
   return newRoot ? mapCreate(newSize, newRoot) : mapCreateEmpty();
 };
 
-const mapCreateEmpty = (
+export const mapCreateEmpty = (
   (mapEmptyCached) => () =>
     mapEmptyCached || (mapEmptyCached = mapCreate(0))
 )();
 
-const Map = (value) =>
+export const Map = (value) =>
   value === undefined || value === null
     ? mapCreateEmpty()
     : isMap(value) && !isOrdered(value)
@@ -298,5 +298,3 @@ const Map = (value) =>
         });
 
 Map.isMap = isMap;
-
-export { Map, mapPropertiesCreate, mapCreate, mapCreateEmpty };

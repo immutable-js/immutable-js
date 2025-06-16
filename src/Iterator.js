@@ -8,7 +8,7 @@ import {
   ITERATOR_SYMBOL,
 } from './const';
 
-class Iterator {
+export class Iterator {
   constructor(next) {
     if (next) {
       // Map extends Iterator and has a `next` method, do not erase it in that case. We could have checked `if (next && !this.next)` too.
@@ -32,7 +32,7 @@ Iterator.prototype[ITERATOR_SYMBOL] = function () {
   return this;
 };
 
-function iteratorValue(type, k, v, iteratorResult) {
+export function iteratorValue(type, k, v, iteratorResult) {
   const value =
     type === ITERATE_KEYS ? k : type === ITERATE_VALUES ? v : [k, v];
   // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
@@ -45,7 +45,7 @@ function iteratorValue(type, k, v, iteratorResult) {
   return iteratorResult;
 }
 
-function iteratorDone() {
+export function iteratorDone() {
   return { value: undefined, done: true };
 }
 
@@ -62,7 +62,7 @@ export function isIterator(maybeIterator) {
   return maybeIterator && typeof maybeIterator.next === 'function';
 }
 
-function getIterator(iterable) {
+export function getIterator(iterable) {
   const iteratorFn = getIteratorFn(iterable);
   return iteratorFn && iteratorFn.call(iterable);
 }
@@ -77,21 +77,12 @@ function getIteratorFn(iterable) {
   }
 }
 
-function isEntriesIterable(maybeIterable) {
+export function isEntriesIterable(maybeIterable) {
   const iteratorFn = getIteratorFn(maybeIterable);
   return iteratorFn && iteratorFn === maybeIterable.entries;
 }
 
-function isKeysIterable(maybeIterable) {
+export function isKeysIterable(maybeIterable) {
   const iteratorFn = getIteratorFn(maybeIterable);
   return iteratorFn && iteratorFn === maybeIterable.keys;
 }
-
-export {
-  Iterator,
-  iteratorValue,
-  iteratorDone,
-  getIterator,
-  isEntriesIterable,
-  isKeysIterable,
-};

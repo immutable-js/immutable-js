@@ -125,7 +125,7 @@ let EMPTY_RANGE;
  * (exclusive), by step, where start defaults to 0, step to 1, and end to
  * infinity. When start is equal to end, returns empty list.
  */
-const Range = (start, end, step = 1) => {
+export const Range = (start, end, step = 1) => {
   invariant(step !== 0, 'Cannot step a Range by 0');
   invariant(
     start !== undefined,
@@ -146,5 +146,3 @@ const Range = (start, end, step = 1) => {
   }
   return RangeCreate(start, end, step, size);
 };
-
-export { Range };
