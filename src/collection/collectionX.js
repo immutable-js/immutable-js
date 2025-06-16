@@ -1,6 +1,6 @@
 import { Map, mapCreateEmpty } from '../Map';
 
-import { MapOrdered } from '../MapOrdered';
+import { OrderedMap } from '../OrderedMap';
 
 import {
   SeqKeyed,
@@ -429,7 +429,7 @@ const collectionXOpGroupBy = (cx, grouper, context) => {
   return factoryGroupBy(
     cx,
     Map,
-    MapOrdered,
+    OrderedMap,
     collectionXReify,
     collectionXProbeCreator,
     grouper,

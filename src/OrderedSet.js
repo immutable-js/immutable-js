@@ -1,4 +1,4 @@
-import { mapOrderedCreateEmpty } from './MapOrdered';
+import { mapOrderedCreateEmpty } from './OrderedMap';
 import { SeqSetWhenNotAssociative, SeqKeyedWhenNotKeyed } from './Seq';
 import { setPropertiesCreate } from './Set';
 import { IS_ORDERED_SYMBOL } from './const';
@@ -18,7 +18,7 @@ const setOrderedPropertiesCreate = (
         {},
         setPropertiesCreate(),
         {
-          create: SetOrdered,
+          create: OrderedSet,
           __make: setOrderedCreate,
           __empty: setOrderedCreateEmpty,
         },
@@ -42,7 +42,7 @@ const setOrderedCreateEmpty = (
     cache || (cache = setOrderedCreate(mapOrderedCreateEmpty()))
 )();
 
-const SetOrdered = (value) => {
+const OrderedSet = (value) => {
   return value === undefined || value === null
     ? setOrderedCreateEmpty()
     : isOrderedSet(value)
@@ -54,13 +54,13 @@ const SetOrdered = (value) => {
         });
 };
 
-SetOrdered.isOrderedSet = isOrderedSet;
-SetOrdered.of = (...args) => SetOrdered(args);
-SetOrdered.fromKeys = (value) =>
-  SetOrdered(SeqKeyedWhenNotKeyed(value).keySeq());
+OrderedSet.isOrderedSet = isOrderedSet;
+OrderedSet.of = (...args) => OrderedSet(args);
+OrderedSet.fromKeys = (value) =>
+  OrderedSet(SeqKeyedWhenNotKeyed(value).keySeq());
 
 export {
-  SetOrdered,
+  OrderedSet,
   setOrderedPropertiesCreate,
   setOrderedCreate,
   setOrderedCreateEmpty,

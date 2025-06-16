@@ -20,14 +20,14 @@ const factoryCountBy = (cx, grouper, context, mapCreate) => {
 const factoryGroupBy = (
   cx,
   Map,
-  MapOrdered,
+  OrderedMap,
   reify,
   collectionClass,
   grouper,
   context
 ) => {
   const isKeyedIter = isKeyed(cx);
-  const groups = (isOrdered(cx) ? MapOrdered() : Map()).asMutable();
+  const groups = (isOrdered(cx) ? OrderedMap() : Map()).asMutable();
   cx.__iterate((v, k) => {
     groups.update(
       grouper.call(context, v, k, cx),

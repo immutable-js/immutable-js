@@ -1,25 +1,47 @@
-import { version } from '../package.json';
-import { hash } from './Hash';
+/* eslint-disable import/order */
+import { Seq } from './Seq';
+import { OrderedMap } from './OrderedMap';
 import { List } from './List';
 import { Map } from './Map';
-import { MapOrdered as OrderedMap } from './MapOrdered';
-import { PairSorting } from './PairSorting';
-import { Range } from './Range';
-import { Record } from './Record';
-import { Repeat } from './Repeat';
-import { Seq } from './Seq';
-import { SeqArray as ArraySeq } from './SeqArray';
-import { SeqObject as ObjectSeq } from './SeqObject';
-import { Set } from './Set';
-import { SetOrdered as OrderedSet } from './SetOrdered';
 import { Stack } from './Stack';
+import { OrderedSet } from './OrderedSet';
+import { PairSorting } from './PairSorting';
+import { Set } from './Set';
+import { Record } from './Record';
+import { Range } from './Range';
+import { Repeat } from './Repeat';
+import { is } from './is';
+import { fromJS } from './fromJS';
+
+import isPlainObject from './utils/isPlainObj';
+
+// Functional predicates
+import { isImmutable } from './predicates/isImmutable';
+import { isCollection } from './predicates/isCollection';
+import { isKeyed } from './predicates/isKeyed';
+import { isIndexed } from './predicates/isIndexed';
+import { isAssociative } from './predicates/isAssociative';
+import { isOrdered } from './predicates/isOrdered';
+import { isValueObject } from './predicates/isValueObject';
+import { isSeq } from './predicates/isSeq';
+import { isList } from './predicates/isList';
+import { isMap } from './predicates/isMap';
+import { isOrderedMap } from './predicates/isOrderedMap';
+import { isStack } from './predicates/isStack';
+import { isSet } from './predicates/isSet';
+import { isOrderedSet } from './predicates/isOrderedSet';
+import { isRecord } from './predicates/isRecord';
+
 import { Collection } from './Universe';
+import { hash } from './Hash';
+
+// Functional read/write API
 import {
+  collectionOrAnyOpGet as get,
+  collectionOrAnyOpGetIn as getIn,
   collectionOrAnyOpHas as has,
   collectionOrAnyOpHasIn as hasIn,
   collectionOrAnyOpRemove as remove,
-  collectionOrAnyOpGet as get,
-  collectionOrAnyOpGetIn as getIn,
   collectionOrAnyOpSet as set,
 } from './collection/collection';
 import {
@@ -32,26 +54,11 @@ import {
   collectionXOpMergeDeepWith,
   collectionXOpMergeWith,
 } from './collection/collectionX';
-import { fromJS } from './fromJS';
 
-// Functional predicates
-import { is } from './is';
-import { isAssociative } from './predicates/isAssociative';
-import { isCollection } from './predicates/isCollection';
-import { isImmutable } from './predicates/isImmutable';
-import { isIndexed } from './predicates/isIndexed';
-import { isKeyed } from './predicates/isKeyed';
-import { isList } from './predicates/isList';
-import { isMap } from './predicates/isMap';
-import { isOrdered } from './predicates/isOrdered';
-import { isOrderedMap } from './predicates/isOrderedMap';
-import { isOrderedSet } from './predicates/isOrderedSet';
-import { isRecord } from './predicates/isRecord';
-import { isSeq } from './predicates/isSeq';
-import { isSet } from './predicates/isSet';
-import { isStack } from './predicates/isStack';
-import { isValueObject } from './predicates/isValueObject';
-import isPlainObject from './utils/isPlainObj';
+import { SeqArray as ArraySeq } from './SeqArray';
+import { SeqObject as ObjectSeq } from './SeqObject';
+
+import { version } from '../package.json';
 
 // user-friendly interface mapped to internal interface
 const merge = (cx, ...sources) => collectionXOpMergeWithSources(cx, sources);
