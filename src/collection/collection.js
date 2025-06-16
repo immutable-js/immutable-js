@@ -10,13 +10,14 @@ import {
   ITERATOR_SYMBOL,
 } from '../const';
 import { factoryMax } from '../factory/factoryMax';
+import { getIn } from '../functional/getIn';
+import { hasIn } from '../functional/hasIn';
 import { is } from '../is';
 import { isImmutable } from '../predicates/isImmutable';
 import { isKeyed } from '../predicates/isKeyed';
 import { isOrdered } from '../predicates/isOrdered';
 import transformToMethods from '../transformToMethods';
 import {
-  coerceKeyPath,
   shallowCopy,
   quoteString,
   assertNotInfinite,
@@ -302,204 +303,12 @@ const collectionOpGet = (cx, searchKey, notSetValue) => {
   );
 };
 
-/**
- * Returns the value within the provided collection associated with the
- * provided key, or notSetValue if the key is not defined in the collection.
- *
- * A functional alternative to `collection.get(key)` which will also work on
- * plain Objects and Arrays as an alternative for `collection[key]`.
- *
- * <!-- runkit:activate -->
- * ```js
- * import { get } from 'immutable';
- *
- * get([ 'dog', 'frog', 'cat' ], 1) // 'frog'
- * get({ x: 123, y: 456 }, 'x') // 123
- * get({ x: 123, y: 456 }, 'z', 'ifNotSet') // 'ifNotSet'
- * ```
- */
-const collectionOrAnyOpGet = (collection, key, notSetValue) => {
-  return isImmutable(collection)
-    ? collection.get(key, notSetValue)
-    : !collectionOrAnyOpHas(collection, key)
-      ? notSetValue
-      : // @ts-expect-error weird "get" here,
-        typeof collection.get === 'function'
-        ? // @ts-expect-error weird "get" here,
-          collection.get(key)
-        : // @ts-expect-error key is unknown here,
-          collection[key];
-};
-
-/**
- * Returns the value at the provided key path starting at the provided
- * collection, or notSetValue if the key path is not defined.
- *
- * A functional alternative to `collection.getIn(keypath)` which will also
- * work with plain Objects and Arrays.
- *
- * <!-- runkit:activate -->
- * ```js
- * import { getIn } from 'immutable';
- *
- * getIn({ x: { y: { z: 123 }}}, ['x', 'y', 'z']) // 123
- * getIn({ x: { y: { z: 123 }}}, ['x', 'q', 'p'], 'ifNotSet') // 'ifNotSet'
- * ```
- */
-const collectionOrAnyOpGetIn = (cx, searchKeyPath, notSetValue) => {
-  const keyPath = coerceKeyPath(searchKeyPath);
-  let i = 0;
-  while (i !== keyPath.length) {
-    // @ts-expect-error keyPath[i++] can not be undefined by design
-    cx = collectionOrAnyOpGet(cx, keyPath[i++], NOT_SET);
-    if (cx === NOT_SET) {
-      return notSetValue;
-    }
-  }
-  return cx;
-};
-
-/**
- * Returns true if the key is defined in the provided collection.
- *
- * A functional alternative to `collection.has(key)` which will also work with
- * plain Objects and Arrays as an alternative for
- * `collection.hasOwnProperty(key)`.
- *
- * <!-- runkit:activate -->
- * ```js
- * import { has } from 'immutable';
- *
- * has([ 'dog', 'frog', 'cat' ], 2) // true
- * has([ 'dog', 'frog', 'cat' ], 5) // false
- * has({ x: 123, y: 456 }, 'x') // true
- * has({ x: 123, y: 456 }, 'z') // false
- * ```
- */
-
-const collectionOrAnyOpHas = (collection, key) => {
-  return isImmutable(collection)
-    ? // @ts-expect-error key might be a number or symbol, which is not handled be Record key type
-      collection.has(key)
-    : // @ts-expect-error key might be anything else than PropertyKey, and will return false in that case but runtime is OK
-      isDataStructure(collection) && hasOwnProperty.call(collection, key);
-};
-
 const collectionOpHas = (cx, searchKey) => {
   return collectionOpGet(cx, searchKey, NOT_SET) !== NOT_SET;
 };
 
-/**
- * Returns true if the key path is defined in the provided collection.
- *
- * A functional alternative to `collection.hasIn(keypath)` which will also
- * work with plain Objects and Arrays.
- *
- * <!-- runkit:activate -->
- * ```js
- * import { hasIn } from 'immutable';
- *
- * hasIn({ x: { y: { z: 123 }}}, ['x', 'y', 'z']) // true
- * hasIn({ x: { y: { z: 123 }}}, ['x', 'q', 'p']) // false
- * ```
- */
-const collectionOrAnyOpHasIn = (cx, keyPath) => {
-  return collectionOrAnyOpGetIn(cx, keyPath, NOT_SET) !== NOT_SET;
-};
-
 const collectionOpKeyOf = (cx, searchValue) => {
   return cx.findKey((value) => is(value, searchValue));
-};
-
-/**
- * Returns a copy of the collection with the value at key set to the provided
- * value.
- *
- * A functional alternative to `collection.set(key, value)` which will also
- * work with plain Objects and Arrays as an alternative for
- * `collectionCopy[key] = value`.
- *
- * <!-- runkit:activate -->
- * ```js
- * import { set } from 'immutable';
- *
- * const originalArray = [ 'dog', 'frog', 'cat' ]
- * set(originalArray, 1, 'cow') // [ 'dog', 'cow', 'cat' ]
- * console.log(originalArray) // [ 'dog', 'frog', 'cat' ]
- * const originalObject = { x: 123, y: 456 }
- * set(originalObject, 'x', 789) // { x: 789, y: 456 }
- * console.log(originalObject) // { x: 123, y: 456 }
- * ```
- */
-const collectionOrAnyOpSet = (cx, key, value) => {
-  if (!isDataStructure(cx)) {
-    throw new TypeError('Cannot update non-data-structure value: ' + cx);
-  }
-  if (isImmutable(cx)) {
-    // @ts-expect-error weird "set" here,
-    if (!cx.set) {
-      throw new TypeError(
-        'Cannot update immutable value without .set() method: ' +
-          (cx._toString ? cx._toString() : cx)
-      );
-    }
-    // @ts-expect-error weird "set" here,
-    return cx.set(key, value);
-  }
-  // @ts-expect-error mix of key and string here. Probably need a more fine type here
-  if (hasOwnProperty.call(cx, key) && value === cx[key]) {
-    return cx;
-  }
-  const collectionCopy = shallowCopy(cx);
-  // @ts-expect-error mix of key and string here. Probably need a more fine type here
-  collectionCopy[key] = value;
-  return collectionCopy;
-};
-
-/**
- * Returns a copy of the collection with the value at key removed.
- *
- * A functional alternative to `collection.remove(key)` which will also work
- * with plain Objects and Arrays as an alternative for
- * `delete collectionCopy[key]`.
- *
- * <!-- runkit:activate -->
- * ```js
- * import { remove } from 'immutable';
- *
- * const originalArray = [ 'dog', 'frog', 'cat' ]
- * remove(originalArray, 1) // [ 'dog', 'cat' ]
- * console.log(originalArray) // [ 'dog', 'frog', 'cat' ]
- * const originalObject = { x: 123, y: 456 }
- * remove(originalObject, 'x') // { y: 456 }
- * console.log(originalObject) // { x: 123, y: 456 }
- * ```
- */
-const collectionOrAnyOpRemove = (cx, key) => {
-  if (!isDataStructure(cx)) {
-    throw new TypeError('Cannot update non-data-structure value: ' + cx);
-  }
-  if (isImmutable(cx)) {
-    // @ts-expect-error weird "remove" here,
-    if (!cx.remove) {
-      throw new TypeError(
-        'Cannot update immutable value without .remove() method: ' + cx
-      );
-    }
-    // @ts-expect-error weird "remove" here,
-    return cx.remove(key);
-  }
-  if (!hasOwnProperty.call(cx, key)) {
-    return cx;
-  }
-  const collectionCopy = shallowCopy(cx);
-  if (Array.isArray(collectionCopy)) {
-    // @ts-expect-error assert that key is a number here
-    collectionCopy.splice(key, 1);
-  } else {
-    delete collectionCopy[key];
-  }
-  return collectionCopy;
 };
 
 const collectionOpToObject = (cx) => {
@@ -669,8 +478,8 @@ const collectionPropertiesCreate = ((cache) => () => {
       includes: collectionOpIncludes,
       keySeq: collectionOpKeySeq,
       keys: collectionOpKeys,
-      getIn: collectionOrAnyOpGetIn,
-      hasIn: collectionOrAnyOpHasIn,
+      getIn,
+      hasIn,
       has: collectionOpHas,
       asImmutable: collectionOpAsImmutable,
       asMutable: collectionOpAsMutable,
@@ -693,12 +502,6 @@ const collectionPropertiesCreate = ((cache) => () => {
 })();
 
 export {
-  collectionOrAnyOpSet,
-  collectionOrAnyOpGet,
-  collectionOrAnyOpGetIn,
-  collectionOrAnyOpHas,
-  collectionOrAnyOpHasIn,
-  collectionOrAnyOpRemove,
   collectionOpCache,
   collectionOpCacheResultThrough,
   collectionOpToObject,

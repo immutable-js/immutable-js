@@ -1,6 +1,7 @@
 import { listPropertiesCreate, List } from './List';
 import { Map, mapCreateEmpty, mapPropertiesCreate } from './Map';
 import { OrderedMap } from './OrderedMap';
+import { OrderedSet, setOrderedPropertiesCreate } from './OrderedSet';
 import { Range } from './Range';
 import {
   SeqWhenNotCollection,
@@ -8,7 +9,6 @@ import {
   SeqKeyedWhenNotKeyed,
 } from './Seq';
 import { Set } from './Set';
-import { OrderedSet, setOrderedPropertiesCreate } from './OrderedSet';
 import { Stack } from './Stack';
 import { collectionPropertiesCreate } from './collection/collection';
 import { collectionCastIndexedSeqCreate } from './collection/collectionCastIndexedSeq.js';
@@ -22,10 +22,6 @@ import { collectionKeyedPropertiesCreate } from './collection/collectionKeyed';
 import { collectionKeyedSeqFromEntriesCreate } from './collection/collectionKeyedSeqFromEntries';
 import { collectionRecordPropertiesCreate } from './collection/collectionRecord';
 import {
-  collectionXOrAnyOpUpdate,
-  collectionXOrAnyOpUpdateIn,
-  collectionXOrAnyOpRemoveIn,
-  collectionXOrAnyOpSetIn,
   collectionXOpCountBy,
   collectionXOpEntrySeq,
   collectionXOpMap,
@@ -67,6 +63,10 @@ import {
   collectionXCastKeyedSequenceOpReverse,
   collectionXCastKeyedSequenceOpMap,
 } from './collection/collectionX';
+import { removeIn } from './functional/removeIn';
+import { setIn } from './functional/setIn';
+import { update } from './functional/update';
+import { updateIn } from './functional/updateIn';
 import { isIndexed } from './predicates/isIndexed';
 import { isKeyed } from './predicates/isKeyed';
 import { toJS } from './toJS';
@@ -121,9 +121,9 @@ Object.assign(
     reverse: collectionXOpReverse,
     isSubset: collectionXOpIsSubset,
     isSuperset: collectionXOpIsSuperset,
-    update: collectionXOrAnyOpUpdate,
-    updateIn: collectionXOrAnyOpUpdateIn,
-    setIn: collectionXOrAnyOpSetIn,
+    update,
+    updateIn,
+    setIn,
   })
 );
 
@@ -180,16 +180,16 @@ Object.assign(
     mergeDeep: flagSpread(collectionXOpMergeDeep),
     mergeDeepWith: flagSpread(collectionXOpMergeDeepWith),
     mergeDeepIn: flagSpread(collectionXOpMergeDeepIn),
-    deleteIn: collectionXOrAnyOpRemoveIn,
-    removeIn: collectionXOrAnyOpRemoveIn,
+    deleteIn: removeIn,
+    removeIn,
   })
 );
 
 Object.assign(
   listPropertiesCreate(),
   transformToMethods({
-    deleteIn: collectionXOrAnyOpRemoveIn,
-    removeIn: collectionXOrAnyOpRemoveIn,
+    deleteIn: removeIn,
+    removeIn,
   })
 );
 
@@ -203,8 +203,8 @@ Object.assign(
     mergeDeep: flagSpread(collectionXOpMergeDeep),
     mergeDeepWith: flagSpread(collectionXOpMergeDeepWith),
     mergeDeepIn: flagSpread(collectionXOpMergeDeepIn),
-    deleteIn: collectionXOrAnyOpRemoveIn,
-    removeIn: collectionXOrAnyOpRemoveIn,
+    deleteIn: removeIn,
+    removeIn,
   })
 );
 

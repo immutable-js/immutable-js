@@ -5,17 +5,15 @@ import {
   IS_RECORD_SYMBOL,
   DELETE,
 } from '../const';
+import { getIn } from '../functional/getIn';
+import { hasIn } from '../functional/hasIn';
 import { isImmutable } from '../predicates/isImmutable';
 import { isRecord } from '../predicates/isRecord';
 import transformToMethods from '../transformToMethods';
 
 import { quoteString } from '../utils';
 
-import {
-  collectionPropertiesCreate,
-  collectionOrAnyOpGetIn,
-  collectionOrAnyOpHasIn,
-} from './collection';
+import { collectionPropertiesCreate } from './collection';
 
 const collectionRecordAssertValidDefaultValues = (defaultValues) => {
   if (isRecord(defaultValues)) {
@@ -158,8 +156,8 @@ const collectionRecordPropertiesCreate = ((cache) => () => {
         clear: recordOpClear,
         wasAltered: recordOpWasAltered,
         toSeq: recordOpToSeq,
-        getIn: collectionOrAnyOpGetIn,
-        hasIn: collectionOrAnyOpHasIn,
+        getIn,
+        hasIn,
         __iterator: recordOpIterator,
         __iterate: recordOpIterate,
         __ensureOwner: recordOpEnsureOwner,
