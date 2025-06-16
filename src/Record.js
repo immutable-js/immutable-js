@@ -13,7 +13,7 @@ const recordOpNameGet = (record) => {
   return record.constructor.displayName || record.constructor.name || 'Record';
 };
 
-const Record = (defaultValues, name) => {
+export const Record = (defaultValues, name) => {
   let hasInitialized;
 
   collectionRecordAssertValidDefaultValues(defaultValues);
@@ -88,5 +88,3 @@ const Record = (defaultValues, name) => {
 
 Record.isRecord = isRecord;
 Record.getDescriptiveName = recordOpNameGet;
-
-export { Record };

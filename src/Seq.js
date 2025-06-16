@@ -19,7 +19,7 @@ const maybeIndexedSeqFromValue = (value) => {
       : undefined;
 };
 
-const SeqKeyedFromValue = (value) => {
+export const SeqKeyedFromValue = (value) => {
   const seq = maybeIndexedSeqFromValue(value);
 
   if (seq) {
@@ -34,7 +34,7 @@ const SeqKeyedFromValue = (value) => {
   );
 };
 
-const SeqIndexedFromValue = (value) => {
+export const SeqIndexedFromValue = (value) => {
   const seq = maybeIndexedSeqFromValue(value);
   if (seq) {
     return seq;
@@ -44,7 +44,7 @@ const SeqIndexedFromValue = (value) => {
   );
 };
 
-const SeqFromValue = (value) => {
+export const SeqFromValue = (value) => {
   const seq = maybeIndexedSeqFromValue(value);
   if (seq) {
     return isEntriesIterable(value)
@@ -61,7 +61,7 @@ const SeqFromValue = (value) => {
   );
 };
 
-const Seq = (value) => {
+export const Seq = (value) => {
   return value === undefined || value === null
     ? seqArrayCreateEmpty()
     : isImmutable(value)
@@ -69,7 +69,7 @@ const Seq = (value) => {
       : SeqFromValue(value);
 };
 
-const SeqKeyed = (value) =>
+export const SeqKeyed = (value) =>
   value === undefined || value === null
     ? seqArrayCreateEmpty().toKeyedSeq()
     : isCollection(value)
@@ -80,7 +80,7 @@ const SeqKeyed = (value) =>
         ? value.toSeq()
         : SeqKeyedFromValue(value);
 
-const SeqIndexed = (value) =>
+export const SeqIndexed = (value) =>
   value === undefined || value === null
     ? seqArrayCreateEmpty()
     : isCollection(value)
@@ -92,25 +92,25 @@ const SeqIndexed = (value) =>
         : SeqIndexedFromValue(value);
 
 // Was Collection/1
-const SeqWhenNotCollection = (value) =>
+export const SeqWhenNotCollection = (value) =>
   isCollection(value) ? value : Seq(value);
 
 // WAS KeyedCollection/1
-const SeqKeyedWhenNotKeyed = (value) =>
+export const SeqKeyedWhenNotKeyed = (value) =>
   isKeyed(value) ? value : SeqKeyed(value);
 
 // WAS IndexedCollection/1
-const SeqIndexedWhenNotIndexed = (value) =>
+export const SeqIndexedWhenNotIndexed = (value) =>
   isIndexed(value) ? value : SeqIndexed(value);
 
-const SeqSet = (value) => {
+export const SeqSet = (value) => {
   return (
     isCollection(value) && !isAssociative(value) ? value : SeqIndexed(value)
   ).toSetSeq();
 };
 
 // WAS SetCollection/1
-const SeqSetWhenNotAssociative = (value) =>
+export const SeqSetWhenNotAssociative = (value) =>
   isCollection(value) && !isAssociative(value)
     ? value
     : SeqIndexed(value).toSetSeq();
@@ -122,17 +122,3 @@ Seq.isSeq = isSeq;
 Seq.Indexed = SeqIndexed;
 Seq.Keyed = SeqKeyed;
 Seq.Set = SeqSet;
-
-export {
-  Seq,
-  SeqWhenNotCollection,
-  SeqFromValue,
-  SeqKeyed,
-  SeqKeyedWhenNotKeyed,
-  SeqKeyedFromValue,
-  SeqIndexed,
-  SeqIndexedWhenNotIndexed,
-  SeqIndexedFromValue,
-  SeqSet,
-  SeqSetWhenNotAssociative,
-};

@@ -102,7 +102,7 @@ const repeatPropertiesCreate = ((cache) => () => {
   );
 })();
 
-const repeatCreate = (value, size) => {
+export const repeatCreate = (value, size) => {
   const repeat = Object.create(repeatPropertiesCreate());
   repeat._value = value;
   repeat.size = size;
@@ -118,10 +118,8 @@ const repeatCreateEmpty = ((cache) => () => {
  * Returns a lazy Seq of `value` repeated `times` times. When `times` is
  * undefined, returns an infinite sequence of `value`.
  */
-const Repeat = (value, times) => {
+export const Repeat = (value, times) => {
   const size = times === undefined ? Infinity : Math.max(0, times);
 
   return size === 0 ? repeatCreateEmpty() : repeatCreate(value, size);
 };
-
-export { Repeat, repeatCreate };

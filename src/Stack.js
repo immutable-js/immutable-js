@@ -228,7 +228,7 @@ const stackCreateEmpty = ((cache) => () => {
   return cache || (cache = stackCreate(0));
 })();
 
-const Stack = (value) =>
+export const Stack = (value) =>
   value === undefined || value === null
     ? stackCreateEmpty()
     : isStack(value)
@@ -237,5 +237,3 @@ const Stack = (value) =>
 
 Stack.of = (...args) => Stack(args);
 Stack.isStack = isStack;
-
-export { Stack };

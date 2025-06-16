@@ -157,7 +157,7 @@ const setOpSubtract = (cx, iters) => {
   });
 };
 
-const setPropertiesCreate = ((cache) => () => {
+export const setPropertiesCreate = ((cache) => () => {
   cache =
     cache ||
     (cache = Object.assign(
@@ -215,7 +215,7 @@ const setCreate = (map, ownerID) => {
   return set;
 };
 
-const setCreateEmpty = ((cache) => () => {
+export const setCreateEmpty = ((cache) => () => {
   return cache || (cache = setCreate(mapCreateEmpty()));
 })();
 
@@ -224,7 +224,7 @@ const setCollection = (value) =>
     isCollection(value) && !isAssociative(value) ? value : SeqIndexed(value)
   );
 
-const Set = (value) =>
+export const Set = (value) =>
   value === undefined || value === null
     ? setCreateEmpty()
     : isSet(value) && !isOrdered(value)
@@ -249,5 +249,3 @@ Set.intersect = (sets) => {
   sets = SeqWhenNotCollection(sets).toArray();
   return sets.length ? setOpIntersect(Set(sets.pop()), sets) : setCreateEmpty();
 };
-
-export { Set, setPropertiesCreate, setCreateEmpty };

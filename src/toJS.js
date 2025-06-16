@@ -1,7 +1,7 @@
 import { Seq } from './Seq';
 import { isCollection } from './predicates/isCollection';
 import { isKeyed } from './predicates/isKeyed';
-import { isDataStructure } from './utils/isDataStructure';
+import isDataStructure from './utils/isDataStructure';
 
 export function toJS(value) {
   if (!value || typeof value !== 'object') {
