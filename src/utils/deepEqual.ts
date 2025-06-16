@@ -1,7 +1,7 @@
 import type { Collection } from '../../type-definitions/immutable';
-import type { RangeImpl as Range } from '../Range';
-import type { RepeatImpl as Repeat } from '../Repeat';
-import { NOT_SET } from '../TrieUtils';
+import type { Range } from '../Range';
+import type { Repeat } from '../Repeat';
+import { NOT_SET } from '../const';
 import { is } from '../is';
 import { isAssociative } from '../predicates/isAssociative';
 import { isCollection } from '../predicates/isCollection';
@@ -10,7 +10,7 @@ import { isKeyed } from '../predicates/isKeyed';
 import { isOrdered } from '../predicates/isOrdered';
 
 export default function deepEqual(
-  a: Range | Repeat | Collection<unknown, unknown>,
+  a: typeof Range | typeof Repeat | Collection<unknown, unknown>,
   b: unknown
 ): boolean {
   if (a === b) {

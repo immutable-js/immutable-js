@@ -2,10 +2,11 @@ export const ITERATE_KEYS = 0;
 export const ITERATE_VALUES = 1;
 export const ITERATE_ENTRIES = 2;
 
-const REAL_ITERATOR_SYMBOL = typeof Symbol === 'function' && Symbol.iterator;
-const FAUX_ITERATOR_SYMBOL = '@@iterator';
-
-export const ITERATOR_SYMBOL = REAL_ITERATOR_SYMBOL || FAUX_ITERATOR_SYMBOL;
+import {
+  ITERATOR_SYMBOL_REAL,
+  ITERATOR_SYMBOL_FAUX,
+  ITERATOR_SYMBOL,
+} from './const';
 
 export class Iterator {
   constructor(next) {
@@ -69,8 +70,8 @@ export function getIterator(iterable) {
 function getIteratorFn(iterable) {
   const iteratorFn =
     iterable &&
-    ((REAL_ITERATOR_SYMBOL && iterable[REAL_ITERATOR_SYMBOL]) ||
-      iterable[FAUX_ITERATOR_SYMBOL]);
+    ((ITERATOR_SYMBOL_REAL && iterable[ITERATOR_SYMBOL_REAL]) ||
+      iterable[ITERATOR_SYMBOL_FAUX]);
   if (typeof iteratorFn === 'function') {
     return iteratorFn;
   }
