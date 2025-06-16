@@ -1,7 +1,5 @@
 import { Map, mapCreateEmpty } from '../Map';
-
 import { OrderedMap } from '../OrderedMap';
-
 import {
   SeqKeyed,
   SeqKeyedFromValue,
@@ -13,7 +11,6 @@ import {
   SeqKeyedWhenNotKeyed,
   SeqIndexedWhenNotIndexed,
 } from '../Seq';
-
 import { SeqArray } from '../SeqArray';
 import { resolveBegin } from '../TrieUtils';
 import { NOT_SET } from '../const';
@@ -33,26 +30,18 @@ import { factoryMap } from '../factory/factoryMap';
 import { factoryReverse } from '../factory/factoryReverse';
 import { factorySlice } from '../factory/factorySlice';
 import { factoryZipWith } from '../factory/factoryZipWith';
-import { get } from '../functional/get';
-import { remove } from '../functional/remove';
-import { set } from '../functional/set';
+import { update } from '../functional/update';
 import { updateIn } from '../functional/updateIn';
 import { isImmutable } from '../predicates/isImmutable';
 import { isIndexed } from '../predicates/isIndexed';
 import { isKeyed } from '../predicates/isKeyed';
 import { isSeq } from '../predicates/isSeq';
 import { probeIsMergeable } from '../probe';
-import {
-  shallowCopy,
-  hasOwnProperty,
-  arrCopy,
-  quoteString,
-  coerceKeyPath,
-} from '../utils';
+import { shallowCopy, hasOwnProperty, arrCopy } from '../utils';
 import isDataStructure from '../utils/isDataStructure';
-import { collectionIndexedSeqPropertiesCreate } from './collectionIndexedSeq.js';
-import { collectionKeyedSeqPropertiesCreate } from './collectionKeyedSeq.js';
-import { collectionSeqCreate } from './collectionSeq.js';
+import { collectionIndexedSeqPropertiesCreate } from './collectionIndexedSeq';
+import { collectionKeyedSeqPropertiesCreate } from './collectionKeyedSeq';
+import { collectionSeqCreate } from './collectionSeq';
 
 const collectionXReify = (cx, seq) => {
   return cx === seq

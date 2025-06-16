@@ -1,5 +1,4 @@
-import { IndexedCollection, KeyedCollection } from '../Collection';
-import { Seq } from '../Seq';
+import { Seq, SeqIndexedWhenNotIndexed, SeqKeyedWhenNotKeyed } from '../Seq';
 import { isImmutable } from '../predicates/isImmutable';
 import { isIndexed } from '../predicates/isIndexed';
 import { isKeyed } from '../predicates/isKeyed';
@@ -42,7 +41,7 @@ export function mergeWithSources(collection, sources, merger) {
   }
   const isArray = Array.isArray(collection);
   let merged = collection;
-  const Collection = isArray ? IndexedCollection : KeyedCollection;
+  const Collection = isArray ? SeqIndexedWhenNotIndexed : SeqKeyedWhenNotKeyed;
   const mergeItem = isArray
     ? (value) => {
         // Copy on write
