@@ -36,19 +36,17 @@ import { Collection } from './Universe';
 import { hash } from './Hash';
 
 // Functional read/write API
+import { get } from './functional/get';
+import { getIn } from './functional/getIn';
+import { has } from './functional/has';
+import { hasIn } from './functional/hasIn';
+import { remove } from './functional/remove';
+import { set } from './functional/set';
+import { update } from './functional/update';
+import { updateIn } from './functional/updateIn';
+import { removeIn } from './functional/removeIn';
+import { setIn } from './functional/setIn';
 import {
-  collectionOrAnyOpGet as get,
-  collectionOrAnyOpGetIn as getIn,
-  collectionOrAnyOpHas as has,
-  collectionOrAnyOpHasIn as hasIn,
-  collectionOrAnyOpRemove as remove,
-  collectionOrAnyOpSet as set,
-} from './collection/collection';
-import {
-  collectionXOrAnyOpUpdateIn as updateIn,
-  collectionXOrAnyOpUpdate as update,
-  collectionXOrAnyOpRemoveIn as removeIn,
-  collectionXOrAnyOpSetIn as setIn,
   collectionXOpMergeWithSources,
   collectionXOpMergeDeep,
   collectionXOpMergeDeepWith,

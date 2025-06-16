@@ -33,6 +33,10 @@ import { factoryMap } from '../factory/factoryMap';
 import { factoryReverse } from '../factory/factoryReverse';
 import { factorySlice } from '../factory/factorySlice';
 import { factoryZipWith } from '../factory/factoryZipWith';
+import { get } from '../functional/get';
+import { remove } from '../functional/remove';
+import { set } from '../functional/set';
+import { updateIn } from '../functional/updateIn';
 import { isImmutable } from '../predicates/isImmutable';
 import { isIndexed } from '../predicates/isIndexed';
 import { isKeyed } from '../predicates/isKeyed';
@@ -46,11 +50,6 @@ import {
   coerceKeyPath,
 } from '../utils';
 import isDataStructure from '../utils/isDataStructure';
-import {
-  collectionOrAnyOpGet,
-  collectionOrAnyOpSet,
-  collectionOrAnyOpRemove,
-} from './collection';
 import { collectionIndexedSeqPropertiesCreate } from './collectionIndexedSeq.js';
 import { collectionKeyedSeqPropertiesCreate } from './collectionKeyedSeq.js';
 import { collectionSeqCreate } from './collectionSeq.js';
@@ -381,7 +380,7 @@ const collectionXOpMergeDeep = (cx, iters) => {
 };
 
 const collectionXOpMergeDeepIn = (cx, keyPath, iters) => {
-  return collectionXOrAnyOpUpdateIn(cx, keyPath, mapCreateEmpty(), (cx) => {
+  return updateIn(cx, keyPath, mapCreateEmpty(), (cx) => {
     return collectionXOpMergeDeepWithSources(cx, iters);
   });
 };
@@ -405,7 +404,7 @@ const collectionXOpMerge = (cx, iters) => {
 };
 
 const collectionXOpMergeIn = (cx, keyPath, iters) => {
-  return collectionXOrAnyOpUpdateIn(cx, keyPath, mapCreateEmpty(), (m) =>
+  return updateIn(cx, keyPath, mapCreateEmpty(), (m) =>
     collectionXOpMergeWithSources(m, iters)
   );
 };
@@ -547,7 +546,7 @@ const collectionXOpMergeIntoKeyedWith = (
   return collection.withMutations((collection) => {
     const mergeIntoCollection = merger
       ? (value, key) => {
-          collectionXOrAnyOpUpdate(collection, key, NOT_SET, (oldVal) =>
+          update(collection, key, NOT_SET, (oldVal) =>
             oldVal === NOT_SET ? value : merger(oldVal, value, key)
           );
         }
@@ -560,178 +559,8 @@ const collectionXOpMergeIntoKeyedWith = (
   });
 };
 
-/**
- * Returns a copy of the collection with the value at key path set to the
- * result of providing the existing value to the updating function.
- *
- * A functional alternative to `collection.updateIn(keypath)` which will also
- * work with plain Objects and Arrays.
- *
- * <!-- runkit:activate -->
- * ```js
- * import { updateIn } from 'immutable'
- *
- * const original = { x: { y: { z: 123 }}}
- * updateIn(original, ['x', 'y', 'z'], val => val * 6) // { x: { y: { z: 738 }}}
- * console.log(original) // { x: { y: { z: 123 }}}
- * ```
- */
-const collectionXOrAnyOpUpdateInDeeply = (
-  inImmutable,
-  existing,
-  keyPath,
-  i,
-  notSetValue,
-  updater,
-  mapEmptyCreate
-) => {
-  const wasNotSet = existing === NOT_SET;
-  if (i === keyPath.length) {
-    const existingValue = wasNotSet ? notSetValue : existing;
-    // @ts-expect-error mixed type with optional value
-    const newValue = updater(existingValue);
-    // @ts-expect-error mixed type
-    return newValue === existingValue ? existing : newValue;
-  }
-  if (!wasNotSet && !isDataStructure(existing)) {
-    throw new TypeError(
-      'Cannot update within non-data-structure value in path [' +
-        Array.from(keyPath).slice(0, i).map(quoteString) +
-        ']: ' +
-        existing
-    );
-  }
-  const key = keyPath[i];
-
-  if (typeof key === 'undefined') {
-    throw new TypeError(
-      'Index can not be undefined in updateIn(). This should not happen'
-    );
-  }
-
-  const nextExisting = wasNotSet
-    ? NOT_SET
-    : collectionOrAnyOpGet(existing, key, NOT_SET);
-  const nextUpdated = collectionXOrAnyOpUpdateInDeeply(
-    nextExisting === NOT_SET ? inImmutable : isImmutable(nextExisting),
-    // @ts-expect-error mixed type
-    nextExisting,
-    keyPath,
-    i + 1,
-    notSetValue,
-    updater,
-    mapEmptyCreate
-  );
-  return nextUpdated === nextExisting
-    ? existing
-    : nextUpdated === NOT_SET
-      ? collectionOrAnyOpRemove(existing, key)
-      : collectionOrAnyOpSet(
-          wasNotSet ? (inImmutable ? mapEmptyCreate() : {}) : existing,
-          key,
-          nextUpdated
-        );
-};
-
-const collectionXOrAnyOpUpdateIn = (cx, keyPath, notSetValue, updater) => {
-  if (!updater) {
-    // handle the fact that `notSetValue` is optional here, in that case `updater` is the updater function
-    // @ts-expect-error updater is a function here
-    updater = notSetValue;
-    notSetValue = undefined;
-  }
-  const updatedValue = collectionXOrAnyOpUpdateInDeeply(
-    isImmutable(cx),
-    // @ts-expect-error type issues with Record and mixed types
-    cx,
-    coerceKeyPath(keyPath),
-    0,
-    notSetValue,
-    updater,
-    mapCreateEmpty
-  );
-  // @ts-expect-error mixed return type
-  return updatedValue === NOT_SET ? notSetValue : updatedValue;
-};
-
-/**
- * Returns a copy of the collection with the value at the key path removed.
- *
- * A functional alternative to `collection.removeIn(keypath)` which will also
- * work with plain Objects and Arrays.
- *
- * <!-- runkit:activate -->
- * ```js
- * import { removeIn } from 'immutable';
- *
- * const original = { x: { y: { z: 123 }}}
- * removeIn(original, ['x', 'y', 'z']) // { x: { y: {}}}
- * console.log(original) // { x: { y: { z: 123 }}}
- * ```
- */
-const collectionXOrAnyOpRemoveIn = (cx, keyPath) => {
-  return collectionXOrAnyOpUpdateIn(cx, keyPath, () => NOT_SET);
-};
-
-/**
- * Returns a copy of the collection with the value at key set to the result of
- * providing the existing value to the updating function.
- *
- * A functional alternative to `collection.update(key, fn)` which will also
- * work with plain Objects and Arrays as an alternative for
- * `collectionCopy[key] = fn(collection[key])`.
- *
- * <!-- runkit:activate -->
- * ```js
- * import { update } from 'immutable';
- *
- * const originalArray = [ 'dog', 'frog', 'cat' ]
- * update(originalArray, 1, val => val.toUpperCase()) // [ 'dog', 'FROG', 'cat' ]
- * console.log(originalArray) // [ 'dog', 'frog', 'cat' ]
- * const originalObject = { x: 123, y: 456 }
- * update(originalObject, 'x', val => val * 6) // { x: 738, y: 456 }
- * console.log(originalObject) // { x: 123, y: 456 }
- * ```
- */
-const collectionXOrAnyOpUpdate = (cx, key, notSetValue, updater) => {
-  return collectionXOrAnyOpUpdateIn(
-    // @ts-expect-error Index signature for type string is missing in type V[]
-    cx,
-    [key],
-    notSetValue,
-    updater,
-    null,
-    null
-  );
-};
-
-/**
- * Returns a copy of the collection with the value at the key path set to the
- * provided value.
- *
- * A functional alternative to `collection.setIn(keypath)` which will also
- * work with plain Objects and Arrays.
- *
- * <!-- runkit:activate -->
- * ```js
- * import { setIn } from 'immutable';
- *
- * const original = { x: { y: { z: 123 }}}
- * setIn(original, ['x', 'y', 'z'], 456) // { x: { y: { z: 456 }}}
- * console.log(original) // { x: { y: { z: 123 }}}
- * ```
- */
-const collectionXOrAnyOpSetIn = (cx, keyPath, value) => {
-  return collectionXOrAnyOpUpdateIn(cx, keyPath, NOT_SET, () => value);
-};
-
 export {
   collectionXReify,
-  collectionXOrAnyOpUpdateInDeeply,
-  collectionXOrAnyOpUpdateIn,
-  collectionXOrAnyOpUpdate,
-  collectionXOrAnyOpRemoveIn,
-  collectionXOrAnyOpSetIn,
   collectionXOpCountBy,
   collectionXOpGroupBy,
   collectionXOpLastKeyOf,
