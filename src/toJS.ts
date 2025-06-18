@@ -1,12 +1,12 @@
-import type { Collection } from './Collection';
-import type { Record } from './Record';
+import type { CollectionImpl } from './Collection';
+import type { RecordImpl } from './Record';
 import { Seq } from './Seq';
 import { isCollection } from './predicates/isCollection';
 import { isKeyed } from './predicates/isKeyed';
 import isDataStructure from './utils/isDataStructure';
 
 export function toJS(
-  value: Collection | Record
+  value: CollectionImpl | RecordImpl
 ): Array<unknown> | { [key: string]: unknown };
 export function toJS(value: unknown): unknown;
 export function toJS(
@@ -19,7 +19,6 @@ export function toJS(
     if (!isDataStructure(value)) {
       return value;
     }
-    // @ts-expect-error until Seq has been migrated to TypeScript
     value = Seq(value);
   }
   if (isKeyed(value)) {

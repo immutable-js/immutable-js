@@ -7,48 +7,36 @@ type IteratorType =
   | typeof ITERATE_VALUES
   | typeof ITERATE_ENTRIES;
 
-// TODO Symbol is widely available in modern JavaScript environments, clean this
-const REAL_ITERATOR_SYMBOL = typeof Symbol === 'function' && Symbol.iterator;
-const FAUX_ITERATOR_SYMBOL = '@@iterator';
-
-export const ITERATOR_SYMBOL: string | symbol =
-  REAL_ITERATOR_SYMBOL || FAUX_ITERATOR_SYMBOL;
-
-// @ts-expect-error: properties are not supported in buble
 export class Iterator<V> implements globalThis.Iterator<V> {
-  // TODO activate when using babel as buble does not support static class fields
-  // static KEYS: number;
-  // static VALUES: number;
-  // static ENTRIES: number;
-  // next: () => IteratorResult<V>;
-  // inspect!: () => string;
-  // toSource!: () => string;
+  static KEYS = ITERATE_KEYS;
+  static VALUES = ITERATE_VALUES;
+  static ENTRIES = ITERATE_ENTRIES;
+
+  declare next: () => IteratorResult<V>;
 
   constructor(next: () => IteratorResult<V>) {
-    // @ts-expect-error: properties are not supported in buble
-    this.next = next;
+    if (next) {
+      // Map extends Iterator and has a `next` method, do not erase it in that case. We could have checked `if (next && !this.next)` too.
+      this.next = next;
+    }
   }
 
   toString() {
     return '[Iterator]';
   }
+
+  inspect(): string {
+    return this.toString();
+  }
+
+  toSource(): string {
+    return this.toString();
+  }
+
+  [Symbol.iterator]() {
+    return this;
+  }
 }
-
-// @ts-expect-error: static properties are not supported in buble
-Iterator.KEYS = ITERATE_KEYS;
-// @ts-expect-error: static properties are not supported in buble
-Iterator.VALUES = ITERATE_VALUES;
-// @ts-expect-error: static properties are not supported in buble
-Iterator.ENTRIES = ITERATE_ENTRIES;
-
-// @ts-expect-error: properties are not supported in buble
-Iterator.prototype.inspect = Iterator.prototype.toSource = function () {
-  return this.toString();
-};
-// @ts-expect-error don't know how to type this
-Iterator.prototype[ITERATOR_SYMBOL] = function () {
-  return this;
-};
 
 export function iteratorValue<K, V>(
   type: IteratorType,
@@ -127,9 +115,7 @@ function getIteratorFn(
   const iteratorFn =
     iterable &&
     // @ts-expect-error: maybeIterator is typed as `{}`
-    ((REAL_ITERATOR_SYMBOL && iterable[REAL_ITERATOR_SYMBOL]) ||
-      // @ts-expect-error: maybeIterator is typed as `{}`
-      iterable[FAUX_ITERATOR_SYMBOL]);
+    iterable[Symbol.iterator];
   if (typeof iteratorFn === 'function') {
     return iteratorFn;
   }
