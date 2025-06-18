@@ -1,7 +1,5 @@
 import { smi } from './Math';
 
-const defaultValueOf = Object.prototype.valueOf;
-
 export function hash(o: unknown): number {
   // eslint-disable-next-line eqeqeq
   if (o == null) {
@@ -131,7 +129,8 @@ function hashJSObj(obj: object | Function): number {
 }
 
 function valueOf(obj: object): unknown {
-  return obj.valueOf !== defaultValueOf && typeof obj.valueOf === 'function'
+  return obj.valueOf !== Object.prototype.valueOf &&
+    typeof obj.valueOf === 'function'
     ? // @ts-expect-error weird the "obj" parameter as `valueOf` should not have a parameter
       obj.valueOf(obj)
     : obj;
