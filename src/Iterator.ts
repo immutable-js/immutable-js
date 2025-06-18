@@ -15,10 +15,9 @@ export const ITERATOR_SYMBOL: string | symbol =
   REAL_ITERATOR_SYMBOL || FAUX_ITERATOR_SYMBOL;
 
 export class Iterator<V> implements globalThis.Iterator<V> {
-  // TODO activate when using babel as buble does not support static class fields
-  static KEYS: number;
-  static VALUES: number;
-  static ENTRIES: number;
+  static KEYS = ITERATE_KEYS;
+  static VALUES = ITERATE_VALUES;
+  static ENTRIES = ITERATE_ENTRIES;
 
   declare next: () => IteratorResult<V>;
 
@@ -32,20 +31,19 @@ export class Iterator<V> implements globalThis.Iterator<V> {
   toString() {
     return '[Iterator]';
   }
+
+  inspect(): string {
+    return this.toString();
+  }
+
+  toSource(): string {
+    return this.toString();
+  }
+
+  [ITERATOR_SYMBOL]() {
+    return this;
+  }
 }
-
-Iterator.KEYS = ITERATE_KEYS;
-Iterator.VALUES = ITERATE_VALUES;
-Iterator.ENTRIES = ITERATE_ENTRIES;
-
-// @ts-expect-error will be moved in https://github.com/immutable-js/immutable-js/pull/2126
-Iterator.prototype.inspect = Iterator.prototype.toSource = function () {
-  return this.toString();
-};
-// @ts-expect-error don't know how to type this
-Iterator.prototype[ITERATOR_SYMBOL] = function () {
-  return this;
-};
 
 export function iteratorValue<K, V>(
   type: IteratorType,
