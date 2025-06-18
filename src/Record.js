@@ -1,6 +1,6 @@
 import { KeyedCollection } from './Collection';
 import { CollectionPrototype } from './CollectionImpl';
-import { ITERATE_ENTRIES, ITERATOR_SYMBOL } from './Iterator';
+import { ITERATE_ENTRIES } from './Iterator';
 import { List } from './List';
 import { keyedSeqFromValue } from './Seq';
 import { DELETE } from './TrieUtils';
@@ -229,7 +229,7 @@ RecordPrototype.updateIn = updateIn;
 RecordPrototype.withMutations = withMutations;
 RecordPrototype.asMutable = asMutable;
 RecordPrototype.asImmutable = asImmutable;
-RecordPrototype[ITERATOR_SYMBOL] = RecordPrototype.entries;
+RecordPrototype[Symbol.iterator] = RecordPrototype.entries;
 RecordPrototype.toJSON = RecordPrototype.toObject =
   CollectionPrototype.toObject;
 RecordPrototype.inspect = RecordPrototype.toSource = function () {

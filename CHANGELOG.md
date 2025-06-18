@@ -24,10 +24,10 @@ For the record migrating to a modern codebase had a nice impact of the size of t
 
 | file                   | before | after |
 | ---------------------- | ------ | ----- |
-| immutable.es.js        | 175ko  | 153ko |
-| immutable.es.js (gzip) | 37ko   | 33ko  |
-| immutable.js           | 197ko  | 164ko |
-| immutable.min.js       | 67ko   | 58ko  |
+| immutable.es.js        | 175ko  | 148ko |
+| immutable.es.js (gzip) | 37ko   | 32ko  |
+| immutable.js           | 197ko  | 158ko |
+| immutable.min.js       | 67ko   | 57ko  |
 
 (TODO : those stats needs to be updated as it does include only the buble -> babel migration, not the cleaning)
 
@@ -37,6 +37,7 @@ For the record migrating to a modern codebase had a nice impact of the size of t
 - Define "exports" in package.json [#2080](https://github.com/immutable-js/immutable-js/pull/2080) by [@jdeniau](https://github.com/jdeniau)
 - Use spread operator instead of arrCopy(arguments) [#2122](https://github.com/immutable-js/immutable-js/pull/2122) by [@jdeniau](https://github.com/jdeniau)
 - Array copy method: use .slice() instead of creating a new array by hand. [#2121](https://github.com/immutable-js/immutable-js/pull/2121) by [@jdeniau](https://github.com/jdeniau)
+- Remove widely available methods [#2127](https://github.com/immutable-js/immutable-js/pull/2127) by [@jdeniau](https://github.com/jdeniau)
 - clean iterator prototype to allow tree shaking [#2126](https://github.com/immutable-js/immutable-js/pull/2126) by [@jdeniau](https://github.com/jdeniau)
 
 ### [BREAKING] Drop support for `instanceof` on factory methods

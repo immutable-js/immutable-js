@@ -7,13 +7,6 @@ type IteratorType =
   | typeof ITERATE_VALUES
   | typeof ITERATE_ENTRIES;
 
-// TODO Symbol is widely available in modern JavaScript environments, clean this
-const REAL_ITERATOR_SYMBOL = typeof Symbol === 'function' && Symbol.iterator;
-const FAUX_ITERATOR_SYMBOL = '@@iterator';
-
-export const ITERATOR_SYMBOL: string | symbol =
-  REAL_ITERATOR_SYMBOL || FAUX_ITERATOR_SYMBOL;
-
 export class Iterator<V> implements globalThis.Iterator<V> {
   static KEYS = ITERATE_KEYS;
   static VALUES = ITERATE_VALUES;
@@ -40,7 +33,7 @@ export class Iterator<V> implements globalThis.Iterator<V> {
     return this.toString();
   }
 
-  [ITERATOR_SYMBOL]() {
+  [Symbol.iterator]() {
     return this;
   }
 }
@@ -122,9 +115,7 @@ function getIteratorFn(
   const iteratorFn =
     iterable &&
     // @ts-expect-error: maybeIterator is typed as `{}`
-    ((REAL_ITERATOR_SYMBOL && iterable[REAL_ITERATOR_SYMBOL]) ||
-      // @ts-expect-error: maybeIterator is typed as `{}`
-      iterable[FAUX_ITERATOR_SYMBOL]);
+    iterable[Symbol.iterator];
   if (typeof iteratorFn === 'function') {
     return iteratorFn;
   }
