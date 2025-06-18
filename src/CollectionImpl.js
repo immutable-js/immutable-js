@@ -11,7 +11,6 @@ import {
   ITERATE_KEYS,
   ITERATE_VALUES,
   Iterator,
-  ITERATOR_SYMBOL,
 } from './Iterator';
 import { List } from './List';
 import { Map } from './Map';
@@ -496,7 +495,7 @@ mixin(CollectionImpl, {
 
 const CollectionPrototype = CollectionImpl.prototype;
 CollectionPrototype[IS_COLLECTION_SYMBOL] = true;
-CollectionPrototype[ITERATOR_SYMBOL] = CollectionPrototype.values;
+CollectionPrototype[Symbol.iterator] = CollectionPrototype.values;
 CollectionPrototype.toJSON = CollectionPrototype.toArray;
 CollectionPrototype.__toStringMapper = quoteString;
 CollectionPrototype.inspect = CollectionPrototype.toSource = function () {
@@ -535,7 +534,7 @@ mixin(KeyedCollectionImpl, {
 
 const KeyedCollectionPrototype = KeyedCollectionImpl.prototype;
 KeyedCollectionPrototype[IS_KEYED_SYMBOL] = true;
-KeyedCollectionPrototype[ITERATOR_SYMBOL] = CollectionPrototype.entries;
+KeyedCollectionPrototype[Symbol.iterator] = CollectionPrototype.entries;
 KeyedCollectionPrototype.toJSON = toObject;
 KeyedCollectionPrototype.__toStringMapper = (v, k) =>
   quoteString(k) + ': ' + quoteString(v);

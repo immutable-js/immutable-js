@@ -37,6 +37,7 @@ For the record migrating to a modern codebase had a nice impact of the size of t
 - Define "exports" in package.json [#2080](https://github.com/immutable-js/immutable-js/pull/2080) by [@jdeniau](https://github.com/jdeniau)
 - Use spread operator instead of arrCopy(arguments) [#2122](https://github.com/immutable-js/immutable-js/pull/2122) by [@jdeniau](https://github.com/jdeniau)
 - Array copy method: use .slice() instead of creating a new array by hand. [#2121](https://github.com/immutable-js/immutable-js/pull/2121) by [@jdeniau](https://github.com/jdeniau)
+- Remove widely available methods [#2127](https://github.com/immutable-js/immutable-js/pull/2127) by [@jdeniau](https://github.com/jdeniau)
 - clean iterator prototype to allow tree shaking [#2126](https://github.com/immutable-js/immutable-js/pull/2126) by [@jdeniau](https://github.com/jdeniau)
 
 ### [BREAKING] Drop support for `instanceof` on factory methods
