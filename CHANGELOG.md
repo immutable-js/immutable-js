@@ -24,10 +24,10 @@ For the record migrating to a modern codebase had a nice impact of the size of t
 
 | file                   | before | after |
 | ---------------------- | ------ | ----- |
-| immutable.es.js        | 175ko  | 153ko |
-| immutable.es.js (gzip) | 37ko   | 33ko  |
-| immutable.js           | 197ko  | 164ko |
-| immutable.min.js       | 67ko   | 58ko  |
+| immutable.es.js        | 175ko  | 148ko |
+| immutable.es.js (gzip) | 37ko   | 32ko  |
+| immutable.js           | 197ko  | 158ko |
+| immutable.min.js       | 67ko   | 57ko  |
 
 (TODO : those stats needs to be updated as it does include only the buble -> babel migration, not the cleaning)
 
