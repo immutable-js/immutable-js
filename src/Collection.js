@@ -5,6 +5,12 @@ import { isIndexed } from './predicates/isIndexed';
 import { isKeyed } from './predicates/isKeyed';
 
 export const Collection = (value) => (isCollection(value) ? value : Seq(value));
+
+/**
+ * @template K
+ * @template V
+ * @extends {import('../type-definitions/immutable').ValueObject}
+ */
 export class CollectionImpl {}
 
 export const KeyedCollection = (value) =>

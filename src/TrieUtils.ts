@@ -1,4 +1,4 @@
-import type { Collection } from '../type-definitions/immutable';
+import type { CollectionImpl } from './Collection';
 
 // Used for setting prototype methods that IE8 chokes on.
 export const DELETE = 'delete';
@@ -30,7 +30,7 @@ export function SetRef(ref: Ref): void {
 // the return of any subsequent call of this function.
 export function OwnerID() {}
 
-export function ensureSize(iter: Collection<unknown, unknown>): number {
+export function ensureSize(iter: CollectionImpl<unknown, unknown>): number {
   // @ts-expect-error size should exists on Collection
   if (iter.size === undefined) {
     // @ts-expect-error size should exists on Collection, __iterate does exist on Collection
@@ -41,7 +41,7 @@ export function ensureSize(iter: Collection<unknown, unknown>): number {
 }
 
 export function wrapIndex(
-  iter: Collection<unknown, unknown>,
+  iter: CollectionImpl<unknown, unknown>,
   index: number
 ): number {
   // This implements "is array index" which the ECMAString spec defines as:
@@ -65,24 +65,28 @@ export function returnTrue(): true {
   return true;
 }
 
-export function wholeSlice(begin: number, end: number, size: number): boolean {
+export function wholeSlice(
+  begin: number | undefined,
+  end: number | undefined,
+  size: number
+): boolean {
   return (
     ((begin === 0 && !isNeg(begin)) ||
-      (size !== undefined && begin <= -size)) &&
+      (size !== undefined && (begin ?? 0) <= -size)) &&
     (end === undefined || (size !== undefined && end >= size))
   );
 }
 
-export function resolveBegin(begin: number, size: number): number {
+export function resolveBegin(begin: number | undefined, size: number): number {
   return resolveIndex(begin, size, 0);
 }
 
-export function resolveEnd(end: number, size: number): number {
+export function resolveEnd(end: number | undefined, size: number): number {
   return resolveIndex(end, size, size);
 }
 
 function resolveIndex(
-  index: number,
+  index: number | undefined,
   size: number,
   defaultIndex: number
 ): number {
