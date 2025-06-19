@@ -2,19 +2,19 @@ export const ITERATE_KEYS = 0;
 export const ITERATE_VALUES = 1;
 export const ITERATE_ENTRIES = 2;
 
-type IteratorType =
+export type IteratorType =
   | typeof ITERATE_KEYS
   | typeof ITERATE_VALUES
   | typeof ITERATE_ENTRIES;
 
-export class Iterator<V> implements globalThis.Iterator<V> {
+export class Iterator<V> implements globalThis.Iterator<V, undefined> {
   static KEYS = ITERATE_KEYS;
   static VALUES = ITERATE_VALUES;
   static ENTRIES = ITERATE_ENTRIES;
 
-  declare next: () => IteratorResult<V>;
+  declare next: () => IteratorResult<V, undefined>;
 
-  constructor(next: () => IteratorResult<V>) {
+  constructor(next: () => IteratorResult<V, undefined>) {
     if (next) {
       // Map extends Iterator and has a `next` method, do not erase it in that case. We could have checked `if (next && !this.next)` too.
       this.next = next;
@@ -41,42 +41,65 @@ export class Iterator<V> implements globalThis.Iterator<V> {
 export function iteratorValue<K, V>(
   type: IteratorType,
   k: K,
-  v?: undefined,
-  iteratorResult?: IteratorResult<K>
-): IteratorResult<V> | undefined;
+  v: undefined,
+  iteratorResult?: IteratorYieldResult<K>
+): IteratorYieldResult<V>;
 export function iteratorValue<K, V>(
   type: IteratorType,
   k: K,
   v: V,
-  iteratorResult?: IteratorResult<V>
-): IteratorResult<V> | undefined;
+  iteratorResult?: IteratorYieldResult<V>
+): IteratorYieldResult<V>;
 export function iteratorValue<K, V>(
   type: typeof ITERATE_ENTRIES,
   k: K,
-  v?: V,
-  iteratorResult?: IteratorResult<[K, V]>
-): IteratorResult<[K, V]> | undefined;
+  v: V,
+  iteratorResult?: IteratorYieldResult<[K, V]>
+): IteratorYieldResult<[K, V]>;
 export function iteratorValue<K, V>(
   type: IteratorType,
   k: K,
-  v?: V,
+  v: V,
   iteratorResult?:
-    | IteratorResult<K>
-    | IteratorResult<V>
-    | IteratorResult<[K, V]>
-): IteratorResult<K> | IteratorResult<V> | IteratorResult<[K, V]> | undefined {
-  const value =
-    type === ITERATE_KEYS ? k : type === ITERATE_VALUES ? v : [k, v];
-  // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
-  iteratorResult
-    ? (iteratorResult.value = value)
-    : (iteratorResult = {
-        // @ts-expect-error ensure value is not undefined
-        value: value,
-        done: false,
-      });
+    | IteratorYieldResult<K>
+    | IteratorYieldResult<V>
+    | IteratorYieldResult<[K, V]>
+): IteratorYieldResult<K | V | [K, V]> {
+  const value = getValueFromType(type, k, v);
+  // type === ITERATE_KEYS ? k : type === ITERATE_VALUES ? v : [k, v];
 
-  return iteratorResult;
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
+
+  if (iteratorResult) {
+    iteratorResult.value = value;
+
+    return iteratorResult;
+  }
+
+  return {
+    value: value,
+    done: false,
+  };
+}
+
+function getValueFromType<K, V>(type: typeof ITERATE_KEYS, k: K, v: V): K;
+function getValueFromType<K, V>(
+  type: typeof ITERATE_VALUES,
+  k: K,
+  v: V
+): V | undefined;
+function getValueFromType<K, V>(
+  type: typeof ITERATE_ENTRIES,
+  k: K,
+  v: V
+): [K, V] | undefined;
+function getValueFromType<K, V>(type: IteratorType, k: K, v: V): K | V | [K, V];
+function getValueFromType<K, V>(
+  type: IteratorType,
+  k: K,
+  v: V
+): K | V | [K, V] {
+  return type === ITERATE_KEYS ? k : type === ITERATE_VALUES ? v : [k, v];
 }
 
 export function iteratorDone(): IteratorReturnResult<undefined> {

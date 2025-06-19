@@ -6,7 +6,7 @@ import { isKeyed } from './predicates/isKeyed';
 import isDataStructure from './utils/isDataStructure';
 
 export function toJS(
-  value: CollectionImpl | RecordImpl
+  value: CollectionImpl<unknown, unknown> | RecordImpl
 ): Array<unknown> | { [key: string]: unknown };
 export function toJS(value: unknown): unknown;
 export function toJS(
