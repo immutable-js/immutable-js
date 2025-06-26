@@ -31,12 +31,10 @@ export function SetRef(ref: Ref): void {
 export function OwnerID() {}
 
 export function ensureSize(iter: CollectionImpl<unknown, unknown>): number {
-  // @ts-expect-error size should exists on Collection
   if (iter.size === undefined) {
-    // @ts-expect-error size should exists on Collection, __iterate does exist on Collection
     iter.size = iter.__iterate(returnTrue);
   }
-  // @ts-expect-error size should exists on Collection
+
   return iter.size;
 }
 

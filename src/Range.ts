@@ -115,7 +115,7 @@ export class RangeImpl extends IndexedSeqImpl implements Seq.Indexed<number> {
   }
 
   override __iterate(
-    fn: (value: number, index: number, iter: this) => boolean,
+    fn: (value: number, index: number, iter: this) => boolean | void,
     reverse: boolean = false
   ): number {
     const size = this.size;
@@ -149,7 +149,7 @@ export class RangeImpl extends IndexedSeqImpl implements Seq.Indexed<number> {
     });
   }
 
-  equals(other: unknown): boolean {
+  override equals(other: unknown): boolean {
     return other instanceof RangeImpl
       ? this._start === other._start &&
           this._end === other._end &&
