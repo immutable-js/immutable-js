@@ -23,9 +23,8 @@ export function toJS(
   }
   if (isKeyed(value)) {
     const result: { [key: string]: unknown } = {};
-    // @ts-expect-error `__iterate` exists on all Keyed collections but method is not defined in the type
     value.__iterate((v, k) => {
-      result[k] = toJS(v);
+      result[String(k)] = toJS(v);
     });
     return result;
   }

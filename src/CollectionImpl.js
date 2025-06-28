@@ -5,16 +5,9 @@ import {
   KeyedCollectionImpl,
   SetCollectionImpl,
 } from './Collection';
-import { hash } from './Hash';
-import {
-  ITERATE_ENTRIES,
-  ITERATE_KEYS,
-  ITERATE_VALUES,
-  Iterator,
-} from './Iterator';
+import { ITERATE_KEYS, ITERATE_VALUES, Iterator } from './Iterator';
 import { List } from './List';
 import { Map } from './Map';
-import { imul, smi } from './Math';
 import {
   concatFactory,
   countByFactory,
@@ -65,10 +58,9 @@ import { toObject } from './methods/toObject';
 import { IS_COLLECTION_SYMBOL } from './predicates/isCollection';
 import { IS_INDEXED_SYMBOL, isIndexed } from './predicates/isIndexed';
 import { IS_KEYED_SYMBOL, isKeyed } from './predicates/isKeyed';
-import { IS_ORDERED_SYMBOL, isOrdered } from './predicates/isOrdered';
+import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
 import { toJS } from './toJS';
 import assertNotInfinite from './utils/assertNotInfinite';
-import deepEqual from './utils/deepEqual';
 import mixin from './utils/mixin';
 import quoteString from './utils/quoteString';
 
@@ -174,22 +166,6 @@ mixin(CollectionImpl, {
 
   includes(searchValue) {
     return this.some((value) => is(value, searchValue));
-  },
-
-  entries() {
-    return this.__iterator(ITERATE_ENTRIES);
-  },
-
-  every(predicate, context) {
-    assertNotInfinite(this.size);
-    let returnValue = true;
-    this.__iterate((v, k, c) => {
-      if (!predicate.call(context, v, k, c)) {
-        returnValue = false;
-        return false;
-      }
-    });
-    return returnValue;
   },
 
   filter(predicate, context) {
@@ -301,9 +277,9 @@ mixin(CollectionImpl, {
     return countByFactory(this, grouper, context);
   },
 
-  equals(other) {
-    return deepEqual(this, other);
-  },
+  // equals(other) {
+  //   return deepEqual(this, other);
+  // },
 
   entrySeq() {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
@@ -482,9 +458,9 @@ mixin(CollectionImpl, {
 
   // ### Hashable Object
 
-  hashCode() {
-    return this.__hash || (this.__hash = hashCollection(this));
-  },
+  // hashCode() {
+  //   return this.__hash || (this.__hash = hashCollection(this));
+  // },
 
   // ### Internal
 
@@ -754,48 +730,4 @@ function defaultZipper(...values) {
 
 function defaultNegComparator(a, b) {
   return a < b ? 1 : a > b ? -1 : 0;
-}
-
-function hashCollection(collection) {
-  if (collection.size === Infinity) {
-    return 0;
-  }
-  const ordered = isOrdered(collection);
-  const keyed = isKeyed(collection);
-  let h = ordered ? 1 : 0;
-
-  collection.__iterate(
-    keyed
-      ? ordered
-        ? (v, k) => {
-            h = (31 * h + hashMerge(hash(v), hash(k))) | 0;
-          }
-        : (v, k) => {
-            h = (h + hashMerge(hash(v), hash(k))) | 0;
-          }
-      : ordered
-        ? (v) => {
-            h = (31 * h + hash(v)) | 0;
-          }
-        : (v) => {
-            h = (h + hash(v)) | 0;
-          }
-  );
-
-  return murmurHashOfSize(collection.size, h);
-}
-
-function murmurHashOfSize(size, h) {
-  h = imul(h, 0xcc9e2d51);
-  h = imul((h << 15) | (h >>> -15), 0x1b873593);
-  h = imul((h << 13) | (h >>> -13), 5);
-  h = ((h + 0xe6546b64) | 0) ^ size;
-  h = imul(h ^ (h >>> 16), 0x85ebca6b);
-  h = imul(h ^ (h >>> 13), 0xc2b2ae35);
-  h = smi(h ^ (h >>> 16));
-  return h;
-}
-
-function hashMerge(a, b) {
-  return (a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2))) | 0; // int
 }

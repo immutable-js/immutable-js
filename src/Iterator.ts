@@ -68,8 +68,6 @@ export function iteratorValue<K, V>(
   const value = getValueFromType(type, k, v);
   // type === ITERATE_KEYS ? k : type === ITERATE_VALUES ? v : [k, v];
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
-
   if (iteratorResult) {
     iteratorResult.value = value;
 
