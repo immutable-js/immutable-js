@@ -1,4 +1,4 @@
-import type { ValueObject } from '../../type-definitions/immutable';
+import type ValueObject from '../ValueObject';
 
 /**
  * True if `maybeValue` is a JavaScript Object which has *both* `equals()`
