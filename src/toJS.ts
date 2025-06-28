@@ -6,7 +6,7 @@ import { isKeyed } from './predicates/isKeyed';
 import isDataStructure from './utils/isDataStructure';
 
 export function toJS(
-  value: CollectionImpl | RecordImpl
+  value: CollectionImpl<unknown, unknown> | RecordImpl
 ): Array<unknown> | { [key: string]: unknown };
 export function toJS(value: unknown): unknown;
 export function toJS(
@@ -23,9 +23,8 @@ export function toJS(
   }
   if (isKeyed(value)) {
     const result: { [key: string]: unknown } = {};
-    // @ts-expect-error `__iterate` exists on all Keyed collections but method is not defined in the type
     value.__iterate((v, k) => {
-      result[k] = toJS(v);
+      result[String(k)] = toJS(v);
     });
     return result;
   }

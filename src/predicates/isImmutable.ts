@@ -1,4 +1,5 @@
-import type { Collection, Record } from '../../type-definitions/immutable';
+import type { Record } from '../../type-definitions/immutable';
+import type { CollectionImpl } from '../Collection';
 import { isCollection } from './isCollection';
 import { isRecord } from './isRecord';
 
@@ -19,6 +20,6 @@ import { isRecord } from './isRecord';
  */
 export function isImmutable(
   maybeImmutable: unknown
-): maybeImmutable is Collection<unknown, unknown> | Record<object> {
+): maybeImmutable is CollectionImpl<unknown, unknown> | Record<object> {
   return isCollection(maybeImmutable) || isRecord(maybeImmutable);
 }
