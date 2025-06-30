@@ -5,6 +5,14 @@ import {
   KeyedCollectionImpl,
   SetCollectionImpl,
 } from './Collection';
+import {
+  defaultNegComparator,
+  entryMapper,
+  keyMapper,
+  neg,
+  not,
+  reduce,
+} from './CollectionHelperMethods';
 import { ITERATE_KEYS, ITERATE_VALUES, Iterator } from './Iterator';
 import { List } from './List';
 import { Map } from './Map';
@@ -56,10 +64,11 @@ import { getIn } from './methods/getIn';
 import { hasIn } from './methods/hasIn';
 import { toObject } from './methods/toObject';
 import { IS_COLLECTION_SYMBOL } from './predicates/isCollection';
-import { IS_INDEXED_SYMBOL, isIndexed } from './predicates/isIndexed';
-import { IS_KEYED_SYMBOL, isKeyed } from './predicates/isKeyed';
+import { isIndexed, IS_INDEXED_SYMBOL } from './predicates/isIndexed';
+import { isKeyed, IS_KEYED_SYMBOL } from './predicates/isKeyed';
 import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
 import { toJS } from './toJS';
+import arrCopy from './utils/arrCopy';
 import assertNotInfinite from './utils/assertNotInfinite';
 import mixin from './utils/mixin';
 import quoteString from './utils/quoteString';
@@ -691,43 +700,6 @@ mixin(SetSeqImpl, SetCollectionPrototype);
 
 // #pragma Helper functions
 
-function reduce(collection, reducer, reduction, context, useFirst, reverse) {
-  assertNotInfinite(collection.size);
-  collection.__iterate((v, k, c) => {
-    if (useFirst) {
-      useFirst = false;
-      reduction = v;
-    } else {
-      reduction = reducer.call(context, reduction, v, k, c);
-    }
-  }, reverse);
-  return reduction;
-}
-
-function keyMapper(v, k) {
-  return k;
-}
-
-function entryMapper(v, k) {
-  return [k, v];
-}
-
-function not(predicate) {
-  return function () {
-    return !predicate.apply(this, arguments);
-  };
-}
-
-function neg(predicate) {
-  return function () {
-    return -predicate.apply(this, arguments);
-  };
-}
-
-function defaultZipper(...values) {
-  return values;
-}
-
-function defaultNegComparator(a, b) {
-  return a < b ? 1 : a > b ? -1 : 0;
+function defaultZipper() {
+  return arrCopy(arguments);
 }
