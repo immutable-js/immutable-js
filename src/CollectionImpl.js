@@ -68,7 +68,6 @@ import { isIndexed, IS_INDEXED_SYMBOL } from './predicates/isIndexed';
 import { isKeyed, IS_KEYED_SYMBOL } from './predicates/isKeyed';
 import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
 import { toJS } from './toJS';
-import arrCopy from './utils/arrCopy';
 import assertNotInfinite from './utils/assertNotInfinite';
 import mixin from './utils/mixin';
 import quoteString from './utils/quoteString';
@@ -700,6 +699,6 @@ mixin(SetSeqImpl, SetCollectionPrototype);
 
 // #pragma Helper functions
 
-function defaultZipper() {
-  return arrCopy(arguments);
+function defaultZipper(...values) {
+  return values;
 }
