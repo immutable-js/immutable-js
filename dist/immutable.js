@@ -4435,6 +4435,47 @@
       return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
     }
 
+    function reduce(collection, reducer, reduction, context, useFirst, reverse) {
+        // @ts-expect-error Migrate to CollectionImpl in v6
+        assertNotInfinite(collection.size);
+        // @ts-expect-error Migrate to CollectionImpl in v6
+        collection.__iterate(function (v, k, c) {
+            if (useFirst) {
+                useFirst = false;
+                reduction = v;
+            }
+            else {
+                reduction = reducer.call(context, reduction, v, k, c);
+            }
+        }, reverse);
+        return reduction;
+    }
+    function keyMapper(v, k) {
+        return k;
+    }
+    function entryMapper(v, k) {
+        return [k, v];
+    }
+    function not(predicate) {
+        return function () {
+            var args = [], len = arguments.length;
+            while ( len-- ) args[ len ] = arguments[ len ];
+
+            return !predicate.apply(this, args);
+        };
+    }
+    function neg(predicate) {
+        return function () {
+            var args = [], len = arguments.length;
+            while ( len-- ) args[ len ] = arguments[ len ];
+
+            return -predicate.apply(this, args);
+        };
+    }
+    function defaultNegComparator(a, b) {
+        return a < b ? 1 : a > b ? -1 : 0;
+    }
+
     function deepEqual(a, b) {
         if (a === b) {
             return true;
@@ -4969,6 +5010,47 @@
             result.push(toJS(v));
         });
         return result;
+    }
+
+    function hashCollection(collection) {
+        // @ts-expect-error Migrate to CollectionImpl in v6
+        if (collection.size === Infinity) {
+            return 0;
+        }
+        var ordered = isOrdered(collection);
+        var keyed = isKeyed(collection);
+        var h = ordered ? 1 : 0;
+        // @ts-expect-error Migrate to CollectionImpl in v6
+        collection.__iterate(keyed
+            ? ordered
+                ? function (v, k) {
+                    h = (31 * h + hashMerge(hash(v), hash(k))) | 0;
+                }
+                : function (v, k) {
+                    h = (h + hashMerge(hash(v), hash(k))) | 0;
+                }
+            : ordered
+                ? function (v) {
+                    h = (31 * h + hash(v)) | 0;
+                }
+                : function (v) {
+                    h = (h + hash(v)) | 0;
+                });
+        // @ts-expect-error Migrate to CollectionImpl in v6
+        return murmurHashOfSize(collection.size, h);
+    }
+    function murmurHashOfSize(size, h) {
+        h = imul(h, 0xcc9e2d51);
+        h = imul((h << 15) | (h >>> -15), 0x1b873593);
+        h = imul((h << 13) | (h >>> -13), 5);
+        h = ((h + 0xe6546b64) | 0) ^ size;
+        h = imul(h ^ (h >>> 16), 0x85ebca6b);
+        h = imul(h ^ (h >>> 13), 0xc2b2ae35);
+        h = smi(h ^ (h >>> 16));
+        return h;
+    }
+    function hashMerge(a, b) {
+        return (a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2))) | 0; // int
     }
 
     /**
@@ -5626,89 +5708,8 @@
 
     // #pragma Helper functions
 
-    function reduce(collection, reducer, reduction, context, useFirst, reverse) {
-      assertNotInfinite(collection.size);
-      collection.__iterate(function (v, k, c) {
-        if (useFirst) {
-          useFirst = false;
-          reduction = v;
-        } else {
-          reduction = reducer.call(context, reduction, v, k, c);
-        }
-      }, reverse);
-      return reduction;
-    }
-
-    function keyMapper(v, k) {
-      return k;
-    }
-
-    function entryMapper(v, k) {
-      return [k, v];
-    }
-
-    function not(predicate) {
-      return function () {
-        return !predicate.apply(this, arguments);
-      };
-    }
-
-    function neg(predicate) {
-      return function () {
-        return -predicate.apply(this, arguments);
-      };
-    }
-
     function defaultZipper() {
       return arrCopy(arguments);
-    }
-
-    function defaultNegComparator(a, b) {
-      return a < b ? 1 : a > b ? -1 : 0;
-    }
-
-    function hashCollection(collection) {
-      if (collection.size === Infinity) {
-        return 0;
-      }
-      var ordered = isOrdered(collection);
-      var keyed = isKeyed(collection);
-      var h = ordered ? 1 : 0;
-
-      collection.__iterate(
-        keyed
-          ? ordered
-            ? function (v, k) {
-                h = (31 * h + hashMerge(hash(v), hash(k))) | 0;
-              }
-            : function (v, k) {
-                h = (h + hashMerge(hash(v), hash(k))) | 0;
-              }
-          : ordered
-            ? function (v) {
-                h = (31 * h + hash(v)) | 0;
-              }
-            : function (v) {
-                h = (h + hash(v)) | 0;
-              }
-      );
-
-      return murmurHashOfSize(collection.size, h);
-    }
-
-    function murmurHashOfSize(size, h) {
-      h = imul(h, 0xcc9e2d51);
-      h = imul((h << 15) | (h >>> -15), 0x1b873593);
-      h = imul((h << 13) | (h >>> -13), 5);
-      h = ((h + 0xe6546b64) | 0) ^ size;
-      h = imul(h ^ (h >>> 16), 0x85ebca6b);
-      h = imul(h ^ (h >>> 13), 0xc2b2ae35);
-      h = smi(h ^ (h >>> 16));
-      return h;
-    }
-
-    function hashMerge(a, b) {
-      return (a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2))) | 0; // int
     }
 
     /**
