@@ -4,17 +4,23 @@ import {
   KeyedCollection,
   SetCollection,
 } from './Collection';
-import { hash } from './Hash';
+import {
+  defaultNegComparator,
+  entryMapper,
+  keyMapper,
+  neg,
+  not,
+  reduce,
+} from './CollectionHelperMethods';
 import {
   ITERATE_ENTRIES,
   ITERATE_KEYS,
   ITERATE_VALUES,
-  ITERATOR_SYMBOL,
   Iterator,
+  ITERATOR_SYMBOL,
 } from './Iterator';
 import { List } from './List';
 import { Map } from './Map';
-import { imul, smi } from './Math';
 import {
   FromEntriesSequence,
   ToIndexedSequence,
@@ -59,11 +65,12 @@ import { toObject } from './methods/toObject';
 import { IS_COLLECTION_SYMBOL } from './predicates/isCollection';
 import { isIndexed, IS_INDEXED_SYMBOL } from './predicates/isIndexed';
 import { isKeyed, IS_KEYED_SYMBOL } from './predicates/isKeyed';
-import { isOrdered, IS_ORDERED_SYMBOL } from './predicates/isOrdered';
+import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
 import { toJS } from './toJS';
 import arrCopy from './utils/arrCopy';
 import assertNotInfinite from './utils/assertNotInfinite';
 import deepEqual from './utils/deepEqual';
+import { hashCollection } from './utils/hasCollection';
 import mixin from './utils/mixin';
 import quoteString from './utils/quoteString';
 
@@ -701,87 +708,6 @@ mixin(SetSeq, SetCollectionPrototype);
 
 // #pragma Helper functions
 
-function reduce(collection, reducer, reduction, context, useFirst, reverse) {
-  assertNotInfinite(collection.size);
-  collection.__iterate((v, k, c) => {
-    if (useFirst) {
-      useFirst = false;
-      reduction = v;
-    } else {
-      reduction = reducer.call(context, reduction, v, k, c);
-    }
-  }, reverse);
-  return reduction;
-}
-
-function keyMapper(v, k) {
-  return k;
-}
-
-function entryMapper(v, k) {
-  return [k, v];
-}
-
-function not(predicate) {
-  return function () {
-    return !predicate.apply(this, arguments);
-  };
-}
-
-function neg(predicate) {
-  return function () {
-    return -predicate.apply(this, arguments);
-  };
-}
-
 function defaultZipper() {
   return arrCopy(arguments);
-}
-
-function defaultNegComparator(a, b) {
-  return a < b ? 1 : a > b ? -1 : 0;
-}
-
-function hashCollection(collection) {
-  if (collection.size === Infinity) {
-    return 0;
-  }
-  const ordered = isOrdered(collection);
-  const keyed = isKeyed(collection);
-  let h = ordered ? 1 : 0;
-
-  collection.__iterate(
-    keyed
-      ? ordered
-        ? (v, k) => {
-            h = (31 * h + hashMerge(hash(v), hash(k))) | 0;
-          }
-        : (v, k) => {
-            h = (h + hashMerge(hash(v), hash(k))) | 0;
-          }
-      : ordered
-        ? (v) => {
-            h = (31 * h + hash(v)) | 0;
-          }
-        : (v) => {
-            h = (h + hash(v)) | 0;
-          }
-  );
-
-  return murmurHashOfSize(collection.size, h);
-}
-
-function murmurHashOfSize(size, h) {
-  h = imul(h, 0xcc9e2d51);
-  h = imul((h << 15) | (h >>> -15), 0x1b873593);
-  h = imul((h << 13) | (h >>> -13), 5);
-  h = ((h + 0xe6546b64) | 0) ^ size;
-  h = imul(h ^ (h >>> 16), 0x85ebca6b);
-  h = imul(h ^ (h >>> 13), 0xc2b2ae35);
-  h = smi(h ^ (h >>> 16));
-  return h;
-}
-
-function hashMerge(a, b) {
-  return (a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2))) | 0; // int
 }
