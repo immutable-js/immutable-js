@@ -1,17 +1,15 @@
-import type { Collection } from '../type-definitions/immutable';
+import type { CollectionImpl } from './Collection';
 import assertNotInfinite from './utils/assertNotInfinite';
 
 export function reduce(
-  collection: Collection<unknown, unknown>,
+  collection: CollectionImpl<unknown, unknown>,
   reducer: (...args: unknown[]) => unknown,
   reduction: unknown,
   context: unknown,
   useFirst: boolean,
   reverse: boolean
 ) {
-  // @ts-expect-error Migrate to CollectionImpl in v6
   assertNotInfinite(collection.size);
-  // @ts-expect-error Migrate to CollectionImpl in v6
   collection.__iterate((v, k, c) => {
     if (useFirst) {
       useFirst = false;
