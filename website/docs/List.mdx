@@ -186,7 +186,7 @@ update<R>(updater: (value: this) => R): R`}
 
 <Repl
   defaultValue={`const list = List([ 'a', 'b', 'c' ])
-const result = list.update(2, val => val.toUpperCase())
+list.update(2, val => val.toUpperCase())
 // List [ "a", "b", "C" ]`}
 />
 
@@ -402,7 +402,7 @@ zip<U, V>(other: Collection<unknown, U>, other2: Collection<unknown, V>): List<[
 <Repl
   defaultValue={`const a = List([ 1, 2, 3 ]);
 const b = List([ 4, 5, 6 ]);
-const c = a.zip(b); // List [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]`}
+a.zip(b); // List [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]`}
 />
 
 <MemberLabel label="zipAll()" />
@@ -419,7 +419,7 @@ zipAll<U, V>(other: Collection<unknown, U>, other2: Collection<unknown, V>): Lis
 <Repl
   defaultValue={`const a = List([ 1, 2 ]);
 const b = List([ 3, 4, 5 ]);
-const c = a.zipAll(b);`}
+a.zipAll(b);`}
 />
 
 Note: Since zipAll will return a collection as large as the largest input, some results may contain undefined values.
@@ -438,7 +438,7 @@ zipWith<Z>(zipper: (...values: Array<unknown>) => Z, ...collections: Array<Colle
 <Repl
   defaultValue={`const a = List([ 1, 2, 3 ]);
 const b = List([ 4, 5, 6 ]);
-const c = a.zipWith((a, b) => a + b, b);`}
+a.zipWith((a, b) => a + b, b);`}
 />
 
 <MemberLabel label="shuffle()" />
@@ -531,7 +531,7 @@ Note: This is not a lazy operation.
   Map({ v: 0 }),
   Map({ v: 2 })
 ])
-const groupsOfMaps = listOfMaps.groupBy(x => x.get('v'))`}
+listOfMaps.groupBy(x => x.get('v'))`}
 />
 
 ## Conversion to JavaScript types
