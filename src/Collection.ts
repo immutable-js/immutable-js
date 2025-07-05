@@ -107,9 +107,9 @@ export function KeyedCollection(
 
 export class KeyedCollectionImpl<K, V> extends CollectionImpl<K, V> {}
 
-export function IndexedCollection<T>(
-  value: Iterable<T> | ArrayLike<T>
-): IndexedCollectionImpl<T> {
+export function IndexedCollection(
+  value: Iterable<unknown> | ArrayLike<unknown>
+): IndexedCollectionImpl<unknown> {
   return isIndexed(value) ? value : IndexedSeq(value);
 }
 
