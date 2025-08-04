@@ -88,6 +88,7 @@
     "@codemirror/state": "^6.5.2",
     "@codemirror/theme-one-dark": "^6.1.2",
     "@codemirror/view": "^6.36.5",
+    "@docsearch/react": "^4.0.0-beta.5",
     "@eslint/js": "^9.27.0",
     "@jdeniau/immutable-devtools": "^2.1.4",
     "@jest/globals": "^29.7.0",
