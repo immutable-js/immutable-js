@@ -1,6 +1,6 @@
-import type { Collection } from '../../type-definitions/immutable';
-import type { Range } from '../Range';
-import type { Repeat } from '../Repeat';
+import type { CollectionImpl } from '../Collection';
+import type { RangeImpl as Range } from '../Range';
+import type { RepeatImpl as Repeat } from '../Repeat';
 import { NOT_SET } from '../TrieUtils';
 import { is } from '../is';
 import { isAssociative } from '../predicates/isAssociative';
@@ -10,7 +10,7 @@ import { isKeyed } from '../predicates/isKeyed';
 import { isOrdered } from '../predicates/isOrdered';
 
 export default function deepEqual(
-  a: Range | Repeat | Collection<unknown, unknown>,
+  a: Range | Repeat | CollectionImpl<unknown, unknown>,
   b: unknown
 ): boolean {
   if (a === b) {
@@ -19,7 +19,6 @@ export default function deepEqual(
 
   if (
     !isCollection(b) ||
-    // @ts-expect-error size should exists on Collection
     (a.size !== undefined && b.size !== undefined && a.size !== b.size) ||
     // @ts-expect-error __hash exists on Collection
     (a.__hash !== undefined &&
@@ -29,24 +28,20 @@ export default function deepEqual(
       a.__hash !== b.__hash) ||
     isKeyed(a) !== isKeyed(b) ||
     isIndexed(a) !== isIndexed(b) ||
-    // @ts-expect-error Range extends Collection, which implements [Symbol.iterator], so it is valid
     isOrdered(a) !== isOrdered(b)
   ) {
     return false;
   }
 
-  // @ts-expect-error size should exists on Collection
   if (a.size === 0 && b.size === 0) {
     return true;
   }
 
   const notAssociative = !isAssociative(a);
 
-  // @ts-expect-error Range extends Collection, which implements [Symbol.iterator], so it is valid
   if (isOrdered(a)) {
     const entries = a.entries();
-    // @ts-expect-error need to cast as boolean
-    return (
+    return !!(
       b.every((v, k) => {
         const entry = entries.next().value;
         return entry && is(entry[1], v) && (notAssociative || is(entry[0], k));
@@ -57,9 +52,10 @@ export default function deepEqual(
   let flipped = false;
 
   if (a.size === undefined) {
-    // @ts-expect-error size should exists on Collection
     if (b.size === undefined) {
+      // @ts-expect-error cacheResult might be implemented on some collections
       if (typeof a.cacheResult === 'function') {
+        // @ts-expect-error cacheResult might be implemented on some collections
         a.cacheResult();
       }
     } else {
@@ -89,9 +85,5 @@ export default function deepEqual(
       }
     });
 
-  return (
-    allEqual &&
-    // @ts-expect-error size should exists on Collection
-    a.size === bSize
-  );
+  return allEqual && a.size === bSize;
 }
