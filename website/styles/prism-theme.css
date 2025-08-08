@@ -100,7 +100,7 @@ pre[class*='language-'] {
 .token.string,
 .token.char,
 .token.builtin {
-  color: rgb(72, 107, 0);
+  color: #de0e37;
 }
 .token.inserted {
   color: #690;
