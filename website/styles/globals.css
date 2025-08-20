@@ -11,7 +11,7 @@ body {
   --font-size-small-screen: 14px;
   --header-content-padding: 12px;
 
-  --link-color: #4183c4;
+  --link-color: #4078c0;
   --link-hover-color: #2b6db0;
   --header-color: #212325;
   --header-bg-color: #6dbcdb;
@@ -89,7 +89,7 @@ h1.mainTitle {
 
 h2 {
   margin: 4rem 0 1 rem;
-  color: #9a9c9e;
+  color: #545759;
   font-size: 1.5em;
   font-weight: 300;
   margin: 3rem 0 2rem;
@@ -318,7 +318,7 @@ img {
   color: #fff;
   font-weight: bold;
   text-decoration: none;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  text-shadow: 1px 1px 2px black;
 }
 
 .miniHeaderContents .links > * {
