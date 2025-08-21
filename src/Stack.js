@@ -1,7 +1,7 @@
-import { IndexedCollection } from './Collection';
-import { Iterator, iteratorDone, iteratorValue } from './Iterator';
+import { IndexedCollection, IndexedCollectionImpl } from './Collection';
+import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 import { ArraySeq } from './Seq';
-import { resolveBegin, resolveEnd, wholeSlice, wrapIndex } from './TrieUtils';
+import { wholeSlice, resolveBegin, resolveEnd, wrapIndex } from './TrieUtils';
 import { asImmutable } from './methods/asImmutable';
 import { asMutable } from './methods/asMutable';
 import { wasAltered } from './methods/wasAltered';
@@ -9,20 +9,20 @@ import { withMutations } from './methods/withMutations';
 import { IS_STACK_SYMBOL, isStack } from './predicates/isStack';
 import assertNotInfinite from './utils/assertNotInfinite';
 
-export class Stack extends IndexedCollection {
-  // @pragma Construction
+export const Stack = (value) =>
+  value === undefined || value === null
+    ? emptyStack()
+    : isStack(value)
+      ? value
+      : emptyStack().pushAll(value);
 
-  constructor(value) {
-    // eslint-disable-next-line no-constructor-return
-    return value === undefined || value === null
-      ? emptyStack()
-      : isStack(value)
-        ? value
-        : emptyStack().pushAll(value);
-  }
+Stack.of = function (...values) {
+  return Stack(values);
+};
 
-  static of(/*...values*/) {
-    return this(arguments);
+export class StackImpl extends IndexedCollectionImpl {
+  create(value) {
+    return Stack(value);
   }
 
   toString() {
@@ -46,15 +46,15 @@ export class Stack extends IndexedCollection {
 
   // @pragma Modification
 
-  push(/*...values*/) {
-    if (arguments.length === 0) {
+  push(...values) {
+    if (values.length === 0) {
       return this;
     }
-    const newSize = this.size + arguments.length;
+    const newSize = this.size + values.length;
     let head = this._head;
-    for (let ii = arguments.length - 1; ii >= 0; ii--) {
+    for (let ii = values.length - 1; ii >= 0; ii--) {
       head = {
-        value: arguments[ii],
+        value: values[ii],
         next: head,
       };
     }
@@ -122,7 +122,7 @@ export class Stack extends IndexedCollection {
     const resolvedEnd = resolveEnd(end, this.size);
     if (resolvedEnd !== this.size) {
       // super.slice(begin, end);
-      return IndexedCollection.prototype.slice.call(this, begin, end);
+      return IndexedCollectionImpl.prototype.slice.call(this, begin, end);
     }
     const newSize = this.size - resolvedBegin;
     let head = this._head;
@@ -195,7 +195,7 @@ export class Stack extends IndexedCollection {
 
 Stack.isStack = isStack;
 
-const StackPrototype = Stack.prototype;
+const StackPrototype = StackImpl.prototype;
 StackPrototype[IS_STACK_SYMBOL] = true;
 StackPrototype.shift = StackPrototype.pop;
 StackPrototype.unshift = StackPrototype.push;

@@ -1,4 +1,5 @@
-import type { Collection, Record } from '../../type-definitions/immutable';
+import type { Record } from '../../type-definitions/immutable';
+import type { CollectionImpl } from '../Collection';
 import { isImmutable } from '../predicates/isImmutable';
 import { has } from './has';
 
@@ -9,9 +10,12 @@ import { has } from './has';
  * A functional alternative to `collection.get(key)` which will also work on
  * plain Objects and Arrays as an alternative for `collection[key]`.
  */
-export function get<K, V>(collection: Collection<K, V>, key: K): V | undefined;
+export function get<K, V>(
+  collection: CollectionImpl<K, V>,
+  key: K
+): V | undefined;
 export function get<K, V, NSV>(
-  collection: Collection<K, V>,
+  collection: CollectionImpl<K, V>,
   key: K,
   notSetValue: NSV
 ): V | NSV;
@@ -41,17 +45,18 @@ export function get<V, NSV>(
   notSetValue: NSV
 ): V | NSV;
 export function get<K, V, NSV>(
-  collection: Collection<K, V> | Array<V> | { [key: string]: V },
+  collection: CollectionImpl<K, V> | Array<V> | { [key: string]: V },
   key: K,
   notSetValue?: NSV
 ): V | NSV;
 export function get<K, V, NSV>(
-  collection: Collection<K, V> | Array<V> | { [key: string]: V },
+  collection: CollectionImpl<K, V> | Array<V> | { [key: string]: V },
   key: K,
   notSetValue?: NSV
 ): V | NSV {
   return isImmutable(collection)
-    ? collection.get(key, notSetValue)
+    ? // @ts-expect-error "get" is still in the mixin for now
+      collection.get(key, notSetValue)
     : !has(collection, key)
       ? notSetValue
       : // @ts-expect-error weird "get" here,
