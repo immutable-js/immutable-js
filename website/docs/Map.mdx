@@ -735,7 +735,7 @@ Returns the value associated with the provided key.
 
 <Signature
   code={`get(key: K): V | undefined
-get(key: K, notSetValue?): any`}
+get(key: K, notSetValue: NSV): V | NSV`}
 />
 
 <Repl defaultValue={`Map({ a: 1, b: 2, c: 3 }).get('b');`} />
