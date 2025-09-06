@@ -110,7 +110,7 @@ export class KeyedCollectionImpl<K, V> extends CollectionImpl<K, V> {}
 export function IndexedCollection<T>(
   value: Iterable<T> | ArrayLike<T>
 ): IndexedCollectionImpl<T> {
-  return isIndexed(value) ? value : IndexedSeq(value);
+  return isIndexed<T>(value) ? value : IndexedSeq(value);
 }
 
 /**

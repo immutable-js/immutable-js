@@ -16,9 +16,9 @@ export const IS_INDEXED_SYMBOL = '@@__IMMUTABLE_INDEXED__@@';
  * isIndexed(Set()); // false
  * ```
  */
-export function isIndexed(
+export function isIndexed<T>(
   maybeIndexed: unknown
-): maybeIndexed is IndexedCollectionImpl<unknown> {
+): maybeIndexed is IndexedCollectionImpl<T> {
   return Boolean(
     maybeIndexed &&
       // @ts-expect-error: maybeIndexed is typed as `{}`, need to change in 6.0 to `maybeIndexed && typeof maybeIndexed === 'object' && IS_INDEXED_SYMBOL in maybeIndexed`
