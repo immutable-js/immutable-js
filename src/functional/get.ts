@@ -53,7 +53,7 @@ export function get<K, V, NSV>(
   collection: CollectionImpl<K, V> | Array<V> | { [key: string]: V },
   key: K,
   notSetValue?: NSV
-): V | NSV {
+): V | NSV | undefined {
   return isImmutable(collection)
     ? // @ts-expect-error "get" is still in the mixin for now
       collection.get(key, notSetValue)
