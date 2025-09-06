@@ -1,4 +1,4 @@
-import type { Collection } from '../../type-definitions/immutable';
+import type { IndexedCollectionImpl, KeyedCollectionImpl } from '../Collection';
 import { isIndexed } from './isIndexed';
 import { isKeyed } from './isKeyed';
 
@@ -19,7 +19,7 @@ import { isKeyed } from './isKeyed';
 export function isAssociative(
   maybeAssociative: unknown
 ): maybeAssociative is
-  | Collection.Keyed<unknown, unknown>
-  | Collection.Indexed<unknown> {
+  | KeyedCollectionImpl<unknown, unknown>
+  | IndexedCollectionImpl<unknown> {
   return isKeyed(maybeAssociative) || isIndexed(maybeAssociative);
 }
