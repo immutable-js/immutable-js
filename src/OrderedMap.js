@@ -106,12 +106,8 @@ function makeOrderedMap(map, list, ownerID, hash) {
   return omap;
 }
 
-let EMPTY_ORDERED_MAP;
 export function emptyOrderedMap() {
-  return (
-    EMPTY_ORDERED_MAP ||
-    (EMPTY_ORDERED_MAP = makeOrderedMap(emptyMap(), emptyList()))
-  );
+  return makeOrderedMap(emptyMap(), emptyList());
 }
 
 function updateOrderedMap(omap, k, v) {

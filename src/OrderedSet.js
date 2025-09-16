@@ -53,9 +53,6 @@ function makeOrderedSet(map, ownerID) {
   return set;
 }
 
-let EMPTY_ORDERED_SET;
 function emptyOrderedSet() {
-  return (
-    EMPTY_ORDERED_SET || (EMPTY_ORDERED_SET = makeOrderedSet(emptyOrderedMap()))
-  );
+  return makeOrderedSet(emptyOrderedMap());
 }

@@ -35,12 +35,6 @@ export const Range = (
     step = -step;
   }
   const size = Math.max(0, Math.ceil((end - start) / step - 1) + 1);
-  if (size === 0) {
-    if (!EMPTY_RANGE) {
-      EMPTY_RANGE = new RangeImpl(start, end, step, 0);
-    }
-    return EMPTY_RANGE;
-  }
   return new RangeImpl(start, end, step, size);
 };
 
@@ -157,5 +151,3 @@ export class RangeImpl extends IndexedSeqImpl implements Seq.Indexed<number> {
       : deepEqual(this, other);
   }
 }
-
-let EMPTY_RANGE: RangeImpl | undefined;

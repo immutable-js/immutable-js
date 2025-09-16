@@ -619,9 +619,8 @@ function makeMap(size, root, ownerID, hash) {
   return map;
 }
 
-let EMPTY_MAP;
 export function emptyMap() {
-  return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
+  return makeMap(0);
 }
 
 function updateMap(map, k, v) {
