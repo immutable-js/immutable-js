@@ -231,7 +231,6 @@ function makeSet(map, ownerID) {
   return set;
 }
 
-let EMPTY_SET;
 function emptySet() {
-  return EMPTY_SET || (EMPTY_SET = makeSet(emptyMap()));
+  return makeSet(emptyMap());
 }

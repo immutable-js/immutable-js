@@ -10,12 +10,6 @@ import deepEqual from './utils/deepEqual';
  */
 export const Repeat = (value, times) => {
   const size = times === undefined ? Infinity : Math.max(0, times);
-  if (size === 0) {
-    if (!EMPTY_REPEAT) {
-      EMPTY_REPEAT = new RepeatImpl(value, 0);
-    }
-    return EMPTY_REPEAT;
-  }
   return new RepeatImpl(value, size);
 };
 
@@ -97,5 +91,3 @@ export class RepeatImpl extends IndexedSeqImpl {
       : deepEqual(this, other);
   }
 }
-
-let EMPTY_REPEAT;

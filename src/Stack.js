@@ -221,7 +221,6 @@ function makeStack(size, head, ownerID, hash) {
   return map;
 }
 
-let EMPTY_STACK;
 function emptyStack() {
-  return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
+  return makeStack(0);
 }
