@@ -5,6 +5,10 @@ on:
   release:
     types: [published]
 
+permissions:
+  id-token: write  # Required for OIDC / npm
+  contents: read
+
 jobs:
   build:
     name: 'Build & Publish to NPM'
