@@ -1,4 +1,4 @@
-name: CI
+name: Output diff for TS files
 
 on:
   pull_request:
