@@ -6170,7 +6170,7 @@ function defaultConverter(k, v) {
   return isIndexed(v) ? v.toList() : isKeyed(v) ? v.toMap() : v.toSet();
 }
 
-var version = "5.1.3";
+var version = "5.1.4";
 
 /* eslint-disable import/order */
 
