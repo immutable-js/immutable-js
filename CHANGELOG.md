@@ -10,6 +10,10 @@ Dates are formatted as YYYY-MM-DD.
 
 - chore: Sort all imports and activate eslint import rule [#2119](https://github.com/immutable-js/immutable-js/pull/2119) by [@jdeniau](https://github.com/jdeniau)
 
+## 5.1.4
+
+- Use trusted publisher for releasing immutable: https://docs.npmjs.com/trusted-publishers
+
 ## 5.1.3
 
 ### TypeScript
