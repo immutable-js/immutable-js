@@ -27,6 +27,9 @@ jobs:
           path: ~/.npm
           key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.OS }}-node-
+      # Ensure npm 11.5.1 or later is installed
+      - name: Update npm
+        run: npm install -g npm@latest
       - run: npm ci
       - run: npm run build
       - name: 'Determine NPM tag: latest or next depending if we are on a prerelease or not (version with hyphen should be a prerelease)'
