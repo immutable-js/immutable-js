@@ -141,7 +141,7 @@
     "ts-node": "^10.9.2",
     "tslib": "^2.8.1",
     "tstyche": "^3.5",
-    "typescript": "5.7",
+    "typescript": "6.0.0-dev.20251028",
     "typescript-eslint": "^8.33.0"
   },
   "size-limit": [
