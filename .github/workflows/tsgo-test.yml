@@ -31,7 +31,7 @@ jobs:
         run: npx tsc --version
       
       - name: 'Display TypeScript Go version'
-        run: npx tsgo --version || echo 'TypeScript Go not found or version command not supported'
+        run: npx tsgo -v || echo 'TypeScript Go not found or version command not supported'
       
       - name: 'Test TypeScript Go compilation'
         run: npm run type-check:tsgo
