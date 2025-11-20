@@ -26,6 +26,13 @@ describe('Map', () => {
     expect(m.get('c')).toBe('C');
   });
 
+  it('constructor provides different instances', () => {
+    expect(Map()).not.toBe(Map());
+    expect(Map()).toEqual(Map());
+    expect(Map({ a: 'A' })).not.toBe(Map({ a: 'A' }));
+    expect(Map({ a: 'A' })).toEqual(Map({ a: 'A' }));
+  });
+
   it('constructor provides initial values', () => {
     const m = Map({ a: 'A', b: 'B', c: 'C' });
     expect(m.size).toBe(3);
@@ -205,7 +212,7 @@ describe('Map', () => {
           m = m.remove(ii);
           expect(m.size).toBe(ii);
         }
-        expect(m).toBe(Map());
+        expect(m).toEqual(Map());
       })
     );
   });
@@ -438,7 +445,7 @@ describe('Map', () => {
   it('chained mutations does not result in new empty map instance', () => {
     const v1 = Map<{ x?: number; y?: number }>({ x: 1 });
     const v2 = v1.withMutations((v) => v.set('y', 2).delete('x').delete('y'));
-    expect(v2).toBe(Map());
+    expect(v2).toEqual(Map());
   });
 
   it('expresses value equality with unordered sequences', () => {

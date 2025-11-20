@@ -277,11 +277,8 @@ class CollectionSeq extends IndexedSeqImpl {
 }
 
 // # pragma Helper functions
-
-let EMPTY_SEQ;
-
 function emptySequence() {
-  return EMPTY_SEQ || (EMPTY_SEQ = new ArraySeq([]));
+  return new ArraySeq([]);
 }
 
 export function keyedSeqFromValue(value) {
