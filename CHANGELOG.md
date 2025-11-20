@@ -56,6 +56,17 @@ This was never the recommended way to test if a value is an Immutable collection
 - Avoid return in constructors [#2041](https://github.com/immutable-js/immutable-js/pull/2041) by [@alexvictoor](https://github.com/alexvictoor)
 - Migrate Record to a factory method [#2078](https://github.com/immutable-js/immutable-js/pull/2078) by [@jdeniau](https://github.com/jdeniau)
 
+### [Minor BREAKING] Empty Collections are not singletons anymore
+
+Previously, `Map() === Map()` or `Set() === Set()` was true, as empty collections were singletons, but it was not for non-empty collections (`Set.of('a') !== Set.of('a')`).
+
+We did change that for the `List` constructor in version 5.0.0, but did not change it for other collections.
+It is now the case for all collections in 6.0.0.
+
+#### Pull request details
+
+- Remove empty collection singletons [#2142](https://github.com/immutable-js/immutable-js/pull/2142) by [@6uzm4n](https://github.com/6uzm4n)
+
 ### [BREAKING] Drop TS 4 support
 
 We now use [const type parameters](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-0.html#const-type-parameters) for getIn path retrieval.
