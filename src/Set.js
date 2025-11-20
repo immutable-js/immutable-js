@@ -199,13 +199,7 @@ SetPrototype[DELETE] = SetPrototype.remove;
 SetPrototype.merge = SetPrototype.concat = SetPrototype.union;
 SetPrototype.withMutations = withMutations;
 SetPrototype.asImmutable = asImmutable;
-SetPrototype['@@transducer/init'] = SetPrototype.asMutable = asMutable;
-SetPrototype['@@transducer/step'] = function (result, arr) {
-  return result.add(arr);
-};
-SetPrototype['@@transducer/result'] = function (obj) {
-  return obj.asImmutable();
-};
+SetPrototype.asMutable = asMutable;
 
 SetPrototype.__empty = emptySet;
 SetPrototype.__make = makeSet;

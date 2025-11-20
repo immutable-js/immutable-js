@@ -203,13 +203,7 @@ StackPrototype.unshiftAll = StackPrototype.pushAll;
 StackPrototype.withMutations = withMutations;
 StackPrototype.wasAltered = wasAltered;
 StackPrototype.asImmutable = asImmutable;
-StackPrototype['@@transducer/init'] = StackPrototype.asMutable = asMutable;
-StackPrototype['@@transducer/step'] = function (result, arr) {
-  return result.unshift(arr);
-};
-StackPrototype['@@transducer/result'] = function (obj) {
-  return obj.asImmutable();
-};
+StackPrototype.asMutable = asMutable;
 
 function makeStack(size, head, ownerID, hash) {
   const map = Object.create(StackPrototype);

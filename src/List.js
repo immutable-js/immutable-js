@@ -268,13 +268,7 @@ ListPrototype.mergeDeepIn = mergeDeepIn;
 ListPrototype.withMutations = withMutations;
 ListPrototype.wasAltered = wasAltered;
 ListPrototype.asImmutable = asImmutable;
-ListPrototype['@@transducer/init'] = ListPrototype.asMutable = asMutable;
-ListPrototype['@@transducer/step'] = function (result, arr) {
-  return result.push(arr);
-};
-ListPrototype['@@transducer/result'] = function (obj) {
-  return obj.asImmutable();
-};
+ListPrototype.asMutable = asMutable;
 
 class VNode {
   constructor(array, ownerID) {

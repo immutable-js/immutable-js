@@ -167,13 +167,7 @@ MapPrototype.mergeDeepIn = mergeDeepIn;
 MapPrototype.withMutations = withMutations;
 MapPrototype.wasAltered = wasAltered;
 MapPrototype.asImmutable = asImmutable;
-MapPrototype['@@transducer/init'] = MapPrototype.asMutable = asMutable;
-MapPrototype['@@transducer/step'] = function (result, arr) {
-  return result.set(arr[0], arr[1]);
-};
-MapPrototype['@@transducer/result'] = function (obj) {
-  return obj.asImmutable();
-};
+MapPrototype.asMutable = asMutable;
 
 // #pragma Trie Nodes
 
