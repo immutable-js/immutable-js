@@ -63,9 +63,7 @@ const seqArrayCreate = (array) => {
   return seqArray;
 };
 
-const seqArrayCreateEmpty = ((cache) => () => {
-  return cache || (cache = seqArrayCreate([]));
-})();
+const seqArrayCreateEmpty = () => seqArrayCreate([]);
 
 const SeqArray = (value) =>
   value === undefined || value === null

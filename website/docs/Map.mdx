@@ -733,7 +733,10 @@ If two values have the same `hashCode`, they are [not guaranteed to be equal][Ha
 
 Returns the value associated with the provided key.
 
-<Signature code={`get(key: K): V | undefined`} />
+<Signature
+  code={`get(key: K): V | undefined
+get(key: K, notSetValue: NSV): V | NSV`}
+/>
 
 <Repl defaultValue={`Map({ a: 1, b: 2, c: 3 }).get('b');`} />
 

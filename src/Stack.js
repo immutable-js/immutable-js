@@ -224,9 +224,9 @@ const stackCreate = (size, head, ownerID, hash) => {
   return stack;
 };
 
-const stackCreateEmpty = ((cache) => () => {
-  return cache || (cache = stackCreate(0));
-})();
+const stackCreateEmpty = () => {
+  return stackCreate(0);
+};
 
 export const Stack = (value) =>
   value === undefined || value === null

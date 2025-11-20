@@ -76,9 +76,9 @@ const seqObjectCreate = (object) => {
   return seqObject;
 };
 
-const seqObjectCreateEmpty = ((cache) => () => {
-  return cache || (cache = seqObjectCreate({}));
-})();
+const seqObjectCreateEmpty = () => {
+  return seqObjectCreate({});
+};
 
 const SeqObject = (value) =>
   value === undefined || value === null

@@ -110,9 +110,9 @@ export const repeatCreate = (value, size) => {
   return repeat;
 };
 
-const repeatCreateEmpty = ((cache) => () => {
-  return cache || (cache = repeatCreate(undefined, 0));
-})();
+const repeatCreateEmpty = () => {
+  return repeatCreate(undefined, 0);
+};
 
 /**
  * Returns a lazy Seq of `value` repeated `times` times. When `times` is

@@ -1,10 +1,12 @@
 import type {
-  Collection,
   KeyPath,
   Record,
   RetrievePath,
+  Collection,
 } from '../../type-definitions/immutable';
+import type { CollectionImpl } from '../Collection';
 import { mapCreateEmpty } from '../Map';
+import { NOT_SET } from '../TrieUtils';
 import { NOT_SET } from '../const';
 import { isImmutable } from '../predicates/isImmutable';
 import coerceKeyPath from '../utils/coerceKeyPath';
@@ -23,9 +25,8 @@ import { set } from './set';
  */
 
 export type PossibleCollection<K, V, TProps extends object> =
-  | Collection<K, V>
-  | Record<TProps>
-  | Array<V>;
+  // TODO migrate to CollectionImpl in the end
+  Collection<K, V> | Record<TProps> | Array<V>;
 
 type UpdaterFunction<K, C> = (
   value: RetrievePath<C, Array<K>> | undefined
@@ -34,12 +35,12 @@ type UpdaterFunctionWithNSV<K, C, NSV> = (
   value: RetrievePath<C, Array<K>> | NSV
 ) => unknown;
 
-export function updateIn<K, V, C extends Collection<K, V>>(
+export function updateIn<K, V, C extends CollectionImpl<K, V>>(
   collection: C,
   keyPath: KeyPath<K>,
   updater: UpdaterFunction<K, C>
 ): C;
-export function updateIn<K, V, C extends Collection<K, V>, NSV>(
+export function updateIn<K, V, C extends CollectionImpl<K, V>, NSV>(
   collection: C,
   keyPath: KeyPath<K>,
   notSetValue: NSV,

@@ -37,10 +37,8 @@ export const setOrderedCreate = (map, ownerID) => {
   return oset;
 };
 
-export const setOrderedCreateEmpty = (
-  (cache) => () =>
-    cache || (cache = setOrderedCreate(mapOrderedCreateEmpty()))
-)();
+export const setOrderedCreateEmpty = () =>
+  setOrderedCreate(mapOrderedCreateEmpty());
 
 export const OrderedSet = (value) => {
   return value === undefined || value === null

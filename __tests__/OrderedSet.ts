@@ -2,6 +2,13 @@ import { describe, expect, it } from '@jest/globals';
 import { Map, OrderedSet } from 'immutable';
 
 describe('OrderedSet', () => {
+  it('constructor provides different instances', () => {
+    expect(OrderedSet()).not.toBe(OrderedSet());
+    expect(OrderedSet()).toEqual(OrderedSet());
+    expect(OrderedSet(['A'])).not.toBe(OrderedSet(['A']));
+    expect(OrderedSet(['A'])).toEqual(OrderedSet(['A']));
+  });
+
   it('provides initial values in a mixed order', () => {
     const s = OrderedSet.of('C', 'B', 'A');
     expect(s.has('A')).toBe(true);

@@ -242,7 +242,11 @@ export const mapCreate = (size, root, ownerID, hash) => {
   return map;
 };
 
-const mapUpdate = (map, k, v) => {
+export function emptyMap() {
+  return mapCreate(0);
+}
+
+function mapUpdate(map, k, v) {
   let newRoot;
   let newSize;
   if (!map._root) {
@@ -277,12 +281,9 @@ const mapUpdate = (map, k, v) => {
     return map;
   }
   return newRoot ? mapCreate(newSize, newRoot) : mapCreateEmpty();
-};
+}
 
-export const mapCreateEmpty = (
-  (mapEmptyCached) => () =>
-    mapEmptyCached || (mapEmptyCached = mapCreate(0))
-)();
+export const mapCreateEmpty = () => mapCreate(0);
 
 export const Map = (value) =>
   value === undefined || value === null

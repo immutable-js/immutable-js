@@ -121,11 +121,18 @@ const RangeCreate = ((cache) => (start, end, step, size) => {
 let EMPTY_RANGE;
 
 /**
- * Returns a lazy seq of nums from start (inclusive) to end
- * (exclusive), by step, where start defaults to 0, step to 1, and end to
- * infinity. When start is equal to end, returns empty list.
+ * Returns a `Seq.Indexed` of numbers from `start` (inclusive) to `end`
+ * (exclusive), by `step`, where `start` defaults to 0, `step` to 1, and `end` to
+ * infinity. When `start` is equal to `end`, returns empty range.
+ *
+ * Note: `Range` is a factory function and not a class, and does not use the
+ * `new` keyword during construction.
  */
-export const Range = (start, end, step = 1) => {
+export const Range = (
+  start: number,
+  end: number,
+  step: number = 1
+): RangeImpl => {
   invariant(step !== 0, 'Cannot step a Range by 0');
   invariant(
     start !== undefined,
@@ -138,11 +145,6 @@ export const Range = (start, end, step = 1) => {
     step = -step;
   }
   const size = Math.max(0, Math.ceil((end - start) / step - 1) + 1);
-  if (size === 0) {
-    if (!EMPTY_RANGE) {
-      EMPTY_RANGE = RangeCreate(start, end, step, 0);
-    }
-    return EMPTY_RANGE;
-  }
+
   return RangeCreate(start, end, step, size);
 };

@@ -150,10 +150,8 @@ export const mapOrderedCreate = (map, list, ownerID, hash) => {
   return omap;
 };
 
-export const mapOrderedCreateEmpty = (
-  (cache) => () =>
-    cache || (cache = mapOrderedCreate(mapCreateEmpty(), listCreateEmpty()))
-)();
+export const mapOrderedCreateEmpty = () =>
+  mapOrderedCreate(mapCreateEmpty(), listCreateEmpty());
 
 export const OrderedMap = (value) =>
   value === undefined || value === null

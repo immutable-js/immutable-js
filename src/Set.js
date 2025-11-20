@@ -215,9 +215,9 @@ const setCreate = (map, ownerID) => {
   return set;
 };
 
-export const setCreateEmpty = ((cache) => () => {
-  return cache || (cache = setCreate(mapCreateEmpty()));
-})();
+export const setCreateEmpty = () => {
+  return setCreate(mapCreateEmpty());
+};
 
 const setCollection = (value) =>
   collectionCastSetSeqCreate(
