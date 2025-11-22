@@ -157,9 +157,9 @@ function defaultComparator(a, b) {
 
 const factorySort = (
   collection,
-  SeqKeyed,
-  SeqIndexed,
-  SeqSet,
+  KeyedSeq,
+  IndexedSeq,
+  SetSeq,
   comparator,
   mapper
 ) => {
@@ -185,10 +185,10 @@ const factorySort = (
           }
     );
   return isKeyedCollection
-    ? SeqKeyed(entries)
+    ? KeyedSeq(entries)
     : isIndexed(collection)
-      ? SeqIndexed(entries)
-      : SeqSet(entries);
+      ? IndexedSeq(entries)
+      : SetSeq(entries);
 };
 
 const factoryFlatMap = (cx, collectionClass, mapper, context) => {

@@ -1,15 +1,15 @@
 import { Map, mapCreateEmpty } from '../Map';
 import { OrderedMap } from '../OrderedMap';
 import {
-  SeqKeyed,
-  SeqKeyedFromValue,
-  SeqIndexed,
-  SeqIndexedFromValue,
-  SeqSet,
+  KeyedSeq,
+  KeyedSeqFromValue,
+  IndexedSeq,
+  IndexedSeqFromValue,
+  SetSeq,
   SeqWhenNotCollection,
-  SeqSetWhenNotAssociative,
-  SeqKeyedWhenNotKeyed,
-  SeqIndexedWhenNotIndexed,
+  SetSeqWhenNotAssociative,
+  KeyedSeqWhenNotKeyed,
+  IndexedSeqWhenNotIndexed,
 } from '../Seq';
 import { SeqArray } from '../SeqArray';
 import { resolveBegin } from '../TrieUtils';
@@ -55,10 +55,10 @@ const collectionXReify = (cx, seq) => {
 
 const collectionXProbeCreator = (cx) =>
   isKeyed(cx)
-    ? SeqKeyedWhenNotKeyed
+    ? KeyedSeqWhenNotKeyed
     : isIndexed(cx)
-      ? SeqIndexedWhenNotIndexed
-      : SeqSetWhenNotAssociative;
+      ? IndexedSeqWhenNotIndexed
+      : SetSeqWhenNotAssociative;
 
 const collectionXMakeSequence = (cx) => {
   return Object.create(
@@ -105,8 +105,8 @@ const collectionXIndexedOpInterpose = (cx, separator) => {
 
 const collectionXIndexedOpInterleave = (cx, collections) => {
   const collectionsJoined = [cx].concat(arrCopy(collections));
-  // const zipper = SeqIndexed.of
-  const zipper = SeqIndexed.of;
+  // const zipper = IndexedSeq.of
+  const zipper = IndexedSeq.of;
   const zipped = factoryZipWith(
     cx.toSeq(),
     collectionXMakeSequence,
@@ -220,7 +220,7 @@ const collectionXIndexedOpSlice = (cx, begin, end) => {
 const collectionXOpConcat = (cx, values) => {
   return collectionXReify(
     cx,
-    factoryConcat(cx, SeqKeyed, SeqKeyedFromValue, SeqIndexedFromValue, values)
+    factoryConcat(cx, KeyedSeq, KeyedSeqFromValue, IndexedSeqFromValue, values)
   );
 };
 
@@ -321,7 +321,7 @@ const collectionXOpMergeWithSources = (collection, sources, merger) => {
           merged[key] = nextVal;
         }
       };
-  const Collection = isArray ? SeqIndexedWhenNotIndexed : SeqKeyedWhenNotKeyed;
+  const Collection = isArray ? IndexedSeqWhenNotIndexed : KeyedSeqWhenNotKeyed;
   for (let i = 0; i < sources.length; i++) {
     Collection(sources[i]).forEach(mergeItem);
   }
@@ -379,7 +379,7 @@ const collectionXOpMergeWith = (cx, merger, iters) => {
     cx,
     iters,
     merger,
-    SeqKeyedWhenNotKeyed
+    KeyedSeqWhenNotKeyed
   );
 };
 
@@ -388,7 +388,7 @@ const collectionXOpMerge = (cx, iters) => {
     cx,
     iters,
     undefined,
-    SeqKeyedWhenNotKeyed
+    KeyedSeqWhenNotKeyed
   );
 };
 
@@ -443,14 +443,14 @@ const collectionXOpLastKeyOf = (cx, searchValue) => {
 const collectionXOpSortBy = (cx, mapper, comparator) => {
   return collectionXReify(
     cx,
-    factorySort(cx, SeqKeyed, SeqIndexed, SeqSet, comparator, mapper)
+    factorySort(cx, KeyedSeq, IndexedSeq, SetSeq, comparator, mapper)
   );
 };
 
 const collectionXOpSort = (cx, comparator) => {
   return collectionXReify(
     cx,
-    factorySort(cx, SeqKeyed, SeqIndexed, SeqSet, comparator)
+    factorySort(cx, KeyedSeq, IndexedSeq, SetSeq, comparator)
   );
 };
 

@@ -1,5 +1,5 @@
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
-import { SeqIndexedWhenNotIndexed } from './Seq';
+import { IndexedSeqWhenNotIndexed } from './Seq';
 import { SeqArray } from './SeqArray';
 import { wholeSlice, resolveBegin, resolveEnd, wrapIndex } from './TrieUtils';
 import { collectionIndexedPropertiesCreate } from './collection/collectionIndexed';
@@ -50,7 +50,7 @@ const stackOpPush = (cx, values) => {
 };
 
 const stackOpPushAll = (cx, iter) => {
-  iter = SeqIndexedWhenNotIndexed(iter);
+  iter = IndexedSeqWhenNotIndexed(iter);
   if (iter.size === 0) {
     return cx;
   }

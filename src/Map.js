@@ -1,5 +1,5 @@
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
-import { SeqKeyed, SeqWhenNotCollection } from './Seq';
+import { KeyedSeq, SeqWhenNotCollection } from './Seq';
 import { MakeRef } from './TrieUtils';
 import {
   collectionOpForEach,
@@ -279,7 +279,7 @@ export const Map = (value) =>
     : isMap(value) && !isOrdered(value)
       ? value
       : collectionOpWithMutations(mapCreateEmpty(), (map) => {
-          const iter = SeqKeyed(value);
+          const iter = KeyedSeq(value);
 
           assertNotInfinite(iter.size);
 

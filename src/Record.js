@@ -1,5 +1,5 @@
 import { List } from './List';
-import { SeqKeyed } from './Seq';
+import { KeyedSeq } from './Seq';
 import { collectionOpWithMutations } from './collection/collection';
 import {
   collectionRecordPropertiesCreate,
@@ -60,7 +60,7 @@ export const Record = (defaultValues, name) => {
     this.__ownerID = undefined;
 
     const collectionKeyedCreateBest = (value) => {
-      return isKeyed(value) ? value : SeqKeyed(value);
+      return isKeyed(value) ? value : KeyedSeq(value);
     };
 
     this._values = collectionOpWithMutations(List(), (l) => {

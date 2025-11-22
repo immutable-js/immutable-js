@@ -5,7 +5,7 @@ import { isKeyed } from '../predicates/isKeyed';
 
 const factoryConcat = (
   collection,
-  SeqKeyed,
+  KeyedSeq,
   keyedseqfromval,
   indexedseqfromval,
   values
@@ -19,7 +19,7 @@ const factoryConcat = (
           ? keyedseqfromval(v)
           : indexedseqfromval(Array.isArray(v) ? v : [v]);
       } else if (isKeyedCollection) {
-        v = SeqKeyed(v);
+        v = KeyedSeq(v);
       }
 
       return v;

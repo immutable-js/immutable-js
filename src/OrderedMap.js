@@ -1,6 +1,6 @@
 import { listCreateEmpty } from './List';
 import { mapPropertiesCreate, mapCreateEmpty } from './Map';
-import { SeqKeyedWhenNotKeyed } from './Seq';
+import { KeyedSeqWhenNotKeyed } from './Seq';
 import { SIZE } from './TrieUtils';
 import { collectionOpWithMutations } from './collection/collection';
 import { IS_ORDERED_SYMBOL, DELETE, NOT_SET } from './const';
@@ -159,7 +159,7 @@ export const OrderedMap = (value) =>
     : isOrderedMap(value)
       ? value
       : collectionOpWithMutations(mapOrderedCreateEmpty(), (map) => {
-          const iter = SeqKeyedWhenNotKeyed(value);
+          const iter = KeyedSeqWhenNotKeyed(value);
           assertNotInfinite(iter.size);
           iter.forEach((v, k) => map.set(k, v));
         });

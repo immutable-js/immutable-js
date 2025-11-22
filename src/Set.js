@@ -1,9 +1,9 @@
 import { mapCreateEmpty } from './Map';
 import {
-  SeqIndexed,
-  SeqKeyedWhenNotKeyed,
+  IndexedSeq,
+  KeyedSeqWhenNotKeyed,
   SeqWhenNotCollection,
-  SeqSetWhenNotAssociative,
+  SetSeqWhenNotAssociative,
 } from './Seq';
 import {
   collectionOpWithMutations,
@@ -114,7 +114,7 @@ const setOpUnion = (cx, iters) => {
       if (typeof iters[ii] === 'string') {
         set.add(iters[ii]);
       } else {
-        SeqSetWhenNotAssociative(iters[ii]).forEach((value) => set.add(value));
+        SetSeqWhenNotAssociative(iters[ii]).forEach((value) => set.add(value));
       }
     }
   });
@@ -124,7 +124,7 @@ const setOpIntersect = (cx, iters) => {
   if (iters.length === 0) {
     return cx;
   }
-  iters = iters.map((iter) => SeqSetWhenNotAssociative(iter));
+  iters = iters.map((iter) => SetSeqWhenNotAssociative(iter));
   const toRemove = [];
   cx.forEach((value) => {
     if (!iters.every((iter) => iter.includes(value))) {
@@ -142,7 +142,7 @@ const setOpSubtract = (cx, iters) => {
   if (iters.length === 0) {
     return cx;
   }
-  iters = iters.map((iter) => SeqSetWhenNotAssociative(iter));
+  iters = iters.map((iter) => SetSeqWhenNotAssociative(iter));
   const toRemove = [];
   cx.forEach((value) => {
     if (iters.some((iter) => iter.includes(value))) {
@@ -211,7 +211,7 @@ export const setCreateEmpty = () => {
 
 const setCollection = (value) =>
   collectionCastSetSeqCreate(
-    isCollection(value) && !isAssociative(value) ? value : SeqIndexed(value)
+    isCollection(value) && !isAssociative(value) ? value : IndexedSeq(value)
   );
 
 export const Set = (value) =>
@@ -227,7 +227,7 @@ export const Set = (value) =>
 
 Set.isSet = isSet;
 Set.of = (...args) => Set(args);
-Set.fromKeys = (value) => Set(SeqKeyedWhenNotKeyed(value).keySeq());
+Set.fromKeys = (value) => Set(KeyedSeqWhenNotKeyed(value).keySeq());
 Set.union = (sets) => {
   const setArray = SeqWhenNotCollection(sets).toArray();
   return setArray.length

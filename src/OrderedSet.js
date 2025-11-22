@@ -1,5 +1,5 @@
 import { mapOrderedCreateEmpty } from './OrderedMap';
-import { SeqSetWhenNotAssociative, SeqKeyedWhenNotKeyed } from './Seq';
+import { SetSeqWhenNotAssociative, KeyedSeqWhenNotKeyed } from './Seq';
 import { setPropertiesCreate } from './Set';
 import { IS_ORDERED_SYMBOL } from './const';
 import { isOrderedSet } from './predicates/isOrderedSet';
@@ -46,7 +46,7 @@ export const OrderedSet = (value) => {
     : isOrderedSet(value)
       ? value
       : setOrderedCreateEmpty().withMutations((set) => {
-          const iter = SeqSetWhenNotAssociative(value);
+          const iter = SetSeqWhenNotAssociative(value);
           assertNotInfinite(iter.size);
           iter.forEach((v) => set.add(v));
         });
@@ -55,4 +55,4 @@ export const OrderedSet = (value) => {
 OrderedSet.isOrderedSet = isOrderedSet;
 OrderedSet.of = (...args) => OrderedSet(args);
 OrderedSet.fromKeys = (value) =>
-  OrderedSet(SeqKeyedWhenNotKeyed(value).keySeq());
+  OrderedSet(KeyedSeqWhenNotKeyed(value).keySeq());

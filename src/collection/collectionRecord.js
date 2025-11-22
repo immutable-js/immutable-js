@@ -1,4 +1,4 @@
-import { SeqKeyedFromValue } from '../Seq';
+import { KeyedSeqFromValue } from '../Seq';
 import {
   ITERATOR_SYMBOL,
   IS_COLLECTION_SYMBOL,
@@ -131,7 +131,7 @@ const recordOpHashCode = (cx) => {
 };
 
 const recordOpToSeq = (record) => {
-  return SeqKeyedFromValue(record._keys.map((k) => [k, record.get(k)]));
+  return KeyedSeqFromValue(record._keys.map((k) => [k, record.get(k)]));
 };
 
 const collectionRecordPropertiesCreate = ((cache) => () => {

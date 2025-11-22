@@ -5,8 +5,8 @@ import { OrderedSet, setOrderedPropertiesCreate } from './OrderedSet';
 import { Range } from './Range';
 import {
   SeqWhenNotCollection,
-  SeqIndexedWhenNotIndexed,
-  SeqKeyedWhenNotKeyed,
+  IndexedSeqWhenNotIndexed,
+  KeyedSeqWhenNotKeyed,
 } from './Seq';
 import { Set } from './Set';
 import { Stack } from './Stack';
@@ -79,8 +79,8 @@ Object.assign(
   {
     // primarily used by recursive 'merge deep' functions
     // not passed in as params now to leave interface un-changed
-    __SeqIndexedWhenNotIndexed: SeqIndexedWhenNotIndexed,
-    __SeqKeyedWhenNotKeyed: SeqKeyedWhenNotKeyed,
+    __SeqIndexedWhenNotIndexed: IndexedSeqWhenNotIndexed,
+    __SeqKeyedWhenNotKeyed: KeyedSeqWhenNotKeyed,
     __mapCreateEmpty: mapCreateEmpty,
   },
   transformToMethods({

@@ -1,6 +1,6 @@
 import { Iterator, iteratorValue, iteratorDone, hasIterator } from './Iterator';
 
-import { SeqIndexed, SeqIndexedWhenNotIndexed } from './Seq';
+import { IndexedSeq, IndexedSeqWhenNotIndexed } from './Seq';
 import {
   SHIFT,
   SIZE,
@@ -343,7 +343,7 @@ const listConcat = (cx, collections) => {
 
   for (let i = 0; i < collections.length; i++) {
     const argument = collections[i];
-    const seq = SeqIndexedWhenNotIndexed(
+    const seq = IndexedSeqWhenNotIndexed(
       typeof argument !== 'string' && hasIterator(argument)
         ? argument
         : [argument]
@@ -489,7 +489,7 @@ export const List = (value) => {
   if (isList(value)) {
     return value;
   }
-  const iter = SeqIndexed(value);
+  const iter = IndexedSeq(value);
   const size = iter.size;
   if (size === 0) {
     return listCreateEmpty();
