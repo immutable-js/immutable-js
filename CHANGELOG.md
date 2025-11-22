@@ -77,6 +77,10 @@ This feature has been introduced in TS 5.0, which is more than two years old now
 
 - Drop TS 4 support and add const P extends for getIn method types [#2072](https://github.com/immutable-js/immutable-js/pull/2072) by [@jdeniau](https://github.com/jdeniau)
 
+### [BREAKING] Remove transducersjs compatibility
+
+Remove transducersjs compatibility, as `cognitect-labs/transducers-js` has been archived in 2023. [#2146](https://github.com/immutable-js/immutable-js/pull/2146) by [@jdeniau](https://github.com/jdeniau)
+
 ## 5.1.3
 
 ### TypeScript
