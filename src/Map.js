@@ -5,7 +5,6 @@ import {
   collectionOpForEach,
   collectionOpWithMutations,
   collectionOpWasAltered,
-  collectionOpAsMutable,
   collectionOpToObject,
 } from './collection/collection';
 import { collectionKeyedPropertiesCreate } from './collection/collectionKeyed';

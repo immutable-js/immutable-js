@@ -6,7 +6,6 @@ import type {
 } from '../../type-definitions/immutable';
 import type { CollectionImpl } from '../Collection';
 import { mapCreateEmpty } from '../Map';
-import { NOT_SET } from '../TrieUtils';
 import { NOT_SET } from '../const';
 import { isImmutable } from '../predicates/isImmutable';
 import coerceKeyPath from '../utils/coerceKeyPath';

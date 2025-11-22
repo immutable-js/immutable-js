@@ -7,7 +7,6 @@ import {
 } from './Seq';
 import {
   collectionOpWithMutations,
-  collectionOpAsMutable,
   collectionPropertiesCreate,
 } from './collection/collection';
 import { collectionCastSetSeqCreate } from './collection/collectionCastSetSeq';

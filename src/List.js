@@ -15,8 +15,6 @@ import {
 import {
   collectionOpWithMutations,
   collectionOpWasAltered,
-  collectionOpAsMutable,
-  collectionOpAsImmutable,
 } from './collection/collection';
 
 import { collectionIndexedPropertiesCreate } from './collection/collectionIndexed.js';

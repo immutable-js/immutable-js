@@ -2,10 +2,6 @@ import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 import { SeqIndexedWhenNotIndexed } from './Seq';
 import { SeqArray } from './SeqArray';
 import { wholeSlice, resolveBegin, resolveEnd, wrapIndex } from './TrieUtils';
-import {
-  collectionOpAsMutable,
-  collectionOpAsImmutable,
-} from './collection/collection';
 import { collectionIndexedPropertiesCreate } from './collection/collectionIndexed';
 import { IS_STACK_SYMBOL, SHAPE_STACK } from './const';
 import { isStack } from './predicates/isStack';
