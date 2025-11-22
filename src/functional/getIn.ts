@@ -1,5 +1,5 @@
 import type { KeyPath } from '../../type-definitions/immutable';
-import { NOT_SET } from '../TrieUtils';
+import { NOT_SET } from '../const';
 import coerceKeyPath from '../utils/coerceKeyPath';
 import { get } from './get';
 

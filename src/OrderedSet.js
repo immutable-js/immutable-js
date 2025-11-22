@@ -1,58 +1,58 @@
-import { KeyedCollection, SetCollection } from './Collection';
-import { IndexedCollectionPrototype } from './CollectionImpl';
-import { emptyOrderedMap } from './OrderedMap';
-import { SetImpl } from './Set';
-import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
+import { mapOrderedCreateEmpty } from './OrderedMap';
+import { SetSeqWhenNotAssociative, KeyedSeqWhenNotKeyed } from './Seq';
+import { setPropertiesCreate } from './Set';
+import { IS_ORDERED_SYMBOL } from './const';
 import { isOrderedSet } from './predicates/isOrderedSet';
-import assertNotInfinite from './utils/assertNotInfinite';
+import transformToMethods from './transformToMethods';
+import { assertNotInfinite } from './utils';
 
-export const OrderedSet = (value) =>
-  value === undefined || value === null
-    ? emptyOrderedSet()
+const setOrderedOpToString = (cx) => {
+  return cx.__toString('OrderedSet {', '}');
+};
+
+export const setOrderedPropertiesCreate = (
+  (cache) => () =>
+    (cache =
+      cache ||
+      (cache = Object.assign(
+        {},
+        setPropertiesCreate(),
+        {
+          create: OrderedSet,
+          __make: setOrderedCreate,
+          __empty: setOrderedCreateEmpty,
+        },
+        transformToMethods({
+          [IS_ORDERED_SYMBOL]: true,
+          toString: setOrderedOpToString,
+        })
+      )))
+)();
+
+export const setOrderedCreate = (map, ownerID) => {
+  const oset = Object.create(setOrderedPropertiesCreate());
+  oset.size = map ? map.size : 0;
+  oset._map = map;
+  oset.__ownerID = ownerID;
+  return oset;
+};
+
+export const setOrderedCreateEmpty = () =>
+  setOrderedCreate(mapOrderedCreateEmpty());
+
+export const OrderedSet = (value) => {
+  return value === undefined || value === null
+    ? setOrderedCreateEmpty()
     : isOrderedSet(value)
       ? value
-      : emptyOrderedSet().withMutations((set) => {
-          const iter = SetCollection(value);
+      : setOrderedCreateEmpty().withMutations((set) => {
+          const iter = SetSeqWhenNotAssociative(value);
           assertNotInfinite(iter.size);
           iter.forEach((v) => set.add(v));
         });
-
-OrderedSet.of = function (...values) {
-  return OrderedSet(values);
 };
-
-OrderedSet.fromKeys = function (value) {
-  return OrderedSet(KeyedCollection(value).keySeq());
-};
-export class OrderedSetImpl extends SetImpl {
-  create(value) {
-    return OrderedSet(value);
-  }
-
-  toString() {
-    return this.__toString('OrderedSet {', '}');
-  }
-}
 
 OrderedSet.isOrderedSet = isOrderedSet;
-
-const OrderedSetPrototype = OrderedSetImpl.prototype;
-OrderedSetPrototype[IS_ORDERED_SYMBOL] = true;
-OrderedSetPrototype.zip = IndexedCollectionPrototype.zip;
-OrderedSetPrototype.zipWith = IndexedCollectionPrototype.zipWith;
-OrderedSetPrototype.zipAll = IndexedCollectionPrototype.zipAll;
-
-OrderedSetPrototype.__empty = emptyOrderedSet;
-OrderedSetPrototype.__make = makeOrderedSet;
-
-function makeOrderedSet(map, ownerID) {
-  const set = Object.create(OrderedSetPrototype);
-  set.size = map ? map.size : 0;
-  set._map = map;
-  set.__ownerID = ownerID;
-  return set;
-}
-
-function emptyOrderedSet() {
-  return makeOrderedSet(emptyOrderedMap());
-}
+OrderedSet.of = (...args) => OrderedSet(args);
+OrderedSet.fromKeys = (value) =>
+  OrderedSet(KeyedSeqWhenNotKeyed(value).keySeq());

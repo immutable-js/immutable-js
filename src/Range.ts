@@ -1,14 +1,124 @@
-import type { Seq } from '../type-definitions/immutable';
-import {
-  Iterator,
-  iteratorValue,
-  iteratorDone,
-  type IteratorType,
-} from './Iterator';
-import { IndexedSeqImpl } from './Seq';
+import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 import { wrapIndex, wholeSlice, resolveBegin, resolveEnd } from './TrieUtils';
-import deepEqual from './utils/deepEqual';
-import invariant from './utils/invariant';
+
+import { collectionIndexedSeqPropertiesCreate } from './collection/collectionIndexedSeq';
+
+import { SHAPE_RANGE } from './const';
+
+import transformToMethods from './transformToMethods';
+
+import { deepEqual, invariant } from './utils';
+
+const rangeOpToString = (cx) =>
+  cx.size === 0
+    ? 'Range []'
+    : `Range [ ${cx._start}...${cx._end}${cx._step !== 1 ? ' by ' + cx._step : ''} ]`;
+
+const rangeOpGet = (cx, index, notSetValue) => {
+  return cx.has(index)
+    ? cx._start + wrapIndex(cx, index) * cx._step
+    : notSetValue;
+};
+
+const rangeOpIncludes = (cx, searchValue) => {
+  const possibleIndex = (searchValue - cx._start) / cx._step;
+  return (
+    possibleIndex >= 0 &&
+    possibleIndex < cx.size &&
+    possibleIndex === Math.floor(possibleIndex)
+  );
+};
+
+const rangeOpSlice = (cx, begin, end) => {
+  if (wholeSlice(begin, end, cx.size)) {
+    return cx;
+  }
+  begin = resolveBegin(begin, cx.size);
+  end = resolveEnd(end, cx.size);
+  if (end <= begin) {
+    return Range(0, 0);
+  }
+  return Range(cx.get(begin, cx._end), cx.get(end, cx._end), cx._step);
+};
+
+const rangeOpIndexOf = (cx, searchValue) => {
+  const offsetValue = searchValue - cx._start;
+  if (offsetValue % cx._step === 0) {
+    const index = offsetValue / cx._step;
+    if (index >= 0 && index < cx.size) {
+      return index;
+    }
+  }
+  return -1;
+};
+
+const rangeOpIterate = (cx, fn, reverse) => {
+  const size = cx.size;
+  const step = cx._step;
+  let value = reverse ? cx._start + (size - 1) * step : cx._start;
+  let i = 0;
+  while (i !== size) {
+    if (fn(value, reverse ? size - ++i : i++, cx) === false) {
+      break;
+    }
+    value += reverse ? -step : step;
+  }
+  return i;
+};
+
+const rangeOpIterator = (cx, type, reverse) => {
+  const size = cx.size;
+  const step = cx._step;
+  let value = reverse ? cx._start + (size - 1) * step : cx._start;
+  let i = 0;
+  return new Iterator(() => {
+    if (i === size) {
+      return iteratorDone();
+    }
+    const v = value;
+    value += reverse ? -step : step;
+    return iteratorValue(type, reverse ? size - ++i : i++, v);
+  });
+};
+
+const rangeOpEquals = (cx, other) => {
+  return other && other.__shape === SHAPE_RANGE
+    ? cx._start === other._start &&
+        cx._end === other._end &&
+        cx._step === other._step
+    : deepEqual(cx, other);
+};
+
+const RangeCreate = ((cache) => (start, end, step, size) => {
+  const range = Object.create(
+    cache ||
+      (cache = Object.assign(
+        {},
+        collectionIndexedSeqPropertiesCreate(),
+        transformToMethods({
+          toString: rangeOpToString,
+          get: rangeOpGet,
+          includes: rangeOpIncludes,
+          slice: rangeOpSlice,
+          indexOf: rangeOpIndexOf,
+          lastIndexOf: (cx, searchValue) => cx.indexOf(searchValue),
+          __iterate: rangeOpIterate,
+          __iterator: rangeOpIterator,
+          equals: rangeOpEquals,
+        })
+      ))
+  );
+
+  range._start = start;
+  range._end = end;
+  range._step = step;
+  range.size = size;
+  range.__shape = SHAPE_RANGE;
+
+  return range;
+})();
+
+let EMPTY_RANGE;
 
 /**
  * Returns a `Seq.Indexed` of numbers from `start` (inclusive) to `end`
@@ -35,119 +145,6 @@ export const Range = (
     step = -step;
   }
   const size = Math.max(0, Math.ceil((end - start) / step - 1) + 1);
-  return new RangeImpl(start, end, step, size);
+
+  return RangeCreate(start, end, step, size);
 };
-
-export class RangeImpl extends IndexedSeqImpl implements Seq.Indexed<number> {
-  private _start: number;
-  private _end: number;
-  private _step: number;
-
-  constructor(start: number, end: number, step: number, size: number) {
-    super();
-
-    this._start = start;
-    this._end = end;
-    this._step = step;
-    this.size = size;
-  }
-
-  override toString(): string {
-    return this.size === 0
-      ? 'Range []'
-      : `Range [ ${this._start}...${this._end}${this._step !== 1 ? ' by ' + this._step : ''} ]`;
-  }
-
-  get<NSV>(index: number, notSetValue: NSV): number | NSV;
-  get(index: number): number | undefined;
-  get<NSV>(index: number, notSetValue?: NSV): number | NSV | undefined {
-    // @ts-expect-error Issue with the mixin not understood by TypeScript
-    return this.has(index)
-      ? this._start + wrapIndex(this, index) * this._step
-      : notSetValue;
-  }
-
-  includes(searchValue: number): boolean {
-    const possibleIndex = (searchValue - this._start) / this._step;
-    return (
-      possibleIndex >= 0 &&
-      possibleIndex < this.size &&
-      possibleIndex === Math.floor(possibleIndex)
-    );
-  }
-
-  // @ts-expect-error TypeScript does not understand the mixin
-  slice(begin?: number | undefined, end?: number | undefined): RangeImpl {
-    if (wholeSlice(begin, end, this.size)) {
-      return this;
-    }
-    begin = resolveBegin(begin, this.size);
-    end = resolveEnd(end, this.size);
-    if (end <= begin) {
-      return Range(0, 0);
-    }
-    return Range(
-      this.get(begin, this._end),
-      this.get(end, this._end),
-      this._step
-    );
-  }
-
-  indexOf(searchValue: number): number {
-    const offsetValue = searchValue - this._start;
-    if (offsetValue % this._step === 0) {
-      const index = offsetValue / this._step;
-      if (index >= 0 && index < this.size) {
-        return index;
-      }
-    }
-    return -1;
-  }
-
-  lastIndexOf(searchValue: number): number {
-    return this.indexOf(searchValue);
-  }
-
-  override __iterate(
-    fn: (value: number, index: number, iter: this) => boolean | void,
-    reverse: boolean = false
-  ): number {
-    const size = this.size;
-    const step = this._step;
-    let value = reverse ? this._start + (size - 1) * step : this._start;
-    let i = 0;
-    while (i !== size) {
-      if (fn(value, reverse ? size - ++i : i++, this) === false) {
-        break;
-      }
-      value += reverse ? -step : step;
-    }
-    return i;
-  }
-
-  override __iterator(
-    type: IteratorType,
-    reverse: boolean = false
-  ): Iterator<number> {
-    const size = this.size;
-    const step = this._step;
-    let value = reverse ? this._start + (size - 1) * step : this._start;
-    let i = 0;
-    return new Iterator<number>(() => {
-      if (i === size) {
-        return iteratorDone();
-      }
-      const v = value;
-      value += reverse ? -step : step;
-      return iteratorValue(type, reverse ? size - ++i : i++, v);
-    });
-  }
-
-  override equals(other: unknown): boolean {
-    return other instanceof RangeImpl
-      ? this._start === other._start &&
-          this._end === other._end &&
-          this._step === other._step
-      : deepEqual(this, other);
-  }
-}
