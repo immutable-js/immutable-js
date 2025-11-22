@@ -17,7 +17,7 @@ export const SIDEBAR_LINKS = [
     label: 'OrderedMap',
     description:
       'A type of Map that has the additional guarantee that the iteration order of entries will be the order in which they were set().',
-    url: `/docs/${VERSION}/OrdererMap/`,
+    url: `/docs/${VERSION}/OrderedMap/`,
   },
   {
     label: 'Set',

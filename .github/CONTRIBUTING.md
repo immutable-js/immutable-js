@@ -33,7 +33,7 @@ your [pull requests](https://help.github.com/articles/creating-a-pull-request).
 
 ## Documentation
 
-Documentation for Immutable.js (hosted at http://immutable-js.github.io/immutable-js)
+Documentation for Immutable.js (hosted at https://immutable-js.com/)
 is developed in `pages/`. Run `npm start` to get a local copy in your browser
 while making edits.
 
