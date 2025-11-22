@@ -182,15 +182,6 @@ const stackPropertiesCreate = ((cache) => () => {
       {
         [IS_STACK_SYMBOL]: true,
         create: Stack,
-        ['@@transducer/init']: function () {
-          return collectionOpAsMutable(this);
-        },
-        ['@@transducer/step']: function (result, arr) {
-          return result.unshift(arr);
-        },
-        ['@@transducer/result']: function (obj) {
-          return collectionOpAsImmutable(obj);
-        },
       },
       transformToMethods({
         toString: stackOpToString,

@@ -167,15 +167,6 @@ export const setPropertiesCreate = ((cache) => () => {
         __make: setCreate,
         __empty: setCreateEmpty,
         create: Set,
-        ['@@transducer/init']() {
-          return collectionOpAsMutable(this);
-        },
-        ['@@transducer/step']: (result, arr) => {
-          return result.add(arr);
-        },
-        ['@@transducer/result']: (obj) => {
-          return obj.asImmutable();
-        },
       },
       transformToMethods({
         [IS_SET_SYMBOL]: true,

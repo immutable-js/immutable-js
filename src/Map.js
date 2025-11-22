@@ -194,17 +194,6 @@ export const mapPropertiesCreate = ((cache) => () => {
     (cache = Object.assign(
       {},
       collectionKeyedPropertiesCreate(),
-      {
-        ['@@transducer/init']() {
-          return collectionOpAsMutable(this);
-        },
-        ['@@transducer/step']: (result, arr) => {
-          return result.set(arr[0], arr[1]);
-        },
-        ['@@transducer/result']: (obj) => {
-          return obj.asImmutable();
-        },
-      },
       transformToMethods({
         [IS_MAP_SYMBOL]: true,
         toJSON: collectionOpToObject,

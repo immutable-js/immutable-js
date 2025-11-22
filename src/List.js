@@ -437,15 +437,6 @@ export const listPropertiesCreate = (
       collectionIndexedPropertiesCreate(),
       {
         create: (value) => List(value),
-        ['@@transducer/init']() {
-          return collectionOpAsMutable(this);
-        },
-        ['@@transducer/step'](result, arr) {
-          return result.push(arr);
-        },
-        ['@@transducer/result']: (obj) => {
-          return collectionOpAsImmutable(obj);
-        },
       },
       transformToMethods({
         [IS_LIST_SYMBOL]: true,
