@@ -12,7 +12,8 @@ export default function mixin<C extends Constructor>(
     // @ts-expect-error how to handle symbol ?
     ctor.prototype[key] = methods[key];
   };
-  Object.keys(methods).forEach(keyCopier);
+  // Use getOwnPropertyNames to copy non-enumerable properties (like TypeScript class methods)
+  Object.getOwnPropertyNames(methods).forEach(keyCopier);
   // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
   Object.getOwnPropertySymbols &&
     Object.getOwnPropertySymbols(methods).forEach(keyCopier);
