@@ -475,7 +475,7 @@ export class CollectionImpl<K, V> implements ValueObject {
   }
 
   getIn(searchKeyPath: Iterable<unknown>, notSetValue?: unknown): unknown {
-    return getIn(this as any, searchKeyPath, notSetValue);
+    return getIn.call(this, searchKeyPath, notSetValue);
   }
 
   groupBy<G>(
@@ -490,7 +490,7 @@ export class CollectionImpl<K, V> implements ValueObject {
   }
 
   hasIn(searchKeyPath: Iterable<unknown>): boolean {
-    return hasIn(this as any, searchKeyPath);
+    return hasIn.call(this, searchKeyPath);
   }
 
   isSubset(iter: Iterable<V>): boolean {
@@ -880,7 +880,7 @@ export class IndexedCollectionImpl<T>
 
   zipAll<U>(...collections: Array<any>): any {
     const thisAndCollections = [this].concat(collections);
-    const { reify } = getOperations(); return reify(
+    const { reify, zipWithFactory } = getOperations(); return reify(
       this,
       zipWithFactory(this, defaultZipper, thisAndCollections, true)
     );
