@@ -1,6 +1,4 @@
-export default function isArrayLike(
-  value: unknown
-): value is ArrayLike<unknown> {
+export default function isArrayLike<T>(value: unknown): value is ArrayLike<T> {
   if (Array.isArray(value) || typeof value === 'string') {
     return true;
   }
