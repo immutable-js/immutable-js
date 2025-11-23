@@ -206,7 +206,8 @@ export class CollectionImpl<K, V> implements ValueObject {
   concat<C>(
     ...valuesOrCollections: Array<Iterable<C> | C>
   ): CollectionImpl<unknown, unknown> {
-    const { reify, concatFactory } = getOperations(); return reify(this, concatFactory(this, valuesOrCollections));
+    const { reify, concatFactory } = getOperations();
+    return reify(this, concatFactory(this, valuesOrCollections));
   }
 
   includes(searchValue: V): boolean {
@@ -221,14 +222,16 @@ export class CollectionImpl<K, V> implements ValueObject {
     predicate: (value: V, key: K, iter: this) => unknown,
     context?: unknown
   ): this {
-    const { reify, filterFactory } = getOperations(); return reify(this, filterFactory(this, predicate, context, true));
+    const { reify, filterFactory } = getOperations();
+    return reify(this, filterFactory(this, predicate, context, true));
   }
 
   partition<C>(
     predicate: (this: C, value: V, key: K, iter: this) => unknown,
     context?: C
   ): [this, this] {
-    const { partitionFactory } = getOperations(); return partitionFactory(this, predicate, context) as [this, this];
+    const { partitionFactory } = getOperations();
+    return partitionFactory(this, predicate, context) as [this, this];
   }
 
   find(
@@ -269,7 +272,8 @@ export class CollectionImpl<K, V> implements ValueObject {
     mapper: (value: V, key: K, iter: this) => M,
     context?: unknown
   ): CollectionImpl<K, M> {
-    const { reify, mapFactory } = getOperations(); return reify(this, mapFactory(this, mapper, context));
+    const { reify, mapFactory } = getOperations();
+    return reify(this, mapFactory(this, mapper, context));
   }
 
   reduce<R>(
@@ -319,11 +323,13 @@ export class CollectionImpl<K, V> implements ValueObject {
   }
 
   reverse(): this {
-    const { reify, reverseFactory } = getOperations(); return reify(this, reverseFactory(this, true));
+    const { reify, reverseFactory } = getOperations();
+    return reify(this, reverseFactory(this, true));
   }
 
   slice(begin?: number, end?: number): this {
-    const { reify, sliceFactory } = getOperations(); return reify(this, sliceFactory(this, begin, end, true));
+    const { reify, sliceFactory } = getOperations();
+    return reify(this, sliceFactory(this, begin, end, true));
   }
 
   some(
@@ -342,7 +348,8 @@ export class CollectionImpl<K, V> implements ValueObject {
   }
 
   sort(comparator?: (valueA: V, valueB: V) => number): this {
-    const { reify, sortFactory } = getOperations(); return reify(this, sortFactory(this, comparator));
+    const { reify, sortFactory } = getOperations();
+    return reify(this, sortFactory(this, comparator));
   }
 
   values(): IterableIterator<V> {
@@ -377,7 +384,8 @@ export class CollectionImpl<K, V> implements ValueObject {
     grouper: (value: V, key: K, iter: this) => G,
     context?: unknown
   ): Map<G, number> {
-    const { countByFactory } = getOperations(); return countByFactory(this, grouper, context);
+    const { countByFactory } = getOperations();
+    return countByFactory(this, grouper, context);
   }
 
   entrySeq(): any {
@@ -457,15 +465,18 @@ export class CollectionImpl<K, V> implements ValueObject {
     mapper: (value: V, key: K, iter: this) => Iterable<M>,
     context?: unknown
   ): CollectionImpl<K, M> {
-    const { reify, flatMapFactory } = getOperations(); return reify(this, flatMapFactory(this, mapper, context));
+    const { reify, flatMapFactory } = getOperations();
+    return reify(this, flatMapFactory(this, mapper, context));
   }
 
   flatten(depth?: number | boolean): CollectionImpl<unknown, unknown> {
-    const { reify, flattenFactory } = getOperations(); return reify(this, flattenFactory(this, depth as any, true));
+    const { reify, flattenFactory } = getOperations();
+    return reify(this, flattenFactory(this, depth as any, true));
   }
 
   fromEntrySeq(): any {
-    const { FromEntriesSequence } = getOperations(); return new FromEntriesSequence(this);
+    const { FromEntriesSequence } = getOperations();
+    return new FromEntriesSequence(this);
   }
 
   get<NSV>(searchKey: K, notSetValue: NSV): V | NSV;
@@ -482,7 +493,8 @@ export class CollectionImpl<K, V> implements ValueObject {
     grouper: (value: V, key: K, iter: this) => G,
     context?: unknown
   ): any {
-    const { groupByFactory } = getOperations(); return groupByFactory(this, grouper, context);
+    const { groupByFactory } = getOperations();
+    return groupByFactory(this, grouper, context);
   }
 
   has(searchKey: K): boolean {
@@ -522,18 +534,21 @@ export class CollectionImpl<K, V> implements ValueObject {
   }
 
   max(comparator?: (valueA: V, valueB: V) => number): V | undefined {
-    const { maxFactory } = getOperations(); return maxFactory(this, comparator as any);
+    const { maxFactory } = getOperations();
+    return maxFactory(this, comparator as any);
   }
 
   maxBy<C>(
     comparatorValueMapper: (value: V, key: K, iter: this) => C,
     comparator?: (valueA: C, valueB: C) => number
   ): V | undefined {
-    const { maxFactory } = getOperations(); return maxFactory(this, comparator as any, comparatorValueMapper);
+    const { maxFactory } = getOperations();
+    return maxFactory(this, comparator as any, comparatorValueMapper);
   }
 
   min(comparator?: (valueA: V, valueB: V) => number): V | undefined {
-    const { maxFactory } = getOperations(); return maxFactory(
+    const { maxFactory } = getOperations();
+    return maxFactory(
       this,
       (comparator ? neg(comparator) : defaultNegComparator) as any
     );
@@ -543,7 +558,8 @@ export class CollectionImpl<K, V> implements ValueObject {
     comparatorValueMapper: (value: V, key: K, iter: this) => C,
     comparator?: (valueA: C, valueB: C) => number
   ): V | undefined {
-    const { maxFactory } = getOperations(); return maxFactory(
+    const { maxFactory } = getOperations();
+    return maxFactory(
       this,
       (comparator ? neg(comparator) : defaultNegComparator) as any,
       comparatorValueMapper
@@ -566,7 +582,8 @@ export class CollectionImpl<K, V> implements ValueObject {
     predicate: (value: V, key: K, iter: this) => boolean,
     context?: unknown
   ): this {
-    const { reify, skipWhileFactory } = getOperations(); return reify(this, skipWhileFactory(this, predicate, context, true));
+    const { reify, skipWhileFactory } = getOperations();
+    return reify(this, skipWhileFactory(this, predicate, context, true));
   }
 
   skipUntil(
@@ -580,7 +597,8 @@ export class CollectionImpl<K, V> implements ValueObject {
     comparatorValueMapper: (value: V, key: K, iter: this) => C,
     comparator?: (valueA: C, valueB: C) => number
   ): this {
-    const { reify, sortFactory } = getOperations(); return reify(this, sortFactory(this, comparator, comparatorValueMapper));
+    const { reify, sortFactory } = getOperations();
+    return reify(this, sortFactory(this, comparator, comparatorValueMapper));
   }
 
   take(amount: number): this {
@@ -595,7 +613,8 @@ export class CollectionImpl<K, V> implements ValueObject {
     predicate: (value: V, key: K, iter: this) => boolean,
     context?: unknown
   ): this {
-    const { reify, takeWhileFactory } = getOperations(); return reify(this, takeWhileFactory(this, predicate, context));
+    const { reify, takeWhileFactory } = getOperations();
+    return reify(this, takeWhileFactory(this, predicate, context));
   }
 
   takeUntil(
@@ -677,7 +696,8 @@ export class KeyedCollectionImpl<K, V> extends CollectionImpl<K, V> {
   // ### More sequential methods
 
   flip(): any {
-    const { reify, flipFactory } = getOperations(); return reify(this, flipFactory(this));
+    const { reify, flipFactory } = getOperations();
+    return reify(this, flipFactory(this));
   }
 
   mapEntries<KM, VM>(
@@ -685,7 +705,8 @@ export class KeyedCollectionImpl<K, V> extends CollectionImpl<K, V> {
     context?: unknown
   ): any {
     let iterations = 0;
-    const { reify } = getOperations(); return reify(
+    const { reify } = getOperations();
+    return reify(
       this,
       this.toSeq()
         .map((v: V, k: K) => mapper.call(context, [k, v], iterations++, this))
@@ -697,7 +718,8 @@ export class KeyedCollectionImpl<K, V> extends CollectionImpl<K, V> {
     mapper: (key: K, value: V, iter: this) => M,
     context?: unknown
   ): any {
-    const { reify } = getOperations(); return reify(
+    const { reify } = getOperations();
+    return reify(
       this,
       this.toSeq()
         .flip()
@@ -748,7 +770,8 @@ export class IndexedCollectionImpl<T>
     predicate: (value: T, index: number, iter: this) => unknown,
     context?: unknown
   ): this {
-    const { reify, filterFactory } = getOperations(); return reify(this, filterFactory(this, predicate, context, false));
+    const { reify, filterFactory } = getOperations();
+    return reify(this, filterFactory(this, predicate, context, false));
   }
 
   findIndex(
@@ -770,11 +793,13 @@ export class IndexedCollectionImpl<T>
   }
 
   override reverse(): this {
-    const { reify, reverseFactory } = getOperations(); return reify(this, reverseFactory(this, false));
+    const { reify, reverseFactory } = getOperations();
+    return reify(this, reverseFactory(this, false));
   }
 
   override slice(begin?: number, end?: number): this {
-    const { reify, sliceFactory } = getOperations(); return reify(this, sliceFactory(this, begin, end, false));
+    const { reify, sliceFactory } = getOperations();
+    return reify(this, sliceFactory(this, begin, end, false));
   }
 
   splice(index: number, removeNum: number, ...values: Array<T>): this {
@@ -788,7 +813,8 @@ export class IndexedCollectionImpl<T>
     // only call count() if the number is in fact negative.
     index = resolveBegin(index, index < 0 ? this.count() : this.size);
     const spliced = this.slice(0, index);
-    const { reify } = getOperations(); return reify(
+    const { reify } = getOperations();
+    return reify(
       this,
       numArgs === 1
         ? spliced
@@ -813,7 +839,8 @@ export class IndexedCollectionImpl<T>
   }
 
   override flatten(depth?: number | boolean): this {
-    const { reify, flattenFactory } = getOperations(); return reify(this, flattenFactory(this, depth as any, false));
+    const { reify, flattenFactory } = getOperations();
+    return reify(this, flattenFactory(this, depth as any, false));
   }
 
   override get(index: number): T | undefined;
@@ -838,7 +865,8 @@ export class IndexedCollectionImpl<T>
   }
 
   interpose(separator: T): this {
-    const { reify, interposeFactory } = getOperations(); return reify(this, interposeFactory(this, separator));
+    const { reify, interposeFactory } = getOperations();
+    return reify(this, interposeFactory(this, separator));
   }
 
   interleave(...collections: Array<any>): this {
@@ -852,7 +880,8 @@ export class IndexedCollectionImpl<T>
     if (zipped.size) {
       (interleaved as any).size = zipped.size * thisAndCollections.length;
     }
-    const { reify } = getOperations(); return reify(this, interleaved);
+    const { reify } = getOperations();
+    return reify(this, interleaved);
   }
 
   override keySeq(): any {
@@ -870,17 +899,20 @@ export class IndexedCollectionImpl<T>
     predicate: (value: T, index: number, iter: this) => boolean,
     context?: unknown
   ): this {
-    const { reify, skipWhileFactory } = getOperations(); return reify(this, skipWhileFactory(this, predicate, context, false));
+    const { reify, skipWhileFactory } = getOperations();
+    return reify(this, skipWhileFactory(this, predicate, context, false));
   }
 
   zip<U>(...collections: Array<any>): any {
     const thisAndCollections = [this].concat(collections);
-    const { reify, zipWithFactory } = getOperations(); return reify(this, zipWithFactory(this, defaultZipper, thisAndCollections));
+    const { reify, zipWithFactory } = getOperations();
+    return reify(this, zipWithFactory(this, defaultZipper, thisAndCollections));
   }
 
   zipAll<U>(...collections: Array<any>): any {
     const thisAndCollections = [this].concat(collections);
-    const { reify, zipWithFactory } = getOperations(); return reify(
+    const { reify, zipWithFactory } = getOperations();
+    return reify(
       this,
       zipWithFactory(this, defaultZipper, thisAndCollections, true)
     );
@@ -891,7 +923,8 @@ export class IndexedCollectionImpl<T>
     ...collections: Array<any>
   ): any {
     const thisAndCollections = [this].concat(collections);
-    const { reify, zipWithFactory } = getOperations(); return reify(this, zipWithFactory(this, zipper, thisAndCollections));
+    const { reify, zipWithFactory } = getOperations();
+    return reify(this, zipWithFactory(this, zipper, thisAndCollections));
   }
 }
 
