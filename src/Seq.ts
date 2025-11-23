@@ -1,4 +1,9 @@
-import { CollectionImpl } from './Collection';
+import {
+  CollectionImpl,
+  IndexedCollectionImpl,
+  KeyedCollectionImpl,
+  SetCollectionImpl,
+} from './Collection';
 import {
   Iterator,
   iteratorValue,
@@ -8,6 +13,7 @@ import {
   getIterator,
   isEntriesIterable,
   isKeysIterable,
+  type IteratorType,
 } from './Iterator';
 import { wrapIndex } from './TrieUtils';
 import { isAssociative } from './predicates/isAssociative';
@@ -20,38 +26,67 @@ import { IS_SEQ_SYMBOL, isSeq } from './predicates/isSeq';
 import hasOwnProperty from './utils/hasOwnProperty';
 import isArrayLike from './utils/isArrayLike';
 
-export const Seq = (value) =>
-  value === undefined || value === null
+export function Seq<S extends SeqImpl<unknown, unknown>>(seq: S): S;
+export function Seq<K, V>(
+  collection: KeyedCollectionImpl<K, V>
+): KeyedSeqImpl<K, V>;
+export function Seq<T>(collection: SetCollectionImpl<T>): SetSeqImpl<T>;
+export function Seq<T>(
+  collection: IndexedCollectionImpl<T> | Iterable<T> | ArrayLike<T>
+): IndexedSeqImpl<T>;
+export function Seq<V>(obj: { [key: string]: V }): KeyedSeqImpl<string, V>;
+export function Seq<K = unknown, V = unknown>(): SeqImpl<K, V>;
+export function Seq(value?: unknown) {
+  return value === undefined || value === null
     ? emptySequence()
     : isImmutable(value)
       ? value.toSeq()
       : seqFromValue(value);
-export class SeqImpl extends CollectionImpl {
-  toSeq() {
+}
+
+type IterateFunction<K, V, thisType> = (
+  value: V,
+  index: K,
+  iter: thisType
+) => boolean | void;
+
+export abstract class SeqImpl<K, V> extends CollectionImpl<K, V> {
+  private _cache: Array<[K, V]> | undefined;
+
+  private __iteratorUncached:
+    | undefined
+    | ((fn: IteratorType, reverse: boolean | undefined) => Iterator<V>);
+
+  override toSeq(): SeqImpl<K, V> {
     return this;
   }
 
-  toString() {
+  override toString() {
     return this.__toString('Seq {', '}');
   }
 
-  cacheResult() {
-    if (!this._cache && this.__iterateUncached) {
+  cacheResult(): this {
+    if (!this._cache /* && this.__iterateUncached */) {
       this._cache = this.entrySeq().toArray();
       this.size = this._cache.length;
     }
     return this;
   }
 
-  // abstract __iterateUncached(fn, reverse)
-
-  __iterate(fn, reverse) {
+  override __iterate(
+    fn: IterateFunction<K, V, typeof this>,
+    reverse?: boolean
+  ): number {
     const cache = this._cache;
     if (cache) {
       const size = cache.length;
       let i = 0;
       while (i !== size) {
         const entry = cache[reverse ? size - ++i : i++];
+        if (!entry) {
+          throw new Error('Unexpected undefined entry in cache');
+        }
+
         if (fn(entry[1], entry[0], this) === false) {
           break;
         }
@@ -63,7 +98,10 @@ export class SeqImpl extends CollectionImpl {
 
   // abstract __iteratorUncached(type, reverse)
 
-  __iterator(type, reverse) {
+  override __iterator(
+    type: IteratorType,
+    reverse: boolean = false
+  ): Iterator<V> {
     const cache = this._cache;
     if (cache) {
       const size = cache.length;
@@ -73,15 +111,29 @@ export class SeqImpl extends CollectionImpl {
           return iteratorDone();
         }
         const entry = cache[reverse ? size - ++i : i++];
+
+        if (!entry) {
+          throw new Error('Unexpected undefined entry in cache');
+        }
+
         return iteratorValue(type, entry[0], entry[1]);
       });
     }
     return this.__iteratorUncached(type, reverse);
   }
+
+  abstract __iterateUncached(
+    fn: IterateFunction<K, V, typeof this>,
+    reverse?: boolean
+  ): number;
 }
 
-export const KeyedSeq = (value) =>
-  value === undefined || value === null
+export function KeyedSeq<K, V>(
+  collection?: Iterable<[K, V]>
+): KeyedSeqImpl<K, V>;
+export function KeyedSeq<V>(obj: { [key: string]: V }): KeyedSeqImpl<string, V>;
+export function KeyedSeq(value: unknown) {
+  return value === undefined || value === null
     ? emptySequence().toKeyedSeq()
     : isCollection(value)
       ? isKeyed(value)
@@ -90,14 +142,21 @@ export const KeyedSeq = (value) =>
       : isRecord(value)
         ? value.toSeq()
         : keyedSeqFromValue(value);
-export class KeyedSeqImpl extends SeqImpl {
+}
+
+export abstract class KeyedSeqImpl<K, V> extends SeqImpl<K, V> {
   toKeyedSeq() {
     return this;
   }
 }
 
-export const IndexedSeq = (value) =>
-  value === undefined || value === null
+export function IndexedSeq<T>(
+  collection?: Iterable<T> | ArrayLike<T>
+): IndexedSeqImpl<T>;
+export function IndexedSeq<T>(
+  value?: Iterable<T> | ArrayLike<T>
+): IndexedSeqImpl<T> {
+  return value === undefined || value === null
     ? emptySequence()
     : isCollection(value)
       ? isKeyed(value)
@@ -106,30 +165,36 @@ export const IndexedSeq = (value) =>
       : isRecord(value)
         ? value.toSeq().entrySeq()
         : indexedSeqFromValue(value);
+}
 
-IndexedSeq.of = function (...values) {
+IndexedSeq.of = function <T>(...values: Array<T>): IndexedSeqImpl<T> {
   return IndexedSeq(values);
 };
-export class IndexedSeqImpl extends SeqImpl {
+
+export class IndexedSeqImpl<T> extends SeqImpl<number, T> {
   toIndexedSeq() {
     return this;
   }
 
-  toString() {
+  override toString() {
     return this.__toString('Seq [', ']');
   }
 }
-export const SetSeq = (value) =>
-  (isCollection(value) && !isAssociative(value)
-    ? value
-    : IndexedSeq(value)
-  ).toSetSeq();
+export function SetSeq<T>(
+  collection?: Iterable<T> | ArrayLike<T>
+): SetSeqImpl<T>;
 
-SetSeq.of = function (...values) {
+export function SetSeq<T>(value?: Iterable<T> | ArrayLike<T>): SetSeqImpl<T> {
+  return (
+    isCollection(value) && !isAssociative(value) ? value : IndexedSeq(value)
+  ).toSetSeq();
+}
+
+SetSeq.of = function <T>(...values: Array<T>): SetSeqImpl<T> {
   return SetSeq(values);
 };
 
-export class SetSeqImpl extends SeqImpl {
+export class SetSeqImpl<T> extends SeqImpl<T, T> {
   toSetSeq() {
     return this;
   }
@@ -144,18 +209,23 @@ SeqImpl.prototype[IS_SEQ_SYMBOL] = true;
 
 // #pragma Root Sequences
 
-export class ArraySeq extends IndexedSeqImpl {
-  constructor(array) {
+export class ArraySeq<T> extends IndexedSeqImpl<T> {
+  private _array: ArrayLike<T>;
+
+  constructor(array: ArrayLike<T>) {
     super();
     this._array = array;
     this.size = array.length;
   }
 
-  get(index, notSetValue) {
+  get(index: number, notSetValue?: T): T | undefined {
     return this.has(index) ? this._array[wrapIndex(this, index)] : notSetValue;
   }
 
-  __iterate(fn, reverse) {
+  override __iterate(
+    fn: (value: T, index: number, iter: this) => boolean,
+    reverse?: boolean
+  ): number {
     const array = this._array;
     const size = array.length;
     let i = 0;
@@ -168,22 +238,27 @@ export class ArraySeq extends IndexedSeqImpl {
     return i;
   }
 
-  __iterator(type, reverse) {
+  override __iterator(type: IteratorType, reverse?: boolean): Iterator<T> {
     const array = this._array;
     const size = array.length;
     let i = 0;
-    return new Iterator(() => {
+    return new Iterator((): IteratorResult<T> => {
       if (i === size) {
         return iteratorDone();
       }
       const ii = reverse ? size - ++i : i++;
+
       return iteratorValue(type, ii, array[ii]);
     });
   }
 }
 
-class ObjectSeq extends KeyedSeqImpl {
-  constructor(object) {
+class ObjectSeq<K extends string, V> extends KeyedSeqImpl<K, V> {
+  private _object: { [key: string]: V };
+
+  private _keys: string[];
+
+  constructor(object: { [key: string]: V }) {
     super();
     const keys = Object.keys(object).concat(
       Object.getOwnPropertySymbols ? Object.getOwnPropertySymbols(object) : []
@@ -193,18 +268,21 @@ class ObjectSeq extends KeyedSeqImpl {
     this.size = keys.length;
   }
 
-  get(key, notSetValue) {
+  get(key: K, notSetValue?: V): V | undefined {
     if (notSetValue !== undefined && !this.has(key)) {
       return notSetValue;
     }
     return this._object[key];
   }
 
-  has(key) {
+  has(key: K): boolean {
     return hasOwnProperty.call(this._object, key);
   }
 
-  __iterate(fn, reverse) {
+  override __iterate(
+    fn: (value: V, key: K, iter: this) => boolean,
+    reverse?: boolean
+  ): number {
     const object = this._object;
     const keys = this._keys;
     const size = keys.length;
@@ -218,7 +296,7 @@ class ObjectSeq extends KeyedSeqImpl {
     return i;
   }
 
-  __iterator(type, reverse) {
+  override __iterator(type: IteratorType, reverse?: boolean): Iterator<V> {
     const object = this._object;
     const keys = this._keys;
     const size = keys.length;
@@ -234,8 +312,10 @@ class ObjectSeq extends KeyedSeqImpl {
 }
 ObjectSeq.prototype[IS_ORDERED_SYMBOL] = true;
 
-class CollectionSeq extends IndexedSeqImpl {
-  constructor(collection) {
+class CollectionSeq<T> extends IndexedSeqImpl<T> {
+  private _collection: CollectionImpl<T, T> | ArrayLike<T>;
+
+  constructor(collection: CollectionImpl<T, T> | ArrayLike<T>) {
     super();
     this._collection = collection;
     this.size = collection.length || collection.size;
@@ -277,7 +357,7 @@ class CollectionSeq extends IndexedSeqImpl {
 }
 
 // # pragma Helper functions
-function emptySequence() {
+function emptySequence(): ArraySeq<never> {
   return new ArraySeq([]);
 }
 
@@ -322,10 +402,12 @@ function seqFromValue(value) {
   );
 }
 
-function maybeIndexedSeqFromValue(value) {
-  return isArrayLike(value)
+function maybeIndexedSeqFromValue<V>(
+  value: unknown
+): IndexedSeqImpl<V> | undefined {
+  return isArrayLike<V>(value)
     ? new ArraySeq(value)
-    : hasIterator(value)
+    : hasIterator<V>(value)
       ? new CollectionSeq(value)
       : undefined;
 }
