@@ -3,10 +3,10 @@ type Constructor<T = object> = new (...args: unknown[]) => T;
 /**
  * Contributes additional methods to a constructor
  */
-export default function mixin<C extends Constructor>(
+export default function mixin<I, C extends Constructor = Constructor>(
   ctor: C,
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  methods: Record<string, Function>
+  methods: I
 ): C {
   const keyCopier = (key: string | symbol): void => {
     // @ts-expect-error how to handle symbol ?

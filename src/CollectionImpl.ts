@@ -1,3 +1,4 @@
+import type { Seq as SeqTypeToMigrate } from '../type-definitions/immutable';
 import {
   Collection,
   CollectionImpl,
@@ -72,11 +73,13 @@ import assertNotInfinite from './utils/assertNotInfinite';
 import mixin from './utils/mixin';
 import quoteString from './utils/quoteString';
 
+// TODO : remove ?
 export { Collection, CollectionPrototype, IndexedCollectionPrototype };
 
+// TODO : remove ?
 Collection.Iterator = Iterator;
 
-mixin(CollectionImpl, {
+mixin<CollectionImpl<unknown, unknown>>(CollectionImpl, {
   // ### Conversion to other types
 
   toArray() {
@@ -91,7 +94,7 @@ mixin(CollectionImpl, {
     return array;
   },
 
-  toIndexedSeq() {
+  toIndexedSeq(): SeqTypeToMigrate.Indexed<unknown> {
     return new ToIndexedSequence(this);
   },
 
@@ -99,7 +102,7 @@ mixin(CollectionImpl, {
     return toJS(this);
   },
 
-  toKeyedSeq() {
+  toKeyedSeq(): SeqTypeToMigrate.Keyed<unknown, unknown> {
     return new ToKeyedSequence(this, true);
   },
 
@@ -125,11 +128,11 @@ mixin(CollectionImpl, {
     return Set(isKeyed(this) ? this.valueSeq() : this);
   },
 
-  toSetSeq() {
+  toSetSeq(): SeqTypeToMigrate.Set<unknown> {
     return new ToSetSequence(this);
   },
 
-  toSeq() {
+  toSeq(): SeqTypeToMigrate<unknown, unknown> {
     return isIndexed(this)
       ? this.toIndexedSeq()
       : isKeyed(this)
@@ -153,7 +156,7 @@ mixin(CollectionImpl, {
     return '[Collection]';
   },
 
-  __toString(head, tail) {
+  __toString(head: string, tail: string): string {
     if (this.size === 0) {
       return head + tail;
     }
@@ -176,11 +179,26 @@ mixin(CollectionImpl, {
     return this.some((value) => is(value, searchValue));
   },
 
-  filter(predicate, context) {
+  filter(
+    predicate: (
+      value: unknown,
+      index: unknown,
+      iter: CollectionImpl<unknown, unknown>
+    ) => unknown,
+    context?: CollectionImpl<unknown, unknown>
+  ): CollectionImpl<unknown, unknown> {
     return reify(this, filterFactory(this, predicate, context, true));
   },
 
-  partition(predicate, context) {
+  partition(
+    predicate: (
+      this: CollectionImpl<unknown, unknown>,
+      value: unknown,
+      key: unknown,
+      iter: CollectionImpl<unknown, unknown>
+    ) => unknown,
+    context?: CollectionImpl<unknown, unknown>
+  ): [CollectionImpl<unknown, unknown>, CollectionImpl<unknown, unknown>] {
     return partitionFactory(this, predicate, context);
   },
 
@@ -189,7 +207,14 @@ mixin(CollectionImpl, {
     return entry ? entry[1] : notSetValue;
   },
 
-  forEach(sideEffect, context) {
+  forEach(
+    sideEffect: (
+      value: unknown,
+      key: unknown,
+      iter: CollectionImpl<unknown, unknown>
+    ) => void,
+    context?: CollectionImpl<unknown, unknown>
+  ) {
     assertNotInfinite(this.size);
     return this.__iterate(context ? sideEffect.bind(context) : sideEffect);
   },
@@ -211,11 +236,27 @@ mixin(CollectionImpl, {
     return this.__iterator(ITERATE_KEYS);
   },
 
-  map(mapper, context) {
+  map<M>(
+    mapper: (
+      value: unknown,
+      key: unknown,
+      iter: CollectionImpl<unknown, unknown>
+    ) => M,
+    context?: CollectionImpl<unknown, unknown>
+  ): CollectionImpl<M, unknown> {
     return reify(this, mapFactory(this, mapper, context));
   },
 
-  reduce(reducer, initialReduction, context) {
+  reduce<R>(
+    reducer: (
+      reduction: R,
+      value: unknown,
+      key: unknown,
+      iter: CollectionImpl<unknown, unknown>
+    ) => R,
+    initialReduction: R,
+    context: unknown
+  ): R {
     return reduce(
       this,
       reducer,
@@ -275,7 +316,14 @@ mixin(CollectionImpl, {
     return this.size !== undefined ? this.size === 0 : !this.some(() => true);
   },
 
-  count(predicate, context) {
+  count(
+    predicate?: (
+      value: unknown,
+      key: unknown,
+      iter: CollectionImpl<unknown, unknown>
+    ) => boolean,
+    context?: unknown
+  ): number {
     return ensureSize(
       predicate ? this.toSeq().filter(predicate, context) : this
     );
@@ -475,7 +523,7 @@ mixin(CollectionImpl, {
   // abstract __iterate(fn, reverse)
 
   // abstract __iterator(type, reverse)
-});
+} satisfies CollectionImpl<unknown, unknown>);
 
 const CollectionPrototype = CollectionImpl.prototype;
 CollectionPrototype[IS_COLLECTION_SYMBOL] = true;

@@ -1,4 +1,4 @@
-import type { Seq } from '../type-definitions/immutable';
+import type { Seq as SeqTypeToMigrate } from '../type-definitions/immutable';
 import {
   Iterator,
   iteratorValue,
@@ -38,7 +38,10 @@ export const Range = (
   return new RangeImpl(start, end, step, size);
 };
 
-export class RangeImpl extends IndexedSeqImpl implements Seq.Indexed<number> {
+export class RangeImpl
+  extends IndexedSeqImpl
+  implements SeqTypeToMigrate.Indexed<number>
+{
   private _start: number;
   private _end: number;
   private _step: number;
@@ -58,16 +61,18 @@ export class RangeImpl extends IndexedSeqImpl implements Seq.Indexed<number> {
       : `Range [ ${this._start}...${this._end}${this._step !== 1 ? ' by ' + this._step : ''} ]`;
   }
 
-  get<NSV>(index: number, notSetValue: NSV): number | NSV;
-  get(index: number): number | undefined;
-  get<NSV>(index: number, notSetValue?: NSV): number | NSV | undefined {
-    // @ts-expect-error Issue with the mixin not understood by TypeScript
+  override get<NSV>(index: number, notSetValue: NSV): number | NSV;
+  override get(index: number): number | undefined;
+  override get<NSV>(
+    index: number,
+    notSetValue?: NSV
+  ): number | NSV | undefined {
     return this.has(index)
       ? this._start + wrapIndex(this, index) * this._step
       : notSetValue;
   }
 
-  includes(searchValue: number): boolean {
+  override includes(searchValue: number): boolean {
     const possibleIndex = (searchValue - this._start) / this._step;
     return (
       possibleIndex >= 0 &&

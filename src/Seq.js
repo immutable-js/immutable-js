@@ -26,6 +26,7 @@ export const Seq = (value) =>
     : isImmutable(value)
       ? value.toSeq()
       : seqFromValue(value);
+
 export class SeqImpl extends CollectionImpl {
   toSeq() {
     return this;

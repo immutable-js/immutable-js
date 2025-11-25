@@ -706,7 +706,7 @@ export function concatFactory(collection, values) {
       if (!isCollection(v)) {
         v = isKeyedCollection
           ? keyedSeqFromValue(v)
-          : indexedSeqFromValue(Array.isArray(v) ? v : [v]);
+          : indexedSeqFromValue(Array.isArray(v) ? v : [v]); // TODO we could call `new ArraySeq()` directy
       } else if (isKeyedCollection) {
         v = KeyedCollection(v);
       }
