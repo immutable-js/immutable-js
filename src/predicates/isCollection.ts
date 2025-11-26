@@ -16,9 +16,9 @@ export const IS_COLLECTION_SYMBOL = '@@__IMMUTABLE_ITERABLE__@@';
  * isCollection(Stack()); // true
  * ```
  */
-export function isCollection(
+export function isCollection<K, V>(
   maybeCollection: unknown
-): maybeCollection is CollectionImpl<unknown, unknown> {
+): maybeCollection is CollectionImpl<K, V> {
   return Boolean(
     maybeCollection &&
       // @ts-expect-error: maybeCollection is typed as `{}`, need to change in 6.0 to `maybeCollection && typeof maybeCollection === 'object' && IS_COLLECTION_SYMBOL in maybeCollection`

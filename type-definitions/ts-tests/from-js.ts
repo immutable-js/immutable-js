@@ -1,10 +1,10 @@
-import { Collection, List, Map, MapOf, fromJS } from 'immutable';
+import { type CollectionImpl, List, Map, MapOf, fromJS } from 'immutable';
 import { expect, test } from 'tstyche';
 
 test('fromJS', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   expect(fromJS({}, (a: any, b: any) => b)).type.toBe<
-    Collection<unknown, unknown>
+    CollectionImpl<unknown, unknown>
   >();
 
   expect(fromJS('abc')).type.toBe<string>();

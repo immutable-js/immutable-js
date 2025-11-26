@@ -1,4 +1,11 @@
-import { Collection, Seq } from 'immutable';
+import {
+  type CollectionImpl,
+  type IndexedCollectionImpl,
+  type KeyedCollectionImpl,
+  type SetCollectionImpl,
+  Collection,
+  Seq,
+} from 'immutable';
 import { expect, test } from 'tstyche';
 
 test('typed empty Seq', () => {
@@ -20,21 +27,25 @@ test('typed empty Seq', () => {
 });
 
 test('typed empty Collection', () => {
-  expect(Collection()).type.toBe<Collection<unknown, unknown>>();
+  expect(Collection()).type.toBe<CollectionImpl<unknown, unknown>>();
 
-  expect(Collection<number, string>()).type.toBe<Collection<number, string>>();
-
-  expect(Collection.Indexed()).type.toBe<Collection.Indexed<unknown>>();
-
-  expect(Collection.Indexed<string>()).type.toBe<Collection.Indexed<string>>();
-
-  expect(Collection.Keyed()).type.toBe<Collection.Keyed<unknown, unknown>>();
-
-  expect(Collection.Keyed<number, string>()).type.toBe<
-    Collection.Keyed<number, string>
+  expect(Collection<number, string>()).type.toBe<
+    CollectionImpl<number, string>
   >();
 
-  expect(Collection.Set()).type.toBe<Collection.Set<unknown>>();
+  expect(Collection.Indexed()).type.toBe<IndexedCollectionImpl<unknown>>();
 
-  expect(Collection.Set<string>()).type.toBe<Collection.Set<string>>();
+  expect(Collection.Indexed<string>()).type.toBe<
+    IndexedCollectionImpl<string>
+  >();
+
+  expect(Collection.Keyed()).type.toBe<KeyedCollectionImpl<unknown, unknown>>();
+
+  expect(Collection.Keyed<number, string>()).type.toBe<
+    KeyedCollectionImpl<number, string>
+  >();
+
+  expect(Collection.Set()).type.toBe<SetCollectionImpl<unknown>>();
+
+  expect(Collection.Set<string>()).type.toBe<SetCollectionImpl<string>>();
 });
