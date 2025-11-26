@@ -6,6 +6,7 @@ import type {
   OrderedSet as OrderedSetTypeToMigrate,
   Stack as StackTypeToMigrate,
   Seq as SeqTypeToMigrate,
+  Map,
 } from '../type-definitions/immutable';
 import {
   ITERATE_ENTRIES,
@@ -834,7 +835,7 @@ export interface CollectionImpl<K, V> extends ValueObject {
 export class CollectionImpl<K, V> implements CollectionImpl<K, V> {
   private __hash: number | undefined;
 
-  size: number = 0;
+  size: number | undefined = 0;
 
   // __toStringMapper!: (value: V, key: K, iter: this) => string;
 
