@@ -8,6 +8,16 @@ import ValueObject from '../src/ValueObject';
 import type { Comparator } from './comparator';
 import type { DeepCopy } from './deepCopy';
 
+export type {
+  CollectionImpl,
+  KeyedCollectionImpl,
+  IndexedCollectionImpl,
+  SetCollectionImpl,
+  ValueObject,
+  Comparator,
+  DeepCopy,
+};
+
 /** @ignore we should disable this rules, but let's activate it to enable eslint first */
 /**
  * Immutable data encourages pure functions (data-in, data-out) and lends itself
