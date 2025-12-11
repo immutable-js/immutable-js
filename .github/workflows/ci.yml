@@ -74,7 +74,7 @@ jobs:
         run: npm run test:unit
 
       - name: 'Test types'
-        run: npm run test:types -- --target 4.5,5.0,current
+        run: npm run test:types -- --target 5.0,current
 
       - run: npx size-limit
       - run: npm run check-git-clean

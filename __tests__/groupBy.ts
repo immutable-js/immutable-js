@@ -35,17 +35,17 @@ describe('groupBy', () => {
       const grouped = col.groupBy((v: unknown) => v);
 
       // all groupBy should be instance of Map
-      expect(grouped).toBeInstanceOf(Map);
+      expect(Map.isMap(grouped)).toBe(true);
 
       // ordered objects should be instance of OrderedMap
       expect(isOrdered(col)).toBe(constructorIsOrdered);
       expect(isOrdered(grouped)).toBe(constructorIsOrdered);
       if (constructorIsOrdered) {
         // eslint-disable-next-line jest/no-conditional-expect
-        expect(grouped).toBeInstanceOf(OrderedMap);
+        expect(OrderedMap.isOrderedMap(grouped)).toBe(true);
       } else {
         // eslint-disable-next-line jest/no-conditional-expect
-        expect(grouped).not.toBeInstanceOf(OrderedMap);
+        expect(OrderedMap.isOrderedMap(grouped)).toBe(false);
       }
     }
   );

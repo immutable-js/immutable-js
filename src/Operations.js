@@ -1,45 +1,50 @@
 import {
   Collection,
-  IndexedCollection,
   KeyedCollection,
   SetCollection,
+  IndexedCollection,
 } from './Collection';
 import {
-  ITERATE_ENTRIES,
+  getIterator,
+  Iterator,
+  iteratorValue,
+  iteratorDone,
   ITERATE_KEYS,
   ITERATE_VALUES,
-  Iterator,
-  getIterator,
-  iteratorDone,
-  iteratorValue,
+  ITERATE_ENTRIES,
 } from './Iterator';
 import { Map } from './Map';
 import { OrderedMap } from './OrderedMap';
 import {
-  ArraySeq,
-  IndexedSeq,
+  SeqImpl,
   KeyedSeq,
-  Seq,
   SetSeq,
-  indexedSeqFromValue,
+  IndexedSeq,
   keyedSeqFromValue,
+  indexedSeqFromValue,
+  ArraySeq,
+  KeyedSeqImpl,
+  IndexedSeqImpl,
+  SetSeqImpl,
 } from './Seq';
 import {
   NOT_SET,
   ensureSize,
+  wrapIndex,
+  wholeSlice,
   resolveBegin,
   resolveEnd,
-  wholeSlice,
-  wrapIndex,
 } from './TrieUtils';
 import { isCollection } from './predicates/isCollection';
 import { IS_INDEXED_SYMBOL, isIndexed } from './predicates/isIndexed';
 import { IS_KEYED_SYMBOL, isKeyed } from './predicates/isKeyed';
-import { IS_ORDERED_SYMBOL, isOrdered } from './predicates/isOrdered';
+import { isOrdered, IS_ORDERED_SYMBOL } from './predicates/isOrdered';
 import { isSeq } from './predicates/isSeq';
 
-export class ToKeyedSequence extends KeyedSeq {
+export class ToKeyedSequence extends KeyedSeqImpl {
   constructor(indexed, useKeys) {
+    super();
+
     this._iter = indexed;
     this._useKeys = useKeys;
     this.size = indexed.size;
@@ -83,8 +88,10 @@ export class ToKeyedSequence extends KeyedSeq {
 }
 ToKeyedSequence.prototype[IS_ORDERED_SYMBOL] = true;
 
-export class ToIndexedSequence extends IndexedSeq {
+export class ToIndexedSequence extends IndexedSeqImpl {
   constructor(iter) {
+    super();
+
     this._iter = iter;
     this.size = iter.size;
   }
@@ -122,8 +129,10 @@ export class ToIndexedSequence extends IndexedSeq {
   }
 }
 
-export class ToSetSequence extends SetSeq {
+export class ToSetSequence extends SetSeqImpl {
   constructor(iter) {
+    super();
+
     this._iter = iter;
     this.size = iter.size;
   }
@@ -147,8 +156,10 @@ export class ToSetSequence extends SetSeq {
   }
 }
 
-export class FromEntriesSequence extends KeyedSeq {
+export class FromEntriesSequence extends KeyedSeqImpl {
   constructor(entries) {
+    super();
+
     this._iter = entries;
     this.size = entries.size;
   }
@@ -591,8 +602,10 @@ export function skipWhileFactory(collection, predicate, context, useKeys) {
   return skipSequence;
 }
 
-class ConcatSeq extends Seq {
+class ConcatSeq extends SeqImpl {
   constructor(iterables) {
+    super();
+
     this._wrappedIterables = iterables.flatMap((iterable) => {
       if (iterable._wrappedIterables) {
         return iterable._wrappedIterables;
@@ -930,7 +943,13 @@ export function zipWithFactory(keyIter, zipper, iters, zipAll) {
 // #pragma Helper Functions
 
 export function reify(iter, seq) {
-  return iter === seq ? iter : isSeq(iter) ? seq : iter.constructor(seq);
+  return iter === seq
+    ? iter
+    : isSeq(iter)
+      ? seq
+      : iter.create
+        ? iter.create(seq)
+        : iter.constructor(seq);
 }
 
 function validateEntry(entry) {
@@ -950,10 +969,10 @@ function collectionClass(collection) {
 function makeSequence(collection) {
   return Object.create(
     (isKeyed(collection)
-      ? KeyedSeq
+      ? KeyedSeqImpl
       : isIndexed(collection)
-        ? IndexedSeq
-        : SetSeq
+        ? IndexedSeqImpl
+        : SetSeqImpl
     ).prototype
   );
 }
@@ -964,7 +983,7 @@ function cacheResultThrough() {
     this.size = this._iter.size;
     return this;
   }
-  return Seq.prototype.cacheResult.call(this);
+  return SeqImpl.prototype.cacheResult.call(this);
 }
 
 function defaultComparator(a, b) {

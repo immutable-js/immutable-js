@@ -1,8 +1,9 @@
 import {
   Collection,
-  IndexedCollection,
-  KeyedCollection,
-  SetCollection,
+  CollectionImpl,
+  IndexedCollectionImpl,
+  KeyedCollectionImpl,
+  SetCollectionImpl,
 } from './Collection';
 import {
   defaultNegComparator,
@@ -12,26 +13,17 @@ import {
   not,
   reduce,
 } from './CollectionHelperMethods';
-import {
-  ITERATE_ENTRIES,
-  ITERATE_KEYS,
-  ITERATE_VALUES,
-  Iterator,
-  ITERATOR_SYMBOL,
-} from './Iterator';
+import { ITERATE_KEYS, ITERATE_VALUES, Iterator } from './Iterator';
 import { List } from './List';
 import { Map } from './Map';
 import {
-  FromEntriesSequence,
-  ToIndexedSequence,
-  ToKeyedSequence,
-  ToSetSequence,
   concatFactory,
   countByFactory,
   filterFactory,
   flatMapFactory,
   flattenFactory,
   flipFactory,
+  FromEntriesSequence,
   groupByFactory,
   interposeFactory,
   mapFactory,
@@ -43,17 +35,26 @@ import {
   sliceFactory,
   sortFactory,
   takeWhileFactory,
+  ToIndexedSequence,
+  ToKeyedSequence,
+  ToSetSequence,
   zipWithFactory,
 } from './Operations';
 import { OrderedMap } from './OrderedMap';
 import { OrderedSet } from './OrderedSet';
 import { Range } from './Range';
-import { ArraySeq, IndexedSeq, KeyedSeq, SetSeq } from './Seq';
+import {
+  ArraySeq,
+  IndexedSeq,
+  IndexedSeqImpl,
+  KeyedSeqImpl,
+  SetSeqImpl,
+} from './Seq';
 import { Set } from './Set';
 import { Stack } from './Stack';
 import {
-  NOT_SET,
   ensureSize,
+  NOT_SET,
   resolveBegin,
   returnTrue,
   wrapIndex,
@@ -67,10 +68,7 @@ import { isIndexed, IS_INDEXED_SYMBOL } from './predicates/isIndexed';
 import { isKeyed, IS_KEYED_SYMBOL } from './predicates/isKeyed';
 import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
 import { toJS } from './toJS';
-import arrCopy from './utils/arrCopy';
 import assertNotInfinite from './utils/assertNotInfinite';
-import deepEqual from './utils/deepEqual';
-import { hashCollection } from './utils/hasCollection';
 import mixin from './utils/mixin';
 import quoteString from './utils/quoteString';
 
@@ -78,7 +76,7 @@ export { Collection, CollectionPrototype, IndexedCollectionPrototype };
 
 Collection.Iterator = Iterator;
 
-mixin(Collection, {
+mixin(CollectionImpl, {
   // ### Conversion to other types
 
   toArray() {
@@ -176,22 +174,6 @@ mixin(Collection, {
 
   includes(searchValue) {
     return this.some((value) => is(value, searchValue));
-  },
-
-  entries() {
-    return this.__iterator(ITERATE_ENTRIES);
-  },
-
-  every(predicate, context) {
-    assertNotInfinite(this.size);
-    let returnValue = true;
-    this.__iterate((v, k, c) => {
-      if (!predicate.call(context, v, k, c)) {
-        returnValue = false;
-        return false;
-      }
-    });
-    return returnValue;
   },
 
   filter(predicate, context) {
@@ -303,9 +285,9 @@ mixin(Collection, {
     return countByFactory(this, grouper, context);
   },
 
-  equals(other) {
-    return deepEqual(this, other);
-  },
+  // equals(other) {
+  //   return deepEqual(this, other);
+  // },
 
   entrySeq() {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
@@ -484,9 +466,9 @@ mixin(Collection, {
 
   // ### Hashable Object
 
-  hashCode() {
-    return this.__hash || (this.__hash = hashCollection(this));
-  },
+  // hashCode() {
+  //   return this.__hash || (this.__hash = hashCollection(this));
+  // },
 
   // ### Internal
 
@@ -495,9 +477,9 @@ mixin(Collection, {
   // abstract __iterator(type, reverse)
 });
 
-const CollectionPrototype = Collection.prototype;
+const CollectionPrototype = CollectionImpl.prototype;
 CollectionPrototype[IS_COLLECTION_SYMBOL] = true;
-CollectionPrototype[ITERATOR_SYMBOL] = CollectionPrototype.values;
+CollectionPrototype[Symbol.iterator] = CollectionPrototype.values;
 CollectionPrototype.toJSON = CollectionPrototype.toArray;
 CollectionPrototype.__toStringMapper = quoteString;
 CollectionPrototype.inspect = CollectionPrototype.toSource = function () {
@@ -506,7 +488,7 @@ CollectionPrototype.inspect = CollectionPrototype.toSource = function () {
 CollectionPrototype.chain = CollectionPrototype.flatMap;
 CollectionPrototype.contains = CollectionPrototype.includes;
 
-mixin(KeyedCollection, {
+mixin(KeyedCollectionImpl, {
   // ### More sequential methods
 
   flip() {
@@ -534,14 +516,14 @@ mixin(KeyedCollection, {
   },
 });
 
-const KeyedCollectionPrototype = KeyedCollection.prototype;
+const KeyedCollectionPrototype = KeyedCollectionImpl.prototype;
 KeyedCollectionPrototype[IS_KEYED_SYMBOL] = true;
-KeyedCollectionPrototype[ITERATOR_SYMBOL] = CollectionPrototype.entries;
+KeyedCollectionPrototype[Symbol.iterator] = CollectionPrototype.entries;
 KeyedCollectionPrototype.toJSON = toObject;
 KeyedCollectionPrototype.__toStringMapper = (v, k) =>
   quoteString(k) + ': ' + quoteString(v);
 
-mixin(IndexedCollection, {
+mixin(IndexedCollectionImpl, {
   // ### Conversion to other types
 
   toKeyedSeq() {
@@ -577,7 +559,7 @@ mixin(IndexedCollection, {
     return reify(this, sliceFactory(this, begin, end, false));
   },
 
-  splice(index, removeNum /*, ...values*/) {
+  splice(index, removeNum, ...values) {
     const numArgs = arguments.length;
     removeNum = Math.max(removeNum || 0, 0);
     if (numArgs === 0 || (numArgs === 2 && !removeNum)) {
@@ -592,7 +574,7 @@ mixin(IndexedCollection, {
       this,
       numArgs === 1
         ? spliced
-        : spliced.concat(arrCopy(arguments, 2), this.slice(index + removeNum))
+        : spliced.concat(values, this.slice(index + removeNum))
     );
   },
 
@@ -634,12 +616,16 @@ mixin(IndexedCollection, {
     return reify(this, interposeFactory(this, separator));
   },
 
-  interleave(/*...collections*/) {
-    const collections = [this].concat(arrCopy(arguments));
-    const zipped = zipWithFactory(this.toSeq(), IndexedSeq.of, collections);
+  interleave(...collections) {
+    const thisAndCollections = [this].concat(collections);
+    const zipped = zipWithFactory(
+      this.toSeq(),
+      IndexedSeq.of,
+      thisAndCollections
+    );
     const interleaved = zipped.flatten(true);
     if (zipped.size) {
-      interleaved.size = zipped.size * collections.length;
+      interleaved.size = zipped.size * thisAndCollections.length;
     }
     return reify(this, interleaved);
   },
@@ -656,28 +642,33 @@ mixin(IndexedCollection, {
     return reify(this, skipWhileFactory(this, predicate, context, false));
   },
 
-  zip(/*, ...collections */) {
-    const collections = [this].concat(arrCopy(arguments));
-    return reify(this, zipWithFactory(this, defaultZipper, collections));
+  zip(...collections) {
+    const thisAndCollections = [this].concat(collections);
+
+    return reify(this, zipWithFactory(this, defaultZipper, thisAndCollections));
   },
 
-  zipAll(/*, ...collections */) {
-    const collections = [this].concat(arrCopy(arguments));
-    return reify(this, zipWithFactory(this, defaultZipper, collections, true));
+  zipAll(...collections) {
+    const thisAndCollections = [this].concat(collections);
+
+    return reify(
+      this,
+      zipWithFactory(this, defaultZipper, thisAndCollections, true)
+    );
   },
 
-  zipWith(zipper /*, ...collections */) {
-    const collections = arrCopy(arguments);
-    collections[0] = this;
-    return reify(this, zipWithFactory(this, zipper, collections));
+  zipWith(zipper, ...collections) {
+    const thisAndCollections = [this].concat(collections);
+
+    return reify(this, zipWithFactory(this, zipper, thisAndCollections));
   },
 });
 
-const IndexedCollectionPrototype = IndexedCollection.prototype;
+const IndexedCollectionPrototype = IndexedCollectionImpl.prototype;
 IndexedCollectionPrototype[IS_INDEXED_SYMBOL] = true;
 IndexedCollectionPrototype[IS_ORDERED_SYMBOL] = true;
 
-mixin(SetCollection, {
+mixin(SetCollectionImpl, {
   // ### ES6 Collection methods (ES6 Array and Map)
 
   get(value, notSetValue) {
@@ -695,19 +686,19 @@ mixin(SetCollection, {
   },
 });
 
-const SetCollectionPrototype = SetCollection.prototype;
+const SetCollectionPrototype = SetCollectionImpl.prototype;
 SetCollectionPrototype.has = CollectionPrototype.includes;
 SetCollectionPrototype.contains = SetCollectionPrototype.includes;
 SetCollectionPrototype.keys = SetCollectionPrototype.values;
 
 // Mixin subclasses
 
-mixin(KeyedSeq, KeyedCollectionPrototype);
-mixin(IndexedSeq, IndexedCollectionPrototype);
-mixin(SetSeq, SetCollectionPrototype);
+mixin(KeyedSeqImpl, KeyedCollectionPrototype);
+mixin(IndexedSeqImpl, IndexedCollectionPrototype);
+mixin(SetSeqImpl, SetCollectionPrototype);
 
 // #pragma Helper functions
 
-function defaultZipper() {
-  return arrCopy(arguments);
+function defaultZipper(...values) {
+  return values;
 }

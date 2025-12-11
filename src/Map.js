@@ -1,16 +1,16 @@
-import { Collection, KeyedCollection } from './Collection';
+import { Collection, KeyedCollection, KeyedCollectionImpl } from './Collection';
 import { hash } from './Hash';
-import { Iterator, iteratorDone, iteratorValue } from './Iterator';
+import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 import { sortFactory } from './Operations';
 import { OrderedMap } from './OrderedMap';
 import {
   DELETE,
-  MASK,
-  MakeRef,
-  NOT_SET,
-  OwnerID,
   SHIFT,
   SIZE,
+  MASK,
+  NOT_SET,
+  OwnerID,
+  MakeRef,
   SetRef,
 } from './TrieUtils';
 import { is } from './is';
@@ -31,20 +31,20 @@ import { isOrdered } from './predicates/isOrdered';
 import arrCopy from './utils/arrCopy';
 import assertNotInfinite from './utils/assertNotInfinite';
 
-export class Map extends KeyedCollection {
-  // @pragma Construction
+export const Map = (value) =>
+  value === undefined || value === null
+    ? emptyMap()
+    : isMap(value) && !isOrdered(value)
+      ? value
+      : emptyMap().withMutations((map) => {
+          const iter = KeyedCollection(value);
+          assertNotInfinite(iter.size);
+          iter.forEach((v, k) => map.set(k, v));
+        });
 
-  constructor(value) {
-    // eslint-disable-next-line no-constructor-return
-    return value === undefined || value === null
-      ? emptyMap()
-      : isMap(value) && !isOrdered(value)
-        ? value
-        : emptyMap().withMutations((map) => {
-            const iter = KeyedCollection(value);
-            assertNotInfinite(iter.size);
-            iter.forEach((v, k) => map.set(k, v));
-          });
+export class MapImpl extends KeyedCollectionImpl {
+  create(value) {
+    return Map(value);
   }
 
   toString() {
@@ -150,7 +150,7 @@ export class Map extends KeyedCollection {
 
 Map.isMap = isMap;
 
-const MapPrototype = Map.prototype;
+const MapPrototype = MapImpl.prototype;
 MapPrototype[IS_MAP_SYMBOL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 MapPrototype.removeAll = MapPrototype.deleteAll;
@@ -167,13 +167,7 @@ MapPrototype.mergeDeepIn = mergeDeepIn;
 MapPrototype.withMutations = withMutations;
 MapPrototype.wasAltered = wasAltered;
 MapPrototype.asImmutable = asImmutable;
-MapPrototype['@@transducer/init'] = MapPrototype.asMutable = asMutable;
-MapPrototype['@@transducer/step'] = function (result, arr) {
-  return result.set(arr[0], arr[1]);
-};
-MapPrototype['@@transducer/result'] = function (obj) {
-  return obj.asImmutable();
-};
+MapPrototype.asMutable = asMutable;
 
 // #pragma Trie Nodes
 
@@ -552,6 +546,8 @@ ValueNode.prototype.iterate = function (fn, reverse) {
 
 class MapIterator extends Iterator {
   constructor(map, type, reverse) {
+    super();
+
     this._type = type;
     this._reverse = reverse;
     this._stack = map._root && mapIteratorFrame(map._root);
@@ -617,9 +613,8 @@ function makeMap(size, root, ownerID, hash) {
   return map;
 }
 
-let EMPTY_MAP;
 export function emptyMap() {
-  return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
+  return makeMap(0);
 }
 
 function updateMap(map, k, v) {

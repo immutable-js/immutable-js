@@ -11,6 +11,13 @@ function arrayOfSize(s: number): Array<number> {
 }
 
 describe('Stack', () => {
+  it('constructor provides different instances', () => {
+    expect(Stack()).not.toBe(Stack());
+    expect(Stack()).toEqual(Stack());
+    expect(Stack(['a'])).not.toBe(Stack(['a']));
+    expect(Stack(['a'])).toEqual(Stack(['a']));
+  });
+
   it('constructor provides initial values', () => {
     const s = Stack.of('a', 'b', 'c');
     expect(s.get(0)).toBe('a');

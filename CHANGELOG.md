@@ -31,6 +31,77 @@ Dates are formatted as YYYY-MM-DD.
 
 * chore: Sort all imports and activate eslint import rule by @jdeniau in https://github.com/immutable-js/immutable-js/pull/2119
 
+## 6.0.0
+
+### [BREAKING] Use modern JavaScript
+
+Previously, we compiled immutable to ES2015 using buble. It's 2025 now, and a lot of browser does support "modern" features like [classes](https://caniuse.com/es6-class).
+
+This is breaking as we do now transpile for modern browser only ("last 2 version" + "not dead").
+This drop support for older browsers that have been supported until immutable v5. For example IE <= 12 or safari <= 8 are not supported anymore.
+If you still need to support those old browser, then you MAY want to transpile the `node_modules/immutable/dist/immutable.js` file yourself. (and you are probably already doing that for a lot of other packages that dropped support of ES5 with tools like [obahareth/are-you-es5](https://github.com/obahareth/are-you-es5) or by enable babel on all `node_modules`)
+
+For the record migrating to a modern codebase had a nice impact of the size of the built file (non-gzipped values) :
+
+| file                   | before | after |
+| ---------------------- | ------ | ----- |
+| immutable.es.js        | 175ko  | 148ko |
+| immutable.es.js (gzip) | 37ko   | 32ko  |
+| immutable.js           | 197ko  | 158ko |
+| immutable.min.js       | 67ko   | 57ko  |
+
+(TODO : those stats needs to be updated as it does include only the buble -> babel migration, not the cleaning)
+
+#### Pull request details
+
+- Replace buble by babel [#2050](https://github.com/immutable-js/immutable-js/pull/2050) by [@jdeniau](https://github.com/jdeniau)
+- Define "exports" in package.json [#2080](https://github.com/immutable-js/immutable-js/pull/2080) by [@jdeniau](https://github.com/jdeniau)
+- Use spread operator instead of arrCopy(arguments) [#2122](https://github.com/immutable-js/immutable-js/pull/2122) by [@jdeniau](https://github.com/jdeniau)
+- Array copy method: use .slice() instead of creating a new array by hand. [#2121](https://github.com/immutable-js/immutable-js/pull/2121) by [@jdeniau](https://github.com/jdeniau)
+- Remove widely available methods [#2127](https://github.com/immutable-js/immutable-js/pull/2127) by [@jdeniau](https://github.com/jdeniau)
+- clean iterator prototype to allow tree shaking [#2126](https://github.com/immutable-js/immutable-js/pull/2126) by [@jdeniau](https://github.com/jdeniau)
+
+### [BREAKING] Drop support for `instanceof` on factory methods
+
+`Map()`, `List()`, `Set()`, `OrderedMap()`, `OrderedSet()`, `Stack()`, `Record()`, `Seq()`, `Collection()`, `ValueObject()` are factories, not class constructor.
+Previously we relied on old class functions, but not anymore. This means that you can not test `instanceof` anymore.
+This was never the recommended way to test if a value is an Immutable collection, but it was working until now.
+
+```diff
+- m instanceof Map;    // does not work anymore
++ Map.isMap(m);          // should be used instead
+```
+
+#### Pull request details
+
+- Avoid return in constructors [#2041](https://github.com/immutable-js/immutable-js/pull/2041) by [@alexvictoor](https://github.com/alexvictoor)
+- Migrate Record to a factory method [#2078](https://github.com/immutable-js/immutable-js/pull/2078) by [@jdeniau](https://github.com/jdeniau)
+
+### [Minor BREAKING] Empty Collections are not singletons anymore
+
+Previously, `Map() === Map()` or `Set() === Set()` was true, as empty collections were singletons, but it was not for non-empty collections (`Set.of('a') !== Set.of('a')`).
+
+We did change that for the `List` constructor in version 5.0.0, but did not change it for other collections.
+It is now the case for all collections in 6.0.0.
+
+#### Pull request details
+
+- Remove empty collection singletons [#2142](https://github.com/immutable-js/immutable-js/pull/2142) by [@6uzm4n](https://github.com/6uzm4n)
+
+### [BREAKING] Drop TS 4 support
+
+We now use [const type parameters](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-0.html#const-type-parameters) for getIn path retrieval.
+
+This feature has been introduced in TS 5.0, which is more than two years old now. This mean that we are dropping support for TS < 5.0.
+
+#### Pull request details
+
+- Drop TS 4 support and add const P extends for getIn method types [#2072](https://github.com/immutable-js/immutable-js/pull/2072) by [@jdeniau](https://github.com/jdeniau)
+
+### [BREAKING] Remove transducersjs compatibility
+
+Remove transducersjs compatibility, as `cognitect-labs/transducers-js` has been archived in 2023. [#2146](https://github.com/immutable-js/immutable-js/pull/2146) by [@jdeniau](https://github.com/jdeniau)
+
 ## 5.1.3
 
 ### TypeScript

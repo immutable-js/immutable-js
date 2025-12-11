@@ -42,8 +42,8 @@ describe('Record', () => {
     const t = new Alphabet();
     const t2 = t.set('b', 200);
 
-    expect(t instanceof Record).toBe(true);
-    expect(t instanceof Alphabet).toBe(true);
+    expect(Record.isRecord(t)).toBe(true);
+    expect(t).toBeInstanceOf(Alphabet);
     expect(t.soup()).toBe(6);
     expect(t2.soup()).toBe(204);
 
