@@ -103,7 +103,7 @@
     "@size-limit/esbuild-why": "^11.2.0",
     "@size-limit/preset-small-lib": "^11.2.0",
     "@types/mdx": "^2.0.13",
-    "@types/node": "^22.15.17",
+    "@types/node": "^25.0.0",
     "@types/prismjs": "^1.26.3",
     "@types/random-seed": "0.3.5",
     "@types/react": "19.1.0",
