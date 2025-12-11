@@ -14,8 +14,7 @@ declare global {
 importScripts('https://cdn.jsdelivr.net/npm/immutable');
 
 (async () => {
-  const immutableDevTools = (await import('@jdeniau/immutable-devtools'))
-    .default;
+  const immutableDevTools = (await import('@immutable/devtools')).default;
   immutableDevTools(Immutable);
 
   // hack to get the formatters from immutable-devtools as they are not exported, but they modify the "global" variable
