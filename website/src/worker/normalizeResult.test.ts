@@ -4,7 +4,7 @@ import * as Immutable from 'immutable';
 import normalizeResult from './normalizeResult';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports -- import does not work
-const installDevTools = require('@jdeniau/immutable-devtools');
+const installDevTools = require('@immutable/devtools');
 
 installDevTools(Immutable);
 
