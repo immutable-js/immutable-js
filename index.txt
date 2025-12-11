@@ -1,22 +1,20 @@
 1:"$Sreact.fragment"
-2:I[2708,["/_next/static/chunks/dfa9941c24099e2c.js","/_next/static/chunks/0f63189634a29548.js"],"WorkerContextProvider"]
-3:I[4620,["/_next/static/chunks/dfa9941c24099e2c.js","/_next/static/chunks/0f63189634a29548.js"],"default"]
-4:I[81105,["/_next/static/chunks/dfa9941c24099e2c.js","/_next/static/chunks/0f63189634a29548.js"],"default"]
-5:I[86240,["/_next/static/chunks/dfa9941c24099e2c.js","/_next/static/chunks/0f63189634a29548.js","/_next/static/chunks/c63eea34c69bde5e.js"],"default"]
-7:I[83822,["/_next/static/chunks/dfa9941c24099e2c.js","/_next/static/chunks/0f63189634a29548.js"],"MetadataBoundary"]
-9:I[83822,["/_next/static/chunks/dfa9941c24099e2c.js","/_next/static/chunks/0f63189634a29548.js"],"OutletBoundary"]
-c:I[2541,["/_next/static/chunks/dfa9941c24099e2c.js","/_next/static/chunks/0f63189634a29548.js"],"AsyncMetadataOutlet"]
-e:I[83822,["/_next/static/chunks/dfa9941c24099e2c.js","/_next/static/chunks/0f63189634a29548.js"],"ViewportBoundary"]
-10:I[12447,["/_next/static/chunks/dfa9941c24099e2c.js","/_next/static/chunks/0f63189634a29548.js"],"default"]
-:HL["/_next/static/chunks/e4e9bf2592495c32.css","style"]
-0:{"P":null,"b":"p-teL0Cbgh9vm8zfZ8BjD","p":"","c":["",""],"i":false,"f":[[["",{"children":["__PAGE__",{}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/e4e9bf2592495c32.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","script","script-0",{"src":"/_next/static/chunks/dfa9941c24099e2c.js","async":true,"nonce":"$undefined"}],["$","script","script-1",{"src":"/_next/static/chunks/0f63189634a29548.js","async":true,"nonce":"$undefined"}]],["$","html",null,{"lang":"en","children":["$","body",null,{"children":["$","$L2",null,{"children":["$","$L3",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","div",null,{"className":"pageBody","children":[["$","h2",null,{"children":"Not Found"}],["$","p",null,{"children":"Could not find requested resource"}],["$","$L5",null,{"href":"/","children":"Return Home"}]]}],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]}]}]]}],{"children":["__PAGE__",["$","$1","c",{"children":["$L6",["$","$L7",null,{"children":"$L8"}],[["$","script","script-0",{"src":"/_next/static/chunks/e8a17fa903d5acc5.js","async":true,"nonce":"$undefined"}]],["$","$L9",null,{"children":["$La","$Lb",["$","$Lc",null,{"promise":"$@d"}]]}]]}],{},null,false]},null,false],["$","$1","h",{"children":[null,["$","$1","vtJRHQNmgGgBnhgKX5Quq",{"children":[["$","$Le",null,{"children":"$Lf"}],null]}],null]}],false]],"m":"$undefined","G":["$10","$undefined"],"s":false,"S":true}
-11:"$Sreact.suspense"
-12:I[2541,["/_next/static/chunks/dfa9941c24099e2c.js","/_next/static/chunks/0f63189634a29548.js"],"AsyncMetadata"]
-14:I[85995,["/_next/static/chunks/dfa9941c24099e2c.js","/_next/static/chunks/0f63189634a29548.js","/_next/static/chunks/e8a17fa903d5acc5.js"],"ImmutableConsole"]
-15:I[91842,["/_next/static/chunks/dfa9941c24099e2c.js","/_next/static/chunks/0f63189634a29548.js","/_next/static/chunks/e8a17fa903d5acc5.js"],"Header"]
-16:I[76295,["/_next/static/chunks/dfa9941c24099e2c.js","/_next/static/chunks/0f63189634a29548.js","/_next/static/chunks/e8a17fa903d5acc5.js"],"MarkdownContent"]
-8:["$","$11",null,{"fallback":null,"children":["$","$L12",null,{"promise":"$@13"}]}]
-17:T17a74,<h1>Immutable collections for JavaScript</h1>
+2:I[41460,["/_next/static/chunks/6061e73cda0322c4.js","/_next/static/chunks/7dd66bdf8a7e5707.js"],"WorkerContextProvider"]
+3:I[39756,["/_next/static/chunks/6061e73cda0322c4.js","/_next/static/chunks/7dd66bdf8a7e5707.js"],"default"]
+4:I[37457,["/_next/static/chunks/6061e73cda0322c4.js","/_next/static/chunks/7dd66bdf8a7e5707.js"],"default"]
+5:I[22016,["/_next/static/chunks/6061e73cda0322c4.js","/_next/static/chunks/7dd66bdf8a7e5707.js","/_next/static/chunks/b38075e65f7d0133.js"],"default"]
+7:I[97367,["/_next/static/chunks/6061e73cda0322c4.js","/_next/static/chunks/7dd66bdf8a7e5707.js"],"OutletBoundary"]
+9:I[11533,["/_next/static/chunks/6061e73cda0322c4.js","/_next/static/chunks/7dd66bdf8a7e5707.js"],"AsyncMetadataOutlet"]
+b:I[97367,["/_next/static/chunks/6061e73cda0322c4.js","/_next/static/chunks/7dd66bdf8a7e5707.js"],"ViewportBoundary"]
+d:I[97367,["/_next/static/chunks/6061e73cda0322c4.js","/_next/static/chunks/7dd66bdf8a7e5707.js"],"MetadataBoundary"]
+e:"$Sreact.suspense"
+10:I[68027,["/_next/static/chunks/6061e73cda0322c4.js","/_next/static/chunks/7dd66bdf8a7e5707.js"],"default"]
+:HL["/_next/static/chunks/bf69b26eb13a7834.css","style"]
+0:{"P":null,"b":"Ms2HYBpyFZJjrAIK9k6s7","p":"","c":["",""],"i":false,"f":[[["",{"children":["__PAGE__",{}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/bf69b26eb13a7834.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","script","script-0",{"src":"/_next/static/chunks/6061e73cda0322c4.js","async":true,"nonce":"$undefined"}],["$","script","script-1",{"src":"/_next/static/chunks/7dd66bdf8a7e5707.js","async":true,"nonce":"$undefined"}]],["$","html",null,{"lang":"en","children":["$","body",null,{"children":["$","$L2",null,{"children":["$","$L3",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","div",null,{"className":"pageBody","children":[["$","h2",null,{"children":"Not Found"}],["$","p",null,{"children":"Could not find requested resource"}],["$","$L5",null,{"href":"/","children":"Return Home"}]]}],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]}]}]]}],{"children":["__PAGE__",["$","$1","c",{"children":["$L6",[["$","script","script-0",{"src":"/_next/static/chunks/c14937e07bfd1828.js","async":true,"nonce":"$undefined"}]],["$","$L7",null,{"children":["$L8",["$","$L9",null,{"promise":"$@a"}]]}]]}],{},null,false]},null,false],["$","$1","h",{"children":[null,[["$","$Lb",null,{"children":"$Lc"}],null],["$","$Ld",null,{"children":["$","div",null,{"hidden":true,"children":["$","$e",null,{"fallback":null,"children":"$Lf"}]}]}]]}],false]],"m":"$undefined","G":["$10",[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/bf69b26eb13a7834.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]]],"s":false,"S":true}
+11:I[63339,["/_next/static/chunks/6061e73cda0322c4.js","/_next/static/chunks/7dd66bdf8a7e5707.js","/_next/static/chunks/c14937e07bfd1828.js"],"ImmutableConsole"]
+12:I[68322,["/_next/static/chunks/6061e73cda0322c4.js","/_next/static/chunks/7dd66bdf8a7e5707.js","/_next/static/chunks/c14937e07bfd1828.js"],"Header"]
+13:I[69607,["/_next/static/chunks/6061e73cda0322c4.js","/_next/static/chunks/7dd66bdf8a7e5707.js","/_next/static/chunks/c14937e07bfd1828.js"],"MarkdownContent"]
+14:T17a74,<h1>Immutable collections for JavaScript</h1>
 <p><a href="https://immutable-js.com/docs/">Read the docs</a> and eat your vegetables.</p>
 <p>Docs are automatically generated from <a href="https://github.com/immutable-js/immutable-js/blob/main/README.md">README.md</a> and <a href="https://github.com/immutable-js/immutable-js/blob/main/type-definitions/immutable.d.ts">immutable.d.ts</a>.
 Please contribute! Also, don&#39;t miss the <a href="https://github.com/immutable-js/immutable-js/wiki">wiki</a> which contains articles on
@@ -569,9 +567,9 @@ Submit a PR to add it to this list in alphabetical order.</p>
 and research in persistent data structures.</p>
 <p><a href="https://github.com/hughfdjackson/">Hugh Jackson</a>, for providing the npm package
 name. If you&#39;re looking for his unsupported package, see <a href="https://github.com/hughfdjackson/immutable">this repository</a>.</p>
-6:[["$","$L14",null,{"version":"v5"}],["$","$L15",null,{"versions":["v5","v4.3.7","v3.8.2"]}],["$","div",null,{"className":"pageBody","children":["$","div",null,{"className":"contents","children":["$","$L16",null,{"contents":"$17"}]}]}]]
-b:null
-f:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
-a:null
-13:{"metadata":[["$","title","0",{"children":"Immutable.js"}],["$","meta","1",{"name":"google-site-verification","content":"PdYYQG_2wv0zUJjqBIeuYliPcrOiAuTES4Q21OLy5uQ"}],["$","link","2",{"rel":"icon","href":"/favicon.png"}]],"error":null,"digest":"$undefined"}
-d:{"metadata":"$13:metadata","error":null,"digest":"$undefined"}
+6:[["$","$L11",null,{"version":"v5"}],["$","$L12",null,{"versions":["v5","v4.3.7","v3.8.2"]}],["$","div",null,{"className":"pageBody","children":["$","div",null,{"className":"contents","children":["$","$L13",null,{"contents":"$14"}]}]}]]
+c:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+8:null
+15:I[27201,["/_next/static/chunks/6061e73cda0322c4.js","/_next/static/chunks/7dd66bdf8a7e5707.js"],"IconMark"]
+a:{"metadata":[["$","title","0",{"children":"Immutable.js"}],["$","meta","1",{"name":"google-site-verification","content":"PdYYQG_2wv0zUJjqBIeuYliPcrOiAuTES4Q21OLy5uQ"}],["$","link","2",{"rel":"icon","href":"/favicon.png"}],["$","$L15","3",{}]],"error":null,"digest":"$undefined"}
+f:"$a:metadata"
