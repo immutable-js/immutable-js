@@ -45,6 +45,8 @@ jobs:
           key: ${{ runner.OS }}-dts-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.OS }}-dts-
       - run: npm ci
+      - name: 'Display TypeScript version'
+        run: npx tsc --version
       - run: npm run type-check
       - run: npm run check-git-clean
 
