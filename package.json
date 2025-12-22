@@ -96,7 +96,7 @@
     "@mdx-js/react": "^3.1.0",
     "@next/mdx": "^15.3.2",
     "@rollup/plugin-buble": "1.0.3",
-    "@rollup/plugin-commonjs": "28.0.2",
+    "@rollup/plugin-commonjs": "29.0.0",
     "@rollup/plugin-json": "6.1.0",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.2",
