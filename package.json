@@ -135,7 +135,7 @@
     "random-seed": "0.3.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "rollup": "4.34.8",
+    "rollup": "4.54.0",
     "size-limit": "^11.2.0",
     "transducers-js": "0.4.174",
     "ts-node": "^10.9.2",
