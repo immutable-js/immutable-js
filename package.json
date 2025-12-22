@@ -140,7 +140,7 @@
     "transducers-js": "0.4.174",
     "ts-node": "^10.9.2",
     "tslib": "^2.8.1",
-    "tstyche": "^3.5",
+    "tstyche": "^5.0",
     "typescript": "5.7",
     "typescript-eslint": "^8.33.0"
   },
