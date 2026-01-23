@@ -1,3 +1,23 @@
+import {
+  CollectionImpl,
+  KeyedCollectionImpl,
+  IndexedCollectionImpl,
+  SetCollectionImpl,
+} from '../src/Collection';
+import ValueObject from '../src/ValueObject';
+import type { Comparator } from './comparator';
+import type { DeepCopy } from './deepCopy';
+
+export type {
+  CollectionImpl,
+  KeyedCollectionImpl,
+  IndexedCollectionImpl,
+  SetCollectionImpl,
+  ValueObject,
+  Comparator,
+  DeepCopy,
+};
+
 /** @ignore we should disable this rules, but let's activate it to enable eslint first */
 /**
  * Immutable data encourages pure functions (data-in, data-out) and lends itself
@@ -92,85 +112,6 @@
  */
 
 declare namespace Immutable {
-  /** @ignore */
-  type OnlyObject<T> = Extract<T, object>;
-
-  /** @ignore */
-  type ContainObject<T> =
-    OnlyObject<T> extends object
-      ? OnlyObject<T> extends never
-        ? false
-        : true
-      : false;
-
-  /**
-   * @ignore
-   *
-   * Used to convert deeply all immutable types to a plain TS type.
-   * Using `unknown` on object instead of recursive call as we have a circular reference issue
-   */
-  export type DeepCopy<T> =
-    T extends Record<infer R>
-      ? // convert Record to DeepCopy plain JS object
-        {
-          [key in keyof R]: ContainObject<R[key]> extends true
-            ? unknown
-            : R[key];
-        }
-      : T extends MapOf<infer R>
-        ? // convert MapOf to DeepCopy plain JS object
-          {
-            [key in keyof R]: ContainObject<R[key]> extends true
-              ? unknown
-              : R[key];
-          }
-        : T extends Collection.Keyed<infer KeyedKey, infer V>
-          ? // convert KeyedCollection to DeepCopy plain JS object
-            {
-              [key in KeyedKey extends PropertyKey
-                ? KeyedKey
-                : string]: V extends object ? unknown : V;
-            }
-          : // convert IndexedCollection or Immutable.Set to DeepCopy plain JS array
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            T extends Collection<infer _, infer V>
-            ? Array<DeepCopy<V>>
-            : T extends string | number // Iterable scalar types : should be kept as is
-              ? T
-              : T extends Iterable<infer V> // Iterable are converted to plain JS array
-                ? Array<DeepCopy<V>>
-                : T extends object // plain JS object are converted deeply
-                  ? {
-                      [ObjectKey in keyof T]: ContainObject<
-                        T[ObjectKey]
-                      > extends true
-                        ? unknown
-                        : T[ObjectKey];
-                    }
-                  : // other case : should be kept as is
-                    T;
-
-  /**
-   * Describes which item in a pair should be placed first when sorting
-   *
-   * @ignore
-   */
-  export enum PairSorting {
-    LeftThenRight = -1,
-    RightThenLeft = +1,
-  }
-
-  /**
-   * Function comparing two items of the same type. It can return:
-   *
-   * * a PairSorting value, to indicate whether the left-hand item or the right-hand item should be placed before the other
-   *
-   * * the traditional numeric return value - especially -1, 0, or 1
-   *
-   * @ignore
-   */
-  export type Comparator<T> = (left: T, right: T) => PairSorting | number;
-
   /**
    * @ignore
    *
@@ -215,7 +156,7 @@ declare namespace Immutable {
    */
   function List<T>(collection?: Iterable<T> | ArrayLike<T>): List<T>;
 
-  interface List<T> extends Collection.Indexed<T> {
+  interface List<T> extends IndexedCollectionImpl<T> {
     /**
      * The number of items in this List.
      */
@@ -522,12 +463,12 @@ declare namespace Immutable {
      *
      * Like `zipWith`, but using the default `zipper`: creating an `Array`.
      */
-    zip<U>(other: Collection<unknown, U>): List<[T, U]>;
+    zip<U>(other: CollectionImpl<unknown, U>): List<[T, U]>;
     zip<U, V>(
-      other: Collection<unknown, U>,
-      other2: Collection<unknown, V>
+      other: CollectionImpl<unknown, U>,
+      other2: CollectionImpl<unknown, V>
     ): List<[T, U, V]>;
-    zip(...collections: Array<Collection<unknown, unknown>>): List<unknown>;
+    zip(...collections: Array<CollectionImpl<unknown, unknown>>): List<unknown>;
 
     /**
      * Returns a List "zipped" with the provided collections.
@@ -539,12 +480,14 @@ declare namespace Immutable {
      * input, some results may contain undefined values. TypeScript cannot
      * account for these without cases (as of v2.5).
      */
-    zipAll<U>(other: Collection<unknown, U>): List<[T, U]>;
+    zipAll<U>(other: CollectionImpl<unknown, U>): List<[T, U]>;
     zipAll<U, V>(
-      other: Collection<unknown, U>,
-      other2: Collection<unknown, V>
+      other: CollectionImpl<unknown, U>,
+      other2: CollectionImpl<unknown, V>
     ): List<[T, U, V]>;
-    zipAll(...collections: Array<Collection<unknown, unknown>>): List<unknown>;
+    zipAll(
+      ...collections: Array<CollectionImpl<unknown, unknown>>
+    ): List<unknown>;
 
     /**
      * Returns a List "zipped" with the provided collections by using a
@@ -552,16 +495,16 @@ declare namespace Immutable {
      */
     zipWith<U, Z>(
       zipper: (value: T, otherValue: U) => Z,
-      otherCollection: Collection<unknown, U>
+      otherCollection: CollectionImpl<unknown, U>
     ): List<Z>;
     zipWith<U, V, Z>(
       zipper: (value: T, otherValue: U, thirdValue: V) => Z,
-      otherCollection: Collection<unknown, U>,
-      thirdCollection: Collection<unknown, V>
+      otherCollection: CollectionImpl<unknown, U>,
+      thirdCollection: CollectionImpl<unknown, V>
     ): List<Z>;
     zipWith<Z>(
       zipper: (...values: Array<unknown>) => Z,
-      ...collections: Array<Collection<unknown, unknown>>
+      ...collections: Array<CollectionImpl<unknown, unknown>>
     ): List<Z>;
 
     /**
@@ -574,7 +517,7 @@ declare namespace Immutable {
   }
 
   /**
-   * Immutable Map is an unordered Collection.Keyed of (key, value) pairs with
+   * Immutable Map is an unordered KeyedCollectionImpl of (key, value) pairs with
    * `O(log32 N)` gets and `O(log32 N)` persistent sets.
    *
    * Iteration order of a Map is undefined, however is stable. Multiple
@@ -603,7 +546,7 @@ declare namespace Immutable {
   /**
    * Creates a new Immutable Map.
    *
-   * Created with the same key value pairs as the provided Collection.Keyed or
+   * Created with the same key value pairs as the provided KeyedCollectionImpl or
    * JavaScript Object or expects a Collection of [K, V] tuple entries.
    *
    * Note: `Map` is a factory function and not a class, and does not use the
@@ -715,7 +658,7 @@ declare namespace Immutable {
     ? P
     : RetrievePathReducer<R, Head<P>, Tail<P>>;
 
-  interface Map<K, V> extends Collection.Keyed<K, V> {
+  interface Map<K, V> extends KeyedCollectionImpl<K, V> {
     /**
      * The number of entries in this Map.
      */
@@ -1057,7 +1000,7 @@ declare namespace Immutable {
     ): Map<K, M>;
 
     /**
-     * @see Collection.Keyed.mapKeys
+     * @see KeyedCollectionImpl.mapKeys
      */
     mapKeys<M>(
       mapper: (key: K, value: V, iter: this) => M,
@@ -1065,7 +1008,7 @@ declare namespace Immutable {
     ): Map<M, V>;
 
     /**
-     * @see Collection.Keyed.mapEntries
+     * @see KeyedCollectionImpl.mapEntries
      */
     mapEntries<KM, VM>(
       mapper: (
@@ -1116,7 +1059,7 @@ declare namespace Immutable {
     ): [this, this];
 
     /**
-     * @see Collection.Keyed.flip
+     * @see KeyedCollectionImpl.flip
      */
     flip(): Map<V, K>;
 
@@ -1180,7 +1123,7 @@ declare namespace Immutable {
   /**
    * Creates a new Immutable OrderedMap.
    *
-   * Created with the same key value pairs as the provided Collection.Keyed or
+   * Created with the same key value pairs as the provided KeyedCollectionImpl or
    * JavaScript Object or expects a Collection of [K, V] tuple entries.
    *
    * The iteration order of key-value pairs provided to this constructor will
@@ -1270,7 +1213,7 @@ declare namespace Immutable {
     ): OrderedMap<K, M>;
 
     /**
-     * @see Collection.Keyed.mapKeys
+     * @see KeyedCollectionImpl.mapKeys
      */
     mapKeys<M>(
       mapper: (key: K, value: V, iter: this) => M,
@@ -1278,7 +1221,7 @@ declare namespace Immutable {
     ): OrderedMap<M, V>;
 
     /**
-     * @see Collection.Keyed.mapEntries
+     * @see KeyedCollectionImpl.mapEntries
      */
     mapEntries<KM, VM>(
       mapper: (
@@ -1329,7 +1272,7 @@ declare namespace Immutable {
     ): [this, this];
 
     /**
-     * @see Collection.Keyed.flip
+     * @see KeyedCollectionImpl.flip
      */
     flip(): OrderedMap<V, K>;
   }
@@ -1360,8 +1303,8 @@ declare namespace Immutable {
      * `Set.fromKeys()` creates a new immutable Set containing the keys from
      * this Collection or JavaScript Object.
      */
-    function fromKeys<T>(iter: Collection.Keyed<T, unknown>): Set<T>;
-    function fromKeys<T>(iter: Collection<T, unknown>): Set<T>;
+    function fromKeys<T>(iter: KeyedCollectionImpl<T, unknown>): Set<T>;
+    function fromKeys<T>(iter: CollectionImpl<T, unknown>): Set<T>;
     function fromKeys(obj: { [key: string]: unknown }): Set<string>;
 
     /**
@@ -1404,7 +1347,7 @@ declare namespace Immutable {
    */
   function Set<T>(collection?: Iterable<T> | ArrayLike<T>): Set<T>;
 
-  interface Set<T> extends Collection.Set<T> {
+  interface Set<T> extends SetCollectionImpl<T> {
     /**
      * The number of items in this Set.
      */
@@ -1613,8 +1556,8 @@ declare namespace Immutable {
      * `OrderedSet.fromKeys()` creates a new immutable OrderedSet containing
      * the keys from this Collection or JavaScript Object.
      */
-    function fromKeys<T>(iter: Collection.Keyed<T, unknown>): OrderedSet<T>;
-    function fromKeys<T>(iter: Collection<T, unknown>): OrderedSet<T>;
+    function fromKeys<T>(iter: KeyedCollectionImpl<T, unknown>): OrderedSet<T>;
+    function fromKeys<T>(iter: CollectionImpl<T, unknown>): OrderedSet<T>;
     function fromKeys(obj: { [key: string]: unknown }): OrderedSet<string>;
   }
 
@@ -1713,13 +1656,13 @@ declare namespace Immutable {
      * // OrderedSet [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
      * ```
      */
-    zip<U>(other: Collection<unknown, U>): OrderedSet<[T, U]>;
+    zip<U>(other: CollectionImpl<unknown, U>): OrderedSet<[T, U]>;
     zip<U, V>(
-      other1: Collection<unknown, U>,
-      other2: Collection<unknown, V>
+      other1: CollectionImpl<unknown, U>,
+      other2: CollectionImpl<unknown, V>
     ): OrderedSet<[T, U, V]>;
     zip(
-      ...collections: Array<Collection<unknown, unknown>>
+      ...collections: Array<CollectionImpl<unknown, unknown>>
     ): OrderedSet<unknown>;
 
     /**
@@ -1739,13 +1682,13 @@ declare namespace Immutable {
      * input, some results may contain undefined values. TypeScript cannot
      * account for these without cases (as of v2.5).
      */
-    zipAll<U>(other: Collection<unknown, U>): OrderedSet<[T, U]>;
+    zipAll<U>(other: CollectionImpl<unknown, U>): OrderedSet<[T, U]>;
     zipAll<U, V>(
-      other1: Collection<unknown, U>,
-      other2: Collection<unknown, V>
+      other1: CollectionImpl<unknown, U>,
+      other2: CollectionImpl<unknown, V>
     ): OrderedSet<[T, U, V]>;
     zipAll(
-      ...collections: Array<Collection<unknown, unknown>>
+      ...collections: Array<CollectionImpl<unknown, unknown>>
     ): OrderedSet<unknown>;
 
     /**
@@ -1756,16 +1699,16 @@ declare namespace Immutable {
      */
     zipWith<U, Z>(
       zipper: (value: T, otherValue: U) => Z,
-      otherCollection: Collection<unknown, U>
+      otherCollection: CollectionImpl<unknown, U>
     ): OrderedSet<Z>;
     zipWith<U, V, Z>(
       zipper: (value: T, otherValue: U, thirdValue: V) => Z,
-      otherCollection: Collection<unknown, U>,
-      thirdCollection: Collection<unknown, V>
+      otherCollection: CollectionImpl<unknown, U>,
+      thirdCollection: CollectionImpl<unknown, V>
     ): OrderedSet<Z>;
     zipWith<Z>(
       zipper: (...values: Array<unknown>) => Z,
-      ...collections: Array<Collection<unknown, unknown>>
+      ...collections: Array<CollectionImpl<unknown, unknown>>
     ): OrderedSet<Z>;
   }
 
@@ -1806,7 +1749,7 @@ declare namespace Immutable {
    */
   function Stack<T>(collection?: Iterable<T> | ArrayLike<T>): Stack<T>;
 
-  interface Stack<T> extends Collection.Indexed<T> {
+  interface Stack<T> extends IndexedCollectionImpl<T> {
     /**
      * The number of items in this Stack.
      */
@@ -1961,12 +1904,14 @@ declare namespace Immutable {
      * const c = a.zip(b); // Stack [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
      * ```
      */
-    zip<U>(other: Collection<unknown, U>): Stack<[T, U]>;
+    zip<U>(other: CollectionImpl<unknown, U>): Stack<[T, U]>;
     zip<U, V>(
-      other: Collection<unknown, U>,
-      other2: Collection<unknown, V>
+      other: CollectionImpl<unknown, U>,
+      other2: CollectionImpl<unknown, V>
     ): Stack<[T, U, V]>;
-    zip(...collections: Array<Collection<unknown, unknown>>): Stack<unknown>;
+    zip(
+      ...collections: Array<CollectionImpl<unknown, unknown>>
+    ): Stack<unknown>;
 
     /**
      * Returns a Stack "zipped" with the provided collections.
@@ -1984,12 +1929,14 @@ declare namespace Immutable {
      * input, some results may contain undefined values. TypeScript cannot
      * account for these without cases (as of v2.5).
      */
-    zipAll<U>(other: Collection<unknown, U>): Stack<[T, U]>;
+    zipAll<U>(other: CollectionImpl<unknown, U>): Stack<[T, U]>;
     zipAll<U, V>(
-      other: Collection<unknown, U>,
-      other2: Collection<unknown, V>
+      other: CollectionImpl<unknown, U>,
+      other2: CollectionImpl<unknown, V>
     ): Stack<[T, U, V]>;
-    zipAll(...collections: Array<Collection<unknown, unknown>>): Stack<unknown>;
+    zipAll(
+      ...collections: Array<CollectionImpl<unknown, unknown>>
+    ): Stack<unknown>;
 
     /**
      * Returns a Stack "zipped" with the provided collections by using a
@@ -2004,16 +1951,16 @@ declare namespace Immutable {
      */
     zipWith<U, Z>(
       zipper: (value: T, otherValue: U) => Z,
-      otherCollection: Collection<unknown, U>
+      otherCollection: CollectionImpl<unknown, U>
     ): Stack<Z>;
     zipWith<U, V, Z>(
       zipper: (value: T, otherValue: U, thirdValue: V) => Z,
-      otherCollection: Collection<unknown, U>,
-      thirdCollection: Collection<unknown, V>
+      otherCollection: CollectionImpl<unknown, U>,
+      thirdCollection: CollectionImpl<unknown, V>
     ): Stack<Z>;
     zipWith<Z>(
       zipper: (...values: Array<unknown>) => Z,
-      ...collections: Array<Collection<unknown, unknown>>
+      ...collections: Array<CollectionImpl<unknown, unknown>>
     ): Stack<Z>;
   }
 
@@ -2511,7 +2458,7 @@ declare namespace Immutable {
     function Keyed<K, V>(collection?: Iterable<[K, V]>): Seq.Keyed<K, V>;
     function Keyed<V>(obj: { [key: string]: V }): Seq.Keyed<string, V>;
 
-    interface Keyed<K, V> extends Seq<K, V>, Collection.Keyed<K, V> {
+    interface Keyed<K, V> extends Seq<K, V>, KeyedCollectionImpl<K, V> {
       /**
        * Deeply converts this Keyed Seq to equivalent native JavaScript Object.
        *
@@ -2568,7 +2515,7 @@ declare namespace Immutable {
       ): Seq.Keyed<K, M>;
 
       /**
-       * @see Collection.Keyed.mapKeys
+       * @see KeyedCollectionImpl.mapKeys
        */
       mapKeys<M>(
         mapper: (key: K, value: V, iter: this) => M,
@@ -2576,7 +2523,7 @@ declare namespace Immutable {
       ): Seq.Keyed<M, V>;
 
       /**
-       * @see Collection.Keyed.mapEntries
+       * @see KeyedCollectionImpl.mapEntries
        */
       mapEntries<KM, VM>(
         mapper: (
@@ -2627,7 +2574,7 @@ declare namespace Immutable {
       ): [this, this];
 
       /**
-       * @see Collection.Keyed.flip
+       * @see KeyedCollectionImpl.flip
        */
       flip(): Seq.Keyed<V, K>;
 
@@ -2655,7 +2602,7 @@ declare namespace Immutable {
       collection?: Iterable<T> | ArrayLike<T>
     ): Seq.Indexed<T>;
 
-    interface Indexed<T> extends Seq<number, T>, Collection.Indexed<T> {
+    interface Indexed<T> extends Seq<number, T>, IndexedCollectionImpl<T> {
       /**
        * Deeply converts this Indexed Seq to equivalent native JavaScript Array.
        */
@@ -2751,13 +2698,13 @@ declare namespace Immutable {
        * const c = a.zip(b); // Seq [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]
        * ```
        */
-      zip<U>(other: Collection<unknown, U>): Seq.Indexed<[T, U]>;
+      zip<U>(other: CollectionImpl<unknown, U>): Seq.Indexed<[T, U]>;
       zip<U, V>(
-        other: Collection<unknown, U>,
-        other2: Collection<unknown, V>
+        other: CollectionImpl<unknown, U>,
+        other2: CollectionImpl<unknown, V>
       ): Seq.Indexed<[T, U, V]>;
       zip(
-        ...collections: Array<Collection<unknown, unknown>>
+        ...collections: Array<CollectionImpl<unknown, unknown>>
       ): Seq.Indexed<unknown>;
 
       /**
@@ -2772,13 +2719,13 @@ declare namespace Immutable {
        * const c = a.zipAll(b); // Seq [ [ 1, 3 ], [ 2, 4 ], [ undefined, 5 ] ]
        * ```
        */
-      zipAll<U>(other: Collection<unknown, U>): Seq.Indexed<[T, U]>;
+      zipAll<U>(other: CollectionImpl<unknown, U>): Seq.Indexed<[T, U]>;
       zipAll<U, V>(
-        other: Collection<unknown, U>,
-        other2: Collection<unknown, V>
+        other: CollectionImpl<unknown, U>,
+        other2: CollectionImpl<unknown, V>
       ): Seq.Indexed<[T, U, V]>;
       zipAll(
-        ...collections: Array<Collection<unknown, unknown>>
+        ...collections: Array<CollectionImpl<unknown, unknown>>
       ): Seq.Indexed<unknown>;
 
       /**
@@ -2794,16 +2741,16 @@ declare namespace Immutable {
        */
       zipWith<U, Z>(
         zipper: (value: T, otherValue: U) => Z,
-        otherCollection: Collection<unknown, U>
+        otherCollection: CollectionImpl<unknown, U>
       ): Seq.Indexed<Z>;
       zipWith<U, V, Z>(
         zipper: (value: T, otherValue: U, thirdValue: V) => Z,
-        otherCollection: Collection<unknown, U>,
-        thirdCollection: Collection<unknown, V>
+        otherCollection: CollectionImpl<unknown, U>,
+        thirdCollection: CollectionImpl<unknown, V>
       ): Seq.Indexed<Z>;
       zipWith<Z>(
         zipper: (...values: Array<unknown>) => Z,
-        ...collections: Array<Collection<unknown, unknown>>
+        ...collections: Array<CollectionImpl<unknown, unknown>>
       ): Seq.Indexed<Z>;
 
       [Symbol.iterator](): IterableIterator<T>;
@@ -2830,7 +2777,7 @@ declare namespace Immutable {
      */
     function Set<T>(collection?: Iterable<T> | ArrayLike<T>): Seq.Set<T>;
 
-    interface Set<T> extends Seq<T, T>, Collection.Set<T> {
+    interface Set<T> extends Seq<T, T>, SetCollectionImpl<T> {
       /**
        * Deeply converts this Set Seq to equivalent native JavaScript Array.
        */
@@ -2939,15 +2886,15 @@ declare namespace Immutable {
    * `new` keyword during construction.
    */
   function Seq<S extends Seq<unknown, unknown>>(seq: S): S;
-  function Seq<K, V>(collection: Collection.Keyed<K, V>): Seq.Keyed<K, V>;
-  function Seq<T>(collection: Collection.Set<T>): Seq.Set<T>;
+  function Seq<K, V>(collection: KeyedCollectionImpl<K, V>): Seq.Keyed<K, V>;
+  function Seq<T>(collection: SetCollectionImpl<T>): Seq.Set<T>;
   function Seq<T>(
-    collection: Collection.Indexed<T> | Iterable<T> | ArrayLike<T>
+    collection: IndexedCollectionImpl<T> | Iterable<T> | ArrayLike<T>
   ): Seq.Indexed<T>;
   function Seq<V>(obj: { [key: string]: V }): Seq.Keyed<string, V>;
   function Seq<K = unknown, V = unknown>(): Seq<K, V>;
 
-  interface Seq<K, V> extends Collection<K, V> {
+  interface Seq<K, V> extends CollectionImpl<K, V> {
     /**
      * Some Seqs can describe their size lazily. When this is the case,
      * size will be an integer. Otherwise it will be undefined.
@@ -3094,545 +3041,45 @@ declare namespace Immutable {
    * Collection is the abstract base class for concrete data structures. It
    * cannot be constructed directly.
    *
-   * Implementations should extend one of the subclasses, `Collection.Keyed`,
-   * `Collection.Indexed`, or `Collection.Set`.
+   * Implementations should extend one of the subclasses, `KeyedCollectionImpl`,
+   * `IndexedCollectionImpl`, or `SetCollectionImpl`.
    */
   namespace Collection {
     /**
-     * Keyed Collections have discrete keys tied to each value.
-     *
-     * When iterating `Collection.Keyed`, each iteration will yield a `[K, V]`
-     * tuple, in other words, `Collection#entries` is the default iterator for
-     * Keyed Collections.
-     */
-    namespace Keyed {}
-
-    /**
-     * Creates a Collection.Keyed
+     * Creates a KeyedCollectionImpl
      *
      * Similar to `Collection()`, however it expects collection-likes of [K, V]
-     * tuples if not constructed from a Collection.Keyed or JS Object.
+     * tuples if not constructed from a KeyedCollectionImpl or JS Object.
      *
      * Note: `Collection.Keyed` is a conversion function and not a class, and
      * does not use the `new` keyword during construction.
      */
-    function Keyed<K, V>(collection?: Iterable<[K, V]>): Collection.Keyed<K, V>;
-    function Keyed<V>(obj: { [key: string]: V }): Collection.Keyed<string, V>;
-
-    interface Keyed<K, V> extends Collection<K, V> {
-      /**
-       * Deeply converts this Keyed collection to equivalent native JavaScript Object.
-       *
-       * Converts keys to Strings.
-       */
-      toJS(): { [key in PropertyKey]: DeepCopy<V> };
-
-      /**
-       * Shallowly converts this Keyed collection to equivalent native JavaScript Object.
-       *
-       * Converts keys to Strings.
-       */
-      toJSON(): { [key in PropertyKey]: V };
-
-      /**
-       * Shallowly converts this collection to an Array.
-       */
-      toArray(): Array<[K, V]>;
-
-      /**
-       * Returns Seq.Keyed.
-       * @override
-       */
-      toSeq(): Seq.Keyed<K, V>;
-
-      // Sequence functions
-
-      /**
-       * Returns a new Collection.Keyed of the same type where the keys and values
-       * have been flipped.
-       */
-      flip(): Collection.Keyed<V, K>;
-
-      /**
-       * Returns a new Collection with other collections concatenated to this one.
-       */
-      concat<KC, VC>(
-        ...collections: Array<Iterable<[KC, VC]>>
-      ): Collection.Keyed<K | KC, V | VC>;
-      concat<C>(
-        ...collections: Array<{ [key: string]: C }>
-      ): Collection.Keyed<K | string, V | C>;
-
-      /**
-       * Returns a new Collection.Keyed with values passed through a
-       * `mapper` function.
-       *
-       * ```js
-       * import { Collection } from 'immutable'
-       * Collection.Keyed({ a: 1, b: 2 }).map(x => 10 * x)
-       * // Seq { "a": 10, "b": 20 }
-       * ```
-       *
-       * Note: `map()` always returns a new instance, even if it produced the
-       * same value at every step.
-       */
-      map<M>(
-        mapper: (value: V, key: K, iter: this) => M,
-        context?: unknown
-      ): Collection.Keyed<K, M>;
-
-      /**
-       * Returns a new Collection.Keyed of the same type with keys passed through
-       * a `mapper` function.
-       *
-       * Note: `mapKeys()` always returns a new instance, even if it produced
-       * the same key at every step.
-       */
-      mapKeys<M>(
-        mapper: (key: K, value: V, iter: this) => M,
-        context?: unknown
-      ): Collection.Keyed<M, V>;
-
-      /**
-       * Returns a new Collection.Keyed of the same type with entries
-       * ([key, value] tuples) passed through a `mapper` function.
-       *
-       * Note: `mapEntries()` always returns a new instance, even if it produced
-       * the same entry at every step.
-       *
-       * If the mapper function returns `undefined`, then the entry will be filtered
-       */
-      mapEntries<KM, VM>(
-        mapper: (
-          entry: [K, V],
-          index: number,
-          iter: this
-        ) => [KM, VM] | undefined,
-        context?: unknown
-      ): Collection.Keyed<KM, VM>;
-
-      /**
-       * Flat-maps the Collection, returning a Collection of the same type.
-       *
-       * Similar to `collection.map(...).flatten(true)`.
-       */
-      flatMap<KM, VM>(
-        mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>,
-        context?: unknown
-      ): Collection.Keyed<KM, VM>;
-
-      /**
-       * Returns a new Collection with only the values for which the `predicate`
-       * function returns true.
-       *
-       * Note: `filter()` always returns a new instance, even if it results in
-       * not filtering out any values.
-       */
-      filter<F extends V>(
-        predicate: (value: V, key: K, iter: this) => value is F,
-        context?: unknown
-      ): Collection.Keyed<K, F>;
-      filter(
-        predicate: (value: V, key: K, iter: this) => unknown,
-        context?: unknown
-      ): this;
-
-      /**
-       * Returns a new keyed Collection with the values for which the
-       * `predicate` function returns false and another for which is returns
-       * true.
-       */
-      partition<F extends V, C>(
-        predicate: (this: C, value: V, key: K, iter: this) => value is F,
-        context?: C
-      ): [Collection.Keyed<K, V>, Collection.Keyed<K, F>];
-      partition<C>(
-        predicate: (this: C, value: V, key: K, iter: this) => unknown,
-        context?: C
-      ): [this, this];
-
-      [Symbol.iterator](): IterableIterator<[K, V]>;
-    }
+    function Keyed<K, V>(
+      collection?: Iterable<[K, V]>
+    ): KeyedCollectionImpl<K, V>;
+    function Keyed<V>(obj: {
+      [key: string]: V;
+    }): KeyedCollectionImpl<string, V>;
 
     /**
-     * Indexed Collections have incrementing numeric keys. They exhibit
-     * slightly different behavior than `Collection.Keyed` for some methods in order
-     * to better mirror the behavior of JavaScript's `Array`, and add methods
-     * which do not make sense on non-indexed Collections such as `indexOf`.
-     *
-     * Unlike JavaScript arrays, `Collection.Indexed`s are always dense. "Unset"
-     * indices and `undefined` indices are indistinguishable, and all indices from
-     * 0 to `size` are visited when iterated.
-     *
-     * All Collection.Indexed methods return re-indexed Collections. In other words,
-     * indices always start at 0 and increment until size. If you wish to
-     * preserve indices, using them as keys, convert to a Collection.Keyed by
-     * calling `toKeyedSeq`.
-     */
-    namespace Indexed {}
-
-    /**
-     * Creates a new Collection.Indexed.
+     * Creates a new IndexedCollectionImpl.
      *
      * Note: `Collection.Indexed` is a conversion function and not a class, and
      * does not use the `new` keyword during construction.
      */
     function Indexed<T>(
       collection?: Iterable<T> | ArrayLike<T>
-    ): Collection.Indexed<T>;
-
-    interface Indexed<T> extends Collection<number, T>, OrderedCollection<T> {
-      /**
-       * Deeply converts this Indexed collection to equivalent native JavaScript Array.
-       */
-      toJS(): Array<DeepCopy<T>>;
-
-      /**
-       * Shallowly converts this Indexed collection to equivalent native JavaScript Array.
-       */
-      toJSON(): Array<T>;
-
-      /**
-       * Shallowly converts this collection to an Array.
-       */
-      toArray(): Array<T>;
-
-      // Reading values
-
-      /**
-       * Returns the value associated with the provided index, or notSetValue if
-       * the index is beyond the bounds of the Collection.
-       *
-       * `index` may be a negative number, which indexes back from the end of the
-       * Collection. `s.get(-1)` gets the last item in the Collection.
-       */
-      get<NSV>(index: number, notSetValue: NSV): T | NSV;
-      get(index: number): T | undefined;
-
-      // Conversion to Seq
-
-      /**
-       * Returns Seq.Indexed.
-       * @override
-       */
-      toSeq(): Seq.Indexed<T>;
-
-      /**
-       * If this is a collection of [key, value] entry tuples, it will return a
-       * Seq.Keyed of those entries.
-       */
-      fromEntrySeq(): Seq.Keyed<unknown, unknown>;
-
-      // Combination
-
-      /**
-       * Returns a Collection of the same type with `separator` between each item
-       * in this Collection.
-       */
-      interpose(separator: T): this;
-
-      /**
-       * Returns a Collection of the same type with the provided `collections`
-       * interleaved into this collection.
-       *
-       * The resulting Collection includes the first item from each, then the
-       * second from each, etc.
-       *
-       * The shortest Collection stops interleave.
-       *
-       * Since `interleave()` re-indexes values, it produces a complete copy,
-       * which has `O(N)` complexity.
-       *
-       * Note: `interleave` *cannot* be used in `withMutations`.
-       */
-      interleave(...collections: Array<Collection<unknown, T>>): this;
-
-      /**
-       * Splice returns a new indexed Collection by replacing a region of this
-       * Collection with new values. If values are not provided, it only skips the
-       * region to be removed.
-       *
-       * `index` may be a negative number, which indexes back from the end of the
-       * Collection. `s.splice(-2)` splices after the second to last item.
-       *
-       * Since `splice()` re-indexes values, it produces a complete copy, which
-       * has `O(N)` complexity.
-       *
-       * Note: `splice` *cannot* be used in `withMutations`.
-       */
-      splice(index: number, removeNum: number, ...values: Array<T>): this;
-
-      /**
-       * Returns a Collection of the same type "zipped" with the provided
-       * collections.
-       *
-       * Like `zipWith`, but using the default `zipper`: creating an `Array`.
-       */
-      zip<U>(other: Collection<unknown, U>): Collection.Indexed<[T, U]>;
-      zip<U, V>(
-        other: Collection<unknown, U>,
-        other2: Collection<unknown, V>
-      ): Collection.Indexed<[T, U, V]>;
-      zip(
-        ...collections: Array<Collection<unknown, unknown>>
-      ): Collection.Indexed<unknown>;
-
-      /**
-       * Returns a Collection "zipped" with the provided collections.
-       *
-       * Unlike `zip`, `zipAll` continues zipping until the longest collection is
-       * exhausted. Missing values from shorter collections are filled with `undefined`.
-       *
-       * ```js
-       * const a = List([ 1, 2 ]);
-       * const b = List([ 3, 4, 5 ]);
-       * const c = a.zipAll(b); // List [ [ 1, 3 ], [ 2, 4 ], [ undefined, 5 ] ]
-       * ```
-       */
-      zipAll<U>(other: Collection<unknown, U>): Collection.Indexed<[T, U]>;
-      zipAll<U, V>(
-        other: Collection<unknown, U>,
-        other2: Collection<unknown, V>
-      ): Collection.Indexed<[T, U, V]>;
-      zipAll(
-        ...collections: Array<Collection<unknown, unknown>>
-      ): Collection.Indexed<unknown>;
-
-      /**
-       * Returns a Collection of the same type "zipped" with the provided
-       * collections by using a custom `zipper` function.
-       */
-      zipWith<U, Z>(
-        zipper: (value: T, otherValue: U) => Z,
-        otherCollection: Collection<unknown, U>
-      ): Collection.Indexed<Z>;
-      zipWith<U, V, Z>(
-        zipper: (value: T, otherValue: U, thirdValue: V) => Z,
-        otherCollection: Collection<unknown, U>,
-        thirdCollection: Collection<unknown, V>
-      ): Collection.Indexed<Z>;
-      zipWith<Z>(
-        zipper: (...values: Array<unknown>) => Z,
-        ...collections: Array<Collection<unknown, unknown>>
-      ): Collection.Indexed<Z>;
-
-      // Search for value
-
-      /**
-       * Returns the first index at which a given value can be found in the
-       * Collection, or -1 if it is not present.
-       */
-      indexOf(searchValue: T): number;
-
-      /**
-       * Returns the last index at which a given value can be found in the
-       * Collection, or -1 if it is not present.
-       */
-      lastIndexOf(searchValue: T): number;
-
-      /**
-       * Returns the first index in the Collection where a value satisfies the
-       * provided predicate function. Otherwise -1 is returned.
-       */
-      findIndex(
-        predicate: (value: T, index: number, iter: this) => boolean,
-        context?: unknown
-      ): number;
-
-      /**
-       * Returns the last index in the Collection where a value satisfies the
-       * provided predicate function. Otherwise -1 is returned.
-       */
-      findLastIndex(
-        predicate: (value: T, index: number, iter: this) => boolean,
-        context?: unknown
-      ): number;
-
-      // Sequence algorithms
-
-      /**
-       * Returns a new Collection with other collections concatenated to this one.
-       */
-      concat<C>(
-        ...valuesOrCollections: Array<Iterable<C> | C>
-      ): Collection.Indexed<T | C>;
-
-      /**
-       * Returns a new Collection.Indexed with values passed through a
-       * `mapper` function.
-       *
-       * ```js
-       * import { Collection } from 'immutable'
-       * Collection.Indexed([1,2]).map(x => 10 * x)
-       * // Seq [ 1, 2 ]
-       * ```
-       *
-       * Note: `map()` always returns a new instance, even if it produced the
-       * same value at every step.
-       */
-      map<M>(
-        mapper: (value: T, key: number, iter: this) => M,
-        context?: unknown
-      ): Collection.Indexed<M>;
-
-      /**
-       * Flat-maps the Collection, returning a Collection of the same type.
-       *
-       * Similar to `collection.map(...).flatten(true)`.
-       */
-      flatMap<M>(
-        mapper: (value: T, key: number, iter: this) => Iterable<M>,
-        context?: unknown
-      ): Collection.Indexed<M>;
-
-      /**
-       * Returns a new Collection with only the values for which the `predicate`
-       * function returns true.
-       *
-       * Note: `filter()` always returns a new instance, even if it results in
-       * not filtering out any values.
-       */
-      filter<F extends T>(
-        predicate: (value: T, index: number, iter: this) => value is F,
-        context?: unknown
-      ): Collection.Indexed<F>;
-      filter(
-        predicate: (value: T, index: number, iter: this) => unknown,
-        context?: unknown
-      ): this;
-
-      /**
-       * Returns a new indexed Collection with the values for which the
-       * `predicate` function returns false and another for which is returns
-       * true.
-       */
-      partition<F extends T, C>(
-        predicate: (this: C, value: T, index: number, iter: this) => value is F,
-        context?: C
-      ): [Collection.Indexed<T>, Collection.Indexed<F>];
-      partition<C>(
-        predicate: (this: C, value: T, index: number, iter: this) => unknown,
-        context?: C
-      ): [this, this];
-
-      [Symbol.iterator](): IterableIterator<T>;
-    }
+    ): IndexedCollectionImpl<T>;
 
     /**
-     * Set Collections only represent values. They have no associated keys or
-     * indices. Duplicate values are possible in the lazy `Seq.Set`s, however
-     * the concrete `Set` Collection does not allow duplicate values.
-     *
-     * Collection methods on Collection.Set such as `map` and `forEach` will provide
-     * the value as both the first and second arguments to the provided function.
-     *
-     * ```js
-     * import { Collection } from 'immutable'
-     * const seq = Collection.Set([ 'A', 'B', 'C' ])
-     * // Seq { "A", "B", "C" }
-     * seq.forEach((v, k) =>
-     *  assert.equal(v, k)
-     * )
-     * ```
-     */
-    namespace Set {}
-
-    /**
-     * Similar to `Collection()`, but always returns a Collection.Set.
+     * Similar to `Collection()`, but always returns a SetCollectionImpl.
      *
      * Note: `Collection.Set` is a factory function and not a class, and does
      * not use the `new` keyword during construction.
      */
-    function Set<T>(collection?: Iterable<T> | ArrayLike<T>): Collection.Set<T>;
-
-    interface Set<T> extends Collection<T, T> {
-      /**
-       * Deeply converts this Set collection to equivalent native JavaScript Array.
-       */
-      toJS(): Array<DeepCopy<T>>;
-
-      /**
-       * Shallowly converts this Set collection to equivalent native JavaScript Array.
-       */
-      toJSON(): Array<T>;
-
-      /**
-       * Shallowly converts this collection to an Array.
-       */
-      toArray(): Array<T>;
-
-      /**
-       * Returns Seq.Set.
-       * @override
-       */
-      toSeq(): Seq.Set<T>;
-
-      // Sequence algorithms
-
-      /**
-       * Returns a new Collection with other collections concatenated to this one.
-       */
-      concat<U>(...collections: Array<Iterable<U>>): Collection.Set<T | U>;
-
-      /**
-       * Returns a new Collection.Set with values passed through a
-       * `mapper` function.
-       *
-       * ```
-       * Collection.Set([ 1, 2 ]).map(x => 10 * x)
-       * // Seq { 1, 2 }
-       * ```
-       *
-       * Note: `map()` always returns a new instance, even if it produced the
-       * same value at every step.
-       */
-      map<M>(
-        mapper: (value: T, key: T, iter: this) => M,
-        context?: unknown
-      ): Collection.Set<M>;
-
-      /**
-       * Flat-maps the Collection, returning a Collection of the same type.
-       *
-       * Similar to `collection.map(...).flatten(true)`.
-       */
-      flatMap<M>(
-        mapper: (value: T, key: T, iter: this) => Iterable<M>,
-        context?: unknown
-      ): Collection.Set<M>;
-
-      /**
-       * Returns a new Collection with only the values for which the `predicate`
-       * function returns true.
-       *
-       * Note: `filter()` always returns a new instance, even if it results in
-       * not filtering out any values.
-       */
-      filter<F extends T>(
-        predicate: (value: T, key: T, iter: this) => value is F,
-        context?: unknown
-      ): Collection.Set<F>;
-      filter(
-        predicate: (value: T, key: T, iter: this) => unknown,
-        context?: unknown
-      ): this;
-
-      /**
-       * Returns a new set Collection with the values for which the
-       * `predicate` function returns false and another for which is returns
-       * true.
-       */
-      partition<F extends T, C>(
-        predicate: (this: C, value: T, key: T, iter: this) => value is F,
-        context?: C
-      ): [Collection.Set<T>, Collection.Set<F>];
-      partition<C>(
-        predicate: (this: C, value: T, key: T, iter: this) => unknown,
-        context?: C
-      ): [this, this];
-
-      [Symbol.iterator](): IterableIterator<T>;
-    }
+    function Set<T>(
+      collection?: Iterable<T> | ArrayLike<T>
+    ): SetCollectionImpl<T>;
   }
 
   /**
@@ -3641,9 +3088,9 @@ declare namespace Immutable {
    * The type of Collection created is based on the input.
    *
    *   * If an `Collection`, that same `Collection`.
-   *   * If an Array-like, an `Collection.Indexed`.
-   *   * If an Object with an Iterator defined, an `Collection.Indexed`.
-   *   * If an Object, an `Collection.Keyed`.
+   *   * If an Array-like, an `IndexedCollectionImpl`.
+   *   * If an Object with an Iterator defined, an `IndexedCollectionImpl`.
+   *   * If an Object, an `KeyedCollectionImpl`.
    *
    * This methods forces the conversion of Objects and Strings to Collections.
    * If you want to ensure that a Collection of one item is returned, use
@@ -3657,818 +3104,16 @@ declare namespace Immutable {
    * Note: `Collection` is a conversion function and not a class, and does not
    * use the `new` keyword during construction.
    */
-  function Collection<I extends Collection<unknown, unknown>>(collection: I): I;
+  function Collection<I extends CollectionImpl<unknown, unknown>>(
+    collection: I
+  ): I;
   function Collection<T>(
     collection: Iterable<T> | ArrayLike<T>
-  ): Collection.Indexed<T>;
+  ): IndexedCollectionImpl<T>;
   function Collection<V>(obj: {
     [key: string]: V;
-  }): Collection.Keyed<string, V>;
-  function Collection<K = unknown, V = unknown>(): Collection<K, V>;
-
-  interface Collection<K, V> extends ValueObject {
-    // Value equality
-
-    /**
-     * True if this and the other Collection have value equality, as defined
-     * by `Immutable.is()`.
-     *
-     * Note: This is equivalent to `Immutable.is(this, other)`, but provided to
-     * allow for chained expressions.
-     */
-    equals(other: unknown): boolean;
-
-    /**
-     * Computes and returns the hashed identity for this Collection.
-     *
-     * The `hashCode` of a Collection is used to determine potential equality,
-     * and is used when adding this to a `Set` or as a key in a `Map`, enabling
-     * lookup via a different instance.
-     *
-     * If two values have the same `hashCode`, they are [not guaranteed
-     * to be equal][Hash Collision]. If two values have different `hashCode`s,
-     * they must not be equal.
-     *
-     * [Hash Collision]: https://en.wikipedia.org/wiki/Collision_(computer_science)
-     */
-    hashCode(): number;
-
-    // Reading values
-
-    /**
-     * Returns the value associated with the provided key, or notSetValue if
-     * the Collection does not contain this key.
-     *
-     * Note: it is possible a key may be associated with an `undefined` value,
-     * so if `notSetValue` is not provided and this method returns `undefined`,
-     * that does not guarantee the key was not found.
-     */
-    get<NSV>(key: K, notSetValue: NSV): V | NSV;
-    get(key: K): V | undefined;
-
-    /**
-     * True if a key exists within this `Collection`, using `Immutable.is`
-     * to determine equality
-     */
-    has(key: K): boolean;
-
-    /**
-     * True if a value exists within this `Collection`, using `Immutable.is`
-     * to determine equality
-     * @alias contains
-     */
-    includes(value: V): boolean;
-    contains(value: V): boolean;
-
-    /**
-     * In case the `Collection` is not empty returns the first element of the
-     * `Collection`.
-     * In case the `Collection` is empty returns the optional default
-     * value if provided, if no default value is provided returns undefined.
-     */
-    first<NSV>(notSetValue: NSV): V | NSV;
-    first(): V | undefined;
-
-    /**
-     * In case the `Collection` is not empty returns the last element of the
-     * `Collection`.
-     * In case the `Collection` is empty returns the optional default
-     * value if provided, if no default value is provided returns undefined.
-     */
-    last<NSV>(notSetValue: NSV): V | NSV;
-    last(): V | undefined;
-
-    // Reading deep values
-
-    /**
-     * Returns the value found by following a path of keys or indices through
-     * nested Collections.
-     *
-     * Plain JavaScript Object or Arrays may be nested within an Immutable.js
-     * Collection, and getIn() can access those values as well:
-     */
-    getIn(searchKeyPath: Iterable<unknown>, notSetValue?: unknown): unknown;
-
-    /**
-     * True if the result of following a path of keys or indices through nested
-     * Collections results in a set value.
-     */
-    hasIn(searchKeyPath: Iterable<unknown>): boolean;
-
-    // Persistent changes
-
-    /**
-     * This can be very useful as a way to "chain" a normal function into a
-     * sequence of methods. RxJS calls this "let" and lodash calls it "thru".
-     *
-     * For example, to sum a Seq after mapping and filtering:
-     */
-    update<R>(updater: (value: this) => R): R;
-
-    // Conversion to JavaScript types
-
-    /**
-     * Deeply converts this Collection to equivalent native JavaScript Array or Object.
-     *
-     * `Collection.Indexed`, and `Collection.Set` become `Array`, while
-     * `Collection.Keyed` become `Object`, converting keys to Strings.
-     */
-    toJS(): Array<DeepCopy<V>> | { [key in PropertyKey]: DeepCopy<V> };
-
-    /**
-     * Shallowly converts this Collection to equivalent native JavaScript Array or Object.
-     *
-     * `Collection.Indexed`, and `Collection.Set` become `Array`, while
-     * `Collection.Keyed` become `Object`, converting keys to Strings.
-     */
-    toJSON(): Array<V> | { [key in PropertyKey]: V };
-
-    /**
-     * Shallowly converts this collection to an Array.
-     *
-     * `Collection.Indexed`, and `Collection.Set` produce an Array of values.
-     * `Collection.Keyed` produce an Array of [key, value] tuples.
-     */
-    toArray(): Array<V> | Array<[K, V]>;
-
-    /**
-     * Shallowly converts this Collection to an Object.
-     *
-     * Converts keys to Strings.
-     */
-    toObject(): { [key: string]: V };
-
-    // Conversion to Collections
-
-    /**
-     * Converts this Collection to a Map, Throws if keys are not hashable.
-     *
-     * Note: This is equivalent to `Map(this.toKeyedSeq())`, but provided
-     * for convenience and to allow for chained expressions.
-     */
-    toMap(): Map<K, V>;
-
-    /**
-     * Converts this Collection to a Map, maintaining the order of iteration.
-     *
-     * Note: This is equivalent to `OrderedMap(this.toKeyedSeq())`, but
-     * provided for convenience and to allow for chained expressions.
-     */
-    toOrderedMap(): OrderedMap<K, V>;
-
-    /**
-     * Converts this Collection to a Set, discarding keys. Throws if values
-     * are not hashable.
-     *
-     * Note: This is equivalent to `Set(this)`, but provided to allow for
-     * chained expressions.
-     */
-    toSet(): Set<V>;
-
-    /**
-     * Converts this Collection to a Set, maintaining the order of iteration and
-     * discarding keys.
-     *
-     * Note: This is equivalent to `OrderedSet(this.valueSeq())`, but provided
-     * for convenience and to allow for chained expressions.
-     */
-    toOrderedSet(): OrderedSet<V>;
-
-    /**
-     * Converts this Collection to a List, discarding keys.
-     *
-     * This is similar to `List(collection)`, but provided to allow for chained
-     * expressions. However, when called on `Map` or other keyed collections,
-     * `collection.toList()` discards the keys and creates a list of only the
-     * values, whereas `List(collection)` creates a list of entry tuples.
-     */
-    toList(): List<V>;
-
-    /**
-     * Converts this Collection to a Stack, discarding keys. Throws if values
-     * are not hashable.
-     *
-     * Note: This is equivalent to `Stack(this)`, but provided to allow for
-     * chained expressions.
-     */
-    toStack(): Stack<V>;
-
-    // Conversion to Seq
-
-    /**
-     * Converts this Collection to a Seq of the same kind (indexed,
-     * keyed, or set).
-     */
-    toSeq(): Seq<K, V>;
-
-    /**
-     * Returns a Seq.Keyed from this Collection where indices are treated as keys.
-     *
-     * This is useful if you want to operate on an
-     * Collection.Indexed and preserve the [index, value] pairs.
-     *
-     * The returned Seq will have identical iteration order as
-     * this Collection.
-     */
-    toKeyedSeq(): Seq.Keyed<K, V>;
-
-    /**
-     * Returns an Seq.Indexed of the values of this Collection, discarding keys.
-     */
-    toIndexedSeq(): Seq.Indexed<V>;
-
-    /**
-     * Returns a Seq.Set of the values of this Collection, discarding keys.
-     */
-    toSetSeq(): Seq.Set<V>;
-
-    // Iterators
-
-    /**
-     * An iterator of this `Collection`'s keys.
-     *
-     * Note: this will return an ES6 iterator which does not support
-     * Immutable.js sequence algorithms. Use `keySeq` instead, if this is
-     * what you want.
-     */
-    keys(): IterableIterator<K>;
-
-    /**
-     * An iterator of this `Collection`'s values.
-     *
-     * Note: this will return an ES6 iterator which does not support
-     * Immutable.js sequence algorithms. Use `valueSeq` instead, if this is
-     * what you want.
-     */
-    values(): IterableIterator<V>;
-
-    /**
-     * An iterator of this `Collection`'s entries as `[ key, value ]` tuples.
-     *
-     * Note: this will return an ES6 iterator which does not support
-     * Immutable.js sequence algorithms. Use `entrySeq` instead, if this is
-     * what you want.
-     */
-    entries(): IterableIterator<[K, V]>;
-
-    [Symbol.iterator](): IterableIterator<unknown>;
-
-    // Collections (Seq)
-
-    /**
-     * Returns a new Seq.Indexed of the keys of this Collection,
-     * discarding values.
-     */
-    keySeq(): Seq.Indexed<K>;
-
-    /**
-     * Returns an Seq.Indexed of the values of this Collection, discarding keys.
-     */
-    valueSeq(): Seq.Indexed<V>;
-
-    /**
-     * Returns a new Seq.Indexed of [key, value] tuples.
-     */
-    entrySeq(): Seq.Indexed<[K, V]>;
-
-    // Sequence algorithms
-
-    /**
-     * Returns a new Collection of the same type with values passed through a
-     * `mapper` function.
-     *
-     * Note: `map()` always returns a new instance, even if it produced the same
-     * value at every step.
-     */
-    map<M>(
-      mapper: (value: V, key: K, iter: this) => M,
-      context?: unknown
-    ): Collection<K, M>;
-
-    /**
-     * Note: used only for sets, which return Collection<M, M> but are otherwise
-     * identical to normal `map()`.
-     *
-     * @ignore
-     */
-    map(...args: Array<never>): unknown;
-
-    /**
-     * Returns a new Collection of the same type with only the entries for which
-     * the `predicate` function returns true.
-     *
-     * Note: `filter()` always returns a new instance, even if it results in
-     * not filtering out any values.
-     */
-    filter<F extends V>(
-      predicate: (value: V, key: K, iter: this) => value is F,
-      context?: unknown
-    ): Collection<K, F>;
-    filter(
-      predicate: (value: V, key: K, iter: this) => unknown,
-      context?: unknown
-    ): this;
-
-    /**
-     * Returns a new Collection of the same type with only the entries for which
-     * the `predicate` function returns false.
-     *
-     * Note: `filterNot()` always returns a new instance, even if it results in
-     * not filtering out any values.
-     */
-    filterNot(
-      predicate: (value: V, key: K, iter: this) => boolean,
-      context?: unknown
-    ): this;
-
-    /**
-     * Returns a new Collection with the values for which the `predicate`
-     * function returns false and another for which is returns true.
-     */
-    partition<F extends V, C>(
-      predicate: (this: C, value: V, key: K, iter: this) => value is F,
-      context?: C
-    ): [Collection<K, V>, Collection<K, F>];
-    partition<C>(
-      predicate: (this: C, value: V, key: K, iter: this) => unknown,
-      context?: C
-    ): [this, this];
-
-    /**
-     * Returns a new Collection of the same type in reverse order.
-     */
-    reverse(): this;
-
-    /**
-     * Returns a new Collection of the same type which includes the same entries,
-     * stably sorted by using a `comparator`.
-     *
-     * If a `comparator` is not provided, a default comparator uses `<` and `>`.
-     *
-     * `comparator(valueA, valueB)`:
-     *
-     *   * Returns `0` if the elements should not be swapped.
-     *   * Returns `-1` (or any negative number) if `valueA` comes before `valueB`
-     *   * Returns `1` (or any positive number) if `valueA` comes after `valueB`
-     *   * Alternatively, can return a value of the `PairSorting` enum type
-     *   * Is pure, i.e. it must always return the same value for the same pair
-     *     of values.
-     *
-     * When sorting collections which have no defined order, their ordered
-     * equivalents will be returned. e.g. `map.sort()` returns OrderedMap.
-     *
-     * Note: `sort()` Always returns a new instance, even if the original was
-     * already sorted.
-     *
-     * Note: This is always an eager operation.
-     */
-    sort(comparator?: Comparator<V>): this;
-
-    /**
-     * Like `sort`, but also accepts a `comparatorValueMapper` which allows for
-     * sorting by more sophisticated means:
-     *
-     * Note: `sortBy()` Always returns a new instance, even if the original was
-     * already sorted.
-     *
-     * Note: This is always an eager operation.
-     */
-    sortBy<C>(
-      comparatorValueMapper: (value: V, key: K, iter: this) => C,
-      comparator?: Comparator<C>
-    ): this;
-
-    /**
-     * Returns a `Map` of `Collection`, grouped by the return
-     * value of the `grouper` function.
-     *
-     * Note: This is always an eager operation.
-     */
-    groupBy<G>(
-      grouper: (value: V, key: K, iter: this) => G,
-      context?: unknown
-    ): Map<G, this>;
-
-    // Side effects
-
-    /**
-     * The `sideEffect` is executed for every entry in the Collection.
-     *
-     * Unlike `Array#forEach`, if any call of `sideEffect` returns
-     * `false`, the iteration will stop. Returns the number of entries iterated
-     * (including the last iteration which returned false).
-     */
-    forEach(
-      sideEffect: (value: V, key: K, iter: this) => unknown,
-      context?: unknown
-    ): number;
-
-    // Creating subsets
-
-    /**
-     * Returns a new Collection of the same type representing a portion of this
-     * Collection from start up to but not including end.
-     *
-     * If begin is negative, it is offset from the end of the Collection. e.g.
-     * `slice(-2)` returns a Collection of the last two entries. If it is not
-     * provided the new Collection will begin at the beginning of this Collection.
-     *
-     * If end is negative, it is offset from the end of the Collection. e.g.
-     * `slice(0, -1)` returns a Collection of everything but the last entry. If
-     * it is not provided, the new Collection will continue through the end of
-     * this Collection.
-     *
-     * If the requested slice is equivalent to the current Collection, then it
-     * will return itself.
-     */
-    slice(begin?: number, end?: number): this;
-
-    /**
-     * Returns a new Collection of the same type containing all entries except
-     * the first.
-     */
-    rest(): this;
-
-    /**
-     * Returns a new Collection of the same type containing all entries except
-     * the last.
-     */
-    butLast(): this;
-
-    /**
-     * Returns a new Collection of the same type which excludes the first `amount`
-     * entries from this Collection.
-     */
-    skip(amount: number): this;
-
-    /**
-     * Returns a new Collection of the same type which excludes the last `amount`
-     * entries from this Collection.
-     */
-    skipLast(amount: number): this;
-
-    /**
-     * Returns a new Collection of the same type which includes entries starting
-     * from when `predicate` first returns false.
-     */
-    skipWhile(
-      predicate: (value: V, key: K, iter: this) => boolean,
-      context?: unknown
-    ): this;
-
-    /**
-     * Returns a new Collection of the same type which includes entries starting
-     * from when `predicate` first returns true.
-     */
-    skipUntil(
-      predicate: (value: V, key: K, iter: this) => boolean,
-      context?: unknown
-    ): this;
-
-    /**
-     * Returns a new Collection of the same type which includes the first `amount`
-     * entries from this Collection.
-     */
-    take(amount: number): this;
-
-    /**
-     * Returns a new Collection of the same type which includes the last `amount`
-     * entries from this Collection.
-     */
-    takeLast(amount: number): this;
-
-    /**
-     * Returns a new Collection of the same type which includes entries from this
-     * Collection as long as the `predicate` returns true.
-     */
-    takeWhile(
-      predicate: (value: V, key: K, iter: this) => boolean,
-      context?: unknown
-    ): this;
-
-    /**
-     * Returns a new Collection of the same type which includes entries from this
-     * Collection as long as the `predicate` returns false.
-     */
-    takeUntil(
-      predicate: (value: V, key: K, iter: this) => boolean,
-      context?: unknown
-    ): this;
-
-    // Combination
-
-    /**
-     * Returns a new Collection of the same type with other values and
-     * collection-like concatenated to this one.
-     *
-     * For Seqs, all entries will be present in the resulting Seq, even if they
-     * have the same key.
-     */
-    concat(
-      ...valuesOrCollections: Array<unknown>
-    ): Collection<unknown, unknown>;
-
-    /**
-     * Flattens nested Collections.
-     *
-     * Will deeply flatten the Collection by default, returning a Collection of the
-     * same type, but a `depth` can be provided in the form of a number or
-     * boolean (where true means to shallowly flatten one level). A depth of 0
-     * (or shallow: false) will deeply flatten.
-     *
-     * Flattens only others Collection, not Arrays or Objects.
-     *
-     * Note: `flatten(true)` operates on Collection<unknown, Collection<K, V>> and
-     * returns Collection<K, V>
-     */
-    flatten(depth?: number): Collection<unknown, unknown>;
-    flatten(shallow?: boolean): Collection<unknown, unknown>;
-
-    /**
-     * Flat-maps the Collection, returning a Collection of the same type.
-     *
-     * Similar to `collection.map(...).flatten(true)`.
-     */
-    flatMap<M>(
-      mapper: (value: V, key: K, iter: this) => Iterable<M>,
-      context?: unknown
-    ): Collection<K, M>;
-
-    /**
-     * Flat-maps the Collection, returning a Collection of the same type.
-     *
-     * Similar to `collection.map(...).flatten(true)`.
-     * Used for Dictionaries only.
-     */
-    flatMap<KM, VM>(
-      mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>,
-      context?: unknown
-    ): Collection<KM, VM>;
-
-    // Reducing a value
-
-    /**
-     * Reduces the Collection to a value by calling the `reducer` for every entry
-     * in the Collection and passing along the reduced value.
-     *
-     * If `initialReduction` is not provided, the first item in the
-     * Collection will be used.
-     *
-     * @see `Array#reduce`.
-     */
-    reduce<R>(
-      reducer: (reduction: R, value: V, key: K, iter: this) => R,
-      initialReduction: R,
-      context?: unknown
-    ): R;
-    reduce<R>(
-      reducer: (reduction: V | R, value: V, key: K, iter: this) => R
-    ): R;
-
-    /**
-     * Reduces the Collection in reverse (from the right side).
-     *
-     * Note: Similar to this.reverse().reduce(), and provided for parity
-     * with `Array#reduceRight`.
-     */
-    reduceRight<R>(
-      reducer: (reduction: R, value: V, key: K, iter: this) => R,
-      initialReduction: R,
-      context?: unknown
-    ): R;
-    reduceRight<R>(
-      reducer: (reduction: V | R, value: V, key: K, iter: this) => R
-    ): R;
-
-    /**
-     * True if `predicate` returns true for all entries in the Collection.
-     */
-    every(
-      predicate: (value: V, key: K, iter: this) => boolean,
-      context?: unknown
-    ): boolean;
-
-    /**
-     * True if `predicate` returns true for any entry in the Collection.
-     */
-    some(
-      predicate: (value: V, key: K, iter: this) => boolean,
-      context?: unknown
-    ): boolean;
-
-    /**
-     * Joins values together as a string, inserting a separator between each.
-     * The default separator is `","`.
-     */
-    join(separator?: string): string;
-
-    /**
-     * Returns true if this Collection includes no values.
-     *
-     * For some lazy `Seq`, `isEmpty` might need to iterate to determine
-     * emptiness. At most one iteration will occur.
-     */
-    isEmpty(): boolean;
-
-    /**
-     * Returns the size of this Collection.
-     *
-     * Regardless of if this Collection can describe its size lazily (some Seqs
-     * cannot), this method will always return the correct size. E.g. it
-     * evaluates a lazy `Seq` if necessary.
-     *
-     * If `predicate` is provided, then this returns the count of entries in the
-     * Collection for which the `predicate` returns true.
-     */
-    count(): number;
-    count(
-      predicate: (value: V, key: K, iter: this) => boolean,
-      context?: unknown
-    ): number;
-
-    /**
-     * Returns a `Seq.Keyed` of counts, grouped by the return value of
-     * the `grouper` function.
-     *
-     * Note: This is not a lazy operation.
-     */
-    countBy<G>(
-      grouper: (value: V, key: K, iter: this) => G,
-      context?: unknown
-    ): Map<G, number>;
-
-    // Search for value
-
-    /**
-     * Returns the first value for which the `predicate` returns true.
-     */
-    find(
-      predicate: (value: V, key: K, iter: this) => boolean,
-      context?: unknown,
-      notSetValue?: V
-    ): V | undefined;
-
-    /**
-     * Returns the last value for which the `predicate` returns true.
-     *
-     * Note: `predicate` will be called for each entry in reverse.
-     */
-    findLast(
-      predicate: (value: V, key: K, iter: this) => boolean,
-      context?: unknown,
-      notSetValue?: V
-    ): V | undefined;
-
-    /**
-     * Returns the first [key, value] entry for which the `predicate` returns true.
-     */
-    findEntry(
-      predicate: (value: V, key: K, iter: this) => boolean,
-      context?: unknown,
-      notSetValue?: V
-    ): [K, V] | undefined;
-
-    /**
-     * Returns the last [key, value] entry for which the `predicate`
-     * returns true.
-     *
-     * Note: `predicate` will be called for each entry in reverse.
-     */
-    findLastEntry(
-      predicate: (value: V, key: K, iter: this) => boolean,
-      context?: unknown,
-      notSetValue?: V
-    ): [K, V] | undefined;
-
-    /**
-     * Returns the key for which the `predicate` returns true.
-     */
-    findKey(
-      predicate: (value: V, key: K, iter: this) => boolean,
-      context?: unknown
-    ): K | undefined;
-
-    /**
-     * Returns the last key for which the `predicate` returns true.
-     *
-     * Note: `predicate` will be called for each entry in reverse.
-     */
-    findLastKey(
-      predicate: (value: V, key: K, iter: this) => boolean,
-      context?: unknown
-    ): K | undefined;
-
-    /**
-     * Returns the key associated with the search value, or undefined.
-     */
-    keyOf(searchValue: V): K | undefined;
-
-    /**
-     * Returns the last key associated with the search value, or undefined.
-     */
-    lastKeyOf(searchValue: V): K | undefined;
-
-    /**
-     * Returns the maximum value in this collection. If any values are
-     * comparatively equivalent, the first one found will be returned.
-     *
-     * The `comparator` is used in the same way as `Collection#sort`. If it is not
-     * provided, the default comparator is `>`.
-     *
-     * When two values are considered equivalent, the first encountered will be
-     * returned. Otherwise, `max` will operate independent of the order of input
-     * as long as the comparator is commutative. The default comparator `>` is
-     * commutative *only* when types do not differ.
-     *
-     * If `comparator` returns 0 and either value is NaN, undefined, or null,
-     * that value will be returned.
-     */
-    max(comparator?: Comparator<V>): V | undefined;
-
-    /**
-     * Like `max`, but also accepts a `comparatorValueMapper` which allows for
-     * comparing by more sophisticated means:
-     */
-    maxBy<C>(
-      comparatorValueMapper: (value: V, key: K, iter: this) => C,
-      comparator?: Comparator<C>
-    ): V | undefined;
-
-    /**
-     * Returns the minimum value in this collection. If any values are
-     * comparatively equivalent, the first one found will be returned.
-     *
-     * The `comparator` is used in the same way as `Collection#sort`. If it is not
-     * provided, the default comparator is `<`.
-     *
-     * When two values are considered equivalent, the first encountered will be
-     * returned. Otherwise, `min` will operate independent of the order of input
-     * as long as the comparator is commutative. The default comparator `<` is
-     * commutative *only* when types do not differ.
-     *
-     * If `comparator` returns 0 and either value is NaN, undefined, or null,
-     * that value will be returned.
-     */
-    min(comparator?: Comparator<V>): V | undefined;
-
-    /**
-     * Like `min`, but also accepts a `comparatorValueMapper` which allows for
-     * comparing by more sophisticated means:
-     */
-    minBy<C>(
-      comparatorValueMapper: (value: V, key: K, iter: this) => C,
-      comparator?: Comparator<C>
-    ): V | undefined;
-
-    // Comparison
-
-    /**
-     * True if `iter` includes every value in this Collection.
-     */
-    isSubset(iter: Iterable<V>): boolean;
-
-    /**
-     * True if this Collection includes every value in `iter`.
-     */
-    isSuperset(iter: Iterable<V>): boolean;
-  }
-
-  /**
-   * The interface to fulfill to qualify as a Value Object.
-   */
-  interface ValueObject {
-    /**
-     * True if this and the other Collection have value equality, as defined
-     * by `Immutable.is()`.
-     *
-     * Note: This is equivalent to `Immutable.is(this, other)`, but provided to
-     * allow for chained expressions.
-     */
-    equals(other: unknown): boolean;
-
-    /**
-     * Computes and returns the hashed identity for this Collection.
-     *
-     * The `hashCode` of a Collection is used to determine potential equality,
-     * and is used when adding this to a `Set` or as a key in a `Map`, enabling
-     * lookup via a different instance.
-     *
-     * Note: hashCode() MUST return a Uint32 number. The easiest way to
-     * guarantee this is to return `myHash | 0` from a custom implementation.
-     *
-     * If two values have the same `hashCode`, they are [not guaranteed
-     * to be equal][Hash Collision]. If two values have different `hashCode`s,
-     * they must not be equal.
-     *
-     * Note: `hashCode()` is not guaranteed to always be called before
-     * `equals()`. Most but not all Immutable.js collections use hash codes to
-     * organize their internal data structures, while all Immutable.js
-     * collections use equality during lookups.
-     *
-     * [Hash Collision]: https://en.wikipedia.org/wiki/Collision_(computer_science)
-     */
-    hashCode(): number;
-  }
+  }): KeyedCollectionImpl<string, V>;
+  function Collection<K = unknown, V = unknown>(): CollectionImpl<K, V>;
 
   /**
    * Interface representing all oredered collections.
@@ -4530,10 +3175,12 @@ declare namespace Immutable {
     jsValue: unknown,
     reviver?: (
       key: string | number,
-      sequence: Collection.Keyed<string, unknown> | Collection.Indexed<unknown>,
+      sequence:
+        | KeyedCollectionImpl<string, unknown>
+        | IndexedCollectionImpl<unknown>,
       path?: Array<string | number>
     ) => unknown
-  ): Collection<unknown, unknown>;
+  ): CollectionImpl<unknown, unknown>;
 
   type FromJS<JSValue> = JSValue extends FromJSNoTransform
     ? JSValue
@@ -4544,7 +3191,7 @@ declare namespace Immutable {
         : unknown;
 
   type FromJSNoTransform =
-    | Collection<unknown, unknown>
+    | CollectionImpl<unknown, unknown>
     | number
     | string
     | null
@@ -4605,28 +3252,28 @@ declare namespace Immutable {
    */
   function isImmutable(
     maybeImmutable: unknown
-  ): maybeImmutable is Collection<unknown, unknown>;
+  ): maybeImmutable is CollectionImpl<unknown, unknown>;
 
   /**
    * True if `maybeCollection` is a Collection, or any of its subclasses.
    */
   function isCollection(
     maybeCollection: unknown
-  ): maybeCollection is Collection<unknown, unknown>;
+  ): maybeCollection is CollectionImpl<unknown, unknown>;
 
   /**
-   * True if `maybeKeyed` is a Collection.Keyed, or any of its subclasses.
+   * True if `maybeKeyed` is a KeyedCollectionImpl, or any of its subclasses.
    */
   function isKeyed(
     maybeKeyed: unknown
-  ): maybeKeyed is Collection.Keyed<unknown, unknown>;
+  ): maybeKeyed is KeyedCollectionImpl<unknown, unknown>;
 
   /**
-   * True if `maybeIndexed` is a Collection.Indexed, or any of its subclasses.
+   * True if `maybeIndexed` is a IndexedCollectionImpl, or any of its subclasses.
    */
   function isIndexed(
     maybeIndexed: unknown
-  ): maybeIndexed is Collection.Indexed<unknown>;
+  ): maybeIndexed is IndexedCollectionImpl<unknown>;
 
   /**
    * True if `maybeAssociative` is either a Keyed or Indexed Collection.
@@ -4634,12 +3281,12 @@ declare namespace Immutable {
   function isAssociative(
     maybeAssociative: unknown
   ): maybeAssociative is
-    | Collection.Keyed<unknown, unknown>
-    | Collection.Indexed<unknown>;
+    | KeyedCollectionImpl<unknown, unknown>
+    | IndexedCollectionImpl<unknown>;
 
   /**
    * True if `maybeOrdered` is a Collection where iteration order is well
-   * defined. True for Collection.Indexed as well as OrderedMap and OrderedSet.
+   * defined. True for IndexedCollectionImpl as well as OrderedMap and OrderedSet.
    */
   function isOrdered<T>(
     maybeOrdered: Iterable<T>
@@ -4717,9 +3364,9 @@ declare namespace Immutable {
    * A functional alternative to `collection.get(key)` which will also work on
    * plain Objects and Arrays as an alternative for `collection[key]`.
    */
-  function get<K, V>(collection: Collection<K, V>, key: K): V | undefined;
+  function get<K, V>(collection: CollectionImpl<K, V>, key: K): V | undefined;
   function get<K, V, NSV>(
-    collection: Collection<K, V>,
+    collection: CollectionImpl<K, V>,
     key: K,
     notSetValue: NSV
   ): V | NSV;
@@ -4765,7 +3412,7 @@ declare namespace Immutable {
    * with plain Objects and Arrays as an alternative for
    * `delete collectionCopy[key]`.
    */
-  function remove<K, C extends Collection<K, unknown>>(
+  function remove<K, C extends CollectionImpl<K, unknown>>(
     collection: C,
     key: K
   ): C;
@@ -4789,7 +3436,7 @@ declare namespace Immutable {
    * work with plain Objects and Arrays as an alternative for
    * `collectionCopy[key] = value`.
    */
-  function set<K, V, C extends Collection<K, V>>(
+  function set<K, V, C extends CollectionImpl<K, V>>(
     collection: C,
     key: K,
     value: V
@@ -4815,12 +3462,12 @@ declare namespace Immutable {
    * work with plain Objects and Arrays as an alternative for
    * `collectionCopy[key] = fn(collection[key])`.
    */
-  function update<K, V, C extends Collection<K, V>>(
+  function update<K, V, C extends CollectionImpl<K, V>>(
     collection: C,
     key: K,
     updater: (value: V | undefined) => V | undefined
   ): C;
-  function update<K, V, C extends Collection<K, V>, NSV>(
+  function update<K, V, C extends CollectionImpl<K, V>, NSV>(
     collection: C,
     key: K,
     notSetValue: NSV,
@@ -4942,14 +3589,19 @@ declare namespace Immutable {
    * A functional alternative to `collection.updateIn(keypath)` which will also
    * work with plain Objects and Arrays.
    */
-  function updateIn<K extends PropertyKey, V, C extends Collection<K, V>>(
+  function updateIn<K extends PropertyKey, V, C extends CollectionImpl<K, V>>(
     collection: C,
     keyPath: KeyPath<K>,
     updater: (
       value: RetrievePath<C, Array<K>> | undefined
     ) => unknown | undefined
   ): C;
-  function updateIn<K extends PropertyKey, V, C extends Collection<K, V>, NSV>(
+  function updateIn<
+    K extends PropertyKey,
+    V,
+    C extends CollectionImpl<K, V>,
+    NSV,
+  >(
     collection: C,
     keyPath: KeyPath<K>,
     notSetValue: NSV,

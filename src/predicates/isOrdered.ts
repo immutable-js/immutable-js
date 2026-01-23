@@ -1,4 +1,4 @@
-import type { OrderedCollection } from '../../type-definitions/immutable';
+import type { OrderedCollection } from '../Collection';
 
 export const IS_ORDERED_SYMBOL = '@@__IMMUTABLE_ORDERED__@@';
 

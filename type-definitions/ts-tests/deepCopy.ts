@@ -1,4 +1,15 @@
-import { Collection, DeepCopy, List, Map, Record, Seq, Set } from 'immutable';
+import {
+  Collection,
+  type CollectionImpl,
+  type IndexedCollectionImpl,
+  type KeyedCollectionImpl,
+  type DeepCopy,
+  List,
+  Map,
+  Record,
+  Seq,
+  Set,
+} from 'immutable';
 import { describe, expect, test } from 'tstyche';
 
 describe('DeepCopy', () => {
@@ -17,7 +28,7 @@ describe('DeepCopy', () => {
   test('iterables', () => {
     expect<DeepCopy<string[]>>().type.toBe<string[]>();
 
-    expect<DeepCopy<Collection.Indexed<number>>>().type.toBe<number[]>();
+    expect<DeepCopy<IndexedCollectionImpl<number>>>().type.toBe<number[]>();
   });
 
   test('immutable first-level types', () => {
@@ -42,11 +53,11 @@ describe('DeepCopy', () => {
   });
 
   test('keyed', () => {
-    expect<DeepCopy<Collection.Keyed<string, number>>>().type.toBe<{
+    expect<DeepCopy<KeyedCollectionImpl<string, number>>>().type.toBe<{
       [x: string]: number;
     }>();
 
-    expect<DeepCopy<Collection.Keyed<string | number, number>>>().type.toBe<{
+    expect<DeepCopy<KeyedCollectionImpl<string | number, number>>>().type.toBe<{
       [x: string]: number;
       [x: number]: number;
     }>();

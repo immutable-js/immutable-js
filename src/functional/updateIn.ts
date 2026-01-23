@@ -2,7 +2,6 @@ import type {
   KeyPath,
   Record,
   RetrievePath,
-  Collection,
 } from '../../type-definitions/immutable';
 import type { CollectionImpl } from '../Collection';
 import { emptyMap } from '../Map';
@@ -25,7 +24,7 @@ import { set } from './set';
 
 export type PossibleCollection<K, V, TProps extends object> =
   // TODO migrate to CollectionImpl in the end
-  Collection<K, V> | Record<TProps> | Array<V>;
+  CollectionImpl<K, V> | Record<TProps> | Array<V>;
 
 type UpdaterFunction<K, C> = (
   value: RetrievePath<C, Array<K>> | undefined
@@ -171,7 +170,8 @@ function updateInDeeply<
   return nextUpdated === nextExisting
     ? existing
     : nextUpdated === NOT_SET
-      ? remove(existing, key)
+      ? // @ts-expect-error mixed type
+        remove(existing, key)
       : set(
           wasNotSet ? (inImmutable ? emptyMap() : {}) : existing,
           key,

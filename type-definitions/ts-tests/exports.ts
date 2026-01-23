@@ -2,6 +2,10 @@
 
 import * as Immutable from 'immutable';
 import {
+  type CollectionImpl,
+  type IndexedCollectionImpl,
+  type KeyedCollectionImpl,
+  type SetCollectionImpl,
   Collection,
   List,
   Map,
@@ -47,18 +51,20 @@ test('named imports', () => {
   expect(Collection.Set).type.toBe<
     <T>(
       collection?: Iterable<T> | ArrayLike<T> | undefined
-    ) => Collection.Set<T>
+    ) => SetCollectionImpl<T>
   >();
 
   expect(Collection.Keyed).type.toBe<{
-    <K, V>(collection?: Iterable<[K, V]> | undefined): Collection.Keyed<K, V>;
-    <V>(obj: { [key: string]: V }): Collection.Keyed<string, V>;
+    <K, V>(
+      collection?: Iterable<[K, V]> | undefined
+    ): KeyedCollectionImpl<K, V>;
+    <V>(obj: { [key: string]: V }): KeyedCollectionImpl<string, V>;
   }>();
 
   expect(Collection.Indexed).type.toBe<
     <T>(
       collection?: Iterable<T> | ArrayLike<T> | undefined
-    ) => Collection.Indexed<T>
+    ) => IndexedCollectionImpl<T>
   >();
 });
 
@@ -94,19 +100,19 @@ test('namespace import', () => {
   expect(Immutable.Collection.Set).type.toBe<
     <T>(
       collection?: Iterable<T> | ArrayLike<T> | undefined
-    ) => Immutable.Collection.Set<T>
+    ) => Immutable.SetCollectionImpl<T>
   >();
 
   expect(Immutable.Collection.Keyed).type.toBe<{
     <K, V>(
       collection?: Iterable<[K, V]> | undefined
-    ): Immutable.Collection.Keyed<K, V>;
-    <V>(obj: { [key: string]: V }): Immutable.Collection.Keyed<string, V>;
+    ): Immutable.KeyedCollectionImpl<K, V>;
+    <V>(obj: { [key: string]: V }): Immutable.KeyedCollectionImpl<string, V>;
   }>();
 
   expect(Immutable.Collection.Indexed).type.toBe<
     <T>(
       collection?: Iterable<T> | ArrayLike<T> | undefined
-    ) => Immutable.Collection.Indexed<T>
+    ) => Immutable.IndexedCollectionImpl<T>
   >();
 });

@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import {
-  Collection,
+  type CollectionImpl,
+  type IndexedCollectionImpl,
+  type KeyedCollectionImpl,
+  type SetCollectionImpl,
   List,
   Map,
   OrderedMap,
@@ -14,19 +17,19 @@ abstract class A {}
 class B extends A {}
 
 test('Collection', () => {
-  type Indexed<T> = Collection.Indexed<T>;
-  type Keyed<K, V> = Collection.Keyed<K, V>;
-  type Set<T> = Collection.Set<T>;
+  type Indexed<T> = IndexedCollectionImpl<T>;
+  type Keyed<K, V> = KeyedCollectionImpl<K, V>;
+  type Set<T> = SetCollectionImpl<T>;
 
-  (c: Collection<string, number>) => {
+  (c: CollectionImpl<string, number>) => {
     expect(c.partition((x) => x % 2)).type.toBe<
-      [Collection<string, number>, Collection<string, number>]
+      [CollectionImpl<string, number>, CollectionImpl<string, number>]
     >();
   };
 
-  (c: Collection<string, A>) => {
+  (c: CollectionImpl<string, A>) => {
     expect(c.partition((x): x is B => x instanceof B)).type.toBe<
-      [Collection<string, A>, Collection<string, B>]
+      [CollectionImpl<string, A>, CollectionImpl<string, B>]
     >();
   };
 

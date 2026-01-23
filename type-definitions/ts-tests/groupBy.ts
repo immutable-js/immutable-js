@@ -1,4 +1,6 @@
 import {
+  type IndexedCollectionImpl,
+  type KeyedCollectionImpl,
   Collection,
   List,
   Map,
@@ -12,13 +14,13 @@ import {
 import { expect, test } from 'tstyche';
 
 test('groupBy', () => {
-  expect(Collection(['a', 'b', 'c', 'a']).groupBy((v) => v)).type.toBe<
-    Map<string, Collection.Indexed<string>>
-  >();
+  expect(
+    Collection(['a', 'b', 'c', 'a']).groupBy((v: string): string => v)
+  ).type.toBe<Map<string, IndexedCollectionImpl<string>>>();
 
   expect(
     Collection({ a: 1, b: 2, c: 3, d: 1 }).groupBy((v) => `key-${v}`)
-  ).type.toBe<Map<string, Collection.Keyed<string, number>>>();
+  ).type.toBe<Map<string, KeyedCollectionImpl<string, number>>>();
 
   expect(List(['a', 'b', 'c', 'a']).groupBy((v) => v)).type.toBe<
     Map<string, List<string>>

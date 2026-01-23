@@ -8,6 +8,7 @@ import {
   setIn,
   update,
   updateIn,
+  type CollectionImpl,
 } from 'immutable';
 import { expect, pick, test } from 'tstyche';
 
@@ -354,15 +355,15 @@ test('#mergeDeepIn', () => {
 
 test('#flatten', () => {
   expect(List<number>().flatten()).type.toBe<
-    Immutable.Collection<unknown, unknown>
+    CollectionImpl<unknown, unknown>
   >();
 
   expect(List<number>().flatten(10)).type.toBe<
-    Immutable.Collection<unknown, unknown>
+    CollectionImpl<unknown, unknown>
   >();
 
   expect(List<number>().flatten(false)).type.toBe<
-    Immutable.Collection<unknown, unknown>
+    CollectionImpl<unknown, unknown>
   >();
 
   expect(List<number>().flatten('a')).type.toRaiseError();

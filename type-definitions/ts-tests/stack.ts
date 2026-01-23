@@ -1,4 +1,4 @@
-import { Collection, Stack } from 'immutable';
+import { type CollectionImpl, Collection, Stack } from 'immutable';
 import { expect, pick, test } from 'tstyche';
 
 test('#constructor', () => {
@@ -196,12 +196,16 @@ test('#flatMap', () => {
 });
 
 test('#flatten', () => {
-  expect(Stack<number>().flatten()).type.toBe<Collection<unknown, unknown>>();
+  expect(Stack<number>().flatten()).type.toBe<
+    CollectionImpl<unknown, unknown>
+  >();
 
-  expect(Stack<number>().flatten(10)).type.toBe<Collection<unknown, unknown>>();
+  expect(Stack<number>().flatten(10)).type.toBe<
+    CollectionImpl<unknown, unknown>
+  >();
 
   expect(Stack<number>().flatten(false)).type.toBe<
-    Collection<unknown, unknown>
+    CollectionImpl<unknown, unknown>
   >();
 
   expect(Stack<number>().flatten('a')).type.toRaiseError();

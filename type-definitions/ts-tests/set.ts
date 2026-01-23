@@ -1,4 +1,10 @@
-import { Collection, Map, OrderedSet, Set } from 'immutable';
+import {
+  type CollectionImpl,
+  Collection,
+  Map,
+  OrderedSet,
+  Set,
+} from 'immutable';
 import { expect, pick, test } from 'tstyche';
 
 test('#constructor', () => {
@@ -216,12 +222,14 @@ test('#subtract', () => {
 });
 
 test('#flatten', () => {
-  expect(Set<number>().flatten()).type.toBe<Collection<unknown, unknown>>();
+  expect(Set<number>().flatten()).type.toBe<CollectionImpl<unknown, unknown>>();
 
-  expect(Set<number>().flatten(10)).type.toBe<Collection<unknown, unknown>>();
+  expect(Set<number>().flatten(10)).type.toBe<
+    CollectionImpl<unknown, unknown>
+  >();
 
   expect(Set<number>().flatten(false)).type.toBe<
-    Collection<unknown, unknown>
+    CollectionImpl<unknown, unknown>
   >();
 
   expect(Set<number>().flatten('a')).type.toRaiseError();
