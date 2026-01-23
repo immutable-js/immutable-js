@@ -1,10 +1,10 @@
 import { hasIterator } from './Iterator';
+import { Map } from './Map';
 import { Seq } from './Seq';
 import { isImmutable } from './predicates/isImmutable';
 import { isIndexed } from './predicates/isIndexed';
 import { isKeyed } from './predicates/isKeyed';
-import isArrayLike from './utils/isArrayLike';
-import isPlainObj from './utils/isPlainObj';
+import { isArrayLike, isPlainObj } from './utils';
 
 export function fromJS(value, converter) {
   return fromJSWith(
@@ -47,5 +47,5 @@ function fromJSWith(stack, converter, value, key, keyPath, parentValue) {
 
 function defaultConverter(k, v) {
   // Effectively the opposite of "Collection.toSeq()"
-  return isIndexed(v) ? v.toList() : isKeyed(v) ? v.toMap() : v.toSet();
+  return isIndexed(v) ? v.toList() : isKeyed(v) ? v.toMap(Map) : v.toSet();
 }

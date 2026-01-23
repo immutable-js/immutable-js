@@ -1,7 +1,7 @@
 import type { CollectionImpl } from '../Collection';
 import type { RangeImpl as Range } from '../Range';
 import type { RepeatImpl as Repeat } from '../Repeat';
-import { NOT_SET } from '../TrieUtils';
+import { NOT_SET } from '../const';
 import { is } from '../is';
 import { isAssociative } from '../predicates/isAssociative';
 import { isCollection } from '../predicates/isCollection';

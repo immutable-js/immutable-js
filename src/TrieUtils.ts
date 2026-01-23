@@ -1,16 +1,9 @@
 import type { CollectionImpl } from './Collection';
 
-// Used for setting prototype methods that IE8 chokes on.
-export const DELETE = 'delete';
-
 // Constants describing the size of trie nodes.
 export const SHIFT = 5; // Resulted in best performance after ______?
 export const SIZE = 1 << SHIFT;
 export const MASK = SIZE - 1;
-
-// A consistent shared value representing "not set" which equals nothing other
-// than itself, and nothing that could be provided externally.
-export const NOT_SET = {};
 
 type Ref = { value: boolean };
 

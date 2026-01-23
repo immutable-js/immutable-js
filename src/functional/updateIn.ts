@@ -5,8 +5,8 @@ import type {
   Collection,
 } from '../../type-definitions/immutable';
 import type { CollectionImpl } from '../Collection';
-import { emptyMap } from '../Map';
-import { NOT_SET } from '../TrieUtils';
+import { mapCreateEmpty } from '../Map';
+import { NOT_SET } from '../const';
 import { isImmutable } from '../predicates/isImmutable';
 import coerceKeyPath from '../utils/coerceKeyPath';
 import isDataStructure from '../utils/isDataStructure';
@@ -173,7 +173,7 @@ function updateInDeeply<
     : nextUpdated === NOT_SET
       ? remove(existing, key)
       : set(
-          wasNotSet ? (inImmutable ? emptyMap() : {}) : existing,
+          wasNotSet ? (inImmutable ? mapCreateEmpty() : {}) : existing,
           key,
           nextUpdated
         );

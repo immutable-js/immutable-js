@@ -42,7 +42,7 @@ describe('KeyedSeq', () => {
       .map((part) => part.skip(10).take(5));
 
     invariant(indexed0, 'indexed0 is not undefined');
-    invariant(indexed1, 'indexed0 is not undefined');
+    invariant(indexed1, 'indexed1 is not undefined');
 
     expect(indexed0.entrySeq().toArray()).toEqual([
       [0, 21],

@@ -1,4 +1,4 @@
-import { NOT_SET } from '../TrieUtils';
+import { NOT_SET } from '../const';
 import { getIn } from './getIn';
 
 type GetInParameters = Parameters<typeof getIn>;
