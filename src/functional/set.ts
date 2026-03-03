@@ -39,7 +39,7 @@ export function set<K, V, C extends Collection<K, V> | { [key: string]: V }>(
   key: K | string,
   value: V
 ): C {
-  if (typeof key === 'string' && isProtoKey(key)) {
+  if (isProtoKey(key)) {
     return collection;
   }
 
