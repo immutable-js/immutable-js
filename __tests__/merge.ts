@@ -357,6 +357,7 @@ describe('merge', () => {
 
     expect(r6.profile.admin).toBeUndefined();
 
+    // @ts-expect-error -- testing prototype pollution
     expect({}.admin).toBeUndefined(); // Confirm NOT global too
   });
 });
