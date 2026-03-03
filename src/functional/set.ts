@@ -2,6 +2,7 @@ import type { Collection, Record } from '../../type-definitions/immutable';
 import { isImmutable } from '../predicates/isImmutable';
 import hasOwnProperty from '../utils/hasOwnProperty';
 import isDataStructure from '../utils/isDataStructure';
+import { isProtoKey } from '../utils/protoInjection';
 import shallowCopy from '../utils/shallowCopy';
 
 /**
@@ -38,6 +39,10 @@ export function set<K, V, C extends Collection<K, V> | { [key: string]: V }>(
   key: K | string,
   value: V
 ): C {
+  if (typeof key === 'string' && isProtoKey(key)) {
+    return collection;
+  }
+
   if (!isDataStructure(collection)) {
     throw new TypeError(
       'Cannot update non-data-structure value: ' + collection
