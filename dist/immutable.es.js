@@ -3269,7 +3269,7 @@ function remove(collection, key) {
 }
 
 function set(collection, key, value) {
-    if (typeof key === 'string' && isProtoKey(key)) {
+    if (isProtoKey(key)) {
         return collection;
     }
     if (!isDataStructure(collection)) {
