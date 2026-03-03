@@ -32,4 +32,4 @@ jobs:
         run: npm install -g npm@latest
       - run: npm ci
       - run: npm run build
-      - run: cd npm && npm publish --tag 4.x
+      - run: cd npm && npm publish --tag version-4
