@@ -2195,6 +2195,10 @@
             (isImmutable(value) || Array.isArray(value) || isPlainObject(value)));
     }
 
+    function isProtoKey(key) {
+        return (typeof key === 'string' && (key === '__proto__' || key === 'constructor'));
+    }
+
     // http://jsperf.com/copy-array-inline
     function arrCopy(arr, offset) {
         offset = offset || 0;
@@ -2213,6 +2217,9 @@
         }
         var to = {};
         for (var key in from) {
+            if (isProtoKey(key)) {
+                continue;
+            }
             if (hasOwnProperty.call(from, key)) {
                 to[key] = from[key];
             }
@@ -2277,6 +2284,10 @@
             merged.push(value);
           }
         : function (value, key) {
+            if (isProtoKey(key)) {
+              return;
+            }
+
             var hasVal = hasOwnProperty.call(merged, key);
             var nextVal =
               hasVal && merger ? merger(merged[key], value, key) : value;
@@ -3264,6 +3275,9 @@
     }
 
     function set(collection, key, value) {
+        if (typeof key === 'string' && isProtoKey(key)) {
+            return collection;
+        }
         if (!isDataStructure(collection)) {
             throw new TypeError('Cannot update non-data-structure value: ' + collection);
         }
@@ -4980,6 +4994,10 @@
       assertNotInfinite(this.size);
       var object = {};
       this.__iterate(function (v, k) {
+        if (isProtoKey(k)) {
+          return;
+        }
+
         object[k] = v;
       });
       return object;
@@ -5000,6 +5018,9 @@
             var result$1 = {};
             // @ts-expect-error `__iterate` exists on all Keyed collections but method is not defined in the type
             value.__iterate(function (v, k) {
+                if (isProtoKey(k)) {
+                    return;
+                }
                 result$1[k] = toJS(v);
             });
             return result$1;
@@ -6176,7 +6197,7 @@
       return isIndexed(v) ? v.toList() : isKeyed(v) ? v.toMap() : v.toSet();
     }
 
-    var version = "5.1.4";
+    var version = "5.1.5";
 
     /* eslint-disable import/order */
 
