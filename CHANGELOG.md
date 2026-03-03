@@ -8,6 +8,10 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+## [4.3.8] - 2026-03-03
+
+- Fix Improperly Controlled Modification of Object Prototype Attributes ('Prototype Pollution') in immutable
+
 ## [4.3.7] - 2024-07-22
 
 - Fix issue with slice negative of filtered sequence [#2006](https://github.com/immutable-js/immutable-js/pull/2006) by [@jdeniau](https://github.com/jdeniau)
