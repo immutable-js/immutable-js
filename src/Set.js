@@ -1,4 +1,9 @@
-import { Collection, KeyedCollection, SetCollection } from './Collection';
+import {
+  Collection,
+  SetCollectionImpl,
+  KeyedCollection,
+  SetCollection,
+} from './Collection';
 import { emptyMap } from './Map';
 import { sortFactory } from './Operations';
 import { OrderedSet } from './OrderedSet';
@@ -10,42 +15,40 @@ import { isOrdered } from './predicates/isOrdered';
 import { IS_SET_SYMBOL, isSet } from './predicates/isSet';
 import assertNotInfinite from './utils/assertNotInfinite';
 
-export class Set extends SetCollection {
-  // @pragma Construction
+export const Set = (value) =>
+  value === undefined || value === null
+    ? emptySet()
+    : isSet(value) && !isOrdered(value)
+      ? value
+      : emptySet().withMutations((set) => {
+          const iter = SetCollection(value);
+          assertNotInfinite(iter.size);
+          iter.forEach((v) => set.add(v));
+        });
 
-  constructor(value) {
-    // eslint-disable-next-line no-constructor-return
-    return value === undefined || value === null
-      ? emptySet()
-      : isSet(value) && !isOrdered(value)
-        ? value
-        : emptySet().withMutations((set) => {
-            const iter = SetCollection(value);
-            assertNotInfinite(iter.size);
-            iter.forEach((v) => set.add(v));
-          });
-  }
+Set.of = function (...values) {
+  return Set(values);
+};
 
-  static of(/*...values*/) {
-    return this(arguments);
-  }
+Set.fromKeys = (value) => Set(KeyedCollection(value).keySeq());
 
-  static fromKeys(value) {
-    return this(KeyedCollection(value).keySeq());
-  }
+Set.intersect = (sets) => {
+  sets = Collection(sets).toArray();
+  return sets.length
+    ? SetPrototype.intersect.apply(Set(sets.pop()), sets)
+    : emptySet();
+};
 
-  static intersect(sets) {
-    sets = Collection(sets).toArray();
-    return sets.length
-      ? SetPrototype.intersect.apply(Set(sets.pop()), sets)
-      : emptySet();
-  }
+Set.union = (sets) => {
+  const setArray = Collection(sets).toArray();
+  return setArray.length
+    ? SetPrototype.union.apply(Set(setArray.pop()), setArray)
+    : emptySet();
+};
 
-  static union(sets) {
-    sets = Collection(sets).toArray();
-    return sets.length
-      ? SetPrototype.union.apply(Set(sets.pop()), sets)
-      : emptySet();
+export class SetImpl extends SetCollectionImpl {
+  create(value) {
+    return Set(value);
   }
 
   toString() {
@@ -100,7 +103,7 @@ export class Set extends SetCollection {
       return this;
     }
     if (this.size === 0 && !this.__ownerID && iters.length === 1) {
-      return this.constructor(iters[0]);
+      return Set(iters[0]);
     }
     return this.withMutations((set) => {
       for (let ii = 0; ii < iters.length; ii++) {
@@ -190,19 +193,13 @@ export class Set extends SetCollection {
 
 Set.isSet = isSet;
 
-const SetPrototype = Set.prototype;
+const SetPrototype = SetImpl.prototype;
 SetPrototype[IS_SET_SYMBOL] = true;
 SetPrototype[DELETE] = SetPrototype.remove;
 SetPrototype.merge = SetPrototype.concat = SetPrototype.union;
 SetPrototype.withMutations = withMutations;
 SetPrototype.asImmutable = asImmutable;
-SetPrototype['@@transducer/init'] = SetPrototype.asMutable = asMutable;
-SetPrototype['@@transducer/step'] = function (result, arr) {
-  return result.add(arr);
-};
-SetPrototype['@@transducer/result'] = function (obj) {
-  return obj.asImmutable();
-};
+SetPrototype.asMutable = asMutable;
 
 SetPrototype.__empty = emptySet;
 SetPrototype.__make = makeSet;
@@ -228,7 +225,6 @@ function makeSet(map, ownerID) {
   return set;
 }
 
-let EMPTY_SET;
 function emptySet() {
-  return EMPTY_SET || (EMPTY_SET = makeSet(emptyMap()));
+  return makeSet(emptyMap());
 }

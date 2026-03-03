@@ -1,17 +1,17 @@
-import { IndexedCollection } from './Collection';
-import { Iterator, hasIterator, iteratorDone, iteratorValue } from './Iterator';
+import { IndexedCollectionImpl, IndexedCollection } from './Collection';
+import { hasIterator, Iterator, iteratorValue, iteratorDone } from './Iterator';
 import {
   DELETE,
-  MASK,
-  MakeRef,
-  OwnerID,
   SHIFT,
   SIZE,
+  MASK,
+  OwnerID,
+  MakeRef,
   SetRef,
+  wrapIndex,
+  wholeSlice,
   resolveBegin,
   resolveEnd,
-  wholeSlice,
-  wrapIndex,
 } from './TrieUtils';
 import { asImmutable } from './methods/asImmutable';
 import { asMutable } from './methods/asMutable';
@@ -26,39 +26,38 @@ import { withMutations } from './methods/withMutations';
 import { IS_LIST_SYMBOL, isList } from './predicates/isList';
 import assertNotInfinite from './utils/assertNotInfinite';
 
-export class List extends IndexedCollection {
+export const List = (value) => {
+  const empty = emptyList();
+  if (value === undefined || value === null) {
+    return empty;
+  }
+  if (isList(value)) {
+    return value;
+  }
+  const iter = IndexedCollection(value);
+  const size = iter.size;
+  if (size === 0) {
+    return empty;
+  }
+  assertNotInfinite(size);
+  if (size > 0 && size < SIZE) {
+    return makeList(0, size, SHIFT, null, new VNode(iter.toArray()));
+  }
+  return empty.withMutations((list) => {
+    list.setSize(size);
+    iter.forEach((v, i) => list.set(i, v));
+  });
+};
+
+List.of = function (...values) {
+  return List(values);
+};
+
+export class ListImpl extends IndexedCollectionImpl {
   // @pragma Construction
 
-  constructor(value) {
-    const empty = emptyList();
-    if (value === undefined || value === null) {
-      // eslint-disable-next-line no-constructor-return
-      return empty;
-    }
-    if (isList(value)) {
-      // eslint-disable-next-line no-constructor-return
-      return value;
-    }
-    const iter = IndexedCollection(value);
-    const size = iter.size;
-    if (size === 0) {
-      // eslint-disable-next-line no-constructor-return
-      return empty;
-    }
-    assertNotInfinite(size);
-    if (size > 0 && size < SIZE) {
-      // eslint-disable-next-line no-constructor-return
-      return makeList(0, size, SHIFT, null, new VNode(iter.toArray()));
-    }
-    // eslint-disable-next-line no-constructor-return
-    return empty.withMutations((list) => {
-      list.setSize(size);
-      iter.forEach((v, i) => list.set(i, v));
-    });
-  }
-
-  static of(/*...values*/) {
-    return this(arguments);
+  create(value) {
+    return List(value);
   }
 
   toString() {
@@ -111,8 +110,7 @@ export class List extends IndexedCollection {
     return emptyList();
   }
 
-  push(/*...values*/) {
-    const values = arguments;
+  push(...values) {
     const oldSize = this.size;
     return this.withMutations((list) => {
       setListBounds(list, 0, oldSize + values.length);
@@ -126,8 +124,7 @@ export class List extends IndexedCollection {
     return setListBounds(this, 0, -1);
   }
 
-  unshift(/*...values*/) {
-    const values = arguments;
+  unshift(...values) {
     return this.withMutations((list) => {
       setListBounds(list, -values.length);
       for (let ii = 0; ii < values.length; ii++) {
@@ -159,14 +156,14 @@ export class List extends IndexedCollection {
 
   // @pragma Composition
 
-  concat(/*...collections*/) {
+  concat(...collections) {
     const seqs = [];
-    for (let i = 0; i < arguments.length; i++) {
-      const argument = arguments[i];
+    for (let i = 0; i < collections.length; i++) {
+      const collection = collections[i];
       const seq = IndexedCollection(
-        typeof argument !== 'string' && hasIterator(argument)
-          ? argument
-          : [argument]
+        typeof collection !== 'string' && hasIterator(collection)
+          ? collection
+          : [collection]
       );
       if (seq.size !== 0) {
         seqs.push(seq);
@@ -176,7 +173,7 @@ export class List extends IndexedCollection {
       return this;
     }
     if (this.size === 0 && !this.__ownerID && seqs.length === 1) {
-      return this.constructor(seqs[0]);
+      return List(seqs[0]);
     }
     return this.withMutations((list) => {
       seqs.forEach((seq) => seq.forEach((value) => list.push(value)));
@@ -258,7 +255,7 @@ export class List extends IndexedCollection {
 
 List.isList = isList;
 
-const ListPrototype = List.prototype;
+const ListPrototype = ListImpl.prototype;
 ListPrototype[IS_LIST_SYMBOL] = true;
 ListPrototype[DELETE] = ListPrototype.remove;
 ListPrototype.merge = ListPrototype.concat;
@@ -271,13 +268,7 @@ ListPrototype.mergeDeepIn = mergeDeepIn;
 ListPrototype.withMutations = withMutations;
 ListPrototype.wasAltered = wasAltered;
 ListPrototype.asImmutable = asImmutable;
-ListPrototype['@@transducer/init'] = ListPrototype.asMutable = asMutable;
-ListPrototype['@@transducer/step'] = function (result, arr) {
-  return result.push(arr);
-};
-ListPrototype['@@transducer/result'] = function (obj) {
-  return obj.asImmutable();
-};
+ListPrototype.asMutable = asMutable;
 
 class VNode {
   constructor(array, ownerID) {

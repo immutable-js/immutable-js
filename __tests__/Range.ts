@@ -3,6 +3,13 @@ import fc from 'fast-check';
 import { Range } from 'immutable';
 
 describe('Range', () => {
+  it('constructor provides different instances', () => {
+    expect(Range(0, 3)).not.toBe(Range(0, 3));
+    expect(Range(0, 3)).toEqual(Range(0, 3));
+    expect(Range(1, 10, 3)).not.toBe(Range(1, 10, 3));
+    expect(Range(1, 10, 3)).toEqual(Range(1, 10, 3));
+  });
+
   it('fixed range', () => {
     const v = Range(0, 3);
     expect(v.size).toBe(3);

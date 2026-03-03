@@ -1,5 +1,5 @@
-import type { Collection } from './Collection';
-import type { Record } from './Record';
+import type { CollectionImpl } from './Collection';
+import type { RecordImpl } from './Record';
 import { Seq } from './Seq';
 import { isCollection } from './predicates/isCollection';
 import { isKeyed } from './predicates/isKeyed';
@@ -7,7 +7,7 @@ import isDataStructure from './utils/isDataStructure';
 import { isProtoKey } from './utils/protoInjection';
 
 export function toJS(
-  value: Collection | Record
+  value: CollectionImpl<unknown, unknown> | RecordImpl
 ): Array<unknown> | { [key: string]: unknown };
 export function toJS(value: unknown): unknown;
 export function toJS(
@@ -20,18 +20,16 @@ export function toJS(
     if (!isDataStructure(value)) {
       return value;
     }
-    // @ts-expect-error until Seq has been migrated to TypeScript
     value = Seq(value);
   }
   if (isKeyed(value)) {
     const result: { [key: string]: unknown } = {};
-    // @ts-expect-error `__iterate` exists on all Keyed collections but method is not defined in the type
     value.__iterate((v, k) => {
       if (isProtoKey(k)) {
         return;
       }
 
-      result[k] = toJS(v);
+      result[String(k)] = toJS(v);
     });
     return result;
   }
