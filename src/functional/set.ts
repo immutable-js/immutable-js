@@ -3,6 +3,7 @@ import type { CollectionImpl } from '../Collection';
 import { isImmutable } from '../predicates/isImmutable';
 import hasOwnProperty from '../utils/hasOwnProperty';
 import isDataStructure from '../utils/isDataStructure';
+import { isProtoKey } from '../utils/protoInjection';
 import shallowCopy from '../utils/shallowCopy';
 
 /**
@@ -39,6 +40,10 @@ export function set<
   V,
   C extends CollectionImpl<K, V> | { [key: string]: V },
 >(collection: C, key: K | string, value: V): C {
+  if (isProtoKey(key)) {
+    return collection;
+  }
+
   if (!isDataStructure(collection)) {
     throw new TypeError(
       'Cannot update non-data-structure value: ' + collection

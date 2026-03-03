@@ -1,6 +1,6 @@
 {
   "name": "immutable",
-  "version": "5.1.4",
+  "version": "5.1.5",
   "description": "Immutable Data Collections",
   "license": "MIT",
   "homepage": "https://immutable-js.com",
@@ -145,7 +145,7 @@
     "random-seed": "0.3.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "rollup": "4.34.8",
+    "rollup": "4.59.0",
     "size-limit": "^11.2.0",
     "ts-node": "^10.9.2",
     "tslib": "^2.8.1",

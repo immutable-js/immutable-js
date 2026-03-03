@@ -8,6 +8,10 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+## 5.1.5
+
+- Fix Improperly Controlled Modification of Object Prototype Attributes ('Prototype Pollution') in immutable
+
 ## 5.1.4
 
 * Migrate some files to TS by @jdeniau in https://github.com/immutable-js/immutable-js/pull/2125

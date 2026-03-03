@@ -4,6 +4,7 @@ import { Seq } from './Seq';
 import { isCollection } from './predicates/isCollection';
 import { isKeyed } from './predicates/isKeyed';
 import isDataStructure from './utils/isDataStructure';
+import { isProtoKey } from './utils/protoInjection';
 
 export function toJS(
   value: CollectionImpl<unknown, unknown> | RecordImpl
@@ -24,6 +25,10 @@ export function toJS(
   if (isKeyed(value)) {
     const result: { [key: string]: unknown } = {};
     value.__iterate((v, k) => {
+      if (isProtoKey(k)) {
+        return;
+      }
+
       result[String(k)] = toJS(v);
     });
     return result;
