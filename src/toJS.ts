@@ -4,6 +4,7 @@ import { Seq } from './Seq';
 import { isCollection } from './predicates/isCollection';
 import { isKeyed } from './predicates/isKeyed';
 import isDataStructure from './utils/isDataStructure';
+import { isProtoKey } from './utils/protoInjection';
 
 export function toJS(
   value: Collection | Record
@@ -26,6 +27,10 @@ export function toJS(
     const result: { [key: string]: unknown } = {};
     // @ts-expect-error `__iterate` exists on all Keyed collections but method is not defined in the type
     value.__iterate((v, k) => {
+      if (isProtoKey(k)) {
+        return;
+      }
+
       result[k] = toJS(v);
     });
     return result;

@@ -5,6 +5,7 @@ import { isIndexed } from '../predicates/isIndexed';
 import { isKeyed } from '../predicates/isKeyed';
 import hasOwnProperty from '../utils/hasOwnProperty';
 import isDataStructure from '../utils/isDataStructure';
+import { isProtoKey } from '../utils/protoInjection';
 import shallowCopy from '../utils/shallowCopy';
 
 export function merge(collection, ...sources) {
@@ -52,6 +53,10 @@ export function mergeWithSources(collection, sources, merger) {
         merged.push(value);
       }
     : (value, key) => {
+        if (isProtoKey(key)) {
+          return;
+        }
+
         const hasVal = hasOwnProperty.call(merged, key);
         const nextVal =
           hasVal && merger ? merger(merged[key], value, key) : value;
