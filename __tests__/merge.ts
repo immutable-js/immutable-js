@@ -376,6 +376,7 @@ describe('merge', () => {
 
     expect(r6.profile.admin).toBeUndefined();
 
+    // @ts-expect-error -- confirm that admin is not on the global object
     expect({}.admin).toBeUndefined(); // Confirm NOT global too
   });
 });

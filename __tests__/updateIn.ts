@@ -471,7 +471,7 @@ describe('updateIn', () => {
     });
 
     it('setIn on plain object with nested __proto__ key should not pollute returned object', () => {
-      type User = { profile: { bio: string }; admin?: boolean };
+      type User = { profile: { bio: string; admin?: boolean } };
 
       const obj: User = { profile: { bio: 'Hello' } };
       const result = setIn(obj, ['profile', '__proto__', 'admin'], true);
