@@ -578,4 +578,13 @@ describe('Map', () => {
       ])
     );
   });
+
+  it('toJS / toObject are not sensible to prototype pollution', () => {
+    type User = { user: string; admin?: boolean };
+
+    // @ts-expect-error -- intentionally setting __proto__ to test prototype pollution
+    const m = Map<User>({ user: 'alice' }).set('__proto__', { admin: true });
+    expect(m.toObject().admin).toBeUndefined();
+    expect(m.toJS().admin).toBeUndefined();
+  });
 });
