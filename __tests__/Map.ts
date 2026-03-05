@@ -353,4 +353,9 @@ describe('Map', () => {
     expect(is(m1, m2)).toBe(true);
   });
 
+  it('toJS / toObject are not sensible to prototype pollution', () => {
+    var m = (Map({ user: 'alice' }) as any).set('__proto__', Map({ admin: true }));
+    expect(m.toObject().admin).toBeUndefined();
+    expect(m.toJS().admin).toBeUndefined();
+  });
 });
