@@ -278,4 +278,25 @@ describe('updateIn', () => {
 
   })
 
+  describe('prototype pollution', () => {
+    it('setIn on Map with __proto__ key should not pollute toObject result', () => {
+      var m = Map({profile: Map({bio: 'Hello'})}) as any;
+      var result = m.setIn(['__proto__', 'admin'], true);
+      expect(result.toObject().admin).toBeUndefined();
+    })
+
+    it('setIn on Map with nested __proto__ key should not pollute toJS result', () => {
+      var m = Map({profile: Map({bio: 'Hello'})}) as any;
+      var result = m.setIn(['profile', '__proto__', 'admin'], true);
+      expect(result.toJS().profile.admin).toBeUndefined();
+    })
+
+    it('updateIn on Map with __proto__ key should not pollute toObject result', () => {
+      var m = Map({profile: Map({bio: 'Hello'})}) as any;
+      // @ts-ignore -- this is testing that we don't allow __proto__ to be used as a key, so we need to bypass the type system.
+      var result = m.updateIn(['__proto__', 'admin'], () => true);
+      expect(result.toObject().admin).toBeUndefined();
+    })
+  })
+
 })

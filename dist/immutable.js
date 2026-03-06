@@ -4246,6 +4246,12 @@
     return ctor;
   }
 
+  function isProtoKey(key) {
+    return (
+      typeof key === 'string' && (key === '__proto__' || key === 'constructor')
+    );
+  }
+
   Iterable.Iterator = Iterator;
 
   mixin(Iterable, {
@@ -4287,7 +4293,13 @@
     toObject: function() {
       assertNotInfinite(this.size);
       var object = {};
-      this.__iterate(function(v, k)  { object[k] = v; });
+      this.__iterate(function(v, k)  {
+        if (isProtoKey(k)) {
+          return;
+        }
+        
+        object[k] = v;
+      });
       return object;
     },
 

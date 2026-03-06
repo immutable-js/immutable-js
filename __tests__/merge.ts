@@ -149,4 +149,41 @@ describe('merge', () => {
     expect(m2.getIn(['a', 'b', 0])).toEqual({plain: 'obj'});
   })
 
+  it('is not sensible to prototype pollution', () => {
+    var m1 = fromJS({user: 'Alice'});
+    // Map().set('__proto__', ...) properly creates a __proto__ key in the Map
+    // (unlike Map({ __proto__: ... }) which triggers JS prototype setter)
+    var m2 = Map().set('__proto__', Map({ admin: true }));
+
+    var r1 = m1.mergeDeep(m2);
+    // @ts-ignore -- testing prototype pollution, ignoring typing errors for tests
+    expect(r1.toJS().admin).toBeUndefined();
+
+    var r2 = m1.mergeDeepWith((a, b) => b, m2);
+    // @ts-ignore -- testing prototype pollution, ignoring typing errors for tests
+    expect(r2.toJS().admin).toBeUndefined();
+
+    var r3 = m1.merge(m2);
+    // @ts-ignore -- testing prototype pollution, ignoring typing errors for tests
+    expect(r3.toJS().admin).toBeUndefined();
+
+    // @ts-ignore -- testing prototype pollution, ignoring typing errors for tests
+    expect((({}) as any).admin).toBeUndefined();
+  })
+
+  it('is not sensible to prototype pollution via fromJS + JSON.parse', () => {
+    var userProfile = fromJS({user: 'Alice'});
+    var requestBody = fromJS(JSON.parse('{"user":"Eve","__proto__":{"admin":true}}'));
+
+    var r1 = userProfile.mergeDeep(requestBody);
+    expect(r1.get('user')).toBe('Eve');
+    // @ts-ignore -- testing prototype pollution, ignoring typing errors for tests
+    expect(r1.toJS().admin).toBeUndefined();
+    // @ts-ignore -- testing prototype pollution, ignoring typing errors for tests
+    expect(r1.toObject().admin).toBeUndefined();
+
+    // @ts-ignore -- testing prototype pollution, ignoring typing errors for tests
+    expect((({}) as any).admin).toBeUndefined();
+  })
+
 })

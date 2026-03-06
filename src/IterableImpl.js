@@ -20,6 +20,7 @@ import { Iterator,
          ITERATOR_SYMBOL, ITERATE_KEYS, ITERATE_VALUES, ITERATE_ENTRIES } from './Iterator'
 
 import assertNotInfinite from './utils/assertNotInfinite'
+import { isProtoKey } from './utils/protoInjection'
 import forceIterator from './utils/forceIterator'
 import deepEqual from './utils/deepEqual'
 import mixin from './utils/mixin'
@@ -85,7 +86,13 @@ mixin(Iterable, {
   toObject() {
     assertNotInfinite(this.size);
     var object = {};
-    this.__iterate((v, k) => { object[k] = v; });
+    this.__iterate((v, k) => {
+      if (isProtoKey(k)) {
+        return;
+      }
+      
+      object[k] = v;
+    });
     return object;
   },
 
