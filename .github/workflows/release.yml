@@ -18,6 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # use python 2.7 to build node-gyp
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '2.7'
       # use node 6 to build, as v3 is an old version
       - uses: actions/setup-node@v4
         with:
@@ -28,7 +32,7 @@ jobs:
           path: ~/.npm
           key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.OS }}-node-
-      - run: npm ci
+      - run: npm install
       
       # use node 20 to publish
       - uses: actions/setup-node@v4
@@ -40,11 +44,11 @@ jobs:
           path: ~/.npm
           key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.OS }}-node-
+      - run: npm run build
 
       # Ensure npm 11.5.1 or later is installed
       - name: Update npm
         run: npm install -g npm@latest
-      - run: npm run build
       - name: 'Determine NPM tag: latest or next depending if we are on a prerelease or not (version with hyphen should be a prerelease)'
         id: npm_tag
         run: |
