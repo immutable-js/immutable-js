@@ -1,0 +1,37 @@
+import { List, Map } from 'immutable';
+import { describe, expect, it } from '@jest/globals';
+import { IS_ORDERED_SYMBOL } from '../src/predicates/isOrdered';
+import { hashCollection } from '../src/utils/hashCollection';
+
+const EMPTY_SEQ_HASH_MAP = -15128758;
+const EMPTY_SEQ_HASH_ORDERED_MAP = -943827830;
+
+describe('hashCollection', () => {
+  it('computes hash for collection with undefined size', () => {
+    expect(hashCollection({ size: undefined, __iterate: () => {} })).toBe(
+      EMPTY_SEQ_HASH_MAP
+    );
+
+    expect(
+      hashCollection({
+        size: undefined,
+        [IS_ORDERED_SYMBOL]: true,
+        __iterate: () => {},
+      })
+    ).toBe(EMPTY_SEQ_HASH_ORDERED_MAP);
+  });
+
+  it('computes hash for collection with infinite size', () => {
+    expect(hashCollection({ size: Infinity, __iterate: () => {} })).toBe(0);
+  });
+
+  it('computes hash for collection with empty sequence', () => {
+    expect(List().hashCode()).toBe(EMPTY_SEQ_HASH_ORDERED_MAP);
+    expect(Map().hashCode()).toBe(EMPTY_SEQ_HASH_MAP);
+  });
+
+  it('computes hash for collection with non-empty sequence', () => {
+    expect(List(['a']).hashCode()).toBe(873615215);
+    expect(Map({ a: 1 }).hashCode()).toBe(-356504055);
+  });
+});

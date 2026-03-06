@@ -18,44 +18,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # use python 2.7 to build node-gyp
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '2.7'
-      # use node 6 to build, as v3 is an old version
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '6'
-          registry-url: 'https://registry.npmjs.org'
-      - uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: ${{ runner.OS }}-node-
-      - run: npm install
-      
+      # use node:6 docker image to build, as v3 is an old version requiring node-gyp with python 2.7
+      - name: Build with Node 6 (via Docker)
+        run: docker run --rm -v $(pwd):/app -w /app node:6 sh -c "npm install && npm run build"
+
       # use node 20 to publish
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
-      - uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: ${{ runner.OS }}-node-
-      - run: npm run build
 
       # Ensure npm 11.5.1 or later is installed
       - name: Update npm
         run: npm install -g npm@latest
-      - name: 'Determine NPM tag: latest or next depending if we are on a prerelease or not (version with hyphen should be a prerelease)'
-        id: npm_tag
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          if [[ $VERSION == *-* ]]; then
-            echo "TAG=next" >> "$GITHUB_OUTPUT"
-          else
-            echo "TAG=latest" >> "$GITHUB_OUTPUT"
-          fi
-      - run: cd npm && npm publish --tag ${{ steps.npm_tag.outputs.TAG }}
+      - run: npm publish --tag version-4
