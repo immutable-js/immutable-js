@@ -31,4 +31,4 @@ jobs:
       # Ensure npm 11.5.1 or later is installed
       - name: Update npm
         run: npm install -g npm@latest
-      - run: npm publish --tag version-4
+      - run: npm publish --tag version-3
