@@ -104,9 +104,9 @@ export function iteratorDone(): IteratorReturnResult<undefined> {
   return { value: undefined, done: true };
 }
 
-export function hasIterator(
+export function hasIterator<V>(
   maybeIterable: unknown
-): maybeIterable is Iterable<unknown> {
+): maybeIterable is Iterable<V> {
   if (Array.isArray(maybeIterable)) {
     // IE11 trick as it does not support `Symbol.iterator`
     return true;

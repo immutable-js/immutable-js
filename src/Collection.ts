@@ -1,5 +1,6 @@
 import { ITERATE_ENTRIES, type IteratorType } from './Iterator';
 import { IndexedSeq, KeyedSeq, Seq, SetSeq } from './Seq';
+import type { SeqImpl } from './Seq';
 import type ValueObject from './ValueObject';
 import { isAssociative } from './predicates/isAssociative';
 import { isCollection } from './predicates/isCollection';
@@ -25,7 +26,7 @@ export function Collection(value: unknown): CollectionImpl<unknown, unknown> {
   return isCollection(value) ? value : Seq(value);
 }
 
-export class CollectionImpl<K, V> implements ValueObject {
+export abstract class CollectionImpl<K, V> implements ValueObject {
   private __hash: number | undefined;
 
   size: number = 0;
@@ -84,6 +85,22 @@ export class CollectionImpl<K, V> implements ValueObject {
       'CollectionImpl does not implement __iterator. Use a subclass instead.'
     );
   }
+
+  // declared methods either as abtract, or with default implementation
+  // as they are needed in the newly typescript-converted children
+  __toString(_head: string, _tail: string): string {
+    throw new Error(
+      'CollectionImpl "__toString" method is implemented in the mixin.'
+    );
+  }
+
+  abstract toSeq(): SeqImpl<K, V>;
+
+  abstract toKeyedSeq(): KeyedCollectionImpl<K, V>;
+
+  abstract entrySeq(): IndexedCollectionImpl<[K, V]>;
+
+  abstract fromEntrySeq(): CollectionImpl<K, V>;
 }
 
 /**
@@ -105,7 +122,7 @@ export function KeyedCollection(
   return isKeyed(value) ? value : KeyedSeq(value);
 }
 
-export class KeyedCollectionImpl<K, V> extends CollectionImpl<K, V> {}
+export abstract class KeyedCollectionImpl<K, V> extends CollectionImpl<K, V> {}
 
 export function IndexedCollection<T>(
   value: Iterable<T> | ArrayLike<T>
@@ -127,7 +144,7 @@ interface OrderedCollection<T> {
   [Symbol.iterator](): IterableIterator<T>;
 }
 
-export class IndexedCollectionImpl<T>
+export abstract class IndexedCollectionImpl<T>
   extends CollectionImpl<number, T>
   implements OrderedCollection<T>
 {
@@ -142,7 +159,7 @@ export function SetCollection<T>(
   return isCollection(value) && !isAssociative(value) ? value : SetSeq(value);
 }
 
-export class SetCollectionImpl<T> extends CollectionImpl<T, T> {}
+export abstract class SetCollectionImpl<T> extends CollectionImpl<T, T> {}
 
 Collection.Keyed = KeyedCollection;
 Collection.Indexed = IndexedCollection;
