@@ -2,93 +2,102 @@ export const ITERATE_KEYS = 0;
 export const ITERATE_VALUES = 1;
 export const ITERATE_ENTRIES = 2;
 
-type IteratorType =
+export type IteratorType =
   | typeof ITERATE_KEYS
   | typeof ITERATE_VALUES
   | typeof ITERATE_ENTRIES;
 
-// TODO Symbol is widely available in modern JavaScript environments, clean this
-const REAL_ITERATOR_SYMBOL = typeof Symbol === 'function' && Symbol.iterator;
-const FAUX_ITERATOR_SYMBOL = '@@iterator';
+export class Iterator<V> implements globalThis.Iterator<V, undefined> {
+  static KEYS = ITERATE_KEYS;
+  static VALUES = ITERATE_VALUES;
+  static ENTRIES = ITERATE_ENTRIES;
 
-export const ITERATOR_SYMBOL: string | symbol =
-  REAL_ITERATOR_SYMBOL || FAUX_ITERATOR_SYMBOL;
+  declare next: () => IteratorResult<V, undefined>;
 
-// @ts-expect-error: properties are not supported in buble
-export class Iterator<V> implements globalThis.Iterator<V> {
-  // TODO activate when using babel as buble does not support static class fields
-  // static KEYS: number;
-  // static VALUES: number;
-  // static ENTRIES: number;
-  // next: () => IteratorResult<V>;
-  // inspect!: () => string;
-  // toSource!: () => string;
-
-  constructor(next: () => IteratorResult<V>) {
-    // @ts-expect-error: properties are not supported in buble
-    this.next = next;
+  constructor(next: () => IteratorResult<V, undefined>) {
+    if (next) {
+      // Map extends Iterator and has a `next` method, do not erase it in that case. We could have checked `if (next && !this.next)` too.
+      this.next = next;
+    }
   }
 
   toString() {
     return '[Iterator]';
   }
+
+  inspect(): string {
+    return this.toString();
+  }
+
+  toSource(): string {
+    return this.toString();
+  }
+
+  [Symbol.iterator]() {
+    return this;
+  }
 }
-
-// @ts-expect-error: static properties are not supported in buble
-Iterator.KEYS = ITERATE_KEYS;
-// @ts-expect-error: static properties are not supported in buble
-Iterator.VALUES = ITERATE_VALUES;
-// @ts-expect-error: static properties are not supported in buble
-Iterator.ENTRIES = ITERATE_ENTRIES;
-
-// @ts-expect-error: properties are not supported in buble
-Iterator.prototype.inspect = Iterator.prototype.toSource = function () {
-  return this.toString();
-};
-// @ts-expect-error don't know how to type this
-Iterator.prototype[ITERATOR_SYMBOL] = function () {
-  return this;
-};
 
 export function iteratorValue<K, V>(
   type: IteratorType,
   k: K,
-  v?: undefined,
-  iteratorResult?: IteratorResult<K>
-): IteratorResult<V> | undefined;
+  v: undefined,
+  iteratorResult?: IteratorYieldResult<K>
+): IteratorYieldResult<V>;
 export function iteratorValue<K, V>(
   type: IteratorType,
   k: K,
   v: V,
-  iteratorResult?: IteratorResult<V>
-): IteratorResult<V> | undefined;
+  iteratorResult?: IteratorYieldResult<V>
+): IteratorYieldResult<V>;
 export function iteratorValue<K, V>(
   type: typeof ITERATE_ENTRIES,
   k: K,
-  v?: V,
-  iteratorResult?: IteratorResult<[K, V]>
-): IteratorResult<[K, V]> | undefined;
+  v: V,
+  iteratorResult?: IteratorYieldResult<[K, V]>
+): IteratorYieldResult<[K, V]>;
 export function iteratorValue<K, V>(
   type: IteratorType,
   k: K,
-  v?: V,
+  v: V,
   iteratorResult?:
-    | IteratorResult<K>
-    | IteratorResult<V>
-    | IteratorResult<[K, V]>
-): IteratorResult<K> | IteratorResult<V> | IteratorResult<[K, V]> | undefined {
-  const value =
-    type === ITERATE_KEYS ? k : type === ITERATE_VALUES ? v : [k, v];
-  // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
-  iteratorResult
-    ? (iteratorResult.value = value)
-    : (iteratorResult = {
-        // @ts-expect-error ensure value is not undefined
-        value: value,
-        done: false,
-      });
+    | IteratorYieldResult<K>
+    | IteratorYieldResult<V>
+    | IteratorYieldResult<[K, V]>
+): IteratorYieldResult<K | V | [K, V]> {
+  const value = getValueFromType(type, k, v);
+  // type === ITERATE_KEYS ? k : type === ITERATE_VALUES ? v : [k, v];
 
-  return iteratorResult;
+  if (iteratorResult) {
+    iteratorResult.value = value;
+
+    return iteratorResult;
+  }
+
+  return {
+    value: value,
+    done: false,
+  };
+}
+
+function getValueFromType<K, V>(type: typeof ITERATE_KEYS, k: K, v: V): K;
+function getValueFromType<K, V>(
+  type: typeof ITERATE_VALUES,
+  k: K,
+  v: V
+): V | undefined;
+function getValueFromType<K, V>(
+  type: typeof ITERATE_ENTRIES,
+  k: K,
+  v: V
+): [K, V] | undefined;
+function getValueFromType<K, V>(type: IteratorType, k: K, v: V): K | V | [K, V];
+function getValueFromType<K, V>(
+  type: IteratorType,
+  k: K,
+  v: V
+): K | V | [K, V] {
+  return type === ITERATE_KEYS ? k : type === ITERATE_VALUES ? v : [k, v];
 }
 
 export function iteratorDone(): IteratorReturnResult<undefined> {
@@ -127,9 +136,7 @@ function getIteratorFn(
   const iteratorFn =
     iterable &&
     // @ts-expect-error: maybeIterator is typed as `{}`
-    ((REAL_ITERATOR_SYMBOL && iterable[REAL_ITERATOR_SYMBOL]) ||
-      // @ts-expect-error: maybeIterator is typed as `{}`
-      iterable[FAUX_ITERATOR_SYMBOL]);
+    iterable[Symbol.iterator];
   if (typeof iteratorFn === 'function') {
     return iteratorFn;
   }
