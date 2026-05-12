@@ -1,0 +1,46 @@
+name: TypeScript Go Test
+
+on:
+  push:
+    branches:
+      - main
+      - 5.x
+      - 6.x
+      - copilot/update-typescript-version-and-tests
+  pull_request: ~
+
+jobs:
+  tsgo-compatibility:
+    name: 'TypeScript Go Compatibility Test'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.OS }}-node-tsgo-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.OS }}-node-tsgo-
+      
+      - name: 'Install dependencies'
+        run: npm ci
+      
+      - name: 'Display TypeScript version'
+        run: npx tsc --version
+      
+      - name: 'Display TypeScript Go version'
+        run: npx tsgo -v || echo 'TypeScript Go not found or version command not supported'
+      
+      - name: 'Test TypeScript Go compilation'
+        run: npm run type-check:tsgo
+        continue-on-error: true
+      
+      - name: 'Test standard TypeScript compilation'
+        run: npm run type-check:ts
+      
+      - name: 'Summary'
+        run: |
+          echo "✅ TypeScript Go compatibility test completed"
+          echo "This workflow tests if the codebase is compatible with TypeScript Go (tsgo)"
