@@ -591,27 +591,7 @@ export function skipWhileFactory(collection, predicate, context, useKeys) {
   return skipSequence;
 }
 
-class ConcatSeq extends Seq {
-  constructor(iterables) {
-    this._wrappedIterables = iterables.flatMap((iterable) => {
-      if (iterable._wrappedIterables) {
-        return iterable._wrappedIterables;
-      }
-      return [iterable];
-    });
-    this.size = this._wrappedIterables.reduce((sum, iterable) => {
-      if (sum !== undefined) {
-        const size = iterable.size;
-        if (size !== undefined) {
-          return sum + size;
-        }
-      }
-    }, 0);
-    this[IS_KEYED_SYMBOL] = this._wrappedIterables[0][IS_KEYED_SYMBOL];
-    this[IS_INDEXED_SYMBOL] = this._wrappedIterables[0][IS_INDEXED_SYMBOL];
-    this[IS_ORDERED_SYMBOL] = this._wrappedIterables[0][IS_ORDERED_SYMBOL];
-  }
-
+const ConcatSeqPrototype = {
   __iterateUncached(fn, reverse) {
     if (this._wrappedIterables.length === 0) {
       return;
@@ -651,7 +631,7 @@ class ConcatSeq extends Seq {
       index++;
     }
     return index;
-  }
+  },
 
   __iteratorUncached(type, reverse) {
     if (this._wrappedIterables.length === 0) {
@@ -682,8 +662,30 @@ class ConcatSeq extends Seq {
       }
       return next;
     });
+  },
+};
+
+class KeyedConcatSeq extends KeyedSeq {
+  constructor(iterables) {
+    initConcatSeq(this, iterables);
   }
 }
+
+class IndexedConcatSeq extends IndexedSeq {
+  constructor(iterables) {
+    initConcatSeq(this, iterables);
+  }
+}
+
+class SetConcatSeq extends SetSeq {
+  constructor(iterables) {
+    initConcatSeq(this, iterables);
+  }
+}
+
+Object.assign(KeyedConcatSeq.prototype, ConcatSeqPrototype);
+Object.assign(IndexedConcatSeq.prototype, ConcatSeqPrototype);
+Object.assign(SetConcatSeq.prototype, ConcatSeqPrototype);
 
 export function concatFactory(collection, values) {
   const isKeyedCollection = isKeyed(collection);
@@ -716,7 +718,33 @@ export function concatFactory(collection, values) {
     }
   }
 
-  return new ConcatSeq(iters);
+  const concatSeqClass = isKeyedCollection
+    ? KeyedConcatSeq
+    : isIndexed(collection)
+      ? IndexedConcatSeq
+      : SetConcatSeq;
+
+  return new concatSeqClass(iters);
+}
+
+function initConcatSeq(seq, iterables) {
+  seq._wrappedIterables = iterables.flatMap((iterable) => {
+    if (iterable._wrappedIterables) {
+      return iterable._wrappedIterables;
+    }
+    return [iterable];
+  });
+  seq.size = seq._wrappedIterables.reduce((sum, iterable) => {
+    if (sum !== undefined) {
+      const size = iterable.size;
+      if (size !== undefined) {
+        return sum + size;
+      }
+    }
+  }, 0);
+  seq[IS_KEYED_SYMBOL] = seq._wrappedIterables[0][IS_KEYED_SYMBOL];
+  seq[IS_INDEXED_SYMBOL] = seq._wrappedIterables[0][IS_INDEXED_SYMBOL];
+  seq[IS_ORDERED_SYMBOL] = seq._wrappedIterables[0][IS_ORDERED_SYMBOL];
 }
 
 export function flattenFactory(collection, depth, useKeys) {
