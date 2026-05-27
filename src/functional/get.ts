@@ -55,8 +55,7 @@ export function get<K, V, NSV>(
   notSetValue?: NSV
 ): V | NSV | undefined {
   return isImmutable(collection)
-    ? // @ts-expect-error "get" is still in the mixin for now
-      collection.get(key, notSetValue)
+    ? collection.get(key, notSetValue)
     : !has(collection, key)
       ? notSetValue
       : // @ts-expect-error weird "get" here,
