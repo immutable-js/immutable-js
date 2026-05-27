@@ -5,12 +5,12 @@ import {
   SetCollection,
 } from './Collection';
 import { emptyMap } from './Map';
-import { sortFactory } from './Operations';
 import { OrderedSet } from './OrderedSet';
 import { DELETE } from './TrieUtils';
 import { asImmutable } from './methods/asImmutable';
 import { asMutable } from './methods/asMutable';
 import { withMutations } from './methods/withMutations';
+import { sortFactory } from './operations/factories';
 import { isOrdered } from './predicates/isOrdered';
 import { IS_SET_SYMBOL, isSet } from './predicates/isSet';
 import assertNotInfinite from './utils/assertNotInfinite';

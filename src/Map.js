@@ -1,7 +1,6 @@
 import { Collection, KeyedCollection, KeyedCollectionImpl } from './Collection';
 import { hash } from './Hash';
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
-import { sortFactory } from './Operations';
 import { OrderedMap } from './OrderedMap';
 import {
   DELETE,
@@ -26,6 +25,7 @@ import { update } from './methods/update';
 import { updateIn } from './methods/updateIn';
 import { wasAltered } from './methods/wasAltered';
 import { withMutations } from './methods/withMutations';
+import { sortFactory } from './operations/factories';
 import { IS_MAP_SYMBOL, isMap } from './predicates/isMap';
 import { isOrdered } from './predicates/isOrdered';
 import arrCopy from './utils/arrCopy';

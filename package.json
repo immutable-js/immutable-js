@@ -82,6 +82,7 @@
     "website:dev": "cd website && next dev --turbopack",
     "check-build-output": "node ./resources/check-build-output.mjs",
     "check-git-clean": "./resources/check-git-clean.sh",
+    "check-circular-deps": "npx dpdm --no-warning --no-tree src/Immutable.js",
     "benchmark": "node ./resources/benchmark.js",
     "publish": "echo 'ONLY PUBLISH VIA CI'; exit 1;"
   },
