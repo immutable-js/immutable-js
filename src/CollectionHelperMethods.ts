@@ -32,14 +32,18 @@ export function entryMapper<K, V>(v: V, k: K): [K, V] {
   return [k, v];
 }
 
-export function not(predicate: (...args: unknown[]) => boolean) {
-  return function (this: unknown, ...args: unknown[]): boolean {
+export function not<Args extends unknown[]>(
+  predicate: (...args: Args) => boolean
+): (...args: Args) => boolean {
+  return function (this: unknown, ...args: Args): boolean {
     return !predicate.apply(this, args);
   };
 }
 
-export function neg(predicate: (...args: unknown[]) => number) {
-  return function (this: unknown, ...args: unknown[]): number {
+export function neg<Args extends unknown[]>(
+  predicate: (...args: Args) => number
+): (...args: Args) => number {
+  return function (this: unknown, ...args: Args): number {
     return -predicate.apply(this, args);
   };
 }

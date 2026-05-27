@@ -433,6 +433,31 @@ export function KeyedCollection(
   return isKeyed(value) ? value : KeyedSeq(value);
 }
 
+// Methods provided at runtime by the CollectionImpl.js mixin. Declared via
+// interface declaration merging so callers see the narrower Seq.Keyed return
+// type. Once the mixin is removed, these can move into the class body.
+export interface KeyedCollectionImpl<K, V> {
+  toSeq(): KeyedCollectionImpl<K, V>;
+
+  /**
+   * Returns a new Collection.Keyed with values passed through a
+   * `mapper` function.
+   *
+   * ```js
+   * import { Collection } from 'immutable'
+   * Collection.Keyed({ a: 1, b: 2 }).map(x => 10 * x)
+   * // Seq { "a": 10, "b": 20 }
+   * ```
+   *
+   * Note: `map()` always returns a new instance, even if it produced the
+   * same value at every step.
+   */
+  map<M>(
+    mapper: (value: V, key: K, iter: this) => M,
+    context?: unknown
+  ): KeyedCollectionImpl<K, M>;
+}
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging -- implemented in mixin
 export class KeyedCollectionImpl<K, V> extends CollectionImpl<K, V> {}
 
 export function IndexedCollection<T>(
@@ -455,6 +480,30 @@ interface OrderedCollection<T> {
   [Symbol.iterator](): IterableIterator<T>;
 }
 
+// Methods provided at runtime by the CollectionImpl.js mixin. Declared via
+// interface declaration merging so callers see the narrower Seq.Indexed return
+// type. Once the mixin is removed, these can move into the class body.
+export interface IndexedCollectionImpl<T> {
+  toSeq(): IndexedCollectionImpl<T>;
+  /**
+   * Returns a new Collection.Indexed with values passed through a
+   * `mapper` function.
+   *
+   * ```js
+   * import { Collection } from 'immutable'
+   * Collection.Indexed([1,2]).map(x => 10 * x)
+   * // Seq [ 1, 2 ]
+   * ```
+   *
+   * Note: `map()` always returns a new instance, even if it produced the
+   * same value at every step.
+   */
+  map<M>(
+    mapper: (value: T, index: number, iter: this) => M,
+    context?: unknown
+  ): IndexedCollectionImpl<M>;
+}
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging -- implemented in mixin
 export class IndexedCollectionImpl<T>
   extends CollectionImpl<number, T>
   implements OrderedCollection<T>
@@ -544,7 +593,9 @@ export class IndexedCollectionImpl<T>
 export function SetCollection<T>(
   value: Iterable<T> | ArrayLike<T>
 ): SetCollectionImpl<T> {
-  return isCollection(value) && !isAssociative(value) ? value : SetSeq(value);
+  return isCollection<T, T>(value) && !isAssociative<T, T>(value)
+    ? value
+    : SetSeq(value);
 }
 
 export class SetCollectionImpl<T> extends CollectionImpl<T, T> {}
