@@ -1287,8 +1287,6 @@
     }
 
     function reverseFactory(collection, useKeys) {
-      var this$1$1 = this;
-
       var reversedSequence = makeSequence(collection);
       reversedSequence._iter = collection;
       reversedSequence.size = collection.size;
@@ -1328,7 +1326,9 @@
           var entry = step.value;
           return iteratorValue(
             type,
-            useKeys ? entry[0] : reverse ? this$1$1.size - ++i : i++,
+            // `__iterator` is an arrow function, so `this` is not the reversed
+            // sequence here — read `reversedSequence.size` explicitly.
+            useKeys ? entry[0] : reverse ? reversedSequence.size - ++i : i++,
             entry[1],
             step
           );
