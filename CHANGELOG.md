@@ -8,6 +8,10 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+## 5.1.6
+
+- fix(reverseFactory): read `reversedSequence.size` in `__iterator` instead of this [#2196](https://github.com/immutable-js/immutable-js/pull/2196)
+
 ## 5.1.5
 
 - Fix Improperly Controlled Modification of Object Prototype Attributes ('Prototype Pollution') in immutable
