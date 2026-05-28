@@ -317,7 +317,9 @@ export function reverseFactory(collection, useKeys) {
       const entry = step.value;
       return iteratorValue(
         type,
-        useKeys ? entry[0] : reverse ? this.size - ++i : i++,
+        // `__iterator` is an arrow function, so `this` is not the reversed
+        // sequence here — read `reversedSequence.size` explicitly.
+        useKeys ? entry[0] : reverse ? reversedSequence.size - ++i : i++,
         entry[1],
         step
       );
