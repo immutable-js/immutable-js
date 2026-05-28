@@ -30,6 +30,28 @@ describe('IndexedSequence', () => {
     expect(operated.last()).toEqual('A');
   });
 
+  it('can be iterated in reverse through a lazy chain', () => {
+    // Regression: reverseFactory's __iterator is an arrow function, so `this`
+    // is NOT the reversed sequence there — it must read `reversedSequence.size`
+    // rather than `this.size`. The bug only surfaces when the reversed indexed
+    // Seq is iterated *backwards* (reverse=true) via the iterator protocol,
+    // which a wrapping `.reverse()` triggers on the inner sequence.
+    // The `.map()` in between prevents the two reverses from collapsing.
+    const seq = Seq([1, 2, 3])
+      .reverse()
+      .map((x) => x * 10)
+      .reverse();
+
+    // Consuming via the iterator protocol (not toArray, which uses __iterate)
+    // is what exercised the broken `this.size` path.
+    expect([...seq]).toEqual([10, 20, 30]);
+    expect([...seq.entries()]).toEqual([
+      [0, 10],
+      [1, 20],
+      [2, 30],
+    ]);
+  });
+
   it('negative indexes correctly', () => {
     const seq = Seq(['A', 'B', 'C', 'D', 'E']);
 
