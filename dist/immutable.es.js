@@ -6191,7 +6191,7 @@ function defaultConverter(k, v) {
   return isIndexed(v) ? v.toList() : isKeyed(v) ? v.toMap() : v.toSet();
 }
 
-var version = "5.1.5";
+var version = "5.1.6";
 
 /* eslint-disable import/order */
 
