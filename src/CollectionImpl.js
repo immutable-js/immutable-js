@@ -11,9 +11,8 @@ import {
   keyMapper,
   neg,
   not,
-  reduce,
 } from './CollectionHelperMethods';
-import { ITERATE_KEYS, ITERATE_VALUES, Iterator } from './Iterator';
+import { Iterator } from './Iterator';
 import { List } from './List';
 import { Map } from './Map';
 import {
@@ -52,14 +51,7 @@ import {
 } from './Seq';
 import { Set } from './Set';
 import { Stack } from './Stack';
-import {
-  ensureSize,
-  NOT_SET,
-  resolveBegin,
-  returnTrue,
-  wrapIndex,
-} from './TrieUtils';
-import { is } from './is';
+import { ensureSize, resolveBegin } from './TrieUtils';
 import { getIn } from './methods/getIn';
 import { hasIn } from './methods/hasIn';
 import { toObject } from './methods/toObject';
@@ -172,10 +164,6 @@ mixin(CollectionImpl, {
     return reify(this, concatFactory(this, values));
   },
 
-  includes(searchValue) {
-    return this.some((value) => is(value, searchValue));
-  },
-
   filter(predicate, context) {
     return reify(this, filterFactory(this, predicate, context, true));
   },
@@ -184,57 +172,8 @@ mixin(CollectionImpl, {
     return partitionFactory(this, predicate, context);
   },
 
-  find(predicate, context, notSetValue) {
-    const entry = this.findEntry(predicate, context);
-    return entry ? entry[1] : notSetValue;
-  },
-
-  forEach(sideEffect, context) {
-    assertNotInfinite(this.size);
-    return this.__iterate(context ? sideEffect.bind(context) : sideEffect);
-  },
-
-  join(separator) {
-    assertNotInfinite(this.size);
-    separator = separator !== undefined ? '' + separator : ',';
-    let joined = '';
-    let isFirst = true;
-    this.__iterate((v) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
-      isFirst ? (isFirst = false) : (joined += separator);
-      joined += v !== null && v !== undefined ? v.toString() : '';
-    });
-    return joined;
-  },
-
-  keys() {
-    return this.__iterator(ITERATE_KEYS);
-  },
-
   map(mapper, context) {
     return reify(this, mapFactory(this, mapper, context));
-  },
-
-  reduce(reducer, initialReduction, context) {
-    return reduce(
-      this,
-      reducer,
-      initialReduction,
-      context,
-      arguments.length < 2,
-      false
-    );
-  },
-
-  reduceRight(reducer, initialReduction, context) {
-    return reduce(
-      this,
-      reducer,
-      initialReduction,
-      context,
-      arguments.length < 2,
-      true
-    );
   },
 
   reverse() {
@@ -245,34 +184,14 @@ mixin(CollectionImpl, {
     return reify(this, sliceFactory(this, begin, end, true));
   },
 
-  some(predicate, context) {
-    assertNotInfinite(this.size);
-    let returnValue = false;
-    this.__iterate((v, k, c) => {
-      if (predicate.call(context, v, k, c)) {
-        returnValue = true;
-        return false;
-      }
-    });
-    return returnValue;
-  },
-
   sort(comparator) {
     return reify(this, sortFactory(this, comparator));
-  },
-
-  values() {
-    return this.__iterator(ITERATE_VALUES);
   },
 
   // ### More sequential methods
 
   butLast() {
     return this.slice(0, -1);
-  },
-
-  isEmpty() {
-    return this.size !== undefined ? this.size === 0 : !this.some(() => true);
   },
 
   count(predicate, context) {
@@ -305,22 +224,6 @@ mixin(CollectionImpl, {
     return this.filter(not(predicate), context);
   },
 
-  findEntry(predicate, context, notSetValue) {
-    let found = notSetValue;
-    this.__iterate((v, k, c) => {
-      if (predicate.call(context, v, k, c)) {
-        found = [k, v];
-        return false;
-      }
-    });
-    return found;
-  },
-
-  findKey(predicate, context) {
-    const entry = this.findEntry(predicate, context);
-    return entry && entry[0];
-  },
-
   findLast(predicate, context, notSetValue) {
     return this.toKeyedSeq().reverse().find(predicate, context, notSetValue);
   },
@@ -335,10 +238,6 @@ mixin(CollectionImpl, {
     return this.toKeyedSeq().reverse().findKey(predicate, context);
   },
 
-  first(notSetValue) {
-    return this.find(returnTrue, null, notSetValue);
-  },
-
   flatMap(mapper, context) {
     return reify(this, flatMapFactory(this, mapper, context));
   },
@@ -351,35 +250,13 @@ mixin(CollectionImpl, {
     return new FromEntriesSequence(this);
   },
 
-  get(searchKey, notSetValue) {
-    return this.find((_, key) => is(key, searchKey), undefined, notSetValue);
-  },
-
   getIn: getIn,
 
   groupBy(grouper, context) {
     return groupByFactory(this, grouper, context);
   },
 
-  has(searchKey) {
-    return this.get(searchKey, NOT_SET) !== NOT_SET;
-  },
-
   hasIn: hasIn,
-
-  isSubset(iter) {
-    iter = typeof iter.includes === 'function' ? iter : Collection(iter);
-    return this.every((value) => iter.includes(value));
-  },
-
-  isSuperset(iter) {
-    iter = typeof iter.isSubset === 'function' ? iter : Collection(iter);
-    return iter.isSubset(this);
-  },
-
-  keyOf(searchValue) {
-    return this.findKey((value) => is(value, searchValue));
-  },
 
   keySeq() {
     return this.toSeq().map(keyMapper).toIndexedSeq();
@@ -454,10 +331,6 @@ mixin(CollectionImpl, {
 
   takeUntil(predicate, context) {
     return this.takeWhile(not(predicate), context);
-  },
-
-  update(fn) {
-    return fn(this);
   },
 
   valueSeq() {
@@ -536,16 +409,6 @@ mixin(IndexedCollectionImpl, {
     return reify(this, filterFactory(this, predicate, context, false));
   },
 
-  findIndex(predicate, context) {
-    const entry = this.findEntry(predicate, context);
-    return entry ? entry[0] : -1;
-  },
-
-  indexOf(searchValue) {
-    const key = this.keyOf(searchValue);
-    return key === undefined ? -1 : key;
-  },
-
   lastIndexOf(searchValue) {
     const key = this.lastKeyOf(searchValue);
     return key === undefined ? -1 : key;
@@ -585,31 +448,8 @@ mixin(IndexedCollectionImpl, {
     return entry ? entry[0] : -1;
   },
 
-  first(notSetValue) {
-    return this.get(0, notSetValue);
-  },
-
   flatten(depth) {
     return reify(this, flattenFactory(this, depth, false));
-  },
-
-  get(index, notSetValue) {
-    index = wrapIndex(this, index);
-    return index < 0 ||
-      this.size === Infinity ||
-      (this.size !== undefined && index > this.size)
-      ? notSetValue
-      : this.find((_, key) => key === index, undefined, notSetValue);
-  },
-
-  has(index) {
-    index = wrapIndex(this, index);
-    return (
-      index >= 0 &&
-      (this.size !== undefined
-        ? this.size === Infinity || index < this.size
-        : this.indexOf(index) !== -1)
-    );
   },
 
   interpose(separator) {
@@ -632,10 +472,6 @@ mixin(IndexedCollectionImpl, {
 
   keySeq() {
     return Range(0, this.size);
-  },
-
-  last(notSetValue) {
-    return this.get(-1, notSetValue);
   },
 
   skipWhile(predicate, context) {

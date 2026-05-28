@@ -72,8 +72,7 @@ export default function deepEqual(
     b.__iterate((v, k) => {
       if (
         notAssociative
-          ? // @ts-expect-error has exists on Collection
-            !a.has(v)
+          ? !a.has(v)
           : flipped
             ? // @ts-expect-error type of `get` does not "catch" the version with `notSetValue`
               !is(v, a.get(k, NOT_SET))

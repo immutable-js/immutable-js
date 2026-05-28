@@ -1,8 +1,11 @@
 import type { Seq } from '../type-definitions/immutable';
 import {
+  ITERATE_ENTRIES,
+  ITERATE_KEYS,
+  ITERATE_VALUES,
   Iterator,
-  iteratorValue,
   iteratorDone,
+  iteratorValue,
   type IteratorType,
 } from './Iterator';
 import { IndexedSeqImpl } from './Seq';
@@ -58,16 +61,18 @@ export class RangeImpl extends IndexedSeqImpl implements Seq.Indexed<number> {
       : `Range [ ${this._start}...${this._end}${this._step !== 1 ? ' by ' + this._step : ''} ]`;
   }
 
-  get<NSV>(index: number, notSetValue: NSV): number | NSV;
-  get(index: number): number | undefined;
-  get<NSV>(index: number, notSetValue?: NSV): number | NSV | undefined {
-    // @ts-expect-error Issue with the mixin not understood by TypeScript
+  override get<NSV>(index: number, notSetValue: NSV): number | NSV;
+  override get(index: number): number | undefined;
+  override get<NSV>(
+    index: number,
+    notSetValue?: NSV
+  ): number | NSV | undefined {
     return this.has(index)
       ? this._start + wrapIndex(this, index) * this._step
       : notSetValue;
   }
 
-  includes(searchValue: number): boolean {
+  override includes(searchValue: number): boolean {
     const possibleIndex = (searchValue - this._start) / this._step;
     return (
       possibleIndex >= 0 &&
@@ -126,14 +131,26 @@ export class RangeImpl extends IndexedSeqImpl implements Seq.Indexed<number> {
   }
 
   override __iterator(
+    type: typeof ITERATE_ENTRIES,
+    reverse?: boolean
+  ): IterableIterator<[number, number]>;
+  override __iterator(
+    type: typeof ITERATE_KEYS,
+    reverse?: boolean
+  ): IterableIterator<number>;
+  override __iterator(
+    type: typeof ITERATE_VALUES,
+    reverse?: boolean
+  ): IterableIterator<number>;
+  override __iterator(
     type: IteratorType,
     reverse: boolean = false
-  ): Iterator<number> {
+  ): IterableIterator<number | [number, number]> {
     const size = this.size;
     const step = this._step;
     let value = reverse ? this._start + (size - 1) * step : this._start;
     let i = 0;
-    return new Iterator<number>(() => {
+    return new Iterator<number | [number, number]>(() => {
       if (i === size) {
         return iteratorDone();
       }

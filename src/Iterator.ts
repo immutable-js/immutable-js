@@ -7,7 +7,7 @@ export type IteratorType =
   | typeof ITERATE_VALUES
   | typeof ITERATE_ENTRIES;
 
-export class Iterator<V> implements globalThis.Iterator<V, undefined> {
+export class Iterator<V> implements IterableIterator<V, undefined> {
   static KEYS = ITERATE_KEYS;
   static VALUES = ITERATE_VALUES;
   static ENTRIES = ITERATE_ENTRIES;
