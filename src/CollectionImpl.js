@@ -15,30 +15,6 @@ import {
 import { Iterator } from './Iterator';
 import { List } from './List';
 import { Map } from './Map';
-import {
-  concatFactory,
-  countByFactory,
-  filterFactory,
-  flatMapFactory,
-  flattenFactory,
-  flipFactory,
-  FromEntriesSequence,
-  groupByFactory,
-  interposeFactory,
-  mapFactory,
-  maxFactory,
-  partitionFactory,
-  reify,
-  reverseFactory,
-  skipWhileFactory,
-  sliceFactory,
-  sortFactory,
-  takeWhileFactory,
-  ToIndexedSequence,
-  ToKeyedSequence,
-  ToSetSequence,
-  zipWithFactory,
-} from './Operations';
 import { OrderedMap } from './OrderedMap';
 import { OrderedSet } from './OrderedSet';
 import { Range } from './Range';
@@ -55,6 +31,31 @@ import { ensureSize, resolveBegin } from './TrieUtils';
 import { getIn } from './methods/getIn';
 import { hasIn } from './methods/hasIn';
 import { toObject } from './methods/toObject';
+import { countByFactory, groupByFactory } from './operations/aggregations';
+import {
+  filterFactory,
+  flatMapFactory,
+  flattenFactory,
+  flipFactory,
+  interposeFactory,
+  mapFactory,
+  maxFactory,
+  partitionFactory,
+  reverseFactory,
+  skipWhileFactory,
+  sliceFactory,
+  sortFactory,
+  takeWhileFactory,
+  zipWithFactory,
+} from './operations/factories';
+import { reify } from './operations/helpers';
+import {
+  concatFactory,
+  FromEntriesSequence,
+  ToIndexedSequence,
+  ToKeyedSequence,
+  ToSetSequence,
+} from './operations/sequences';
 import { IS_COLLECTION_SYMBOL } from './predicates/isCollection';
 import { isIndexed, IS_INDEXED_SYMBOL } from './predicates/isIndexed';
 import { isKeyed, IS_KEYED_SYMBOL } from './predicates/isKeyed';
