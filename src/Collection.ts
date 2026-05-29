@@ -9,10 +9,13 @@ import { IndexedSeq, KeyedSeq, Seq, SetSeq } from './Seq';
 import { NOT_SET, returnTrue, wrapIndex } from './TrieUtils';
 import type ValueObject from './ValueObject';
 import { is } from './is';
+import { mapFactory } from './operations/factories';
+import { reify } from './operations/helpers';
 import { isAssociative } from './predicates/isAssociative';
-import { isCollection } from './predicates/isCollection';
-import { isIndexed } from './predicates/isIndexed';
-import { isKeyed } from './predicates/isKeyed';
+import { isCollection, IS_COLLECTION_SYMBOL } from './predicates/isCollection';
+import { isIndexed, IS_INDEXED_SYMBOL } from './predicates/isIndexed';
+import { isKeyed, IS_KEYED_SYMBOL } from './predicates/isKeyed';
+import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
 import assertNotInfinite from './utils/assertNotInfinite';
 import deepEqual from './utils/deepEqual';
 import { hashCollection } from './utils/hashCollection';
@@ -48,6 +51,16 @@ export class CollectionImpl<K, V> implements ValueObject {
   private __hash: number | undefined;
 
   size: number = 0;
+
+  // Brand tested by the `isCollection` predicate. Declared for the type here;
+  // the value is set on the prototype just below the class. It cannot be a
+  // class field: that would be an own enumerable instance property, missing on
+  // the many instances built via `Object.create(prototype)` (e.g. mapped Seqs).
+  declare [IS_COLLECTION_SYMBOL]: true;
+
+  declare toIndexedSeq: () => CollectionImpl<K, V>;
+  declare toKeyedSeq: () => CollectionImpl<K, V>;
+  declare toSetSeq: () => CollectionImpl<K, V>;
 
   /**
    * True if this and the other Collection have value equality, as defined
@@ -384,6 +397,32 @@ export class CollectionImpl<K, V> implements ValueObject {
     return updater(this);
   }
 
+  /**
+   * Returns a new Collection of the same type with values passed through a
+   * `mapper` function.
+   *
+   * Note: `map()` always returns a new instance, even if it produced the same
+   * value at every step.
+   */
+  map<M>(
+    mapper: (value: V, key: K, iter: this) => M,
+    context?: unknown
+  ): CollectionImpl<K, M> {
+    return reify(this, mapFactory(this, mapper, context));
+  }
+
+  /**
+   * Converts this Collection to a Seq of the same kind (indexed,
+   * keyed, or set).
+   */
+  toSeq(): CollectionImpl<K, V> {
+    return isIndexed(this)
+      ? this.toIndexedSeq()
+      : isKeyed(this)
+        ? this.toKeyedSeq()
+        : this.toSetSeq();
+  }
+
   __iterate(
     fn: (value: V, index: K, iter: this) => unknown,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -414,6 +453,8 @@ export class CollectionImpl<K, V> implements ValueObject {
   }
 }
 
+CollectionImpl.prototype[IS_COLLECTION_SYMBOL] = true;
+
 /**
  * Always returns a Seq.Keyed, if input is not keyed, expects an
  * collection of [K, V] tuples.
@@ -433,32 +474,14 @@ export function KeyedCollection(
   return isKeyed(value) ? value : KeyedSeq(value);
 }
 
-// Methods provided at runtime by the CollectionImpl.js mixin. Declared via
-// interface declaration merging so callers see the narrower Seq.Keyed return
-// type. Once the mixin is removed, these can move into the class body.
-export interface KeyedCollectionImpl<K, V> {
-  toSeq(): KeyedCollectionImpl<K, V>;
-
-  /**
-   * Returns a new Collection.Keyed with values passed through a
-   * `mapper` function.
-   *
-   * ```js
-   * import { Collection } from 'immutable'
-   * Collection.Keyed({ a: 1, b: 2 }).map(x => 10 * x)
-   * // Seq { "a": 10, "b": 20 }
-   * ```
-   *
-   * Note: `map()` always returns a new instance, even if it produced the
-   * same value at every step.
-   */
-  map<M>(
-    mapper: (value: V, key: K, iter: this) => M,
-    context?: unknown
-  ): KeyedCollectionImpl<K, M>;
+export class KeyedCollectionImpl<K, V> extends CollectionImpl<K, V> {
+  // Brand tested by the `isKeyed` predicate. Declaring it also makes
+  // `KeyedCollectionImpl` structurally distinct from the base `CollectionImpl`,
+  // otherwise `isKeyed`'s negative narrowing collapses `this` to `never`.
+  declare [IS_KEYED_SYMBOL]: true;
 }
-// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging -- implemented in mixin
-export class KeyedCollectionImpl<K, V> extends CollectionImpl<K, V> {}
+
+KeyedCollectionImpl.prototype[IS_KEYED_SYMBOL] = true;
 
 export function IndexedCollection<T>(
   value: Iterable<T> | ArrayLike<T>
@@ -480,30 +503,6 @@ interface OrderedCollection<T> {
   [Symbol.iterator](): IterableIterator<T>;
 }
 
-// Methods provided at runtime by the CollectionImpl.js mixin. Declared via
-// interface declaration merging so callers see the narrower Seq.Indexed return
-// type. Once the mixin is removed, these can move into the class body.
-export interface IndexedCollectionImpl<T> {
-  toSeq(): IndexedCollectionImpl<T>;
-  /**
-   * Returns a new Collection.Indexed with values passed through a
-   * `mapper` function.
-   *
-   * ```js
-   * import { Collection } from 'immutable'
-   * Collection.Indexed([1,2]).map(x => 10 * x)
-   * // Seq [ 1, 2 ]
-   * ```
-   *
-   * Note: `map()` always returns a new instance, even if it produced the
-   * same value at every step.
-   */
-  map<M>(
-    mapper: (value: T, index: number, iter: this) => M,
-    context?: unknown
-  ): IndexedCollectionImpl<M>;
-}
-// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging -- implemented in mixin
 export class IndexedCollectionImpl<T>
   extends CollectionImpl<number, T>
   implements OrderedCollection<T>
@@ -511,6 +510,11 @@ export class IndexedCollectionImpl<T>
   declare toArray: () => T[];
 
   declare [Symbol.iterator]: () => IterableIterator<T>;
+
+  // Brands tested by the `isIndexed` / `isOrdered` predicates. Declared for the
+  // type here; the values are set on the prototype just below the class.
+  declare [IS_INDEXED_SYMBOL]: true;
+  declare [IS_ORDERED_SYMBOL]: true;
 
   /**
    * Returns the first index in the Collection where a value satisfies the
@@ -589,6 +593,9 @@ export class IndexedCollectionImpl<T>
     );
   }
 }
+
+IndexedCollectionImpl.prototype[IS_INDEXED_SYMBOL] = true;
+IndexedCollectionImpl.prototype[IS_ORDERED_SYMBOL] = true;
 
 export function SetCollection<T>(
   value: Iterable<T> | ArrayLike<T>

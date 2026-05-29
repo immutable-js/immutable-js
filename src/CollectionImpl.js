@@ -38,7 +38,6 @@ import {
   flattenFactory,
   flipFactory,
   interposeFactory,
-  mapFactory,
   maxFactory,
   partitionFactory,
   reverseFactory,
@@ -56,10 +55,7 @@ import {
   ToKeyedSequence,
   ToSetSequence,
 } from './operations/sequences';
-import { IS_COLLECTION_SYMBOL } from './predicates/isCollection';
-import { isIndexed, IS_INDEXED_SYMBOL } from './predicates/isIndexed';
-import { isKeyed, IS_KEYED_SYMBOL } from './predicates/isKeyed';
-import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
+import { isKeyed } from './predicates/isKeyed';
 import { toJS } from './toJS';
 import assertNotInfinite from './utils/assertNotInfinite';
 import mixin from './utils/mixin';
@@ -122,14 +118,6 @@ mixin(CollectionImpl, {
     return new ToSetSequence(this);
   },
 
-  toSeq() {
-    return isIndexed(this)
-      ? this.toIndexedSeq()
-      : isKeyed(this)
-        ? this.toKeyedSeq()
-        : this.toSetSeq();
-  },
-
   toStack() {
     // Use Late Binding here to solve the circular dependency.
     return Stack(isKeyed(this) ? this.valueSeq() : this);
@@ -171,10 +159,6 @@ mixin(CollectionImpl, {
 
   partition(predicate, context) {
     return partitionFactory(this, predicate, context);
-  },
-
-  map(mapper, context) {
-    return reify(this, mapFactory(this, mapper, context));
   },
 
   reverse() {
@@ -352,7 +336,6 @@ mixin(CollectionImpl, {
 });
 
 const CollectionPrototype = CollectionImpl.prototype;
-CollectionPrototype[IS_COLLECTION_SYMBOL] = true;
 CollectionPrototype[Symbol.iterator] = CollectionPrototype.values;
 CollectionPrototype.toJSON = CollectionPrototype.toArray;
 CollectionPrototype.__toStringMapper = quoteString;
@@ -391,7 +374,6 @@ mixin(KeyedCollectionImpl, {
 });
 
 const KeyedCollectionPrototype = KeyedCollectionImpl.prototype;
-KeyedCollectionPrototype[IS_KEYED_SYMBOL] = true;
 KeyedCollectionPrototype[Symbol.iterator] = CollectionPrototype.entries;
 KeyedCollectionPrototype.toJSON = toObject;
 KeyedCollectionPrototype.__toStringMapper = (v, k) =>
@@ -502,8 +484,6 @@ mixin(IndexedCollectionImpl, {
 });
 
 const IndexedCollectionPrototype = IndexedCollectionImpl.prototype;
-IndexedCollectionPrototype[IS_INDEXED_SYMBOL] = true;
-IndexedCollectionPrototype[IS_ORDERED_SYMBOL] = true;
 
 mixin(SetCollectionImpl, {
   // ### ES6 Collection methods (ES6 Array and Map)
