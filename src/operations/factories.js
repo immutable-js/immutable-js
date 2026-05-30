@@ -576,7 +576,6 @@ export function zipWithFactory(keyIter, zipper, iters, zipAll) {
   };
   zipSequence.__iteratorUncached = function (type, reverse) {
     const iterators = iters.map(
-      // eslint-disable-next-line no-sequences
       (i) => ((i = Collection(i)), getIterator(reverse ? i.reverse() : i))
     );
     let iterations = 0;
