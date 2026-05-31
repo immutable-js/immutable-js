@@ -1,6 +1,15 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import fc from 'fast-check';
-import { List, Map, Range, Record, Seq, fromJS, is } from 'immutable';
+import {
+  List,
+  Map,
+  OrderedMap,
+  Range,
+  Record,
+  Seq,
+  fromJS,
+  is,
+} from 'immutable';
 
 describe('Map', () => {
   it('converts from object', () => {
@@ -598,5 +607,50 @@ describe('Map', () => {
     const m = Map<User>({ user: 'alice' }).set('__proto__', { admin: true });
     expect(m.toObject().admin).toBeUndefined();
     expect(m.toJS().admin).toBeUndefined();
+  });
+});
+
+describe('Map sequence helpers', () => {
+  it('first / last return values (base, keyed) or the notSetValue', () => {
+    expect(Map({ a: 1, b: 2 }).first()).toBe(1);
+    expect(Map({ a: 1, b: 2 }).last()).toBe(2);
+    expect(Map<string, number>().first()).toBeUndefined();
+    expect(Map<string, number>().last('none')).toBe('none');
+  });
+
+  it('filterNot keeps entries for which the predicate is false', () => {
+    expect(
+      Map({ a: 1, b: 2, c: 3 })
+        .filterNot((v) => v % 2 === 0)
+        .toObject()
+    ).toEqual({ a: 1, c: 3 });
+  });
+
+  it('skipWhile / takeWhile operate in iteration order', () => {
+    expect(
+      Map({ a: 1, b: 2, c: 3 })
+        .skipWhile((v) => v < 2)
+        .toObject()
+    ).toEqual({ b: 2, c: 3 });
+    expect(
+      Map({ a: 1, b: 2, c: 3 })
+        .takeWhile((v) => v < 3)
+        .toObject()
+    ).toEqual({ a: 1, b: 2 });
+  });
+
+  it('findLastKey / lastKeyOf return the last matching key', () => {
+    expect(Map({ a: 1, b: 2, c: 1 }).findLastKey((v) => v === 1)).toBe('c');
+    expect(
+      OrderedMap([
+        ['a', 1],
+        ['b', 1],
+        ['c', 2],
+      ]).lastKeyOf(1)
+    ).toBe('b');
+  });
+
+  it('flip swaps keys and values', () => {
+    expect(Map({ a: 1, b: 2 }).flip().toObject()).toEqual({ 1: 'a', 2: 'b' });
   });
 });
