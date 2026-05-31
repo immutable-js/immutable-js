@@ -1077,3 +1077,102 @@ describe('List', () => {
     });
   });
 });
+
+describe('List sequence helpers', () => {
+  it('skipWhile / skipUntil drop a leading run', () => {
+    expect(
+      List([1, 2, 3, 4, 1])
+        .skipWhile((x) => x < 3)
+        .toArray()
+    ).toEqual([3, 4, 1]);
+    expect(
+      List([1, 2, 3, 4, 1])
+        .skipUntil((x) => x >= 3)
+        .toArray()
+    ).toEqual([3, 4, 1]);
+  });
+
+  it('takeWhile / takeUntil keep a leading run', () => {
+    expect(
+      List([1, 2, 3, 4, 1])
+        .takeWhile((x) => x < 3)
+        .toArray()
+    ).toEqual([1, 2]);
+    expect(
+      List([1, 2, 3, 4, 1])
+        .takeUntil((x) => x >= 3)
+        .toArray()
+    ).toEqual([1, 2]);
+  });
+
+  it('skip / skipLast / take / takeLast handle 0 and out-of-range amounts', () => {
+    const list = List([1, 2, 3]);
+    expect(list.skip(0)).toBe(list); // amount === 0 short-circuits to `this`
+    expect(list.skipLast(0)).toBe(list);
+    expect(list.skip(10).toArray()).toEqual([]);
+    expect(list.take(0).toArray()).toEqual([]);
+    expect(list.takeLast(0).toArray()).toEqual([]);
+    expect(list.takeLast(2).toArray()).toEqual([2, 3]);
+  });
+
+  it('filterNot keeps entries for which the predicate is false', () => {
+    expect(
+      List([1, 2, 3, 4])
+        .filterNot((x) => x % 2 === 0)
+        .toArray()
+    ).toEqual([1, 3]);
+  });
+
+  it('count() returns the size, count(pred) the matching count', () => {
+    expect(List([1, 2, 3, 4]).count()).toBe(4);
+    expect(List([1, 2, 3, 4]).count((x) => x > 2)).toBe(2);
+  });
+
+  it('sortBy accepts an explicit comparator', () => {
+    expect(
+      List([{ id: 1 }, { id: 3 }, { id: 2 }])
+        .sortBy(
+          (x) => x.id,
+          (a, b) => b - a
+        )
+        .toArray()
+    ).toEqual([{ id: 3 }, { id: 2 }, { id: 1 }]);
+  });
+
+  it('findLast / findLastEntry return the last match', () => {
+    expect(List([10, 20, 30, 40]).findLast((x) => x < 30)).toBe(20);
+    expect(List([10, 20, 30, 40]).findLastEntry((x) => x < 30)).toEqual([
+      1, 20,
+    ]);
+    expect(List([10, 20, 30, 40]).findLast((x) => x > 40)).toBeUndefined();
+  });
+
+  it('findLastIndex / lastIndexOf return indices from the end, or -1', () => {
+    expect(List([1, 2, 3, 2]).findLastIndex((x) => x === 2)).toBe(3);
+    expect(List([1, 2, 1]).lastIndexOf(1)).toBe(2);
+    expect(List([1, 2, 1]).lastIndexOf(9)).toBe(-1);
+  });
+
+  it('partition splits into [non-matching, matching] and narrows by guard', () => {
+    const [odds, evens] = List([1, 2, 3, 4]).partition((x) => x % 2 === 0);
+    expect(odds.toArray()).toEqual([1, 3]);
+    expect(evens.toArray()).toEqual([2, 4]);
+
+    const [others, strings] = List<number | string>([1, 'a', 2]).partition(
+      (x): x is string => typeof x === 'string'
+    );
+    expect(strings.toArray()).toEqual(['a']);
+    expect(others.toArray()).toEqual([1, 2]);
+  });
+
+  it('predicate methods honour the `context` argument', () => {
+    const ctx = { max: 2 };
+    expect(
+      List([1, 2, 3])
+        .takeWhile(function (this: typeof ctx, x) {
+          return x <= this.max;
+        }, ctx)
+        .toArray()
+    ).toEqual([1, 2]);
+  });
+});
