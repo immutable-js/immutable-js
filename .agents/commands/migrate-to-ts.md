@@ -65,7 +65,36 @@ conventions of the immutable-js 6.x branch.
    migrated file introduces or refines public types that are not yet covered,
    add the missing tests. Run `npm run test:types` to verify.
 
-8. **Verify**:
+8. **Un-skip the matching source-pass type tests** in
+   `type-definitions/ts-tests-src/`. These files are duplicates of the ones in
+   `type-definitions/ts-tests/`, but their `tsconfig.json` resolves `immutable`
+   against the **TS source** (`src/Immutable.js`) instead of the hand-written
+   `type-definitions/immutable.d.ts`. They validate the types actually emitted
+   by the migration, not the reference declarations.
+
+   Every test there starts as `test.skip(...)` because, mid-migration, the
+   public factories (`List`, `Map`, …) and public type names (`List<number>` as
+   a *type*) live only in `immutable.d.ts` — a test routed through a not-yet-
+   migrated factory cannot even type-check against the source (its errors are
+   suppressed only because the test is skipped).
+
+   **This is the skip-list to keep up to date.** When you migrate a file:
+
+   - In the corresponding `ts-tests-src/*.ts` file(s), change `test.skip(` back
+     to `test(` for the tests that now pass against the source, and run
+     `npm run test:types`. A test only goes green here once **everything it
+     touches** is migrated (the factory *and* the methods *and* the public type
+     name it asserts) — so a single collection migration may un-skip a whole
+     file, or only part of it.
+   - If a d.ts-only type was removed from a duplicate's imports (e.g. `MapOf`,
+     `RecordOf`, `DeepCopy` — see the header comment in each file), add it back
+     once it exists in the source.
+   - When the skip-list is empty and every source-pass test is green, the
+     migration is complete: flip the `immutable` path in
+     `type-definitions/ts-tests/tsconfig.json` to the source too (or delete the
+     duplicate directory) and remove `type-definitions/immutable.d.ts`.
+
+9. **Verify**:
    ```bash
    npm run type-check
    npm run test:unit
