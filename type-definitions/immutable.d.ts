@@ -4551,7 +4551,8 @@ declare namespace Immutable {
     | number
     | string
     | null
-    | undefined;
+    | undefined
+    | symbol;
 
   type FromJSArray<JSValue> =
     JSValue extends Array<infer T> ? List<FromJS<T>> : never;
