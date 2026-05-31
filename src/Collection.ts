@@ -1,4 +1,10 @@
-import { reduce } from './CollectionHelperMethods';
+import {
+  defaultNegComparator,
+  keyMapper,
+  neg,
+  not,
+  reduce,
+} from './CollectionHelperMethods';
 import {
   ITERATE_ENTRIES,
   ITERATE_KEYS,
@@ -6,10 +12,25 @@ import {
   type IteratorType,
 } from './Iterator';
 import { IndexedSeq, KeyedSeq, Seq, SetSeq } from './Seq';
-import { NOT_SET, returnTrue, wrapIndex } from './TrieUtils';
+import { ensureSize, NOT_SET, returnTrue, wrapIndex } from './TrieUtils';
 import type ValueObject from './ValueObject';
 import { is } from './is';
-import { mapFactory } from './operations/factories';
+import {
+  filterFactory,
+  flatMapFactory,
+  flattenFactory,
+  flipFactory,
+  interposeFactory,
+  mapFactory,
+  maxFactory,
+  partitionFactory,
+  reverseFactory,
+  skipWhileFactory,
+  sliceFactory,
+  sortFactory,
+  takeWhileFactory,
+  zipWithFactory,
+} from './operations/factories';
 import { reify } from './operations/helpers';
 import { isAssociative } from './predicates/isAssociative';
 import { isCollection, IS_COLLECTION_SYMBOL } from './predicates/isCollection';
@@ -423,6 +444,368 @@ export class CollectionImpl<K, V> implements ValueObject {
         : this.toSetSeq();
   }
 
+  /**
+   * Returns a new Collection of the same type with only the entries for which
+   * the `predicate` function returns true.
+   *
+   * Note: `filter()` always returns a new instance, even if it results in
+   * not filtering out any values.
+   */
+  filter<F extends V>(
+    predicate: (value: V, key: K, iter: this) => value is F,
+    context?: unknown
+  ): CollectionImpl<K, F>;
+  filter(
+    predicate: (value: V, key: K, iter: this) => unknown,
+    context?: unknown
+  ): this;
+  filter(
+    predicate: (value: V, key: K, iter: this) => unknown,
+    context?: unknown
+  ): unknown {
+    return reify(this, filterFactory(this, predicate, context, true));
+  }
+
+  /**
+   * Returns a new Collection of the same type with only the entries for which
+   * the `predicate` function returns false.
+   */
+  filterNot(
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: unknown
+  ): this {
+    return this.filter(not(predicate), context);
+  }
+
+  /**
+   * Returns a new Collection with the values for which the `predicate`
+   * function returns false and another for which is returns true.
+   */
+  partition<F extends V, C>(
+    predicate: (this: C, value: V, key: K, iter: this) => value is F,
+    context?: C
+  ): [CollectionImpl<K, V>, CollectionImpl<K, F>];
+  partition<C>(
+    predicate: (this: C, value: V, key: K, iter: this) => unknown,
+    context?: C
+  ): [this, this];
+  partition(
+    predicate: (value: V, key: K, iter: this) => unknown,
+    context?: unknown
+  ): unknown {
+    return partitionFactory(this, predicate, context);
+  }
+
+  /**
+   * Returns a new Collection of the same type in reverse order.
+   */
+  reverse(): this {
+    return reify(this, reverseFactory(this, true));
+  }
+
+  /**
+   * Returns a new Collection of the same type representing a portion of this
+   * Collection from start up to but not including end.
+   */
+  slice(begin?: number, end?: number): this {
+    return reify(this, sliceFactory(this, begin, end, true));
+  }
+
+  /**
+   * Returns a new Collection of the same type which includes the same entries,
+   * stably sorted by using a `comparator`.
+   *
+   * If a `comparator` is not provided, a default comparator uses `<` and `>`.
+   *
+   * When sorting collections which have no defined order, their ordered
+   * equivalents will be returned. e.g. `map.sort()` returns OrderedMap.
+   *
+   * Note: This is always an eager operation.
+   */
+  sort(comparator?: (valueA: V, valueB: V) => number): this {
+    return reify(this, sortFactory(this, comparator));
+  }
+
+  /**
+   * Like `sort`, but also accepts a `comparatorValueMapper` which allows for
+   * sorting by more sophisticated means.
+   *
+   * Note: This is always an eager operation.
+   */
+  sortBy<C>(
+    comparatorValueMapper: (value: V, key: K, iter: this) => C,
+    comparator?: (valueA: C, valueB: C) => number
+  ): this {
+    return reify(this, sortFactory(this, comparator, comparatorValueMapper));
+  }
+
+  /**
+   * Flat-maps the Collection, returning a Collection of the same type.
+   *
+   * Similar to `collection.map(...).flatten(true)`.
+   */
+  flatMap<M>(
+    mapper: (value: V, key: K, iter: this) => Iterable<M>,
+    context?: unknown
+  ): CollectionImpl<K, M>;
+  flatMap<KM, VM>(
+    mapper: (value: V, key: K, iter: this) => Iterable<[KM, VM]>,
+    context?: unknown
+  ): CollectionImpl<KM, VM>;
+  flatMap(
+    mapper: (value: V, key: K, iter: this) => Iterable<unknown>,
+    context?: unknown
+  ): unknown {
+    return reify(this, flatMapFactory(this, mapper, context));
+  }
+
+  /**
+   * Flattens nested Collections.
+   *
+   * Will deeply flatten the Collection by default, returning a Collection of
+   * the same type, but a `depth` can be provided in the form of a number or
+   * boolean (where true means to shallowly flatten one level). A depth of 0
+   * (or shallow: false) will deeply flatten.
+   */
+  flatten(depth?: number): CollectionImpl<unknown, unknown>;
+  flatten(shallow?: boolean): CollectionImpl<unknown, unknown>;
+  flatten(depth?: number | boolean): CollectionImpl<unknown, unknown> {
+    return reify(this, flattenFactory(this, depth, true));
+  }
+
+  /**
+   * Returns the maximum value in this collection. If any values are
+   * comparatively equivalent, the first one found will be returned.
+   */
+  max(comparator?: (valueA: V, valueB: V) => number): V | undefined {
+    return maxFactory(this, comparator);
+  }
+
+  /**
+   * Like `max`, but also accepts a `comparatorValueMapper` which allows for
+   * comparing by more sophisticated means.
+   */
+  maxBy<C>(
+    comparatorValueMapper: (value: V, key: K, iter: this) => C,
+    comparator?: (valueA: C, valueB: C) => number
+  ): V | undefined {
+    return maxFactory(this, comparator, comparatorValueMapper);
+  }
+
+  /**
+   * Returns the minimum value in this collection. If any values are
+   * comparatively equivalent, the first one found will be returned.
+   */
+  min(comparator?: (valueA: V, valueB: V) => number): V | undefined {
+    return maxFactory(
+      this,
+      comparator ? neg(comparator) : defaultNegComparator
+    );
+  }
+
+  /**
+   * Like `min`, but also accepts a `comparatorValueMapper` which allows for
+   * comparing by more sophisticated means.
+   */
+  minBy<C>(
+    comparatorValueMapper: (value: V, key: K, iter: this) => C,
+    comparator?: (valueA: C, valueB: C) => number
+  ): V | undefined {
+    return maxFactory(
+      this,
+      comparator ? neg(comparator) : defaultNegComparator,
+      comparatorValueMapper
+    );
+  }
+
+  /**
+   * Returns a new Collection of the same type which excludes the first `amount`
+   * entries from this Collection.
+   */
+  skip(amount: number): this {
+    return amount === 0 ? this : this.slice(Math.max(0, amount));
+  }
+
+  /**
+   * Returns a new Collection of the same type which excludes the last `amount`
+   * entries from this Collection.
+   */
+  skipLast(amount: number): this {
+    return amount === 0 ? this : this.slice(0, -Math.max(0, amount));
+  }
+
+  /**
+   * Returns a new Collection of the same type which includes entries starting
+   * from when `predicate` first returns false.
+   */
+  skipWhile(
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: unknown
+  ): this {
+    return reify(this, skipWhileFactory(this, predicate, context, true));
+  }
+
+  /**
+   * Returns a new Collection of the same type which includes entries starting
+   * from when `predicate` first returns true.
+   */
+  skipUntil(
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: unknown
+  ): this {
+    return this.skipWhile(not(predicate), context);
+  }
+
+  /**
+   * Returns a new Collection of the same type which includes the first `amount`
+   * entries from this Collection.
+   */
+  take(amount: number): this {
+    return this.slice(0, Math.max(0, amount));
+  }
+
+  /**
+   * Returns a new Collection of the same type which includes the last `amount`
+   * entries from this Collection.
+   */
+  takeLast(amount: number): this {
+    return this.slice(-Math.max(0, amount));
+  }
+
+  /**
+   * Returns a new Collection of the same type which includes entries from this
+   * Collection as long as the `predicate` returns true.
+   */
+  takeWhile(
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: unknown
+  ): this {
+    return reify(this, takeWhileFactory(this, predicate, context));
+  }
+
+  /**
+   * Returns a new Collection of the same type which includes entries from this
+   * Collection as long as the `predicate` returns false.
+   */
+  takeUntil(
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: unknown
+  ): this {
+    return this.takeWhile(not(predicate), context);
+  }
+
+  /**
+   * Returns a new Collection of the same type containing all entries except
+   * the last.
+   */
+  butLast(): this {
+    return this.slice(0, -1);
+  }
+
+  /**
+   * Returns a new Collection of the same type containing all entries except
+   * the first.
+   */
+  rest(): this {
+    return this.slice(1);
+  }
+
+  /**
+   * Returns the size of this Collection.
+   *
+   * If `predicate` is provided, then this returns the count of entries in the
+   * Collection for which the `predicate` returns true.
+   */
+  count(): number;
+  count(
+    predicate: (value: V, key: K, iter: CollectionImpl<K, V>) => boolean,
+    context?: unknown
+  ): number;
+  count(
+    predicate?: (value: V, key: K, iter: CollectionImpl<K, V>) => boolean,
+    context?: unknown
+  ): number {
+    return ensureSize(
+      predicate ? this.toSeq().filter(predicate, context) : this
+    );
+  }
+
+  /**
+   * Returns the last value for which the `predicate` returns true.
+   *
+   * Note: `predicate` will be called for each entry in reverse.
+   */
+  findLast(
+    predicate: (value: V, key: K, iter: CollectionImpl<K, V>) => boolean,
+    context?: unknown,
+    notSetValue?: V
+  ): V | undefined {
+    return this.toKeyedSeq().reverse().find(predicate, context, notSetValue);
+  }
+
+  /**
+   * Returns the last [key, value] entry for which the `predicate`
+   * returns true.
+   *
+   * Note: `predicate` will be called for each entry in reverse.
+   */
+  findLastEntry(
+    predicate: (value: V, key: K, iter: CollectionImpl<K, V>) => boolean,
+    context?: unknown,
+    notSetValue?: V
+  ): [K, V] | undefined {
+    return this.toKeyedSeq()
+      .reverse()
+      .findEntry(predicate, context, notSetValue);
+  }
+
+  /**
+   * Returns the last key for which the `predicate` returns true.
+   *
+   * Note: `predicate` will be called for each entry in reverse.
+   */
+  findLastKey(
+    predicate: (value: V, key: K, iter: CollectionImpl<K, V>) => boolean,
+    context?: unknown
+  ): K | undefined {
+    return this.toKeyedSeq().reverse().findKey(predicate, context);
+  }
+
+  /**
+   * Returns the last key associated with the search value, or undefined.
+   */
+  lastKeyOf(searchValue: V): K | undefined {
+    return this.toKeyedSeq().reverse().keyOf(searchValue);
+  }
+
+  /**
+   * Returns the last value in this Collection.
+   */
+  last<NSV>(notSetValue: NSV): V | NSV;
+  last(): V | undefined;
+  last(notSetValue?: unknown): unknown {
+    return this.toSeq()
+      .reverse()
+      .first(notSetValue as V | undefined);
+  }
+
+  /**
+   * Returns a new Seq.Indexed of the keys of this Collection,
+   * discarding values.
+   */
+  keySeq(): IndexedCollectionImpl<K> {
+    return this.toSeq()
+      .map(keyMapper)
+      .toIndexedSeq() as unknown as IndexedCollectionImpl<K>;
+  }
+
+  /**
+   * Returns a Seq.Indexed of the values of this Collection, discarding keys.
+   */
+  valueSeq(): IndexedCollectionImpl<V> {
+    return this.toIndexedSeq() as unknown as IndexedCollectionImpl<V>;
+  }
+
   __iterate(
     fn: (value: V, index: K, iter: this) => unknown,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -479,6 +862,14 @@ export class KeyedCollectionImpl<K, V> extends CollectionImpl<K, V> {
   // `KeyedCollectionImpl` structurally distinct from the base `CollectionImpl`,
   // otherwise `isKeyed`'s negative narrowing collapses `this` to `never`.
   declare [IS_KEYED_SYMBOL]: true;
+
+  /**
+   * Returns a new Collection.Keyed of the same type where the keys and values
+   * have been flipped.
+   */
+  flip(): KeyedCollectionImpl<V, K> {
+    return reify(this, flipFactory(this));
+  }
 }
 
 KeyedCollectionImpl.prototype[IS_KEYED_SYMBOL] = true;
@@ -555,9 +946,9 @@ export class IndexedCollectionImpl<T>
    * In case the `Collection` is empty returns the optional default
    * value if provided, if no default value is provided returns undefined.
    */
-  last<NSV>(notSetValue: NSV): T | NSV;
-  last(): T | undefined;
-  last(notSetValue?: unknown): unknown {
+  override last<NSV>(notSetValue: NSV): T | NSV;
+  override last(): T | undefined;
+  override last(notSetValue?: unknown): unknown {
     return this.get(-1, notSetValue);
   }
 
@@ -592,6 +983,157 @@ export class IndexedCollectionImpl<T>
         : this.find((_, key) => key === index, undefined, NOT_SET) !== NOT_SET)
     );
   }
+
+  override filter<F extends T>(
+    predicate: (value: T, index: number, iter: this) => value is F,
+    context?: unknown
+  ): IndexedCollectionImpl<F>;
+  override filter(
+    predicate: (value: T, index: number, iter: this) => unknown,
+    context?: unknown
+  ): this;
+  override filter(
+    predicate: (value: T, index: number, iter: this) => unknown,
+    context?: unknown
+  ): unknown {
+    return reify(this, filterFactory(this, predicate, context, false));
+  }
+
+  override reverse(): this {
+    return reify(this, reverseFactory(this, false));
+  }
+
+  override slice(begin?: number, end?: number): this {
+    return reify(this, sliceFactory(this, begin, end, false));
+  }
+
+  override flatten(depth?: number): CollectionImpl<unknown, unknown>;
+  override flatten(shallow?: boolean): CollectionImpl<unknown, unknown>;
+  override flatten(depth?: number | boolean): CollectionImpl<unknown, unknown> {
+    return reify(this, flattenFactory(this, depth, false));
+  }
+
+  override skipWhile(
+    predicate: (value: T, index: number, iter: this) => boolean,
+    context?: unknown
+  ): this {
+    return reify(this, skipWhileFactory(this, predicate, context, false));
+  }
+
+  /**
+   * Returns the last index at which a given value can be found in the
+   * Collection, or -1 if it is not present.
+   */
+  lastIndexOf(searchValue: T): number {
+    const key = this.lastKeyOf(searchValue);
+    return key === undefined ? -1 : key;
+  }
+
+  /**
+   * Returns the last index in the Collection where a value satisfies the
+   * provided predicate function. Otherwise -1 is returned.
+   */
+  findLastIndex(
+    predicate: (
+      value: T,
+      index: number,
+      iter: CollectionImpl<number, T>
+    ) => boolean,
+    context?: unknown
+  ): number {
+    const entry = this.findLastEntry(predicate, context);
+    return entry ? entry[0] : -1;
+  }
+
+  /**
+   * Returns a Collection of the same type with `separator` between each item
+   * in this Collection.
+   */
+  interpose(separator: T): this {
+    return reify(this, interposeFactory(this, separator));
+  }
+
+  /**
+   * Returns a Collection of the same type with the provided `collections`
+   * interleaved into this collection.
+   */
+  interleave(...collections: Array<CollectionImpl<unknown, T>>): this {
+    const thisAndCollections = [this, ...collections];
+    const zipped = zipWithFactory(
+      this.toSeq(),
+      IndexedSeq.of,
+      thisAndCollections
+    );
+    const interleaved = zipped.flatten(true);
+    if (zipped.size) {
+      interleaved.size = zipped.size * thisAndCollections.length;
+    }
+    return reify(this, interleaved);
+  }
+
+  /**
+   * Returns a Collection of the same type "zipped" with the provided
+   * collections.
+   *
+   * Like `zipWith`, but using the default `zipper`: creating an `Array`.
+   */
+  zip<U>(other: CollectionImpl<unknown, U>): IndexedCollectionImpl<[T, U]>;
+  zip<U, W>(
+    other: CollectionImpl<unknown, U>,
+    other2: CollectionImpl<unknown, W>
+  ): IndexedCollectionImpl<[T, U, W]>;
+  zip(
+    ...collections: Array<CollectionImpl<unknown, unknown>>
+  ): IndexedCollectionImpl<unknown>;
+  zip(...collections: Array<unknown>): unknown {
+    const thisAndCollections = [this, ...collections];
+    return reify(this, zipWithFactory(this, defaultZipper, thisAndCollections));
+  }
+
+  /**
+   * Returns a Collection "zipped" with the provided collections.
+   *
+   * Unlike `zip`, `zipAll` continues zipping until the longest collection is
+   * exhausted. Missing values from shorter collections are filled with
+   * `undefined`.
+   */
+  zipAll<U>(other: CollectionImpl<unknown, U>): IndexedCollectionImpl<[T, U]>;
+  zipAll<U, W>(
+    other: CollectionImpl<unknown, U>,
+    other2: CollectionImpl<unknown, W>
+  ): IndexedCollectionImpl<[T, U, W]>;
+  zipAll(
+    ...collections: Array<CollectionImpl<unknown, unknown>>
+  ): IndexedCollectionImpl<unknown>;
+  zipAll(...collections: Array<unknown>): unknown {
+    const thisAndCollections = [this, ...collections];
+    return reify(
+      this,
+      zipWithFactory(this, defaultZipper, thisAndCollections, true)
+    );
+  }
+
+  /**
+   * Returns a Collection of the same type "zipped" with the provided
+   * collections by using a custom `zipper` function.
+   */
+  zipWith<U, Z>(
+    zipper: (value: T, otherValue: U) => Z,
+    otherCollection: CollectionImpl<unknown, U>
+  ): IndexedCollectionImpl<Z>;
+  zipWith<U, W, Z>(
+    zipper: (value: T, otherValue: U, thirdValue: W) => Z,
+    otherCollection: CollectionImpl<unknown, U>,
+    thirdCollection: CollectionImpl<unknown, W>
+  ): IndexedCollectionImpl<Z>;
+  zipWith<Z>(
+    zipper: (...values: Array<unknown>) => Z,
+    ...collections: Array<CollectionImpl<unknown, unknown>>
+  ): IndexedCollectionImpl<Z>;
+  zipWith(zipper: unknown, ...collections: Array<unknown>): unknown {
+    const thisAndCollections = [this, ...collections];
+    return reify(this, zipWithFactory(this, zipper, thisAndCollections));
+  }
 }
 
 IndexedCollectionImpl.prototype[IS_INDEXED_SYMBOL] = true;
@@ -610,3 +1152,7 @@ export class SetCollectionImpl<T> extends CollectionImpl<T, T> {}
 Collection.Keyed = KeyedCollection;
 Collection.Indexed = IndexedCollection;
 Collection.Set = SetCollection;
+
+function defaultZipper(...values: Array<unknown>): Array<unknown> {
+  return values;
+}

@@ -24,6 +24,7 @@ conventions of the immutable-js 6.x branch.
    shot once the full migration is complete.
 
    When writing types for the migrated file:
+
    - Open `immutable.d.ts` and find the declarations that correspond to the
      symbols you are migrating.
    - **Copy the JSDoc description** from `immutable.d.ts` to the migrated
@@ -36,6 +37,21 @@ conventions of the immutable-js 6.x branch.
      naturally write (narrower union, branded type, stricter generic
      constraint…), **keep that stricter typing** in the new `.ts` source —
      do not relax it.
+   - **Preserve every overload signature.** Many methods are declared with
+     multiple signatures in `immutable.d.ts` (e.g. `filter` and `partition`
+     have a type-guard overload `=> value is F` plus a plain one; `flatMap`,
+     `flatten`, `zip`, `zipWith`, `count`, `first`/`last`/`get` all have
+     several). Do **not** collapse them into a single signature — copy each
+     overload, then write **one loose implementation signature** that is
+     compatible with all of them — use the widest parameter and return types
+     (e.g. a rest parameter of `Array<unknown>` returning `unknown`). The
+     implementation signature is not visible to callers; only the overloads
+     are. Adapt the
+     public collection types to the internal `*Impl` ones (e.g.
+     `Collection<K, F>` → `CollectionImpl<K, F>`). When overriding an
+     overloaded base method in a subclass, redeclare **all** the overloads
+     with the `override` modifier — otherwise the inherited overloads are
+     hidden.
    - If you are **unsure** whether your type matches the intent of the
      hand-written declaration, or if reconciling them feels complex, **stop
      and ask the user** before continuing.
