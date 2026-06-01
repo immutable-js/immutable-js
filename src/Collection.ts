@@ -752,7 +752,7 @@ export class CollectionImpl<K, V> implements ValueObject {
   findLastEntry(
     predicate: (value: V, key: K, iter: CollectionImpl<K, V>) => boolean,
     context?: unknown,
-    notSetValue?: V
+    notSetValue?: [K, V]
   ): [K, V] | undefined {
     return this.toKeyedSeq()
       .reverse()
