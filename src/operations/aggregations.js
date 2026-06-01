@@ -2,7 +2,7 @@ import { Map } from '../Map';
 import { OrderedMap } from '../OrderedMap';
 import { isKeyed } from '../predicates/isKeyed';
 import { isOrdered } from '../predicates/isOrdered';
-import { collectionClass, reify } from './helpers.js';
+import { collectionClass, reify } from './helpers';
 
 export function countByFactory(collection, grouper, context) {
   const groups = Map().asMutable();

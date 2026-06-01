@@ -20,7 +20,7 @@ import { IS_INDEXED_SYMBOL, isIndexed } from '../predicates/isIndexed';
 import { IS_KEYED_SYMBOL, isKeyed } from '../predicates/isKeyed';
 import { IS_ORDERED_SYMBOL } from '../predicates/isOrdered';
 import { mapFactory, reverseFactory } from './factories';
-import { cacheResultThrough } from './helpers.js';
+import { cacheResultThrough } from './helpers';
 
 export class ToKeyedSequence extends KeyedSeqImpl {
   constructor(indexed, useKeys) {

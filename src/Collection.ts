@@ -485,7 +485,11 @@ export class CollectionImpl<K, V> implements ValueObject {
   map<M>(
     mapper: (value: V, key: K, iter: this) => M,
     context?: unknown
-  ): CollectionImpl<K, M> {
+  ): CollectionImpl<K, M>;
+  map(
+    mapper: (value: V, key: K, iter: this) => unknown,
+    context?: unknown
+  ): unknown {
     return reify(this, mapFactory(this, mapper, context));
   }
 
@@ -919,7 +923,8 @@ export class KeyedCollectionImpl<K, V> extends CollectionImpl<K, V> {
    * Returns a new Collection.Keyed of the same type where the keys and values
    * have been flipped.
    */
-  flip(): KeyedCollectionImpl<V, K> {
+  flip(): KeyedCollectionImpl<V, K>;
+  flip(): unknown {
     return reify(this, flipFactory(this));
   }
 }

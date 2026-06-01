@@ -27,7 +27,7 @@ import {
   defaultComparator,
   makeSequence,
   reify,
-} from './helpers.js';
+} from './helpers';
 
 export function flipFactory(collection) {
   const flipSequence = makeSequence(collection);
