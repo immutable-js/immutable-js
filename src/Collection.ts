@@ -33,6 +33,17 @@ export function Collection(value: unknown): CollectionImpl<unknown, unknown> {
   return isCollection(value) ? value : Seq(value);
 }
 
+function hasIncludesMethod<V>(
+  iter: Iterable<V>
+): iter is Iterable<V> & { includes(value: V): boolean } {
+  return (
+    typeof iter === 'object' &&
+    iter !== null &&
+    'includes' in iter &&
+    typeof iter.includes === 'function'
+  );
+}
+
 export class CollectionImpl<K, V> implements ValueObject {
   private __hash: number | undefined;
 
@@ -159,9 +170,9 @@ export class CollectionImpl<K, V> implements ValueObject {
   findEntry(
     predicate: (value: V, key: K, iter: this) => boolean,
     context?: unknown,
-    notSetValue?: V
+    notSetValue?: [K, V]
   ): [K, V] | undefined {
-    let found = notSetValue as [K, V] | undefined;
+    let found = notSetValue;
 
     this.__iterate((v, k, c) => {
       if (predicate.call(context, v, k, c)) {
@@ -177,6 +188,11 @@ export class CollectionImpl<K, V> implements ValueObject {
   /**
    * Returns the first value for which the `predicate` returns true.
    */
+  find<NSV>(
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: unknown,
+    notSetValue?: NSV
+  ): V | NSV;
   find(
     predicate: (value: V, key: K, iter: this) => boolean,
     context?: unknown,
@@ -215,7 +231,7 @@ export class CollectionImpl<K, V> implements ValueObject {
   first<NSV>(notSetValue: NSV): V | NSV;
   first(): V | undefined;
   first(notSetValue?: unknown): unknown {
-    return this.find(returnTrue, null, notSetValue as V | undefined);
+    return this.find(returnTrue, null, notSetValue);
   }
 
   /**
@@ -229,11 +245,7 @@ export class CollectionImpl<K, V> implements ValueObject {
   get<NSV>(searchKey: K, notSetValue: NSV): V | NSV;
   get(searchKey: K): V | undefined;
   get(searchKey: K, notSetValue?: unknown): unknown {
-    return this.find(
-      (_, key) => is(key, searchKey),
-      undefined,
-      notSetValue as V | undefined
-    );
+    return this.find((_, key) => is(key, searchKey), undefined, notSetValue);
   }
 
   /**
@@ -241,9 +253,7 @@ export class CollectionImpl<K, V> implements ValueObject {
    * to determine equality
    */
   has(searchKey: K): boolean {
-    return (
-      this.get(searchKey, NOT_SET as unknown as V) !== (NOT_SET as unknown as V)
-    );
+    return this.get(searchKey, NOT_SET) !== NOT_SET;
   }
 
   /**
@@ -269,12 +279,7 @@ export class CollectionImpl<K, V> implements ValueObject {
    * True if `iter` includes every value in this Collection.
    */
   isSubset(iter: Iterable<V>): boolean {
-    // TODO better types !
-    const c =
-      typeof (iter as unknown as { includes?: unknown })?.includes ===
-      'function'
-        ? (iter as unknown as CollectionImpl<unknown, V>)
-        : (Collection(iter as never) as unknown as CollectionImpl<unknown, V>);
+    const c = hasIncludesMethod(iter) ? iter : Collection(iter);
 
     return this.every((value) => c.includes(value));
   }
@@ -283,14 +288,7 @@ export class CollectionImpl<K, V> implements ValueObject {
    * True if this Collection includes every value in `iter`.
    */
   isSuperset(iter: Iterable<V>): boolean {
-    // TODO better types !
-    const c =
-      typeof (iter as unknown as { isSubset?: unknown })?.isSubset ===
-      'function'
-        ? (iter as unknown as CollectionImpl<unknown, V>)
-        : (Collection(iter as never) as unknown as CollectionImpl<unknown, V>);
-
-    return c.isSubset(this as unknown as Iterable<V>);
+    return Collection(iter).every((value) => this.includes(value));
   }
 
   /**
@@ -324,6 +322,7 @@ export class CollectionImpl<K, V> implements ValueObject {
    *
    * @see `Array#reduce`.
    */
+  reduce(reducer: (reduction: V, value: V, key: K, iter: this) => V): V;
   reduce<R>(
     reducer: (reduction: R, value: V, key: K, iter: this) => R,
     initialReduction: R,
@@ -334,16 +333,15 @@ export class CollectionImpl<K, V> implements ValueObject {
     reducer: (reduction: V | R, value: V, key: K, iter: this) => R,
     initialReduction?: R,
     context?: unknown
-  ): R {
+  ): V | R | undefined {
     return reduce(
       this,
-      // @ts-expect-error reducer is (reduction: V | R, value: V, key: K, iter: this) => R, but CollectionImpl<unknown, unknown> is expected
       reducer,
       initialReduction,
       context,
       arguments.length < 2,
       false
-    ) as R; // TODO need better types for `reduce`
+    );
   }
 
   /**
@@ -352,6 +350,7 @@ export class CollectionImpl<K, V> implements ValueObject {
    * Note: Similar to this.reverse().reduce(), and provided for parity
    * with `Array#reduceRight`.
    */
+  reduceRight(reducer: (reduction: V, value: V, key: K, iter: this) => V): V;
   reduceRight<R>(
     reducer: (reduction: R, value: V, key: K, iter: this) => R,
     initialReduction: R,
@@ -364,16 +363,15 @@ export class CollectionImpl<K, V> implements ValueObject {
     reducer: (reduction: V | R, value: V, key: K, iter: this) => R,
     initialReduction?: R,
     context?: unknown
-  ): R {
+  ): V | R | undefined {
     return reduce(
       this,
-      // @ts-expect-error reducer is (reduction: V | R, value: V, key: K, iter: this) => R, but CollectionImpl<unknown, unknown> is expected
       reducer,
       initialReduction,
       context,
       arguments.length < 2,
       true
-    ) as R; // TODO need better types for `reduceRight`
+    );
   }
 
   /**
@@ -495,7 +493,7 @@ export class IndexedCollectionImpl<T>
   override first<NSV>(notSetValue: NSV): T | NSV;
   override first(): T | undefined;
   override first(notSetValue?: unknown): unknown {
-    return this.get(0, notSetValue as T | undefined);
+    return this.get(0, notSetValue);
   }
 
   /**
@@ -507,7 +505,7 @@ export class IndexedCollectionImpl<T>
   last<NSV>(notSetValue: NSV): T | NSV;
   last(): T | undefined;
   last(notSetValue?: unknown): unknown {
-    return this.get(-1, notSetValue as T | undefined);
+    return this.get(-1, notSetValue);
   }
 
   /**
@@ -525,11 +523,7 @@ export class IndexedCollectionImpl<T>
       this.size === Infinity ||
       (this.size !== undefined && index > this.size)
       ? notSetValue
-      : this.find(
-          (_, key) => key === index,
-          undefined,
-          notSetValue as T | undefined
-        );
+      : this.find((_, key) => key === index, undefined, notSetValue);
   }
 
   /**
@@ -542,12 +536,7 @@ export class IndexedCollectionImpl<T>
       index >= 0 &&
       (this.size !== undefined
         ? this.size === Infinity || index < this.size
-        : this.find(
-            (_, key) => key === index,
-            undefined,
-            // @ts-expect-error NSV will be add to find later
-            NOT_SET
-          ) !== NOT_SET)
+        : this.find((_, key) => key === index, undefined, NOT_SET) !== NOT_SET)
     );
   }
 }
