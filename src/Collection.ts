@@ -542,7 +542,12 @@ export class IndexedCollectionImpl<T>
       index >= 0 &&
       (this.size !== undefined
         ? this.size === Infinity || index < this.size
-        : this.indexOf(index as unknown as T) !== -1)
+        : this.find(
+            (_, key) => key === index,
+            undefined,
+            // @ts-expect-error NSV will be add to find later
+            NOT_SET
+          ) !== NOT_SET)
     );
   }
 }

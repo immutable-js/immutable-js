@@ -52,6 +52,22 @@ describe('IndexedSequence', () => {
     ]);
   });
 
+  it('has() checks index existence on a lazy seq of unknown size', () => {
+    // A filtered indexed Seq has no known size, so `has` must iterate by key.
+    // Regression: it previously delegated to `indexOf(index)`, which searches
+    // for a *value* equal to the index instead of checking the index itself.
+    const seq = Seq([10, 20, 30]).filter(() => true);
+    expect(seq.size).toBeUndefined();
+
+    expect(seq.has(0)).toBe(true);
+    expect(seq.has(2)).toBe(true);
+    // index out of bounds, even though the *value* 10 exists at index 0
+    expect(seq.has(10)).toBe(false);
+    expect(seq.has(3)).toBe(false);
+    // negative index resolves from the end (materializing the size)
+    expect(seq.has(-1)).toBe(true);
+  });
+
   it('negative indexes correctly', () => {
     const seq = Seq(['A', 'B', 'C', 'D', 'E']);
 
