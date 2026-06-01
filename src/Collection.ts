@@ -38,14 +38,37 @@ export class CollectionImpl<K, V> implements ValueObject {
 
   size: number = 0;
 
+  /**
+   * True if this and the other Collection have value equality, as defined
+   * by `Immutable.is()`.
+   *
+   * Note: This is equivalent to `Immutable.is(this, other)`, but provided to
+   * allow for chained expressions.
+   */
   equals(other: unknown): boolean {
     return deepEqual(this, other);
   }
 
+  /**
+   * Computes and returns the hashed identity for this Collection.
+   *
+   * The `hashCode` of a Collection is used to determine potential equality,
+   * and is used when adding this to a `Set` or as a key in a `Map`, enabling
+   * lookup via a different instance.
+   *
+   * If two values have the same `hashCode`, they are [not guaranteed
+   * to be equal][Hash Collision]. If two values have different `hashCode`s,
+   * they must not be equal.
+   *
+   * [Hash Collision]: https://en.wikipedia.org/wiki/Collision_(computer_science)
+   */
   hashCode() {
     return this.__hash || (this.__hash = hashCollection(this));
   }
 
+  /**
+   * True if `predicate` returns true for all entries in the Collection.
+   */
   every(
     predicate: (value: V, key: K, iter: this) => boolean,
     context?: CollectionImpl<K, V>
@@ -61,18 +84,42 @@ export class CollectionImpl<K, V> implements ValueObject {
     return returnValue;
   }
 
+  /**
+   * An iterator of this `Collection`'s entries as `[ key, value ]` tuples.
+   *
+   * Note: this will return an ES6 iterator which does not support
+   * Immutable.js sequence algorithms. Use `entrySeq` instead, if this is
+   * what you want.
+   */
   entries(): IterableIterator<[K, V]> {
     return this.__iterator(ITERATE_ENTRIES);
   }
 
+  /**
+   * An iterator of this `Collection`'s keys.
+   *
+   * Note: this will return an ES6 iterator which does not support
+   * Immutable.js sequence algorithms. Use `keySeq` instead, if this is
+   * what you want.
+   */
   keys(): IterableIterator<K> {
     return this.__iterator(ITERATE_KEYS);
   }
 
+  /**
+   * An iterator of this `Collection`'s values.
+   *
+   * Note: this will return an ES6 iterator which does not support
+   * Immutable.js sequence algorithms. Use `valueSeq` instead, if this is
+   * what you want.
+   */
   values(): IterableIterator<V> {
     return this.__iterator(ITERATE_VALUES);
   }
 
+  /**
+   * True if `predicate` returns true for any entry in the Collection.
+   */
   some(
     predicate: (value: V, key: K, iter: this) => boolean,
     context?: unknown
@@ -90,6 +137,13 @@ export class CollectionImpl<K, V> implements ValueObject {
     return returnValue;
   }
 
+  /**
+   * The `sideEffect` is executed for every entry in the Collection.
+   *
+   * Unlike `Array#forEach`, if any call of `sideEffect` returns
+   * `false`, the iteration will stop. Returns the number of entries iterated
+   * (including the last iteration which returned false).
+   */
   forEach(
     sideEffect: (value: V, key: K, iter: this) => unknown,
     context?: unknown
@@ -99,6 +153,9 @@ export class CollectionImpl<K, V> implements ValueObject {
     return this.__iterate(context ? sideEffect.bind(context) : sideEffect);
   }
 
+  /**
+   * Returns the first [key, value] entry for which the `predicate` returns true.
+   */
   findEntry(
     predicate: (value: V, key: K, iter: this) => boolean,
     context?: unknown,
@@ -117,6 +174,9 @@ export class CollectionImpl<K, V> implements ValueObject {
     return found;
   }
 
+  /**
+   * Returns the first value for which the `predicate` returns true.
+   */
   find(
     predicate: (value: V, key: K, iter: this) => boolean,
     context?: unknown,
@@ -127,6 +187,9 @@ export class CollectionImpl<K, V> implements ValueObject {
     return entry ? entry[1] : notSetValue;
   }
 
+  /**
+   * Returns the key for which the `predicate` returns true.
+   */
   findKey(
     predicate: (value: V, key: K, iter: this) => boolean,
     context?: unknown
@@ -136,16 +199,33 @@ export class CollectionImpl<K, V> implements ValueObject {
     return entry && entry[0];
   }
 
+  /**
+   * Returns the key associated with the search value, or undefined.
+   */
   keyOf(searchValue: V): K | undefined {
     return this.findKey((value) => is(value, searchValue));
   }
 
+  /**
+   * In case the `Collection` is not empty returns the first element of the
+   * `Collection`.
+   * In case the `Collection` is empty returns the optional default
+   * value if provided, if no default value is provided returns undefined.
+   */
   first<NSV>(notSetValue: NSV): V | NSV;
   first(): V | undefined;
   first(notSetValue?: unknown): unknown {
     return this.find(returnTrue, null, notSetValue as V | undefined);
   }
 
+  /**
+   * Returns the value associated with the provided key, or notSetValue if
+   * the Collection does not contain this key.
+   *
+   * Note: it is possible a key may be associated with an `undefined` value,
+   * so if `notSetValue` is not provided and this method returns `undefined`,
+   * that does not guarantee the key was not found.
+   */
   get<NSV>(searchKey: K, notSetValue: NSV): V | NSV;
   get(searchKey: K): V | undefined;
   get(searchKey: K, notSetValue?: unknown): unknown {
@@ -156,20 +236,38 @@ export class CollectionImpl<K, V> implements ValueObject {
     );
   }
 
+  /**
+   * True if a key exists within this `Collection`, using `Immutable.is`
+   * to determine equality
+   */
   has(searchKey: K): boolean {
     return (
       this.get(searchKey, NOT_SET as unknown as V) !== (NOT_SET as unknown as V)
     );
   }
 
+  /**
+   * True if a value exists within this `Collection`, using `Immutable.is`
+   * to determine equality
+   * @alias contains
+   */
   includes(searchValue: V): boolean {
     return this.some((value) => is(value, searchValue));
   }
 
+  /**
+   * Returns true if this Collection includes no values.
+   *
+   * For some lazy `Seq`, `isEmpty` might need to iterate to determine
+   * emptiness. At most one iteration will occur.
+   */
   isEmpty(): boolean {
     return this.size !== undefined ? this.size === 0 : !this.some(returnTrue);
   }
 
+  /**
+   * True if `iter` includes every value in this Collection.
+   */
   isSubset(iter: Iterable<V>): boolean {
     // TODO better types !
     const c =
@@ -181,6 +279,9 @@ export class CollectionImpl<K, V> implements ValueObject {
     return this.every((value) => c.includes(value));
   }
 
+  /**
+   * True if this Collection includes every value in `iter`.
+   */
   isSuperset(iter: Iterable<V>): boolean {
     // TODO better types !
     const c =
@@ -192,6 +293,10 @@ export class CollectionImpl<K, V> implements ValueObject {
     return c.isSubset(this as unknown as Iterable<V>);
   }
 
+  /**
+   * Joins values together as a string, inserting a separator between each.
+   * The default separator is `","`.
+   */
   join(separator?: string): string {
     assertNotInfinite(this.size);
     const sep = separator !== undefined ? '' + separator : ',';
@@ -210,6 +315,15 @@ export class CollectionImpl<K, V> implements ValueObject {
     return joined;
   }
 
+  /**
+   * Reduces the Collection to a value by calling the `reducer` for every entry
+   * in the Collection and passing along the reduced value.
+   *
+   * If `initialReduction` is not provided, the first item in the
+   * Collection will be used.
+   *
+   * @see `Array#reduce`.
+   */
   reduce<R>(
     reducer: (reduction: R, value: V, key: K, iter: this) => R,
     initialReduction: R,
@@ -232,6 +346,12 @@ export class CollectionImpl<K, V> implements ValueObject {
     ) as R; // TODO need better types for `reduce`
   }
 
+  /**
+   * Reduces the Collection in reverse (from the right side).
+   *
+   * Note: Similar to this.reverse().reduce(), and provided for parity
+   * with `Array#reduceRight`.
+   */
   reduceRight<R>(
     reducer: (reduction: R, value: V, key: K, iter: this) => R,
     initialReduction: R,
@@ -256,6 +376,12 @@ export class CollectionImpl<K, V> implements ValueObject {
     ) as R; // TODO need better types for `reduceRight`
   }
 
+  /**
+   * This can be very useful as a way to "chain" a normal function into a
+   * sequence of methods. RxJS calls this "let" and lodash calls it "thru".
+   *
+   * For example, to sum a Seq after mapping and filtering:
+   */
   update<R>(updater: (value: this) => R): R {
     return updater(this);
   }
@@ -339,6 +465,10 @@ export class IndexedCollectionImpl<T>
 
   declare [Symbol.iterator]: () => IterableIterator<T>;
 
+  /**
+   * Returns the first index in the Collection where a value satisfies the
+   * provided predicate function. Otherwise -1 is returned.
+   */
   findIndex(
     predicate: (value: T, index: number, iter: this) => boolean,
     context?: unknown
@@ -347,23 +477,46 @@ export class IndexedCollectionImpl<T>
     return entry ? entry[0] : -1;
   }
 
+  /**
+   * Returns the first index at which a given value can be found in the
+   * Collection, or -1 if it is not present.
+   */
   indexOf(searchValue: T): number {
     const key = this.keyOf(searchValue);
     return key === undefined ? -1 : key;
   }
 
+  /**
+   * In case the `Collection` is not empty returns the first element of the
+   * `Collection`.
+   * In case the `Collection` is empty returns the optional default
+   * value if provided, if no default value is provided returns undefined.
+   */
   override first<NSV>(notSetValue: NSV): T | NSV;
   override first(): T | undefined;
   override first(notSetValue?: unknown): unknown {
     return this.get(0, notSetValue as T | undefined);
   }
 
+  /**
+   * In case the `Collection` is not empty returns the last element of the
+   * `Collection`.
+   * In case the `Collection` is empty returns the optional default
+   * value if provided, if no default value is provided returns undefined.
+   */
   last<NSV>(notSetValue: NSV): T | NSV;
   last(): T | undefined;
   last(notSetValue?: unknown): unknown {
     return this.get(-1, notSetValue as T | undefined);
   }
 
+  /**
+   * Returns the value associated with the provided index, or notSetValue if
+   * the index is beyond the bounds of the Collection.
+   *
+   * `index` may be a negative number, which indexes back from the end of the
+   * Collection. `s.get(-1)` gets the last item in the Collection.
+   */
   override get<NSV>(index: number, notSetValue: NSV): T | NSV;
   override get(index: number): T | undefined;
   override get(index: number, notSetValue?: unknown): unknown {
@@ -379,6 +532,10 @@ export class IndexedCollectionImpl<T>
         );
   }
 
+  /**
+   * True if a key exists within this `Collection`, using `Immutable.is`
+   * to determine equality
+   */
   override has(index: number): boolean {
     index = wrapIndex(this, index);
     return (
