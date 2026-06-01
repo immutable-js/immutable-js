@@ -4459,6 +4459,9 @@
                 reduction = v;
             }
             else {
+                // `reduction` has already been seeded here (either with the provided
+                // initial value or with the first iterated value), so it is never the
+                // `undefined` placeholder — only a `V` or a `R`.
                 reduction = reducer.call(context, reduction, v, k, c);
             }
         }, reverse);
