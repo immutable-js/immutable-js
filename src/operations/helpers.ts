@@ -1,7 +1,10 @@
 import {
   IndexedCollection,
+  IndexedCollectionImpl,
   KeyedCollection,
+  KeyedCollectionImpl,
   SetCollection,
+  SetCollectionImpl,
   type CollectionImpl,
 } from '../Collection';
 import { IndexedSeqImpl, KeyedSeqImpl, SeqImpl, SetSeqImpl } from '../Seq';
@@ -27,13 +30,16 @@ export function reify<C extends CollectionImpl<unknown, unknown>>(
   if (iter === seq) {
     return iter;
   }
+
   if (isSeq(iter)) {
     // `iter` is lazy: the reified result is the sequence itself.
     return seq as C;
   }
+
   // Dynamic reconstruction through `create`/`constructor` is opaque to the
   // type system; the runtime guarantees the result is of the same kind as `C`.
   const factory = iter as unknown as Reifiable<C>;
+
   return factory.create ? factory.create(seq) : factory.constructor(seq);
 }
 
@@ -42,8 +48,17 @@ export function reify<C extends CollectionImpl<unknown, unknown>>(
  * `collection`, to be populated by the calling operation factory.
  */
 export function makeSequence(
+  collection: KeyedCollectionImpl<unknown, unknown>
+): KeyedSeqImpl;
+export function makeSequence(
+  collection: IndexedCollectionImpl<unknown>
+): IndexedSeqImpl;
+export function makeSequence(
+  collection: SetCollectionImpl<unknown>
+): SetSeqImpl;
+export function makeSequence(
   collection: CollectionImpl<unknown, unknown>
-): CollectionImpl<unknown, unknown> {
+): SeqImpl {
   return Object.create(
     (isKeyed(collection)
       ? KeyedSeqImpl
@@ -57,6 +72,16 @@ export function makeSequence(
 /**
  * Returns the public collection factory matching the kind of `collection`.
  */
+
+export function collectionClass(
+  collection: KeyedCollectionImpl<unknown, unknown>
+): typeof KeyedCollection;
+export function collectionClass(
+  collection: IndexedCollectionImpl<unknown>
+): typeof IndexedCollection;
+export function collectionClass(
+  collection: SetCollectionImpl<unknown>
+): typeof SetCollection;
 export function collectionClass(
   collection: CollectionImpl<unknown, unknown>
 ): typeof KeyedCollection | typeof IndexedCollection | typeof SetCollection {
@@ -79,8 +104,10 @@ export function cacheResultThrough(this: {
   if (this._iter.cacheResult) {
     this._iter.cacheResult();
     this.size = this._iter.size;
+
     return this;
   }
+
   return SeqImpl.prototype.cacheResult.call(this);
 }
 
@@ -88,17 +115,21 @@ export function cacheResultThrough(this: {
  * Default ordering comparator: sorts with `<`/`>`, placing `undefined` last.
  * Accepts `unknown` so it is usable as a fallback comparator for any value type.
  */
-export function defaultComparator(a: unknown, b: unknown): number {
+export function defaultComparator(a: unknown, b: unknown): -1 | 0 | 1 {
   if (a === undefined && b === undefined) {
     return 0;
   }
+
   if (a === undefined) {
     return 1;
   }
+
   if (b === undefined) {
     return -1;
   }
+
   const x = a as number | string;
   const y = b as number | string;
+
   return x > y ? 1 : x < y ? -1 : 0;
 }
