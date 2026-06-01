@@ -7,9 +7,12 @@ import {
   List,
   Map,
   OrderedMap,
+  OrderedSet,
   Range,
+  Repeat,
   Seq,
   Set,
+  Stack,
 } from 'immutable';
 
 describe('toSeq', () => {
@@ -27,12 +30,27 @@ describe('toSeq', () => {
     expect(seq.toArray()).toEqual([1, 2, 3]);
   });
 
+  it('returns an indexed Seq for a Stack, preserving order', () => {
+    const seq = Stack([1, 2, 3]).toSeq();
+    expect(isSeq(seq)).toBe(true);
+    expect(isIndexed(seq)).toBe(true);
+    expect(seq.toArray()).toEqual([1, 2, 3]);
+  });
+
   it('returns a set Seq for a set collection, preserving values', () => {
     const seq = Set([1, 2, 3]).toSeq();
     expect(isSeq(seq)).toBe(true);
     expect(isKeyed(seq)).toBe(false);
     expect(isIndexed(seq)).toBe(false);
     expect(seq.toArray().sort()).toEqual([1, 2, 3]);
+  });
+
+  it('returns a set Seq for an OrderedSet, preserving insertion order', () => {
+    const seq = OrderedSet([3, 1, 2]).toSeq();
+    expect(isSeq(seq)).toBe(true);
+    expect(isKeyed(seq)).toBe(false);
+    expect(isIndexed(seq)).toBe(false);
+    expect(seq.toArray()).toEqual([3, 1, 2]);
   });
 
   it('dispatches on the kind when called through the base Collection', () => {
@@ -45,6 +63,25 @@ describe('toSeq', () => {
     const again = seq.toSeq();
     expect(isSeq(again)).toBe(true);
     expect(again.toArray()).toEqual([1, 2, 3]);
+  });
+
+  it('returns the same instance for a keyed Seq', () => {
+    const seq = Seq.Keyed({ a: 1, b: 2 });
+    expect(seq.toSeq()).toBe(seq);
+    expect(isKeyed(seq.toSeq())).toBe(true);
+  });
+
+  it('returns the same instance for an indexed Seq', () => {
+    const seq = Seq.Indexed([1, 2, 3]);
+    expect(seq.toSeq()).toBe(seq);
+    expect(isIndexed(seq.toSeq())).toBe(true);
+  });
+
+  it('returns the same instance for a set Seq', () => {
+    const seq = Seq.Set([1, 2, 3]);
+    expect(seq.toSeq()).toBe(seq);
+    expect(isKeyed(seq.toSeq())).toBe(false);
+    expect(isIndexed(seq.toSeq())).toBe(false);
   });
 
   it('keeps ordering for ordered keyed collections', () => {
@@ -60,6 +97,13 @@ describe('toSeq', () => {
     const seq = Range(0, Infinity).toSeq();
     expect(isSeq(seq)).toBe(true);
     expect(seq.take(3).toArray()).toEqual([0, 1, 2]);
+  });
+
+  it('is lazy: works on an infinite Repeat', () => {
+    const seq = Repeat('x', Infinity).toSeq();
+    expect(isSeq(seq)).toBe(true);
+    expect(isIndexed(seq)).toBe(true);
+    expect(seq.take(3).toArray()).toEqual(['x', 'x', 'x']);
   });
 });
 
