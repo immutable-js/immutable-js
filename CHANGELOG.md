@@ -9,7 +9,6 @@ Dates are formatted as YYYY-MM-DD.
 ## Unreleased
 
 - fix(IndexedCollection): `has(index)` on a lazy `Seq` of unknown size now checks index existence instead of searching for a value equal to the index
-- `isSubset`/`isSuperset` now normalize non-Immutable inputs through `Collection()` (based on `isCollection`) instead of duck-typing an arbitrary `includes`/`isSubset` method. A plain object that is not an Immutable collection but happens to expose its own `includes` (for `isSubset`) or `isSubset` (for `isSuperset`) method will no longer have that method invoked — it is treated as a regular iterable. Immutable collections and arrays are unaffected.
 - [TypeScript]: `reduce`/`reduceRight` without an initial value now infer the result type from the collection's values when the reducer returns a value (e.g. `list.reduce((a, b) => a + b)` infers `number`), matching `Array#reduce`. Previously an explicit type argument was required.
 
 ## 6.0.0
@@ -82,6 +81,14 @@ This feature has been introduced in TS 5.0, which is more than two years old now
 ### [BREAKING] Remove transducersjs compatibility
 
 Remove transducersjs compatibility, as `cognitect-labs/transducers-js` has been archived in 2023. [#2146](https://github.com/immutable-js/immutable-js/pull/2146) by [@jdeniau](https://github.com/jdeniau)
+
+### [Minor BREAKING] `isSubset`/`isSuperset` on non-Immutable collections with `includes`/`isSubset` methods not working anymore.
+
+`isSubset`/`isSuperset` now normalize non-Immutable inputs through `Collection()` (based on `isCollection`) instead of duck-typing an arbitrary `includes`/`isSubset` method. A plain object that is not an Immutable collection but happens to expose its own `includes` (for `isSubset`) or `isSubset` (for `isSuperset`) method will no longer have that method invoked — it is treated as a regular iterable. Immutable collections and arrays are unaffected.
+
+#### Pull request details
+
+- better types 6.x [2204](https://github.com/immutable-js/immutable-js/pull/2204)
 
 ## 5.1.6
 

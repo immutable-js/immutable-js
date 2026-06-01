@@ -624,7 +624,7 @@ describe('List', () => {
 
   it('reduces values', () => {
     const v = List.of(1, 10, 100);
-    const r = v.reduce<number>((reduction, value) => reduction + value);
+    const r = v.reduce((reduction, value) => reduction + value);
     expect(r).toEqual(111);
     const r2 = v.reduce((reduction, value) => reduction + value, 1000);
     expect(r2).toEqual(1111);

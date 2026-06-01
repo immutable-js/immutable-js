@@ -10,7 +10,7 @@ export function reduce<K, V, R, C extends CollectionImpl<K, V>>(
   reverse: boolean
 ): V | R | undefined {
   assertNotInfinite(collection.size);
-  collection.__iterate((v, k, c) => {
+  collection.__iterate((v: V, k: K, c: C) => {
     if (useFirst) {
       useFirst = false;
       reduction = v;
