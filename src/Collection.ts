@@ -1113,7 +1113,8 @@ export class IndexedCollectionImpl<T>
    * Returns a Collection of the same type with the provided `collections`
    * interleaved into this collection.
    */
-  interleave(...collections: Array<CollectionImpl<unknown, T>>): this {
+  interleave(...collections: Array<CollectionImpl<unknown, T>>): this;
+  interleave(...collections: Array<CollectionImpl<unknown, T>>): unknown {
     const thisAndCollections = [this, ...collections];
     const zipped = zipWithFactory(
       this.toSeq(),

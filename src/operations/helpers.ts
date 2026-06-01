@@ -20,25 +20,23 @@ interface Reifiable<C> {
 }
 
 /**
- * Reconstructs a concrete collection of the same kind as `iter` from a lazy
- * `seq`. When `iter` is itself a `Seq`, the lazy sequence is returned as-is.
+ * Reconstructs a collection from the lazy `seq`, keeping the concrete kind of
+ * `iter` but the type of `seq` — operation factories produce a `seq` already
+ * typed with the resulting key/value types, so the result follows `seq`. When
+ * `iter` is itself a `Seq`, the lazy sequence is returned as-is.
  */
-export function reify<C extends CollectionImpl<unknown, unknown>>(
-  iter: C,
-  seq: CollectionImpl<unknown, unknown>
-): C {
-  if (iter === seq) {
-    return iter;
-  }
-
-  if (isSeq(iter)) {
-    // `iter` is lazy: the reified result is the sequence itself.
-    return seq as C;
+export function reify<S extends CollectionImpl<unknown, unknown>>(
+  iter: CollectionImpl<unknown, unknown>,
+  seq: S
+): S {
+  if (iter === seq || isSeq(iter)) {
+    return seq;
   }
 
   // Dynamic reconstruction through `create`/`constructor` is opaque to the
-  // type system; the runtime guarantees the result is of the same kind as `C`.
-  const factory = iter as unknown as Reifiable<C>;
+  // type system; the runtime guarantees the result matches `seq`'s types.
+  // TODO in 6.0: change to `factory: Reifiable<S>` and remove the `as unknown` cast
+  const factory = iter as unknown as Reifiable<S>;
 
   return factory.create ? factory.create(seq) : factory.constructor(seq);
 }
