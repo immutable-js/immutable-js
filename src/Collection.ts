@@ -33,6 +33,17 @@ export function Collection(value: unknown): CollectionImpl<unknown, unknown> {
   return isCollection(value) ? value : Seq(value);
 }
 
+function hasIncludesMethod<V>(
+  iter: Iterable<V>
+): iter is Iterable<V> & { includes(value: V): boolean } {
+  return (
+    typeof iter === 'object' &&
+    iter !== null &&
+    'includes' in iter &&
+    typeof iter.includes === 'function'
+  );
+}
+
 export class CollectionImpl<K, V> implements ValueObject {
   private __hash: number | undefined;
 
@@ -268,12 +279,7 @@ export class CollectionImpl<K, V> implements ValueObject {
    * True if `iter` includes every value in this Collection.
    */
   isSubset(iter: Iterable<V>): boolean {
-    // TODO better types !
-    const c =
-      typeof (iter as unknown as { includes?: unknown })?.includes ===
-      'function'
-        ? (iter as unknown as CollectionImpl<unknown, V>)
-        : (Collection(iter as never) as unknown as CollectionImpl<unknown, V>);
+    const c = hasIncludesMethod(iter) ? iter : Collection(iter);
 
     return this.every((value) => c.includes(value));
   }
@@ -282,14 +288,7 @@ export class CollectionImpl<K, V> implements ValueObject {
    * True if this Collection includes every value in `iter`.
    */
   isSuperset(iter: Iterable<V>): boolean {
-    // TODO better types !
-    const c =
-      typeof (iter as unknown as { isSubset?: unknown })?.isSubset ===
-      'function'
-        ? (iter as unknown as CollectionImpl<unknown, V>)
-        : (Collection(iter as never) as unknown as CollectionImpl<unknown, V>);
-
-    return c.isSubset(this as unknown as Iterable<V>);
+    return Collection(iter).every((value) => this.includes(value));
   }
 
   /**
