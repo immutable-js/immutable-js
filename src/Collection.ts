@@ -79,9 +79,9 @@ export class CollectionImpl<K, V> implements ValueObject {
   // the many instances built via `Object.create(prototype)` (e.g. mapped Seqs).
   declare [IS_COLLECTION_SYMBOL]: true;
 
-  declare toIndexedSeq: () => CollectionImpl<K, V>;
-  declare toKeyedSeq: () => CollectionImpl<K, V>;
-  declare toSetSeq: () => CollectionImpl<K, V>;
+  declare toIndexedSeq: () => IndexedCollectionImpl<V>;
+  declare toKeyedSeq: () => KeyedCollectionImpl<K, V>;
+  declare toSetSeq: () => SetCollectionImpl<V>;
 
   /**
    * True if this and the other Collection have value equality, as defined
@@ -437,11 +437,10 @@ export class CollectionImpl<K, V> implements ValueObject {
    * keyed, or set).
    */
   toSeq(): CollectionImpl<K, V> {
-    return isIndexed(this)
-      ? this.toIndexedSeq()
-      : isKeyed(this)
-        ? this.toKeyedSeq()
-        : this.toSetSeq();
+    // Indexed and set collections override `toSeq` with their concrete Seq
+    // kind, where the key type is fixed by the class. A keyed collection (and
+    // the abstract base) converts to a keyed Seq.
+    return this.toKeyedSeq();
   }
 
   /**
@@ -784,9 +783,7 @@ export class CollectionImpl<K, V> implements ValueObject {
   last<NSV>(notSetValue: NSV): V | NSV;
   last(): V | undefined;
   last(notSetValue?: unknown): unknown {
-    return this.toSeq()
-      .reverse()
-      .first(notSetValue as V | undefined);
+    return this.toSeq().reverse().first(notSetValue);
   }
 
   /**
@@ -794,16 +791,14 @@ export class CollectionImpl<K, V> implements ValueObject {
    * discarding values.
    */
   keySeq(): IndexedCollectionImpl<K> {
-    return this.toSeq()
-      .map(keyMapper)
-      .toIndexedSeq() as unknown as IndexedCollectionImpl<K>;
+    return this.toSeq().map(keyMapper).toIndexedSeq();
   }
 
   /**
    * Returns a Seq.Indexed of the values of this Collection, discarding keys.
    */
   valueSeq(): IndexedCollectionImpl<V> {
-    return this.toIndexedSeq() as unknown as IndexedCollectionImpl<V>;
+    return this.toIndexedSeq();
   }
 
   __iterate(
@@ -906,6 +901,10 @@ export class IndexedCollectionImpl<T>
   // type here; the values are set on the prototype just below the class.
   declare [IS_INDEXED_SYMBOL]: true;
   declare [IS_ORDERED_SYMBOL]: true;
+
+  override toSeq(): IndexedCollectionImpl<T> {
+    return this.toIndexedSeq();
+  }
 
   /**
    * Returns the first index in the Collection where a value satisfies the
@@ -1147,7 +1146,11 @@ export function SetCollection<T>(
     : SetSeq(value);
 }
 
-export class SetCollectionImpl<T> extends CollectionImpl<T, T> {}
+export class SetCollectionImpl<T> extends CollectionImpl<T, T> {
+  override toSeq(): SetCollectionImpl<T> {
+    return this.toSetSeq();
+  }
+}
 
 Collection.Keyed = KeyedCollection;
 Collection.Indexed = IndexedCollection;

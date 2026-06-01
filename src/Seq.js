@@ -91,6 +91,7 @@ export const KeyedSeq = (value) =>
         ? value.toSeq()
         : keyedSeqFromValue(value);
 export class KeyedSeqImpl extends SeqImpl {
+  /** @returns {import('./Collection').KeyedCollectionImpl<unknown, unknown>} */
   toKeyedSeq() {
     return this;
   }
@@ -111,6 +112,7 @@ IndexedSeq.of = function (...values) {
   return IndexedSeq(values);
 };
 export class IndexedSeqImpl extends SeqImpl {
+  /** @returns {import('./Collection').IndexedCollectionImpl<unknown>} */
   toIndexedSeq() {
     return this;
   }
@@ -130,6 +132,7 @@ SetSeq.of = function (...values) {
 };
 
 export class SetSeqImpl extends SeqImpl {
+  /** @returns {import('./Collection').SetCollectionImpl<unknown>} */
   toSetSeq() {
     return this;
   }
