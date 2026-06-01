@@ -1,3 +1,4 @@
+import type { DeepCopy, KeyPath } from '../type-definitions/immutable';
 import {
   defaultNegComparator,
   keyMapper,
@@ -14,6 +15,8 @@ import {
 import { IndexedSeq, KeyedSeq, Seq, SetSeq } from './Seq';
 import { ensureSize, NOT_SET, returnTrue, wrapIndex } from './TrieUtils';
 import type ValueObject from './ValueObject';
+import { getIn as functionalGetIn } from './functional/getIn';
+import { hasIn as functionalHasIn } from './functional/hasIn';
 import { is } from './is';
 import {
   filterFactory,
@@ -37,9 +40,11 @@ import { isCollection, IS_COLLECTION_SYMBOL } from './predicates/isCollection';
 import { isIndexed, IS_INDEXED_SYMBOL } from './predicates/isIndexed';
 import { isKeyed, IS_KEYED_SYMBOL } from './predicates/isKeyed';
 import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
+import { toJS } from './toJS';
 import assertNotInfinite from './utils/assertNotInfinite';
 import deepEqual from './utils/deepEqual';
 import { hashCollection } from './utils/hashCollection';
+import { isProtoKey } from './utils/protoInjection';
 
 export function Collection<I extends CollectionImpl<unknown, unknown>>(
   collection: I
@@ -109,6 +114,58 @@ export class CollectionImpl<K, V> implements ValueObject {
    */
   hashCode() {
     return this.__hash || (this.__hash = hashCollection(this));
+  }
+
+  /**
+   * Deeply converts this Collection to equivalent native JavaScript Array or Object.
+   *
+   * `Collection.Indexed`, and `Collection.Set` become `Array`, while
+   * `Collection.Keyed` become `Object`, converting keys to Strings.
+   */
+  toJS(): Array<DeepCopy<V>> | { [key in PropertyKey]: DeepCopy<V> } {
+    return toJS(this);
+  }
+
+  /**
+   * Shallowly converts this Collection to an Object.
+   */
+  toObject(): { [key in PropertyKey]: V } {
+    assertNotInfinite(this.size);
+    const object: { [key in PropertyKey]: V } = {};
+
+    this.__iterate((v, k) => {
+      if (isProtoKey(k)) {
+        return;
+      }
+
+      // k is converted as a PropertyKey when used as an index. See https://tc39.es/ecma262/#sec-topropertykey
+      object[k as PropertyKey] = v;
+    });
+
+    return object;
+  }
+
+  /**
+   * Returns the value found by following a path of keys or indices through
+   * nested Collections.
+   *
+   * Plain JavaScript Object or Arrays may be nested within an Immutable.js
+   * Collection, and getIn() can access those values as well:
+   */
+  getIn(searchKeyPath: KeyPath<unknown>, notSetValue?: unknown): unknown {
+    return functionalGetIn(this, searchKeyPath, notSetValue);
+  }
+
+  /**
+   * True if the result of following a path of keys or indices through nested
+   * Collections results in a set value.
+   */
+  hasIn(searchKeyPath: KeyPath<unknown>): boolean {
+    return functionalHasIn(this, searchKeyPath);
+  }
+
+  toString(): string {
+    return '[Collection]';
   }
 
   /**
@@ -1147,6 +1204,37 @@ export function SetCollection<T>(
 }
 
 export class SetCollectionImpl<T> extends CollectionImpl<T, T> {
+  /**
+   * Returns the value associated with the provided key, or notSetValue if
+   * the Collection does not contain this key.
+   *
+   * Note: it is possible a key may be associated with an `undefined` value,
+   * so if `notSetValue` is not provided and this method returns `undefined`,
+   * that does not guarantee the key was not found.
+   */
+  override get<NSV>(value: T, notSetValue: NSV): T | NSV;
+  override get(value: T): T | undefined;
+  override get(value: T, notSetValue?: unknown): unknown {
+    return this.has(value) ? value : notSetValue;
+  }
+
+  /**
+   * True if a value exists within this `Collection`, using `Immutable.is`
+   * to determine equality
+   * @alias contains
+   */
+  override includes(value: T): boolean {
+    return this.has(value);
+  }
+
+  /**
+   * Returns a new Seq.Indexed of the keys of this Collection,
+   * discarding values.
+   */
+  override keySeq(): IndexedCollectionImpl<T> {
+    return this.valueSeq();
+  }
+
   override toSeq(): SetCollectionImpl<T> {
     return this.toSetSeq();
   }

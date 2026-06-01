@@ -1,3 +1,4 @@
+import type { DeepCopy } from '../type-definitions/immutable';
 import type { CollectionImpl } from './Collection';
 import type { RecordImpl } from './Record';
 import { Seq } from './Seq';
@@ -6,8 +7,11 @@ import { isKeyed } from './predicates/isKeyed';
 import isDataStructure from './utils/isDataStructure';
 import { isProtoKey } from './utils/protoInjection';
 
+export function toJS<K, V>(
+  value: CollectionImpl<K, V>
+): Array<DeepCopy<V>> | { [key in PropertyKey]: DeepCopy<V> };
 export function toJS(
-  value: CollectionImpl<unknown, unknown> | RecordImpl
+  value: RecordImpl
 ): Array<unknown> | { [key: string]: unknown };
 export function toJS(value: unknown): unknown;
 export function toJS(

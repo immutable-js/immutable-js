@@ -16,8 +16,6 @@ import { ArraySeq, IndexedSeqImpl, KeyedSeqImpl, SetSeqImpl } from './Seq';
 import { Set } from './Set';
 import { Stack } from './Stack';
 import { resolveBegin } from './TrieUtils';
-import { getIn } from './methods/getIn';
-import { hasIn } from './methods/hasIn';
 import { toObject } from './methods/toObject';
 import { countByFactory, groupByFactory } from './operations/aggregations';
 import { reify } from './operations/helpers';
@@ -29,7 +27,6 @@ import {
   ToSetSequence,
 } from './operations/sequences';
 import { isKeyed } from './predicates/isKeyed';
-import { toJS } from './toJS';
 import assertNotInfinite from './utils/assertNotInfinite';
 import mixin from './utils/mixin';
 import quoteString from './utils/quoteString';
@@ -57,10 +54,6 @@ mixin(CollectionImpl, {
     return new ToIndexedSequence(this);
   },
 
-  toJS() {
-    return toJS(this);
-  },
-
   toKeyedSeq() {
     return new ToKeyedSequence(this, true);
   },
@@ -69,8 +62,6 @@ mixin(CollectionImpl, {
     // Use Late Binding here to solve the circular dependency.
     return Map(this.toKeyedSeq());
   },
-
-  toObject: toObject,
 
   toOrderedMap() {
     // Use Late Binding here to solve the circular dependency.
@@ -102,10 +93,6 @@ mixin(CollectionImpl, {
   },
 
   // ### Common JavaScript methods and properties
-
-  toString() {
-    return '[Collection]';
-  },
 
   __toString(head, tail) {
     if (this.size === 0) {
@@ -152,13 +139,9 @@ mixin(CollectionImpl, {
     return new FromEntriesSequence(this);
   },
 
-  getIn: getIn,
-
   groupBy(grouper, context) {
     return groupByFactory(this, grouper, context);
   },
-
-  hasIn: hasIn,
 
   // ### Hashable Object
 
@@ -245,24 +228,6 @@ mixin(IndexedCollectionImpl, {
 });
 
 const IndexedCollectionPrototype = IndexedCollectionImpl.prototype;
-
-mixin(SetCollectionImpl, {
-  // ### ES6 Collection methods (ES6 Array and Map)
-
-  get(value, notSetValue) {
-    return this.has(value) ? value : notSetValue;
-  },
-
-  includes(value) {
-    return this.has(value);
-  },
-
-  // ### More sequential methods
-
-  keySeq() {
-    return this.valueSeq();
-  },
-});
 
 const SetCollectionPrototype = SetCollectionImpl.prototype;
 SetCollectionPrototype.has = CollectionPrototype.includes;
