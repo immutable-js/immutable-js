@@ -1,21 +1,24 @@
 import type { CollectionImpl } from './Collection';
 import assertNotInfinite from './utils/assertNotInfinite';
 
-export function reduce(
-  collection: CollectionImpl<unknown, unknown>,
-  reducer: (...args: unknown[]) => unknown,
-  reduction: unknown,
+export function reduce<K, V, R, C extends CollectionImpl<K, V>>(
+  collection: C,
+  reducer: (reduction: V | R, value: V, key: K, iter: C) => R,
+  reduction: V | R | undefined,
   context: unknown,
   useFirst: boolean,
   reverse: boolean
-) {
+): V | R | undefined {
   assertNotInfinite(collection.size);
   collection.__iterate((v, k, c) => {
     if (useFirst) {
       useFirst = false;
       reduction = v;
     } else {
-      reduction = reducer.call(context, reduction, v, k, c);
+      // `reduction` has already been seeded here (either with the provided
+      // initial value or with the first iterated value), so it is never the
+      // `undefined` placeholder — only a `V` or a `R`.
+      reduction = reducer.call(context, reduction!, v, k, c);
     }
   }, reverse);
   return reduction;

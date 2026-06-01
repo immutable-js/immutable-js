@@ -322,6 +322,7 @@ export class CollectionImpl<K, V> implements ValueObject {
    *
    * @see `Array#reduce`.
    */
+  reduce(reducer: (reduction: V, value: V, key: K, iter: this) => V): V;
   reduce<R>(
     reducer: (reduction: R, value: V, key: K, iter: this) => R,
     initialReduction: R,
@@ -332,16 +333,15 @@ export class CollectionImpl<K, V> implements ValueObject {
     reducer: (reduction: V | R, value: V, key: K, iter: this) => R,
     initialReduction?: R,
     context?: unknown
-  ): R {
+  ): V | R | undefined {
     return reduce(
       this,
-      // @ts-expect-error reducer is (reduction: V | R, value: V, key: K, iter: this) => R, but CollectionImpl<unknown, unknown> is expected
       reducer,
       initialReduction,
       context,
       arguments.length < 2,
       false
-    ) as R; // TODO need better types for `reduce`
+    );
   }
 
   /**
@@ -350,6 +350,7 @@ export class CollectionImpl<K, V> implements ValueObject {
    * Note: Similar to this.reverse().reduce(), and provided for parity
    * with `Array#reduceRight`.
    */
+  reduceRight(reducer: (reduction: V, value: V, key: K, iter: this) => V): V;
   reduceRight<R>(
     reducer: (reduction: R, value: V, key: K, iter: this) => R,
     initialReduction: R,
@@ -362,16 +363,15 @@ export class CollectionImpl<K, V> implements ValueObject {
     reducer: (reduction: V | R, value: V, key: K, iter: this) => R,
     initialReduction?: R,
     context?: unknown
-  ): R {
+  ): V | R | undefined {
     return reduce(
       this,
-      // @ts-expect-error reducer is (reduction: V | R, value: V, key: K, iter: this) => R, but CollectionImpl<unknown, unknown> is expected
       reducer,
       initialReduction,
       context,
       arguments.length < 2,
       true
-    ) as R; // TODO need better types for `reduceRight`
+    );
   }
 
   /**
