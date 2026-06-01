@@ -159,9 +159,9 @@ export class CollectionImpl<K, V> implements ValueObject {
   findEntry(
     predicate: (value: V, key: K, iter: this) => boolean,
     context?: unknown,
-    notSetValue?: V
+    notSetValue?: [K, V]
   ): [K, V] | undefined {
-    let found = notSetValue as [K, V] | undefined;
+    let found = notSetValue;
 
     this.__iterate((v, k, c) => {
       if (predicate.call(context, v, k, c)) {
@@ -177,6 +177,11 @@ export class CollectionImpl<K, V> implements ValueObject {
   /**
    * Returns the first value for which the `predicate` returns true.
    */
+  find<NSV>(
+    predicate: (value: V, key: K, iter: this) => boolean,
+    context?: unknown,
+    notSetValue?: NSV
+  ): V | NSV;
   find(
     predicate: (value: V, key: K, iter: this) => boolean,
     context?: unknown,
@@ -215,7 +220,7 @@ export class CollectionImpl<K, V> implements ValueObject {
   first<NSV>(notSetValue: NSV): V | NSV;
   first(): V | undefined;
   first(notSetValue?: unknown): unknown {
-    return this.find(returnTrue, null, notSetValue as V | undefined);
+    return this.find(returnTrue, null, notSetValue);
   }
 
   /**
@@ -229,11 +234,7 @@ export class CollectionImpl<K, V> implements ValueObject {
   get<NSV>(searchKey: K, notSetValue: NSV): V | NSV;
   get(searchKey: K): V | undefined;
   get(searchKey: K, notSetValue?: unknown): unknown {
-    return this.find(
-      (_, key) => is(key, searchKey),
-      undefined,
-      notSetValue as V | undefined
-    );
+    return this.find((_, key) => is(key, searchKey), undefined, notSetValue);
   }
 
   /**
@@ -241,9 +242,7 @@ export class CollectionImpl<K, V> implements ValueObject {
    * to determine equality
    */
   has(searchKey: K): boolean {
-    return (
-      this.get(searchKey, NOT_SET as unknown as V) !== (NOT_SET as unknown as V)
-    );
+    return this.get(searchKey, NOT_SET) !== NOT_SET;
   }
 
   /**
@@ -495,7 +494,7 @@ export class IndexedCollectionImpl<T>
   override first<NSV>(notSetValue: NSV): T | NSV;
   override first(): T | undefined;
   override first(notSetValue?: unknown): unknown {
-    return this.get(0, notSetValue as T | undefined);
+    return this.get(0, notSetValue);
   }
 
   /**
@@ -507,7 +506,7 @@ export class IndexedCollectionImpl<T>
   last<NSV>(notSetValue: NSV): T | NSV;
   last(): T | undefined;
   last(notSetValue?: unknown): unknown {
-    return this.get(-1, notSetValue as T | undefined);
+    return this.get(-1, notSetValue);
   }
 
   /**
@@ -525,11 +524,7 @@ export class IndexedCollectionImpl<T>
       this.size === Infinity ||
       (this.size !== undefined && index > this.size)
       ? notSetValue
-      : this.find(
-          (_, key) => key === index,
-          undefined,
-          notSetValue as T | undefined
-        );
+      : this.find((_, key) => key === index, undefined, notSetValue);
   }
 
   /**
@@ -542,12 +537,7 @@ export class IndexedCollectionImpl<T>
       index >= 0 &&
       (this.size !== undefined
         ? this.size === Infinity || index < this.size
-        : this.find(
-            (_, key) => key === index,
-            undefined,
-            // @ts-expect-error NSV will be add to find later
-            NOT_SET
-          ) !== NOT_SET)
+        : this.find((_, key) => key === index, undefined, NOT_SET) !== NOT_SET)
     );
   }
 }
