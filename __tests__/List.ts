@@ -1,4 +1,4 @@
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it, jest } from '@jest/globals';
 import fc from 'fast-check';
 import { List, Map, Range, Seq, Set, fromJS } from 'immutable';
 import { create as createSeed } from 'random-seed';
@@ -624,10 +624,25 @@ describe('List', () => {
 
   it('reduces values', () => {
     const v = List.of(1, 10, 100);
-    const r = v.reduce<number>((reduction, value) => reduction + value);
+    const r = v.reduce((reduction, value) => reduction + value);
     expect(r).toEqual(111);
     const r2 = v.reduce((reduction, value) => reduction + value, 1000);
     expect(r2).toEqual(1111);
+  });
+
+  it('reduces without an initial value', () => {
+    // With a single value and no initial reduction, the reducer is never
+    // called and the lone value is returned as-is.
+    const reducer = jest.fn((reduction: number, value: number) =>
+      Math.max(reduction, value)
+    );
+    expect(List.of(42).reduce(reducer)).toEqual(42);
+    expect(reducer).not.toHaveBeenCalled();
+
+    // An empty list with no initial reduction returns undefined.
+    expect(
+      List<number>().reduce((reduction, value) => reduction + value)
+    ).toBeUndefined();
   });
 
   it('reduces from the right', () => {
