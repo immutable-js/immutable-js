@@ -9,6 +9,7 @@ Dates are formatted as YYYY-MM-DD.
 ## Unreleased
 
 - fix(IndexedCollection): `has(index)` on a lazy `Seq` of unknown size now checks index existence instead of searching for a value equal to the index
+- [TypeScript]: `reduce`/`reduceRight` without an initial value now infer the result type from the collection's values when the reducer returns a value (e.g. `list.reduce((a, b) => a + b)` infers `number`), matching `Array#reduce`. Previously an explicit type argument was required.
 
 ## 5.1.6
 
@@ -20,26 +21,26 @@ Dates are formatted as YYYY-MM-DD.
 
 ## 5.1.4
 
-* Migrate some files to TS by @jdeniau in https://github.com/immutable-js/immutable-js/pull/2125
-  * Iterator.ts
-  * PairSorting.ts
-  * toJS.ts
-  * Math.ts
-  * Hash.ts
-* Extract CollectionHelperMethods and convert to TS by @jdeniau in https://github.com/immutable-js/immutable-js/pull/2131
-* Use npm [trusted publishing only](https://docs.npmjs.com/trusted-publishers) to avoid token stealing.
+- Migrate some files to TS by @jdeniau in https://github.com/immutable-js/immutable-js/pull/2125
+  - Iterator.ts
+  - PairSorting.ts
+  - toJS.ts
+  - Math.ts
+  - Hash.ts
+- Extract CollectionHelperMethods and convert to TS by @jdeniau in https://github.com/immutable-js/immutable-js/pull/2131
+- Use npm [trusted publishing only](https://docs.npmjs.com/trusted-publishers) to avoid token stealing.
 
 ### Documentation
 
-* Fix/a11y issues by @lyannel in https://github.com/immutable-js/immutable-js/pull/2136
-* Doc add Map.get signature update by @borracciaBlu in https://github.com/immutable-js/immutable-js/pull/2138
-* fix(doc):minor-issues#2132 by @JayMeDotDot in https://github.com/immutable-js/immutable-js/pull/2133
-* Fix algolia search by @jdeniau in https://github.com/immutable-js/immutable-js/pull/2135
-* Typo in OrderedMap by @jdeniau in https://github.com/immutable-js/immutable-js/pull/2144
+- Fix/a11y issues by @lyannel in https://github.com/immutable-js/immutable-js/pull/2136
+- Doc add Map.get signature update by @borracciaBlu in https://github.com/immutable-js/immutable-js/pull/2138
+- fix(doc):minor-issues#2132 by @JayMeDotDot in https://github.com/immutable-js/immutable-js/pull/2133
+- Fix algolia search by @jdeniau in https://github.com/immutable-js/immutable-js/pull/2135
+- Typo in OrderedMap by @jdeniau in https://github.com/immutable-js/immutable-js/pull/2144
 
 ### Internal
 
-* chore: Sort all imports and activate eslint import rule by @jdeniau in https://github.com/immutable-js/immutable-js/pull/2119
+- chore: Sort all imports and activate eslint import rule by @jdeniau in https://github.com/immutable-js/immutable-js/pull/2119
 
 ## 5.1.3
 

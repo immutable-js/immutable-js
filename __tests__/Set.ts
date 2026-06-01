@@ -277,6 +277,23 @@ describe('Set', () => {
     expect(s.isSuperset(['B', 'C', 'D'])).toBe(false);
   });
 
+  it('can determine if it is a subset of an iterable', () => {
+    const s = Set.of('A', 'B');
+    // plain array (uses the iterable's own `includes`)
+    expect(s.isSubset(['A', 'B', 'C'])).toBe(true);
+    expect(s.isSubset(['A', 'Z'])).toBe(false);
+    // another immutable collection
+    expect(s.isSubset(Set.of('A', 'B', 'C'))).toBe(true);
+    expect(s.isSubset(List.of('A', 'B', 'C'))).toBe(true);
+  });
+
+  it('accepts a primitive iterable (string) without throwing', () => {
+    // A string is a valid Iterable<string>; the membership test must not throw.
+    expect(Set.of('a', 'b').isSubset('abc')).toBe(true);
+    expect(Set.of('a', 'z').isSubset('abc')).toBe(false);
+    expect(Set.of('a', 'b').isSuperset('ab')).toBe(true);
+  });
+
   describe('accepts Symbol as entry #579', () => {
     it('operates on small number of symbols, preserving set uniqueness', () => {
       const a = Symbol();

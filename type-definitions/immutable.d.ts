@@ -4219,6 +4219,7 @@ declare namespace Immutable {
      *
      * @see `Array#reduce`.
      */
+    reduce(reducer: (reduction: V, value: V, key: K, iter: this) => V): V;
     reduce<R>(
       reducer: (reduction: R, value: V, key: K, iter: this) => R,
       initialReduction: R,
@@ -4234,6 +4235,7 @@ declare namespace Immutable {
      * Note: Similar to this.reverse().reduce(), and provided for parity
      * with `Array#reduceRight`.
      */
+    reduceRight(reducer: (reduction: V, value: V, key: K, iter: this) => V): V;
     reduceRight<R>(
       reducer: (reduction: R, value: V, key: K, iter: this) => R,
       initialReduction: R,
