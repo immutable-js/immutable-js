@@ -229,4 +229,15 @@ describe('Range', () => {
     expect(Range(0, 10, 2).toString()).toBe('Range [ 0...10 by 2 ]');
     expect(Range(10, 0, -2).toString()).toBe('Range [ 10...0 by -2 ]');
   });
+
+  it('has() checks index existence on a lazy seq of unknown size', () => {
+    // A filtered indexed Seq has no known size, so `has` must iterate by key.
+    // Regression: it previously delegated to `indexOf(index)`, which searches
+    // for a *value* equal to the index instead of checking the index itself.
+    const filteredRange = Range(0, 10, 3) // [0, 3, 6, 9]
+      .filter((v) => v % 2 === 0); // [0, 6];
+
+    expect(filteredRange.has(6)).toBe(false);
+    expect(filteredRange.has(1)).toBe(true);
+  });
 });

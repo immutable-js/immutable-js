@@ -8,6 +8,8 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+- fix(IndexedCollection): `has(index)` on a lazy `Seq` of unknown size now checks index existence instead of searching for a value equal to the index
+
 ## 5.1.6
 
 - fix(reverseFactory): read `reversedSequence.size` in `__iterator` instead of this [#2196](https://github.com/immutable-js/immutable-js/pull/2196)
