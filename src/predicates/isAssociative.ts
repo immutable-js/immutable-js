@@ -16,10 +16,8 @@ import { isKeyed } from './isKeyed';
  * isAssociative(Set()); // false
  * ```
  */
-export function isAssociative(
+export function isAssociative<K, V>(
   maybeAssociative: unknown
-): maybeAssociative is
-  | KeyedCollectionImpl<unknown, unknown>
-  | IndexedCollectionImpl<unknown> {
-  return isKeyed(maybeAssociative) || isIndexed(maybeAssociative);
+): maybeAssociative is KeyedCollectionImpl<K, V> | IndexedCollectionImpl<V> {
+  return isKeyed<K, V>(maybeAssociative) || isIndexed<V>(maybeAssociative);
 }

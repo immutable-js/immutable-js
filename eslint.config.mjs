@@ -120,7 +120,7 @@ export default tseslintConfig(
   },
 
   {
-    files: ['type-definitions/ts-tests/*'],
+    files: ['type-definitions/ts-tests/*', 'type-definitions/ts-tests-src/*'],
 
     rules: {
       '@typescript-eslint/no-unused-vars': 'off',

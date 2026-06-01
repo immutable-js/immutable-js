@@ -5,49 +5,21 @@ import {
   KeyedCollectionImpl,
   SetCollectionImpl,
 } from './Collection';
-import {
-  defaultNegComparator,
-  entryMapper,
-  keyMapper,
-  neg,
-  not,
-} from './CollectionHelperMethods';
+import { entryMapper } from './CollectionHelperMethods';
 import { Iterator } from './Iterator';
 import { List } from './List';
 import { Map } from './Map';
 import { OrderedMap } from './OrderedMap';
 import { OrderedSet } from './OrderedSet';
 import { Range } from './Range';
-import {
-  ArraySeq,
-  IndexedSeq,
-  IndexedSeqImpl,
-  KeyedSeqImpl,
-  SetSeqImpl,
-} from './Seq';
+import { ArraySeq, IndexedSeqImpl, KeyedSeqImpl, SetSeqImpl } from './Seq';
 import { Set } from './Set';
 import { Stack } from './Stack';
-import { ensureSize, resolveBegin } from './TrieUtils';
+import { resolveBegin } from './TrieUtils';
 import { getIn } from './methods/getIn';
 import { hasIn } from './methods/hasIn';
 import { toObject } from './methods/toObject';
 import { countByFactory, groupByFactory } from './operations/aggregations';
-import {
-  filterFactory,
-  flatMapFactory,
-  flattenFactory,
-  flipFactory,
-  interposeFactory,
-  mapFactory,
-  maxFactory,
-  partitionFactory,
-  reverseFactory,
-  skipWhileFactory,
-  sliceFactory,
-  sortFactory,
-  takeWhileFactory,
-  zipWithFactory,
-} from './operations/factories';
 import { reify } from './operations/helpers';
 import {
   concatFactory,
@@ -56,10 +28,7 @@ import {
   ToKeyedSequence,
   ToSetSequence,
 } from './operations/sequences';
-import { IS_COLLECTION_SYMBOL } from './predicates/isCollection';
-import { isIndexed, IS_INDEXED_SYMBOL } from './predicates/isIndexed';
-import { isKeyed, IS_KEYED_SYMBOL } from './predicates/isKeyed';
-import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
+import { isKeyed } from './predicates/isKeyed';
 import { toJS } from './toJS';
 import assertNotInfinite from './utils/assertNotInfinite';
 import mixin from './utils/mixin';
@@ -122,14 +91,6 @@ mixin(CollectionImpl, {
     return new ToSetSequence(this);
   },
 
-  toSeq() {
-    return isIndexed(this)
-      ? this.toIndexedSeq()
-      : isKeyed(this)
-        ? this.toKeyedSeq()
-        : this.toSetSeq();
-  },
-
   toStack() {
     // Use Late Binding here to solve the circular dependency.
     return Stack(isKeyed(this) ? this.valueSeq() : this);
@@ -165,41 +126,7 @@ mixin(CollectionImpl, {
     return reify(this, concatFactory(this, values));
   },
 
-  filter(predicate, context) {
-    return reify(this, filterFactory(this, predicate, context, true));
-  },
-
-  partition(predicate, context) {
-    return partitionFactory(this, predicate, context);
-  },
-
-  map(mapper, context) {
-    return reify(this, mapFactory(this, mapper, context));
-  },
-
-  reverse() {
-    return reify(this, reverseFactory(this, true));
-  },
-
-  slice(begin, end) {
-    return reify(this, sliceFactory(this, begin, end, true));
-  },
-
-  sort(comparator) {
-    return reify(this, sortFactory(this, comparator));
-  },
-
   // ### More sequential methods
-
-  butLast() {
-    return this.slice(0, -1);
-  },
-
-  count(predicate, context) {
-    return ensureSize(
-      predicate ? this.toSeq().filter(predicate, context) : this
-    );
-  },
 
   countBy(grouper, context) {
     return countByFactory(this, grouper, context);
@@ -221,32 +148,6 @@ mixin(CollectionImpl, {
     return entriesSequence;
   },
 
-  filterNot(predicate, context) {
-    return this.filter(not(predicate), context);
-  },
-
-  findLast(predicate, context, notSetValue) {
-    return this.toKeyedSeq().reverse().find(predicate, context, notSetValue);
-  },
-
-  findLastEntry(predicate, context, notSetValue) {
-    return this.toKeyedSeq()
-      .reverse()
-      .findEntry(predicate, context, notSetValue);
-  },
-
-  findLastKey(predicate, context) {
-    return this.toKeyedSeq().reverse().findKey(predicate, context);
-  },
-
-  flatMap(mapper, context) {
-    return reify(this, flatMapFactory(this, mapper, context));
-  },
-
-  flatten(depth) {
-    return reify(this, flattenFactory(this, depth, true));
-  },
-
   fromEntrySeq() {
     return new FromEntriesSequence(this);
   },
@@ -258,85 +159,6 @@ mixin(CollectionImpl, {
   },
 
   hasIn: hasIn,
-
-  keySeq() {
-    return this.toSeq().map(keyMapper).toIndexedSeq();
-  },
-
-  last(notSetValue) {
-    return this.toSeq().reverse().first(notSetValue);
-  },
-
-  lastKeyOf(searchValue) {
-    return this.toKeyedSeq().reverse().keyOf(searchValue);
-  },
-
-  max(comparator) {
-    return maxFactory(this, comparator);
-  },
-
-  maxBy(mapper, comparator) {
-    return maxFactory(this, comparator, mapper);
-  },
-
-  min(comparator) {
-    return maxFactory(
-      this,
-      comparator ? neg(comparator) : defaultNegComparator
-    );
-  },
-
-  minBy(mapper, comparator) {
-    return maxFactory(
-      this,
-      comparator ? neg(comparator) : defaultNegComparator,
-      mapper
-    );
-  },
-
-  rest() {
-    return this.slice(1);
-  },
-
-  skip(amount) {
-    return amount === 0 ? this : this.slice(Math.max(0, amount));
-  },
-
-  skipLast(amount) {
-    return amount === 0 ? this : this.slice(0, -Math.max(0, amount));
-  },
-
-  skipWhile(predicate, context) {
-    return reify(this, skipWhileFactory(this, predicate, context, true));
-  },
-
-  skipUntil(predicate, context) {
-    return this.skipWhile(not(predicate), context);
-  },
-
-  sortBy(mapper, comparator) {
-    return reify(this, sortFactory(this, comparator, mapper));
-  },
-
-  take(amount) {
-    return this.slice(0, Math.max(0, amount));
-  },
-
-  takeLast(amount) {
-    return this.slice(-Math.max(0, amount));
-  },
-
-  takeWhile(predicate, context) {
-    return reify(this, takeWhileFactory(this, predicate, context));
-  },
-
-  takeUntil(predicate, context) {
-    return this.takeWhile(not(predicate), context);
-  },
-
-  valueSeq() {
-    return this.toIndexedSeq();
-  },
 
   // ### Hashable Object
 
@@ -352,7 +174,6 @@ mixin(CollectionImpl, {
 });
 
 const CollectionPrototype = CollectionImpl.prototype;
-CollectionPrototype[IS_COLLECTION_SYMBOL] = true;
 CollectionPrototype[Symbol.iterator] = CollectionPrototype.values;
 CollectionPrototype.toJSON = CollectionPrototype.toArray;
 CollectionPrototype.__toStringMapper = quoteString;
@@ -364,10 +185,6 @@ CollectionPrototype.contains = CollectionPrototype.includes;
 
 mixin(KeyedCollectionImpl, {
   // ### More sequential methods
-
-  flip() {
-    return reify(this, flipFactory(this));
-  },
 
   mapEntries(mapper, context) {
     let iterations = 0;
@@ -391,7 +208,6 @@ mixin(KeyedCollectionImpl, {
 });
 
 const KeyedCollectionPrototype = KeyedCollectionImpl.prototype;
-KeyedCollectionPrototype[IS_KEYED_SYMBOL] = true;
 KeyedCollectionPrototype[Symbol.iterator] = CollectionPrototype.entries;
 KeyedCollectionPrototype.toJSON = toObject;
 KeyedCollectionPrototype.__toStringMapper = (v, k) =>
@@ -402,25 +218,6 @@ mixin(IndexedCollectionImpl, {
 
   toKeyedSeq() {
     return new ToKeyedSequence(this, false);
-  },
-
-  // ### ES6 Collection methods (ES6 Array and Map)
-
-  filter(predicate, context) {
-    return reify(this, filterFactory(this, predicate, context, false));
-  },
-
-  lastIndexOf(searchValue) {
-    const key = this.lastKeyOf(searchValue);
-    return key === undefined ? -1 : key;
-  },
-
-  reverse() {
-    return reify(this, reverseFactory(this, false));
-  },
-
-  slice(begin, end) {
-    return reify(this, sliceFactory(this, begin, end, false));
   },
 
   splice(index, removeNum, ...values) {
@@ -442,68 +239,12 @@ mixin(IndexedCollectionImpl, {
     );
   },
 
-  // ### More collection methods
-
-  findLastIndex(predicate, context) {
-    const entry = this.findLastEntry(predicate, context);
-    return entry ? entry[0] : -1;
-  },
-
-  flatten(depth) {
-    return reify(this, flattenFactory(this, depth, false));
-  },
-
-  interpose(separator) {
-    return reify(this, interposeFactory(this, separator));
-  },
-
-  interleave(...collections) {
-    const thisAndCollections = [this].concat(collections);
-    const zipped = zipWithFactory(
-      this.toSeq(),
-      IndexedSeq.of,
-      thisAndCollections
-    );
-    const interleaved = zipped.flatten(true);
-    if (zipped.size) {
-      interleaved.size = zipped.size * thisAndCollections.length;
-    }
-    return reify(this, interleaved);
-  },
-
   keySeq() {
     return Range(0, this.size);
-  },
-
-  skipWhile(predicate, context) {
-    return reify(this, skipWhileFactory(this, predicate, context, false));
-  },
-
-  zip(...collections) {
-    const thisAndCollections = [this].concat(collections);
-
-    return reify(this, zipWithFactory(this, defaultZipper, thisAndCollections));
-  },
-
-  zipAll(...collections) {
-    const thisAndCollections = [this].concat(collections);
-
-    return reify(
-      this,
-      zipWithFactory(this, defaultZipper, thisAndCollections, true)
-    );
-  },
-
-  zipWith(zipper, ...collections) {
-    const thisAndCollections = [this].concat(collections);
-
-    return reify(this, zipWithFactory(this, zipper, thisAndCollections));
   },
 });
 
 const IndexedCollectionPrototype = IndexedCollectionImpl.prototype;
-IndexedCollectionPrototype[IS_INDEXED_SYMBOL] = true;
-IndexedCollectionPrototype[IS_ORDERED_SYMBOL] = true;
 
 mixin(SetCollectionImpl, {
   // ### ES6 Collection methods (ES6 Array and Map)
@@ -533,9 +274,3 @@ SetCollectionPrototype.keys = SetCollectionPrototype.values;
 mixin(KeyedSeqImpl, KeyedCollectionPrototype);
 mixin(IndexedSeqImpl, IndexedCollectionPrototype);
 mixin(SetSeqImpl, SetCollectionPrototype);
-
-// #pragma Helper functions
-
-function defaultZipper(...values) {
-  return values;
-}
