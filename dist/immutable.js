@@ -5643,11 +5643,12 @@
 
       has: function has(index) {
         index = wrapIndex(this, index);
+
         return (
           index >= 0 &&
           (this.size !== undefined
             ? this.size === Infinity || index < this.size
-            : this.indexOf(index) !== -1)
+            : this.find(function (_, key) { return key === index; }, undefined, NOT_SET) !== NOT_SET)
         );
       },
 
