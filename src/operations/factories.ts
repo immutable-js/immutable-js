@@ -55,7 +55,6 @@ interface LooseInput {
     fn: (value: unknown, key: unknown, iter: unknown) => unknown,
     reverse?: boolean
   ) => number;
-  __iterator: (type: IteratorType, reverse?: boolean) => Iterator<unknown>;
 }
 
 function loose(collection: CollectionImpl<unknown, unknown>): LooseInput {
@@ -119,10 +118,13 @@ export function flipFactory<K, V>(
   };
   flipSequence.__iteratorUncached = function (type, reverse) {
     if (type === ITERATE_ENTRIES) {
-      const iterator = input.__iterator(type, reverse);
+      const iterator = collection.__iterator(type, reverse);
       return new Iterator(() => {
         const step = iterator.next();
         if (!step.done) {
+          // Swap key/value in place; the swapped entry is `[V, K]`, which the
+          // source tuple type `[K, V]` cannot describe, so write through a
+          // loose tuple view at this build site.
           const entry = step.value as [unknown, unknown];
           const k = entry[0];
           entry[0] = entry[1];
@@ -131,10 +133,12 @@ export function flipFactory<K, V>(
         return step;
       });
     }
-    return input.__iterator(
+    // The parent iterator is returned directly as this sequence's iterator;
+    // coerce it to the internal `Iterator` shape at this build site.
+    return collection.__iterator(
       type === ITERATE_VALUES ? ITERATE_KEYS : ITERATE_VALUES,
       reverse
-    );
+    ) as unknown as Iterator<unknown>;
   };
   // Dynamic-build boundary: see MutableSequence note above.
   return flipSequence as unknown as KeyedCollectionImpl<V, K>;
@@ -166,19 +170,21 @@ export function mapFactory<K, V, M, C extends CollectionImpl<K, V>>(
     );
   };
   mappedSequence.__iteratorUncached = function (type, reverse) {
-    const iterator = input.__iterator(ITERATE_ENTRIES, reverse);
+    const iterator = collection.__iterator(ITERATE_ENTRIES, reverse);
     return new Iterator(() => {
       const step = iterator.next();
       if (step.done) {
         return step;
       }
-      const entry = step.value as [unknown, unknown];
+      const entry = step.value;
       const key = entry[0];
       return iteratorValue(
         type,
         key,
-        mapper.call(context, entry[1] as V, key as K, collection),
-        step
+        mapper.call(context, entry[1], key, collection),
+        // The entries step is reused for the mapped result here; its `[K, V]`
+        // type no longer matches the produced value, so widen at this build site.
+        step as IteratorYieldResult<unknown>
       );
     });
   };
@@ -227,13 +233,13 @@ export function reverseFactory<C extends CollectionImpl<unknown, unknown>>(
     let i = 0;
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
     reverse && ensureSize(collection);
-    const iterator = input.__iterator(ITERATE_ENTRIES, !reverse);
+    const iterator = collection.__iterator(ITERATE_ENTRIES, !reverse);
     return new Iterator(() => {
       const step = iterator.next();
       if (step.done) {
         return step;
       }
-      const entry = step.value as [unknown, unknown];
+      const entry = step.value;
       return iteratorValue(
         type,
         // `__iterator` is an arrow function, so `this` is not the reversed
@@ -290,7 +296,7 @@ export function filterFactory<K, V, C extends CollectionImpl<K, V>>(
     return iterations;
   };
   filterSequence.__iteratorUncached = function (type, reverse) {
-    const iterator = input.__iterator(ITERATE_ENTRIES, reverse);
+    const iterator = collection.__iterator(ITERATE_ENTRIES, reverse);
     let iterations = 0;
     return new Iterator(() => {
       while (true) {
@@ -298,11 +304,18 @@ export function filterFactory<K, V, C extends CollectionImpl<K, V>>(
         if (step.done) {
           return step;
         }
-        const entry = step.value as [unknown, unknown];
+        const entry = step.value;
         const key = entry[0];
         const value = entry[1];
-        if (predicate.call(context, value as V, key as K, collection)) {
-          return iteratorValue(type, useKeys ? key : iterations++, value, step);
+        if (predicate.call(context, value, key, collection)) {
+          return iteratorValue(
+            type,
+            useKeys ? key : iterations++,
+            value,
+            // The entries step is reused for the result here; its `[K, V]` type
+            // no longer matches every produced value, so widen at this build site.
+            step as IteratorYieldResult<unknown>
+          );
         }
       }
     });
@@ -425,7 +438,7 @@ export function sliceFactory<C extends CollectionImpl<unknown, unknown>>(
     if (sliceSize === 0) {
       return new Iterator(iteratorDone);
     }
-    const iterator = input.__iterator(type, reverse);
+    const iterator = collection.__iterator(type, reverse);
     let skipped = 0;
     let iterations = 0;
     return new Iterator(() => {
@@ -442,12 +455,8 @@ export function sliceFactory<C extends CollectionImpl<unknown, unknown>>(
       if (type === ITERATE_KEYS) {
         return iteratorValue(type, iterations - 1, undefined, step);
       }
-      return iteratorValue(
-        type,
-        iterations - 1,
-        (step.value as [unknown, unknown])[1],
-        step
-      );
+      const entry = step.value as [unknown, unknown];
+      return iteratorValue(type, iterations - 1, entry[1], step);
     });
   };
 
@@ -460,7 +469,6 @@ export function takeWhileFactory<K, V, C extends CollectionImpl<K, V>>(
   predicate: (value: V, key: K, iter: C) => unknown,
   context?: unknown
 ): C {
-  const input = loose(collection);
   const takeSequence = makeSequence(collection) as unknown as MutableSequence;
   takeSequence.__iterateUncached = function (
     this: MutableSequence,
@@ -487,7 +495,7 @@ export function takeWhileFactory<K, V, C extends CollectionImpl<K, V>>(
     if (reverse) {
       return this.cacheResult!().__iterator!(type, reverse);
     }
-    const iterator = input.__iterator(ITERATE_ENTRIES, reverse);
+    const iterator = collection.__iterator(ITERATE_ENTRIES, reverse);
     let iterating = true;
     return new Iterator(() => {
       if (!iterating) {
@@ -497,14 +505,18 @@ export function takeWhileFactory<K, V, C extends CollectionImpl<K, V>>(
       if (step.done) {
         return step;
       }
-      const entry = step.value as [unknown, unknown];
+      const entry = step.value;
       const k = entry[0];
       const v = entry[1];
-      if (!predicate.call(context, v as V, k as K, this as unknown as C)) {
+      if (!predicate.call(context, v, k, this as unknown as C)) {
         iterating = false;
         return iteratorDone();
       }
-      return type === ITERATE_ENTRIES ? step : iteratorValue(type, k, v, step);
+      return type === ITERATE_ENTRIES
+        ? step
+        : // The entries step is reused for the result here; its `[K, V]` type
+          // no longer matches the produced key/value, so widen at this build site.
+          iteratorValue(type, k, v, step as IteratorYieldResult<unknown>);
     });
   };
   // Dynamic-build boundary: see MutableSequence note above.
@@ -517,7 +529,6 @@ export function skipWhileFactory<K, V, C extends CollectionImpl<K, V>>(
   context: unknown,
   useKeys: boolean
 ): C {
-  const input = loose(collection);
   const skipSequence = makeSequence(collection) as unknown as MutableSequence;
   skipSequence.__iterateUncached = function (
     this: MutableSequence,
@@ -550,7 +561,7 @@ export function skipWhileFactory<K, V, C extends CollectionImpl<K, V>>(
     if (reverse) {
       return this.cacheResult!().__iterator!(type, reverse);
     }
-    const iterator = input.__iterator(ITERATE_ENTRIES, reverse);
+    const iterator = collection.__iterator(ITERATE_ENTRIES, reverse);
     let skipping = true;
     let iterations = 0;
     return new Iterator(() => {
@@ -578,19 +589,18 @@ export function skipWhileFactory<K, V, C extends CollectionImpl<K, V>>(
             step as unknown as IteratorYieldResult<unknown>
           );
         }
-        const entry = step.value as [unknown, unknown];
+        const entry = step.value;
         k = entry[0];
         v = entry[1];
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
         skipping &&
-          (skipping = !!predicate.call(
-            context,
-            v as V,
-            k as K,
-            this as unknown as C
-          ));
+          (skipping = !!predicate.call(context, v, k, this as unknown as C));
       } while (skipping);
-      return type === ITERATE_ENTRIES ? step : iteratorValue(type, k, v, step);
+      return type === ITERATE_ENTRIES
+        ? step
+        : // The entries step is reused for the result here; its `[K, V]` type
+          // no longer matches the produced key/value, so widen at this build site.
+          iteratorValue(type, k, v, step as IteratorYieldResult<unknown>);
     });
   };
   // Dynamic-build boundary: see MutableSequence note above.
@@ -640,11 +650,13 @@ export function flattenFactory<K, V>(
     if (reverse) {
       return this.cacheResult!().__iterator!(type, reverse);
     }
-    let iterator: Iterator<unknown> | undefined = loose(collection).__iterator(
+    // The wrapped collections yield their native iterators here (not the
+    // internal `Iterator` class), so the working set is typed structurally.
+    let iterator: IterableIterator<unknown> | undefined = collection.__iterator(
       type,
       reverse
     );
-    const stack: Array<Iterator<unknown>> = [];
+    const stack: Array<IterableIterator<unknown>> = [];
     let iterations = 0;
     return new Iterator(() => {
       while (iterator) {
@@ -659,7 +671,7 @@ export function flattenFactory<K, V>(
         }
         if ((!depth || stack.length < (depth as number)) && isCollection(v)) {
           stack.push(iterator);
-          iterator = loose(v).__iterator(type, reverse);
+          iterator = v.__iterator(type, reverse);
         } else {
           return useKeys ? step : iteratorValue(type, iterations++, v, step);
         }
@@ -691,7 +703,6 @@ export function interposeFactory<C extends CollectionImpl<unknown, unknown>>(
   collection: C,
   separator: unknown
 ): C {
-  const input = loose(collection);
   const interposedSequence = makeSequence(
     collection
   ) as unknown as MutableSequence;
@@ -711,7 +722,7 @@ export function interposeFactory<C extends CollectionImpl<unknown, unknown>>(
     return iterations;
   };
   interposedSequence.__iteratorUncached = function (type, reverse) {
-    const iterator = input.__iterator(ITERATE_VALUES, reverse);
+    const iterator = collection.__iterator(ITERATE_VALUES, reverse);
     let iterations = 0;
     let step: IteratorResult<unknown> | undefined;
     return new Iterator(() => {

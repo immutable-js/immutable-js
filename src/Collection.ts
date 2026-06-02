@@ -877,6 +877,13 @@ export class CollectionImpl<K, V> implements ValueObject {
     type: typeof ITERATE_VALUES,
     reverse?: boolean
   ): IterableIterator<V>;
+  // Public overload for a non-literal `IteratorType`: callers that pass a
+  // runtime `type` (e.g. operation factories forwarding their own `type`) match
+  // this instead of failing to resolve against the literal overloads above.
+  __iterator(
+    type: IteratorType,
+    reverse?: boolean
+  ): IterableIterator<K | V | [K, V]>;
   __iterator(
     type: IteratorType,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
