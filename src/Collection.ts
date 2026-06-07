@@ -33,6 +33,7 @@ import {
   sortFactory,
   takeWhileFactory,
   zipWithFactory,
+  type Comparator,
 } from './operations/factories';
 import { reify } from './operations/helpers';
 import { isAssociative } from './predicates/isAssociative';
@@ -578,7 +579,7 @@ export class CollectionImpl<K, V> implements ValueObject {
    *
    * Note: This is always an eager operation.
    */
-  sort(comparator?: (valueA: V, valueB: V) => number): this {
+  sort(comparator?: Comparator<V>): this {
     return reify(this, sortFactory(this, comparator));
   }
 
@@ -590,7 +591,7 @@ export class CollectionImpl<K, V> implements ValueObject {
    */
   sortBy<C>(
     comparatorValueMapper: (value: V, key: K, iter: this) => C,
-    comparator?: (valueA: C, valueB: C) => number
+    comparator?: Comparator<C>
   ): this {
     return reify(this, sortFactory(this, comparator, comparatorValueMapper));
   }
@@ -633,7 +634,7 @@ export class CollectionImpl<K, V> implements ValueObject {
    * Returns the maximum value in this collection. If any values are
    * comparatively equivalent, the first one found will be returned.
    */
-  max(comparator?: (valueA: V, valueB: V) => number): V | undefined {
+  max(comparator?: Comparator<V>): V | undefined {
     return maxFactory(this, comparator);
   }
 
@@ -643,7 +644,7 @@ export class CollectionImpl<K, V> implements ValueObject {
    */
   maxBy<C>(
     comparatorValueMapper: (value: V, key: K, iter: this) => C,
-    comparator?: (valueA: C, valueB: C) => number
+    comparator?: Comparator<C>
   ): V | undefined {
     return maxFactory(this, comparator, comparatorValueMapper);
   }
@@ -652,11 +653,10 @@ export class CollectionImpl<K, V> implements ValueObject {
    * Returns the minimum value in this collection. If any values are
    * comparatively equivalent, the first one found will be returned.
    */
-  min(comparator?: (valueA: V, valueB: V) => number): V | undefined {
-    return maxFactory(
-      this,
-      comparator ? neg(comparator) : defaultNegComparator
-    );
+  min(comparator?: Comparator<V>): V | undefined {
+    const c = comparator ? neg(comparator) : defaultNegComparator;
+
+    return maxFactory(this, c);
   }
 
   /**
@@ -665,13 +665,11 @@ export class CollectionImpl<K, V> implements ValueObject {
    */
   minBy<C>(
     comparatorValueMapper: (value: V, key: K, iter: this) => C,
-    comparator?: (valueA: C, valueB: C) => number
+    comparator?: Comparator<C>
   ): V | undefined {
-    return maxFactory(
-      this,
-      comparator ? neg(comparator) : defaultNegComparator,
-      comparatorValueMapper
-    );
+    const c = comparator ? neg(comparator) : defaultNegComparator;
+
+    return maxFactory(this, c, comparatorValueMapper);
   }
 
   /**

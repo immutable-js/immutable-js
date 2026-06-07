@@ -113,7 +113,7 @@ export function cacheResultThrough(this: {
  * Default ordering comparator: sorts with `<`/`>`, placing `undefined` last.
  * Accepts `unknown` so it is usable as a fallback comparator for any value type.
  */
-export function defaultComparator(a: unknown, b: unknown): -1 | 0 | 1 {
+export function defaultComparator(a: unknown, b: unknown): number {
   if (a === undefined && b === undefined) {
     return 0;
   }
@@ -126,8 +126,8 @@ export function defaultComparator(a: unknown, b: unknown): -1 | 0 | 1 {
     return -1;
   }
 
-  const x = a as number | string;
-  const y = b as number | string;
+  const x = a ?? 0;
+  const y = b ?? 0;
 
   return x > y ? 1 : x < y ? -1 : 0;
 }

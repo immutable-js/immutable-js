@@ -35,6 +35,8 @@ import {
   reify,
 } from './helpers';
 
+export type Comparator<T> = (a: T, b: T) => number;
+
 // Inside a factory the wrapped collection is driven through its dynamic
 // iteration protocol: `__iterator` is called with the runtime `IteratorType`
 // union (no single public overload matches it) and `get`/`__iterate` callbacks
@@ -165,7 +167,7 @@ export function mapFactory<K, V, M, C extends CollectionImpl<K, V>>(
     reverse
   ) {
     return collection.__iterate(
-      (v, k) => fn(mapper.call(context, v, k, collection), k, this) !== false,
+      (v, k, c) => fn(mapper.call(context, v, k, c), k, this) !== false,
       reverse
     );
   };
@@ -287,8 +289,8 @@ export function filterFactory<K, V, C extends CollectionImpl<K, V>>(
     reverse
   ) {
     let iterations = 0;
-    collection.__iterate((v, k) => {
-      if (predicate.call(context, v, k, collection)) {
+    collection.__iterate((v, k, c) => {
+      if (predicate.call(context, v, k, c)) {
         iterations++;
         return fn(v, useKeys ? k : iterations - 1, this);
       }
@@ -480,10 +482,8 @@ export function takeWhileFactory<K, V, C extends CollectionImpl<K, V>>(
     }
     let iterations = 0;
     collection.__iterate(
-      (v, k) =>
-        predicate.call(context, v, k, collection) &&
-        ++iterations &&
-        fn(v, k, this)
+      (v, k, c) =>
+        predicate.call(context, v, k, c) && ++iterations && fn(v, k, this)
     );
     return iterations;
   };
@@ -754,10 +754,10 @@ export function interposeFactory<C extends CollectionImpl<unknown, unknown>>(
 // accepted under `strictFunctionTypes`.
 export function sortFactory<K, V, C extends CollectionImpl<K, V>, SV>(
   collection: C,
-  comparator?: (valueA: SV, valueB: SV) => number,
+  comparator?: Comparator<SV>,
   mapper?: (value: V, key: K, collection: C) => SV
 ): C {
-  const cmp = (comparator ?? defaultComparator) as (a: SV, b: SV) => number;
+  const cmp = comparator ?? defaultComparator;
   const isKeyedCollection = isKeyed(collection);
   let index = 0;
   const entries: Array<Array<unknown>> = collection
@@ -798,32 +798,37 @@ export function sortFactory<K, V, C extends CollectionImpl<K, V>, SV>(
 // `min`/`minBy` case where it is a union of the negated user comparator and
 // `defaultNegComparator` (whose compared value types differ). `CV` keeps the
 // optional `mapper` (used by `maxBy`/`minBy`) typed precisely.
+export function maxFactory<K, V, C extends CollectionImpl<K, V>>(
+  collection: C,
+  comparator: undefined | Comparator<V>,
+  mapper: undefined
+): V | undefined;
+export function maxFactory<K, V, C extends CollectionImpl<K, V>, CV>(
+  collection: C,
+  comparator?: Comparator<CV>,
+  mapper?: (value: V, key: K, collection: C) => CV
+): V | undefined;
 export function maxFactory<K, V, C extends CollectionImpl<K, V>, CV = V>(
   collection: C,
-  comparator?: (valueA: never, valueB: never) => number,
+  comparator?: Comparator<V | CV>,
   mapper?: (value: V, key: K, collection: C) => CV
 ): V | undefined {
-  const cmp = (comparator ?? defaultComparator) as (
-    a: unknown,
-    b: unknown
-  ) => number;
+  const cmp = comparator ?? defaultComparator;
+
   if (mapper) {
     const entry = collection
       .toSeq()
-      .map((v: V, k: K) => [v, mapper(v, k, collection)])
-      .reduce((a: Array<unknown>, b: Array<unknown>) =>
+      .map((v: V, k: K): [V, CV] => [v, mapper(v, k, collection)])
+      .reduce((a: [V, CV], b: [V, CV]) =>
         maxCompare(cmp, a[1], b[1]) ? b : a
       );
-    return entry && (entry[0] as V);
+    return entry && entry[0];
   }
+
   return collection.reduce((a: V, b: V) => (maxCompare(cmp, a, b) ? b : a));
 }
 
-function maxCompare(
-  comparator: (a: unknown, b: unknown) => number,
-  a: unknown,
-  b: unknown
-): boolean {
+function maxCompare<T>(comparator: Comparator<T>, a: T, b: T): boolean {
   const comp = comparator(b, a);
   // b is considered the new max if the comparator declares them equal, but
   // they are not equal and b is in fact a nullish value.
