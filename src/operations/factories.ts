@@ -37,33 +37,6 @@ import {
 
 export type Comparator<T> = (a: T, b: T) => number;
 
-// Inside a factory the wrapped collection is driven through its dynamic
-// iteration protocol: `__iterator` is called with the runtime `IteratorType`
-// union (no single public overload matches it) and `get`/`__iterate` callbacks
-// exchange `unknown`-typed keys and values. The precise `CollectionImpl<K, V>`
-// signatures cannot express this, so each factory takes a loose view of its
-// input through this shape. Obtaining that view is part of the dynamic
-// construction boundary — the only place casts are permitted here. The factory
-// *signatures* keep the precise key/value types, so callers (and `reify`) stay
-// correctly typed.
-interface LooseInput {
-  size: number | undefined;
-  flip?: unknown;
-  reverse: (...args: Array<unknown>) => MutableSequence;
-  get: (key: unknown, notSetValue?: unknown) => unknown;
-  has: (key: unknown) => boolean;
-  includes: (value: unknown) => boolean;
-  __iterate: (
-    fn: (value: unknown, key: unknown, iter: unknown) => unknown,
-    reverse?: boolean
-  ) => number;
-}
-
-function loose(collection: CollectionImpl<unknown, unknown>): LooseInput {
-  // Dynamic-build boundary: see LooseInput note above.
-  return collection as unknown as LooseInput;
-}
-
 // The factories build a sequence by dynamically mutating the bare object
 // returned by `makeSequence`, assigning operation-specific implementations of
 // `_iter`, `size`, `get`, `__iterate`, `__iterator`, etc. Those assignments
@@ -97,18 +70,21 @@ interface MutableSequence {
 export function flipFactory<K, V>(
   collection: KeyedCollectionImpl<K, V>
 ): KeyedCollectionImpl<V, K> {
-  const input = loose(collection);
   const flipSequence = makeSequence(collection) as unknown as MutableSequence;
   flipSequence._iter = collection;
   flipSequence.size = collection.size;
   flipSequence.flip = () => collection;
   flipSequence.reverse = function (this: MutableSequence) {
-    const reversedSequence = input.reverse.apply(this); // super.reverse()
-    reversedSequence.flip = () => input.reverse();
+    // TODO [TS-MIGRATION] this is `super.reverse()`; once the operation
+    // sequences are real classes it needs no `apply`/cast.
+    const reversedSequence = (
+      collection.reverse as unknown as () => MutableSequence
+    ).apply(this);
+    reversedSequence.flip = () => collection.reverse();
     return reversedSequence;
   };
-  flipSequence.has = (key) => input.includes(key);
-  flipSequence.includes = (key) => input.has(key);
+  flipSequence.has = (key) => collection.includes(key as V);
+  flipSequence.includes = (key) => collection.has(key as K);
   // `cacheResultThrough` returns `this`/the cached seq; cast at this build site.
   flipSequence.cacheResult = cacheResultThrough as () => MutableSequence;
   flipSequence.__iterateUncached = function (
@@ -151,12 +127,11 @@ export function mapFactory<K, V, M, C extends CollectionImpl<K, V>>(
   mapper: (value: V, key: K, iter: C) => M,
   context?: unknown
 ): CollectionImpl<K, M> {
-  const input = loose(collection);
   const mappedSequence = makeSequence(collection) as unknown as MutableSequence;
   mappedSequence.size = collection.size;
-  mappedSequence.has = (key) => input.has(key);
+  mappedSequence.has = (key) => collection.has(key as K);
   mappedSequence.get = (key, notSetValue) => {
-    const v = input.get(key, NOT_SET);
+    const v = collection.get(key as K, NOT_SET);
     return v === NOT_SET
       ? notSetValue
       : mapper.call(context, v as V, key as K, collection);
@@ -198,27 +173,26 @@ export function reverseFactory<C extends CollectionImpl<unknown, unknown>>(
   collection: C,
   useKeys: boolean
 ): C {
-  const input = loose(collection);
   const reversedSequence = makeSequence(
     collection
   ) as unknown as MutableSequence;
   reversedSequence._iter = collection;
   reversedSequence.size = collection.size;
   reversedSequence.reverse = () => collection as unknown as MutableSequence;
-  if (input.flip) {
+  if (isKeyed(collection)) {
+    // Capture the narrowed (keyed) collection so it stays keyed in the closure.
+    const keyed = collection;
     reversedSequence.flip = function () {
-      const flipSequence = flipFactory(
-        collection as unknown as KeyedCollectionImpl<unknown, unknown>
-      ) as unknown as MutableSequence;
-      flipSequence.reverse = () => input.flip as MutableSequence;
+      const flipSequence = flipFactory(keyed) as unknown as MutableSequence;
+      flipSequence.reverse = () => keyed.flip() as unknown as MutableSequence;
       return flipSequence;
     };
   }
   reversedSequence.get = (key, notSetValue) =>
-    input.get(useKeys ? key : -1 - (key as number), notSetValue);
+    collection.get(useKeys ? key : -1 - (key as number), notSetValue);
   reversedSequence.has = (key) =>
-    input.has(useKeys ? key : -1 - (key as number));
-  reversedSequence.includes = (value) => input.includes(value);
+    collection.has(useKeys ? key : -1 - (key as number));
+  reversedSequence.includes = (value) => collection.includes(value);
   // `cacheResultThrough` returns `this`/the cached seq; cast at this build site.
   reversedSequence.cacheResult = cacheResultThrough as () => MutableSequence;
   reversedSequence.__iterate = function (this: MutableSequence, fn, reverse) {
@@ -227,7 +201,7 @@ export function reverseFactory<C extends CollectionImpl<unknown, unknown>>(
     reverse && ensureSize(collection);
     return collection.__iterate(
       (v, k) =>
-        fn(v, useKeys ? k : reverse ? (this.size as number) - ++i : i++, this),
+        fn(v, useKeys ? k : reverse ? (this.size ?? 0) - ++i : i++, this),
       !reverse
     );
   };
@@ -246,11 +220,7 @@ export function reverseFactory<C extends CollectionImpl<unknown, unknown>>(
         type,
         // `__iterator` is an arrow function, so `this` is not the reversed
         // sequence here — read `reversedSequence.size` explicitly.
-        useKeys
-          ? entry[0]
-          : reverse
-            ? (reversedSequence.size as number) - ++i
-            : i++,
+        useKeys ? entry[0] : reverse ? (reversedSequence.size ?? 0) - ++i : i++,
         entry[1],
         step
       );
@@ -266,17 +236,16 @@ export function filterFactory<K, V, C extends CollectionImpl<K, V>>(
   context: unknown,
   useKeys: boolean
 ): C {
-  const input = loose(collection);
   const filterSequence = makeSequence(collection) as unknown as MutableSequence;
   if (useKeys) {
     filterSequence.has = (key) => {
-      const v = input.get(key, NOT_SET);
+      const v = collection.get(key as K, NOT_SET);
       return (
         v !== NOT_SET && !!predicate.call(context, v as V, key as K, collection)
       );
     };
     filterSequence.get = (key, notSetValue) => {
-      const v = input.get(key, NOT_SET);
+      const v = collection.get(key as K, NOT_SET);
       return v !== NOT_SET &&
         predicate.call(context, v as V, key as K, collection)
         ? v
@@ -352,7 +321,6 @@ export function sliceFactory<C extends CollectionImpl<unknown, unknown>>(
   end: number | undefined,
   useKeys: boolean
 ): C {
-  const input = loose(collection);
   const originalSize = collection.size;
 
   if (wholeSlice(begin, end, originalSize)) {
@@ -394,14 +362,19 @@ export function sliceFactory<C extends CollectionImpl<unknown, unknown>>(
   sliceSeq.size =
     sliceSize === 0 ? sliceSize : (collection.size && sliceSize) || undefined;
 
-  if (!useKeys && isSeq(collection) && (sliceSize as number) >= 0) {
+  if (
+    !useKeys &&
+    isSeq(collection) &&
+    sliceSize !== undefined &&
+    sliceSize >= 0
+  ) {
     sliceSeq.get = function (this: MutableSequence, index, notSetValue) {
       const i = wrapIndex(
         this as unknown as CollectionImpl<unknown, unknown>,
         index as number
       );
-      return i >= 0 && i < (sliceSize as number)
-        ? input.get(i + resolvedBegin, notSetValue)
+      return i >= 0 && i < sliceSize
+        ? collection.get(i + resolvedBegin, notSetValue)
         : notSetValue;
     };
   }
@@ -447,7 +420,9 @@ export function sliceFactory<C extends CollectionImpl<unknown, unknown>>(
       while (skipped++ < resolvedBegin) {
         iterator.next();
       }
-      if (++iterations > (sliceSize as number)) {
+
+      iterations++;
+      if (sliceSize !== undefined && iterations > sliceSize) {
         return iteratorDone();
       }
       const step = iterator.next();
@@ -628,7 +603,7 @@ export function flattenFactory<K, V>(
       currentDepth: number
     ) {
       iter.__iterate((v, k) => {
-        if ((!depth || currentDepth < (depth as number)) && isCollection(v)) {
+        if ((!depth || currentDepth < Number(depth)) && isCollection(v)) {
           flatDeep(v, currentDepth + 1);
         } else {
           iterations++;
@@ -669,7 +644,7 @@ export function flattenFactory<K, V>(
         if (type === ITERATE_ENTRIES) {
           v = (v as [unknown, unknown])[1];
         }
-        if ((!depth || stack.length < (depth as number)) && isCollection(v)) {
+        if ((!depth || stack.length < Number(depth)) && isCollection(v)) {
           stack.push(iterator);
           iterator = v.__iterator(type, reverse);
         } else {

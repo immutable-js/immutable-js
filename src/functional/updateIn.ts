@@ -24,7 +24,7 @@ import { set } from './set';
  */
 
 export type PossibleCollection<K, V, TProps extends object> =
-  // TODO migrate to CollectionImpl in the end
+  // TODO [TS-MIGRATION] migrate to CollectionImpl in the end
   Collection<K, V> | Record<TProps> | Array<V>;
 
 type UpdaterFunction<K, C> = (
