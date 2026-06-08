@@ -37,6 +37,12 @@ import {
 
 export type Comparator<T> = (a: T, b: T) => number;
 
+// TODO [TS-MIGRATION] This whole MutableSequence scaffolding — the interface,
+// every "makeSequence(...) as unknown as MutableSequence", every "return ... as
+// unknown as <kind>", and every loose method reassignment
+// (get/has/reverse/flip/cacheResult/...) — exists only because operation
+// sequences are built by mutating a bare object. Once sequences.js becomes real
+// typed classes, the mutation pattern and all these casts disappear.
 // The factories build a sequence by dynamically mutating the bare object
 // returned by `makeSequence`, assigning operation-specific implementations of
 // `_iter`, `size`, `get`, `__iterate`, `__iterator`, etc. Those assignments
@@ -70,6 +76,7 @@ interface MutableSequence {
 export function flipFactory<K, V>(
   collection: KeyedCollectionImpl<K, V>
 ): KeyedCollectionImpl<V, K> {
+  // TODO [TS-MIGRATION] build-by-mutation scaffold (see MutableSequence)
   const flipSequence = makeSequence(collection) as unknown as MutableSequence;
   flipSequence._iter = collection;
   flipSequence.size = collection.size;
@@ -83,9 +90,12 @@ export function flipFactory<K, V>(
     reversedSequence.flip = () => collection.reverse();
     return reversedSequence;
   };
+  // TODO [TS-MIGRATION] the built seq receives `unknown` keys here; with real
+  // classes `has`/`includes` are typed methods (no `as V`/`as K`).
   flipSequence.has = (key) => collection.includes(key as V);
   flipSequence.includes = (key) => collection.has(key as K);
-  // `cacheResultThrough` returns `this`/the cached seq; cast at this build site.
+  // TODO [TS-MIGRATION] `cacheResultThrough` returns `this`/the cached seq;
+  // cast at this build site (see MutableSequence).
   flipSequence.cacheResult = cacheResultThrough as () => MutableSequence;
   flipSequence.__iterateUncached = function (
     this: MutableSequence,
@@ -118,7 +128,7 @@ export function flipFactory<K, V>(
       reverse
     ) as unknown as Iterator<unknown>;
   };
-  // Dynamic-build boundary: see MutableSequence note above.
+  // TODO [TS-MIGRATION] dynamic-build boundary (see MutableSequence)
   return flipSequence as unknown as KeyedCollectionImpl<V, K>;
 }
 
@@ -127,10 +137,13 @@ export function mapFactory<K, V, M, C extends CollectionImpl<K, V>>(
   mapper: (value: V, key: K, iter: C) => M,
   context?: unknown
 ): CollectionImpl<K, M> {
+  // TODO [TS-MIGRATION] build-by-mutation scaffold (see MutableSequence)
   const mappedSequence = makeSequence(collection) as unknown as MutableSequence;
   mappedSequence.size = collection.size;
   mappedSequence.has = (key) => collection.has(key as K);
   mappedSequence.get = (key, notSetValue) => {
+    // TODO [TS-MIGRATION] unknown-key/value bridge: `get` receives `unknown`
+    // here but will be a typed method param once sequences are classes.
     const v = collection.get(key as K, NOT_SET);
     return v === NOT_SET
       ? notSetValue
@@ -155,7 +168,7 @@ export function mapFactory<K, V, M, C extends CollectionImpl<K, V>>(
       }
       const entry = step.value;
       const key = entry[0];
-      return iteratorValue(
+      return iteratorValue<K, M>(
         type,
         key,
         mapper.call(context, entry[1], key, collection),
@@ -165,7 +178,7 @@ export function mapFactory<K, V, M, C extends CollectionImpl<K, V>>(
       );
     });
   };
-  // Dynamic-build boundary: see MutableSequence note above.
+  // TODO [TS-MIGRATION] dynamic-build boundary (see MutableSequence)
   return mappedSequence as unknown as CollectionImpl<K, M>;
 }
 
@@ -173,27 +186,37 @@ export function reverseFactory<C extends CollectionImpl<unknown, unknown>>(
   collection: C,
   useKeys: boolean
 ): C {
+  // TODO [TS-MIGRATION] build-by-mutation scaffold (see MutableSequence)
   const reversedSequence = makeSequence(
     collection
   ) as unknown as MutableSequence;
   reversedSequence._iter = collection;
   reversedSequence.size = collection.size;
+  // TODO [TS-MIGRATION] real collection typed as the loose builder (see
+  // MutableSequence)
   reversedSequence.reverse = () => collection as unknown as MutableSequence;
   if (isKeyed(collection)) {
     // Capture the narrowed (keyed) collection so it stays keyed in the closure.
     const keyed = collection;
     reversedSequence.flip = function () {
       const flipSequence = flipFactory(keyed) as unknown as MutableSequence;
+      // TODO [TS-MIGRATION] real collection typed as the loose builder (see
+      // MutableSequence)
       flipSequence.reverse = () => keyed.flip() as unknown as MutableSequence;
       return flipSequence;
     };
   }
   reversedSequence.get = (key, notSetValue) =>
+    // TODO [TS-MIGRATION] loosely-typed seq key narrowed to number (see
+    // MutableSequence)
     collection.get(useKeys ? key : -1 - (key as number), notSetValue);
   reversedSequence.has = (key) =>
+    // TODO [TS-MIGRATION] loosely-typed seq key narrowed to number (see
+    // MutableSequence)
     collection.has(useKeys ? key : -1 - (key as number));
   reversedSequence.includes = (value) => collection.includes(value);
-  // `cacheResultThrough` returns `this`/the cached seq; cast at this build site.
+  // TODO [TS-MIGRATION] `cacheResultThrough` returns `this`/the cached seq;
+  // cast at this build site (see MutableSequence).
   reversedSequence.cacheResult = cacheResultThrough as () => MutableSequence;
   reversedSequence.__iterate = function (this: MutableSequence, fn, reverse) {
     let i = 0;
@@ -226,7 +249,7 @@ export function reverseFactory<C extends CollectionImpl<unknown, unknown>>(
       );
     });
   };
-  // Dynamic-build boundary: see MutableSequence note above.
+  // TODO [TS-MIGRATION] dynamic-build boundary (see MutableSequence)
   return reversedSequence as unknown as C;
 }
 
@@ -236,15 +259,20 @@ export function filterFactory<K, V, C extends CollectionImpl<K, V>>(
   context: unknown,
   useKeys: boolean
 ): C {
+  // TODO [TS-MIGRATION] build-by-mutation scaffold (see MutableSequence)
   const filterSequence = makeSequence(collection) as unknown as MutableSequence;
   if (useKeys) {
     filterSequence.has = (key) => {
+      // TODO [TS-MIGRATION] unknown-key/value bridge: `has` receives `unknown`
+      // here but will be a typed method param once sequences are classes.
       const v = collection.get(key as K, NOT_SET);
       return (
         v !== NOT_SET && !!predicate.call(context, v as V, key as K, collection)
       );
     };
     filterSequence.get = (key, notSetValue) => {
+      // TODO [TS-MIGRATION] unknown-key/value bridge: `get` receives `unknown`
+      // here but will be a typed method param once sequences are classes.
       const v = collection.get(key as K, NOT_SET);
       return v !== NOT_SET &&
         predicate.call(context, v as V, key as K, collection)
@@ -291,7 +319,7 @@ export function filterFactory<K, V, C extends CollectionImpl<K, V>>(
       }
     });
   };
-  // Dynamic-build boundary: see MutableSequence note above.
+  // TODO [TS-MIGRATION] dynamic-build boundary (see MutableSequence)
   return filterSequence as unknown as C;
 }
 
@@ -335,6 +363,8 @@ export function sliceFactory<C extends CollectionImpl<unknown, unknown>>(
     ((begin ?? 0) < 0 || (end ?? 0) < 0)
   ) {
     return sliceFactory(
+      // TODO [TS-MIGRATION] `cacheResult` is a Seq method not on the base type
+      // (see MutableSequence)
       (collection.toSeq() as unknown as { cacheResult: () => C }).cacheResult(),
       begin,
       end,
@@ -355,6 +385,7 @@ export function sliceFactory<C extends CollectionImpl<unknown, unknown>>(
     sliceSize = resolvedSize < 0 ? 0 : resolvedSize;
   }
 
+  // TODO [TS-MIGRATION] build-by-mutation scaffold (see MutableSequence)
   const sliceSeq = makeSequence(collection) as unknown as MutableSequence;
 
   // If collection.size is undefined, the size of the realized sliceSeq is
@@ -370,7 +401,11 @@ export function sliceFactory<C extends CollectionImpl<unknown, unknown>>(
   ) {
     sliceSeq.get = function (this: MutableSequence, index, notSetValue) {
       const i = wrapIndex(
+        // TODO [TS-MIGRATION] loosely-typed built seq passed as the typed
+        // collection (see MutableSequence)
         this as unknown as CollectionImpl<unknown, unknown>,
+        // TODO [TS-MIGRATION] loosely-typed seq index narrowed to number (see
+        // MutableSequence)
         index as number
       );
       return i >= 0 && i < sliceSize
@@ -437,7 +472,7 @@ export function sliceFactory<C extends CollectionImpl<unknown, unknown>>(
     });
   };
 
-  // Dynamic-build boundary: see MutableSequence note above.
+  // TODO [TS-MIGRATION] dynamic-build boundary (see MutableSequence)
   return sliceSeq as unknown as C;
 }
 
@@ -446,6 +481,7 @@ export function takeWhileFactory<K, V, C extends CollectionImpl<K, V>>(
   predicate: (value: V, key: K, iter: C) => unknown,
   context?: unknown
 ): C {
+  // TODO [TS-MIGRATION] build-by-mutation scaffold (see MutableSequence)
   const takeSequence = makeSequence(collection) as unknown as MutableSequence;
   takeSequence.__iterateUncached = function (
     this: MutableSequence,
@@ -483,6 +519,8 @@ export function takeWhileFactory<K, V, C extends CollectionImpl<K, V>>(
       const entry = step.value;
       const k = entry[0];
       const v = entry[1];
+      // TODO [TS-MIGRATION] built seq passed as the typed collection to the
+      // predicate (see MutableSequence)
       if (!predicate.call(context, v, k, this as unknown as C)) {
         iterating = false;
         return iteratorDone();
@@ -494,7 +532,7 @@ export function takeWhileFactory<K, V, C extends CollectionImpl<K, V>>(
           iteratorValue(type, k, v, step as IteratorYieldResult<unknown>);
     });
   };
-  // Dynamic-build boundary: see MutableSequence note above.
+  // TODO [TS-MIGRATION] dynamic-build boundary (see MutableSequence)
   return takeSequence as unknown as C;
 }
 
@@ -504,6 +542,7 @@ export function skipWhileFactory<K, V, C extends CollectionImpl<K, V>>(
   context: unknown,
   useKeys: boolean
 ): C {
+  // TODO [TS-MIGRATION] build-by-mutation scaffold (see MutableSequence)
   const skipSequence = makeSequence(collection) as unknown as MutableSequence;
   skipSequence.__iterateUncached = function (
     this: MutableSequence,
@@ -567,6 +606,8 @@ export function skipWhileFactory<K, V, C extends CollectionImpl<K, V>>(
         const entry = step.value;
         k = entry[0];
         v = entry[1];
+        // TODO [TS-MIGRATION] built seq passed as the typed collection to the
+        // predicate (see MutableSequence)
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
         skipping &&
           (skipping = !!predicate.call(context, v, k, this as unknown as C));
@@ -578,7 +619,7 @@ export function skipWhileFactory<K, V, C extends CollectionImpl<K, V>>(
           iteratorValue(type, k, v, step as IteratorYieldResult<unknown>);
     });
   };
-  // Dynamic-build boundary: see MutableSequence note above.
+  // TODO [TS-MIGRATION] dynamic-build boundary (see MutableSequence)
   return skipSequence as unknown as C;
 }
 
@@ -587,6 +628,7 @@ export function flattenFactory<K, V>(
   depth: number | boolean | undefined,
   useKeys: boolean
 ): CollectionImpl<unknown, unknown> {
+  // TODO [TS-MIGRATION] build-by-mutation scaffold (see MutableSequence)
   const flatSequence = makeSequence(collection) as unknown as MutableSequence;
   flatSequence.__iterateUncached = function (
     this: MutableSequence,
@@ -654,7 +696,7 @@ export function flattenFactory<K, V>(
       return iteratorDone();
     });
   };
-  // Dynamic-build boundary: see MutableSequence note above.
+  // TODO [TS-MIGRATION] dynamic-build boundary (see MutableSequence)
   return flatSequence as unknown as CollectionImpl<unknown, unknown>;
 }
 
@@ -678,6 +720,7 @@ export function interposeFactory<C extends CollectionImpl<unknown, unknown>>(
   collection: C,
   separator: unknown
 ): C {
+  // TODO [TS-MIGRATION] build-by-mutation scaffold (see MutableSequence)
   const interposedSequence = makeSequence(
     collection
   ) as unknown as MutableSequence;
@@ -717,7 +760,7 @@ export function interposeFactory<C extends CollectionImpl<unknown, unknown>>(
           );
     });
   };
-  // Dynamic-build boundary: see MutableSequence note above.
+  // TODO [TS-MIGRATION] dynamic-build boundary (see MutableSequence)
   return interposedSequence as unknown as C;
 }
 
@@ -824,6 +867,7 @@ export function zipWithFactory(
   zipAll?: boolean
 ): IndexedCollectionImpl<unknown> {
   const zip = zipper as (...values: Array<unknown>) => unknown;
+  // TODO [TS-MIGRATION] build-by-mutation scaffold (see MutableSequence)
   const zipSequence = makeSequence(keyIter) as unknown as MutableSequence;
   const sizes = new ArraySeq(iters).map(
     (i) => (i as CollectionImpl<unknown, unknown>).size
@@ -883,6 +927,6 @@ export function zipWithFactory(
       );
     });
   };
-  // Dynamic-build boundary: see MutableSequence note above.
+  // TODO [TS-MIGRATION] dynamic-build boundary (see MutableSequence)
   return zipSequence as unknown as IndexedCollectionImpl<unknown>;
 }
