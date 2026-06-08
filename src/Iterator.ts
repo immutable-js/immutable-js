@@ -38,40 +38,45 @@ export class Iterator<V> implements IterableIterator<V, undefined> {
   }
 }
 
-export function iteratorValue<K, V>(
-  type: IteratorType,
+// The result type follows `type`: keys → `K`, values → `V`, entries → `[K, V]`.
+// A non-literal `type` can't be narrowed, so it yields the union.
+export function iteratorValue<K>(
+  type: typeof ITERATE_KEYS,
   k: K,
-  v: undefined,
-  iteratorResult?: IteratorYieldResult<K>
-): IteratorYieldResult<V>;
-export function iteratorValue<K, V>(
-  type: IteratorType,
-  k: K,
+  v: unknown,
+  iteratorResult?: IteratorResult<unknown>
+): IteratorYieldResult<K>;
+export function iteratorValue<V>(
+  type: typeof ITERATE_VALUES,
+  k: unknown,
   v: V,
-  iteratorResult?: IteratorYieldResult<V>
+  iteratorResult?: IteratorResult<unknown>
 ): IteratorYieldResult<V>;
 export function iteratorValue<K, V>(
   type: typeof ITERATE_ENTRIES,
   k: K,
   v: V,
-  iteratorResult?: IteratorYieldResult<[K, V]>
+  iteratorResult?: IteratorResult<unknown>
 ): IteratorYieldResult<[K, V]>;
 export function iteratorValue<K, V>(
   type: IteratorType,
   k: K,
   v: V,
-  iteratorResult?:
-    | IteratorYieldResult<K>
-    | IteratorYieldResult<V>
-    | IteratorYieldResult<[K, V]>
+  iteratorResult?: IteratorResult<unknown>
+): IteratorYieldResult<K | V | [K, V]>;
+export function iteratorValue<K, V>(
+  type: IteratorType,
+  k: K,
+  v: V,
+  iteratorResult?: IteratorResult<unknown>
 ): IteratorYieldResult<K | V | [K, V]> {
   const value = getValueFromType(type, k, v);
-  // type === ITERATE_KEYS ? k : type === ITERATE_VALUES ? v : [k, v];
 
   if (iteratorResult) {
     iteratorResult.value = value;
 
-    return iteratorResult;
+    // The reused object now holds `value`; re-type it as the produced step.
+    return iteratorResult as IteratorYieldResult<K | V | [K, V]>;
   }
 
   return {

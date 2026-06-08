@@ -168,13 +168,13 @@ export function mapFactory<K, V, M, C extends CollectionImpl<K, V>>(
       }
       const entry = step.value;
       const key = entry[0];
-      return iteratorValue<K, M>(
+      return iteratorValue(
         type,
         key,
         mapper.call(context, entry[1], key, collection),
         // The entries step is reused for the mapped result here; its `[K, V]`
         // type no longer matches the produced value, so widen at this build site.
-        step as IteratorYieldResult<unknown>
+        step
       );
     });
   };
@@ -297,7 +297,8 @@ export function filterFactory<K, V, C extends CollectionImpl<K, V>>(
   filterSequence.__iteratorUncached = function (type, reverse) {
     const iterator = collection.__iterator(ITERATE_ENTRIES, reverse);
     let iterations = 0;
-    return new Iterator(() => {
+    // Yields keys, values or entries depending on `type` → element type `unknown`.
+    return new Iterator<unknown>(() => {
       while (true) {
         const step = iterator.next();
         if (step.done) {
@@ -307,14 +308,8 @@ export function filterFactory<K, V, C extends CollectionImpl<K, V>>(
         const key = entry[0];
         const value = entry[1];
         if (predicate.call(context, value, key, collection)) {
-          return iteratorValue(
-            type,
-            useKeys ? key : iterations++,
-            value,
-            // The entries step is reused for the result here; its `[K, V]` type
-            // no longer matches every produced value, so widen at this build site.
-            step as IteratorYieldResult<unknown>
-          );
+          // `step` is reused as the result container (see iteratorValue).
+          return iteratorValue(type, useKeys ? key : iterations++, value, step);
         }
       }
     });
@@ -508,7 +503,9 @@ export function takeWhileFactory<K, V, C extends CollectionImpl<K, V>>(
     }
     const iterator = collection.__iterator(ITERATE_ENTRIES, reverse);
     let iterating = true;
-    return new Iterator(() => {
+    // Yields keys, values or entries depending on `type`, so the element type
+    // is `unknown` (annotated to avoid inferring it from a single branch).
+    return new Iterator<unknown>(() => {
       if (!iterating) {
         return iteratorDone();
       }
@@ -525,11 +522,8 @@ export function takeWhileFactory<K, V, C extends CollectionImpl<K, V>>(
         iterating = false;
         return iteratorDone();
       }
-      return type === ITERATE_ENTRIES
-        ? step
-        : // The entries step is reused for the result here; its `[K, V]` type
-          // no longer matches the produced key/value, so widen at this build site.
-          iteratorValue(type, k, v, step as IteratorYieldResult<unknown>);
+      // `step` is reused as the result container (see iteratorValue).
+      return type === ITERATE_ENTRIES ? step : iteratorValue(type, k, v, step);
     });
   };
   // TODO [TS-MIGRATION] dynamic-build boundary (see MutableSequence)
@@ -578,7 +572,8 @@ export function skipWhileFactory<K, V, C extends CollectionImpl<K, V>>(
     const iterator = collection.__iterator(ITERATE_ENTRIES, reverse);
     let skipping = true;
     let iterations = 0;
-    return new Iterator(() => {
+    // Yields keys, values or entries depending on `type` → element type `unknown`.
+    return new Iterator<unknown>(() => {
       let step;
       let k;
       let v;
@@ -589,18 +584,15 @@ export function skipWhileFactory<K, V, C extends CollectionImpl<K, V>>(
             return step;
           }
           if (type === ITERATE_KEYS) {
-            return iteratorValue(
-              type,
-              iterations++,
-              undefined,
-              step as unknown as IteratorYieldResult<unknown>
-            );
+            return iteratorValue(type, iterations++, undefined, step);
           }
           return iteratorValue(
             type,
             iterations++,
+            // `step` is done here, so `step.value` is `undefined`; the original
+            // runtime still indexes it as a tuple.
             (step.value as unknown as [unknown, unknown])[1],
-            step as unknown as IteratorYieldResult<unknown>
+            step
           );
         }
         const entry = step.value;
@@ -612,11 +604,8 @@ export function skipWhileFactory<K, V, C extends CollectionImpl<K, V>>(
         skipping &&
           (skipping = !!predicate.call(context, v, k, this as unknown as C));
       } while (skipping);
-      return type === ITERATE_ENTRIES
-        ? step
-        : // The entries step is reused for the result here; its `[K, V]` type
-          // no longer matches the produced key/value, so widen at this build site.
-          iteratorValue(type, k, v, step as IteratorYieldResult<unknown>);
+      // `step` is reused as the result container (see iteratorValue).
+      return type === ITERATE_ENTRIES ? step : iteratorValue(type, k, v, step);
     });
   };
   // TODO [TS-MIGRATION] dynamic-build boundary (see MutableSequence)
@@ -743,21 +732,18 @@ export function interposeFactory<C extends CollectionImpl<unknown, unknown>>(
     const iterator = collection.__iterator(ITERATE_VALUES, reverse);
     let iterations = 0;
     let step: IteratorResult<unknown> | undefined;
-    return new Iterator(() => {
+    // Yields keys, values or entries depending on `type` → element type `unknown`.
+    return new Iterator<unknown>(() => {
       if (!step || iterations % 2) {
         step = iterator.next();
         if (step.done) {
           return step;
         }
       }
+      // `step` is reused as the result container (see iteratorValue).
       return iterations % 2
         ? iteratorValue(type, iterations++, separator)
-        : iteratorValue(
-            type,
-            iterations++,
-            step!.value,
-            step as unknown as IteratorYieldResult<unknown>
-          );
+        : iteratorValue(type, iterations++, step!.value, step);
     });
   };
   // TODO [TS-MIGRATION] dynamic-build boundary (see MutableSequence)
