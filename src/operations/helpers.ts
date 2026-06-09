@@ -47,16 +47,16 @@ export function reify<S extends CollectionImpl<unknown, unknown>>(
  */
 export function makeSequence(
   collection: KeyedCollectionImpl<unknown, unknown>
-): KeyedSeqImpl;
+): KeyedSeqImpl<unknown, unknown>;
 export function makeSequence(
   collection: IndexedCollectionImpl<unknown>
-): IndexedSeqImpl;
+): IndexedSeqImpl<unknown>;
 export function makeSequence(
   collection: SetCollectionImpl<unknown>
-): SetSeqImpl;
+): SetSeqImpl<unknown>;
 export function makeSequence(
   collection: CollectionImpl<unknown, unknown>
-): SeqImpl {
+): SeqImpl<unknown, unknown> {
   return Object.create(
     (isKeyed(collection)
       ? KeyedSeqImpl
