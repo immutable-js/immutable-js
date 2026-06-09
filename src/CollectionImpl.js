@@ -12,7 +12,7 @@ import { Map } from './Map';
 import { OrderedMap } from './OrderedMap';
 import { OrderedSet } from './OrderedSet';
 import { Range } from './Range';
-import { ArraySeq, IndexedSeqImpl, KeyedSeqImpl, SetSeqImpl } from './Seq';
+import { ArraySeq } from './Seq';
 import { Set } from './Set';
 import { Stack } from './Stack';
 import { resolveBegin } from './TrieUtils';
@@ -234,8 +234,6 @@ SetCollectionPrototype.has = CollectionPrototype.includes;
 SetCollectionPrototype.contains = SetCollectionPrototype.includes;
 SetCollectionPrototype.keys = SetCollectionPrototype.values;
 
-// Mixin subclasses
-
-mixin(KeyedSeqImpl, KeyedCollectionPrototype);
-mixin(IndexedSeqImpl, IndexedCollectionPrototype);
-mixin(SetSeqImpl, SetCollectionPrototype);
+// The `*SeqImpl` classes now extend their matching `*CollectionImpl` directly
+// (see Seq.ts), so they inherit the kind-specific methods instead of having
+// them copied in here.

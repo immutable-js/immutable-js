@@ -41,7 +41,10 @@ export const Range = (
   return new RangeImpl(start, end, step, size);
 };
 
-export class RangeImpl extends IndexedSeqImpl implements Seq.Indexed<number> {
+export class RangeImpl
+  extends IndexedSeqImpl<number>
+  implements Seq.Indexed<number>
+{
   private _start: number;
   private _end: number;
   private _step: number;
@@ -102,7 +105,7 @@ export class RangeImpl extends IndexedSeqImpl implements Seq.Indexed<number> {
     );
   }
 
-  indexOf(searchValue: number): number {
+  override indexOf(searchValue: number): number {
     const offsetValue = searchValue - this._start;
     if (offsetValue % this._step === 0) {
       const index = offsetValue / this._step;
@@ -113,7 +116,7 @@ export class RangeImpl extends IndexedSeqImpl implements Seq.Indexed<number> {
     return -1;
   }
 
-  lastIndexOf(searchValue: number): number {
+  override lastIndexOf(searchValue: number): number {
     return this.indexOf(searchValue);
   }
 

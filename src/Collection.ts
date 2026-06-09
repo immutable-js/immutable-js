@@ -10,6 +10,9 @@ import {
   ITERATE_ENTRIES,
   ITERATE_KEYS,
   ITERATE_VALUES,
+  Iterator,
+  iteratorDone,
+  iteratorValue,
   type IteratorType,
 } from './Iterator';
 import { IndexedSeq, KeyedSeq, Seq, SetSeq } from './Seq';
@@ -88,9 +91,26 @@ export class CollectionImpl<K, V> implements ValueObject {
   // the many instances built via `Object.create(prototype)` (e.g. mapped Seqs).
   declare [IS_COLLECTION_SYMBOL]: true;
 
-  declare toIndexedSeq: () => IndexedCollectionImpl<V>;
-  declare toKeyedSeq: () => KeyedCollectionImpl<K, V>;
-  declare toSetSeq: () => SetCollectionImpl<V>;
+  // Provided by the mixin (CollectionImpl.js) at runtime, which overwrites these
+  // throwing placeholders. They are methods (not `declare` properties) so the
+  // Seq subclasses — which re-parent onto the matching `*CollectionImpl` — can
+  // override them with real methods returning `this`.
+  toIndexedSeq(): IndexedCollectionImpl<V> {
+    throw new Error('toIndexedSeq is provided by the mixin');
+  }
+  toKeyedSeq(): KeyedCollectionImpl<K, V> {
+    throw new Error('toKeyedSeq is provided by the mixin');
+  }
+  toSetSeq(): SetCollectionImpl<V> {
+    throw new Error('toSetSeq is provided by the mixin');
+  }
+
+  // Provided by the mixin (CollectionImpl.js); declared so callers (including
+  // the Seq classes) can use them. TODO [TS-MIGRATION] real methods as the
+  // mixin is dismantled.
+  declare entrySeq: () => IndexedCollectionImpl<[K, V]>;
+  declare fromEntrySeq: () => KeyedCollectionImpl<unknown, unknown>;
+  declare __toString: (head: string, tail: string) => string;
 
   /**
    * True if this and the other Collection have value equality, as defined
@@ -859,11 +879,40 @@ export class CollectionImpl<K, V> implements ValueObject {
     return this.toIndexedSeq();
   }
 
+  // Realized cache of [key, value] entries, populated by `cacheResult` on lazy
+  // Seqs; `__iterate`/`__iterator` below iterate it when present. Concrete
+  // collections override `__iterate`/`__iterator` and never set `_cache`.
+  // TODO [TS-MIGRATION] these support lazy materialization (a Seq concept living
+  // on the base so re-parented `*SeqImpl` inherit the dispatch).
+  declare _cache?: Array<[K, V]>;
+  declare __iterateUncached?: (
+    fn: (value: V, key: K, iter: this) => unknown,
+    reverse?: boolean
+  ) => number;
+  declare __iteratorUncached?: (
+    type: IteratorType,
+    reverse?: boolean
+  ) => IterableIterator<K | V | [K, V]>;
+
   __iterate(
     fn: (value: V, index: K, iter: this) => unknown,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     reverse: boolean = false
   ): number {
+    const cache = this._cache;
+    if (cache) {
+      const size = cache.length;
+      let i = 0;
+      while (i !== size) {
+        const entry = cache[reverse ? size - ++i : i++];
+        if (entry && fn(entry[1], entry[0], this) === false) {
+          break;
+        }
+      }
+      return i;
+    }
+    if (this.__iterateUncached) {
+      return this.__iterateUncached(fn, reverse);
+    }
     throw new Error(
       'CollectionImpl does not implement __iterate. Use a subclass instead.'
     );
@@ -887,9 +936,23 @@ export class CollectionImpl<K, V> implements ValueObject {
   ): IterableIterator<K | V | [K, V]>;
   __iterator(
     type: IteratorType,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     reverse: boolean = false
   ): IterableIterator<K | V | [K, V]> {
+    const cache = this._cache;
+    if (cache) {
+      const size = cache.length;
+      let i = 0;
+      return new Iterator<K | V | [K, V]>(() => {
+        if (i === size) {
+          return iteratorDone();
+        }
+        const entry = cache[reverse ? size - ++i : i++];
+        return entry ? iteratorValue(type, entry[0], entry[1]) : iteratorDone();
+      });
+    }
+    if (this.__iteratorUncached) {
+      return this.__iteratorUncached(type, reverse);
+    }
     throw new Error(
       'CollectionImpl does not implement __iterator. Use a subclass instead.'
     );
