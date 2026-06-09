@@ -548,13 +548,8 @@ export function skipWhileFactory<K, V, C extends CollectionImpl<K, V>>(
     }
     let isSkipping = true;
     let iterations = 0;
-    collection.__iterate((v, k) => {
-      if (
-        !(
-          isSkipping &&
-          (isSkipping = !!predicate.call(context, v, k, collection))
-        )
-      ) {
+    collection.__iterate((v, k, c) => {
+      if (!(isSkipping && (isSkipping = !!predicate.call(context, v, k, c)))) {
         iterations++;
         return fn(v, useKeys ? k : iterations - 1, this);
       }
