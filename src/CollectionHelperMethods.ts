@@ -48,9 +48,19 @@ export function neg<Args extends unknown[]>(
   };
 }
 
-export function defaultNegComparator(
-  a: number | string,
-  b: number | string
-): number {
-  return a < b ? 1 : a > b ? -1 : 0;
+// The default comparator for `min`/`minBy`, which are valid on `Collection<K, V>`
+// so this must accept any value (hence `unknown`, assignable as a `Comparator<V>`
+// for any `V`). Unlike `defaultComparator`, an `undefined` operand returns 0 —
+// not ±1 — so `maxFactory`'s nullish handling selects it rather than placing it
+// last. `?? 0` maps `null` to 0 (as JS `<`/`>` coercion would) and yields a
+// comparable type, avoiding an `as` cast.
+export function defaultNegComparator(a: unknown, b: unknown): number {
+  if (a === undefined || b === undefined) {
+    return 0;
+  }
+
+  const x = a ?? 0;
+  const y = b ?? 0;
+
+  return x < y ? 1 : x > y ? -1 : 0;
 }
