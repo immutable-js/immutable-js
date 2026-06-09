@@ -77,7 +77,10 @@ function hasIncludesMethod<V>(
 export class CollectionImpl<K, V> implements ValueObject {
   private __hash: number | undefined;
 
-  size: number = 0;
+  // Lazy `Seq`s may not know their size until materialized, so the base type is
+  // `number | undefined`. Concrete collections (List, Map, Range, …) always know
+  // their size and narrow this back to `number`.
+  size: number | undefined = 0;
 
   // Brand tested by the `isCollection` predicate. Declared for the type here;
   // the value is set on the prototype just below the class. It cannot be a

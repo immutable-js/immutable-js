@@ -374,9 +374,11 @@ export function sliceFactory<C extends CollectionImpl<unknown, unknown>>(
   // unknown and this slice did not supply an end and should contain all
   // elements after resolvedBegin.
   // In that case, resolvedSize will be NaN and sliceSize will remain undefined.
-  const resolvedSize = resolvedEnd - resolvedBegin;
+  const resolvedSize =
+    resolvedEnd === undefined ? NaN : resolvedEnd - resolvedBegin;
   let sliceSize: number | undefined;
   if (resolvedSize === resolvedSize) {
+    // TODO useless branch ?
     sliceSize = resolvedSize < 0 ? 0 : resolvedSize;
   }
 
