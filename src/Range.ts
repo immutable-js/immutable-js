@@ -21,11 +21,13 @@ import invariant from './utils/invariant';
  * Note: `Range` is a factory function and not a class, and does not use the
  * `new` keyword during construction.
  */
+// Declared to return the public contract's type (`Seq.Indexed<number>` in the
+// d.ts) rather than leaking the concrete `RangeImpl` class.
 export const Range = (
   start: number,
   end: number,
   step: number = 1
-): RangeImpl => {
+): IndexedSeqImpl<number> => {
   invariant(step !== 0, 'Cannot step a Range by 0');
   invariant(
     start !== undefined,
@@ -88,8 +90,13 @@ export class RangeImpl
     );
   }
 
-  // @ts-expect-error TypeScript does not understand the mixin
-  slice(begin?: number | undefined, end?: number | undefined): RangeImpl {
+  // Slicing a Range produces a Range (possibly an empty one), never `this`;
+  // the base `slice(): this` cannot express that, hence the expect-error.
+  // @ts-expect-error -- see above
+  slice(
+    begin?: number | undefined,
+    end?: number | undefined
+  ): IndexedSeqImpl<number> {
     if (wholeSlice(begin, end, this.size)) {
       return this;
     }
