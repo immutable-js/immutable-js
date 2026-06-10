@@ -46,6 +46,10 @@ export class RangeImpl extends IndexedSeqImpl implements Seq.Indexed<number> {
   private _end: number;
   private _step: number;
 
+  // A Range always knows its (finite or Infinity) size, narrowing the base's
+  // `number | undefined` back to `number`.
+  declare size: number;
+
   constructor(start: number, end: number, step: number, size: number) {
     super();
 

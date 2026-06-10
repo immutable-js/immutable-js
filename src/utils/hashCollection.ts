@@ -30,7 +30,9 @@ export function hashCollection<K, V>(collection: CollectionImpl<K, V>): number {
           }
   );
 
-  return murmurHashOfSize(collection.size, h);
+  // An unmaterialized lazy seq has `size === undefined`; the original bitwise
+  // `^ size` coerced that to 0, so fall back to 0 explicitly.
+  return murmurHashOfSize(collection.size ?? 0, h);
 }
 
 function murmurHashOfSize(size: number, h: number): number {
