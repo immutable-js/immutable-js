@@ -1,5 +1,12 @@
 import { describe, expect, it } from '@jest/globals';
-import { Seq, isCollection, isIndexed, isKeyed } from 'immutable';
+import {
+  Seq,
+  isCollection,
+  isIndexed,
+  isKeyed,
+  isOrdered,
+  isSeq,
+} from 'immutable';
 
 describe('Seq', () => {
   it('returns undefined if empty and first is called without default argument', () => {
@@ -139,5 +146,120 @@ describe('Seq', () => {
       ['x', [1, 2]],
       ['y', { a: 'z' }],
     ]);
+  });
+});
+
+describe('Seq brands across the hierarchy', () => {
+  // Every Seq kind extends its matching collection kind, so each prototype
+  // carries the Seq brand itself (it is no longer inherited from a shared
+  // SeqImpl ancestor).
+  it('marks every Seq kind as a Seq', () => {
+    expect(isSeq(Seq())).toBe(true);
+    expect(isSeq(Seq.Keyed({ a: 1 }))).toBe(true);
+    expect(isSeq(Seq.Indexed([1]))).toBe(true);
+    expect(isSeq(Seq.Set([1]))).toBe(true);
+  });
+
+  it('marks operation-built Seqs as Seqs', () => {
+    expect(isSeq(Seq.Keyed({ a: 1 }).map((v) => v))).toBe(true);
+    expect(isSeq(Seq.Indexed([1, 2]).filter((v) => v > 1))).toBe(true);
+    expect(isSeq(Seq.Set([1, 2]).map((v) => v))).toBe(true);
+    expect(isSeq(Seq([1, 2]).reverse())).toBe(true);
+  });
+
+  it('keeps the kind brands', () => {
+    expect(isKeyed(Seq.Keyed({ a: 1 }))).toBe(true);
+    expect(isKeyed(Seq.Indexed([1]))).toBe(false);
+    expect(isIndexed(Seq.Indexed([1]))).toBe(true);
+    expect(isIndexed(Seq.Set([1]))).toBe(false);
+    // object-backed and indexed Seqs are ordered, set Seqs are not
+    expect(isOrdered(Seq({ a: 1 }))).toBe(true);
+    expect(isOrdered(Seq([1]))).toBe(true);
+    expect(isOrdered(Seq.Set([1]))).toBe(false);
+  });
+});
+
+describe('Seq kinds expose the kind-specific methods', () => {
+  // These methods come from the matching `*CollectionImpl` classes (inherited
+  // since the re-parenting; they were copied by `mixin` before).
+  it('keyed Seq: flip / mapKeys / mapEntries / entries iterator / toJSON', () => {
+    expect(Seq.Keyed({ a: 1 }).flip().get(1)).toBe('a');
+    expect(
+      Seq({ a: 1, b: 2 })
+        .mapKeys((k) => k.toUpperCase())
+        .toObject()
+    ).toEqual({ A: 1, B: 2 });
+    expect(
+      Seq({ a: 1 })
+        .mapEntries(([k, v]) => [k.toUpperCase(), v * 2])
+        .toObject()
+    ).toEqual({ A: 2 });
+    expect([...Seq.Keyed({ a: 1 })]).toEqual([['a', 1]]);
+    expect(Seq.Keyed({ a: 1 }).toJSON()).toEqual({ a: 1 });
+  });
+
+  it('indexed Seq: interpose / splice / zip / keySeq', () => {
+    expect(Seq([1, 2, 3]).interpose(0).toArray()).toEqual([1, 0, 2, 0, 3]);
+    expect(Seq(['d', 'o', 'g']).splice(1, 1).toArray()).toEqual(['d', 'g']);
+    expect(
+      Seq([1, 2])
+        .zip(Seq(['a', 'b']))
+        .toArray()
+    ).toEqual([
+      [1, 'a'],
+      [2, 'b'],
+    ]);
+    expect(Seq([10, 20]).keySeq().toArray()).toEqual([0, 1]);
+  });
+
+  it('set Seq: has / keys-as-values', () => {
+    expect(Seq.Set(['a', 'b']).has('b')).toBe(true);
+    expect(Seq.Set(['a', 'b']).has('c')).toBe(false);
+    expect([...Seq.Set(['a']).keys()]).toEqual(['a']);
+  });
+});
+
+describe('cacheResult', () => {
+  function* numbers() {
+    yield 1;
+    yield 2;
+    yield 3;
+  }
+
+  it('materializes an unknown size', () => {
+    const seq = Seq(numbers());
+    expect(seq.size).toBe(undefined);
+    seq.cacheResult();
+    expect(seq.size).toBe(3);
+  });
+
+  it('makes a one-shot iterable re-iterable from the cache', () => {
+    const seq = Seq(numbers()).cacheResult();
+    // The generator is consumed during caching; both reads come from the cache.
+    expect(seq.toArray()).toEqual([1, 2, 3]);
+    expect(seq.toArray()).toEqual([1, 2, 3]);
+    expect([...seq.values()]).toEqual([1, 2, 3]);
+    expect([...seq.entries()]).toEqual([
+      [0, 1],
+      [1, 2],
+      [2, 3],
+    ]);
+  });
+
+  it('is used internally to reverse an iterable-backed Seq', () => {
+    expect(Seq(numbers()).reverse().toArray()).toEqual([3, 2, 1]);
+  });
+
+  it('is a no-op on a Seq with a concrete backing', () => {
+    const seq = Seq([1, 2]);
+    expect(seq.cacheResult()).toBe(seq);
+    expect(seq.size).toBe(2);
+  });
+
+  it('caches an operation-built Seq', () => {
+    const mapped = Seq({ a: 1, b: 2 }).map((v) => v * 10);
+    mapped.cacheResult();
+    expect(mapped.size).toBe(2);
+    expect(mapped.toObject()).toEqual({ a: 10, b: 20 });
   });
 });
