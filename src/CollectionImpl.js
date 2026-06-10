@@ -233,7 +233,3 @@ const SetCollectionPrototype = SetCollectionImpl.prototype;
 SetCollectionPrototype.has = CollectionPrototype.includes;
 SetCollectionPrototype.contains = SetCollectionPrototype.includes;
 SetCollectionPrototype.keys = SetCollectionPrototype.values;
-
-// The `*SeqImpl` classes now extend their matching `*CollectionImpl` directly
-// (see Seq.ts), so they inherit the kind-specific methods instead of having
-// them copied in here.
