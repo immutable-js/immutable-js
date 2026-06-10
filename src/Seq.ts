@@ -50,14 +50,14 @@ export function Seq<T>(
 ): IndexedSeqImpl<T>;
 export function Seq<V>(obj: { [key: string]: V }): KeyedSeqImpl<string, V>;
 export function Seq<K = unknown, V = unknown>(): SeqImpl<K, V>;
-export function Seq(value: unknown): CollectionImpl<unknown, unknown>;
-export function Seq(value?: unknown): CollectionImpl<unknown, unknown> {
+export function Seq(value: unknown): SeqImpl<unknown, unknown>;
+export function Seq(value?: unknown): SeqImpl<unknown, unknown> {
   return value === undefined || value === null
     ? emptySequence()
     : isImmutable(value)
       ? // TODO [TS-MIGRATION] `value` may be a Record, still typed via the d.ts;
         // its `toSeq()` returns the public Seq type rather than the impl.
-        (value.toSeq() as unknown as CollectionImpl<unknown, unknown>)
+        (value.toSeq() as unknown as SeqImpl<unknown, unknown>)
       : seqFromValue(value);
 }
 
@@ -75,14 +75,29 @@ export class SeqImpl<K, V> extends CollectionImpl<K, V> {
   cacheResult(): this {
     return cacheResultOf(this);
   }
+
+  override partition<F extends V, C>(
+    predicate: (this: C, value: V, key: K, iter: this) => value is F,
+    context?: C
+  ): [SeqImpl<K, V>, SeqImpl<K, F>];
+  override partition<C>(
+    predicate: (this: C, value: V, key: K, iter: this) => unknown,
+    context?: C
+  ): [this, this];
+  override partition(
+    predicate: (value: V, key: K, iter: this) => unknown,
+    context?: unknown
+  ): unknown {
+    return super.partition(predicate, context);
+  }
 }
 
 export function KeyedSeq<K, V>(
   collection?: Iterable<[K, V]>
 ): KeyedSeqImpl<K, V>;
 export function KeyedSeq<V>(obj: { [key: string]: V }): KeyedSeqImpl<string, V>;
-export function KeyedSeq(value: unknown): KeyedCollectionImpl<unknown, unknown>;
-export function KeyedSeq(value?: unknown): CollectionImpl<unknown, unknown> {
+export function KeyedSeq(value?: unknown): KeyedSeqImpl<unknown, unknown>;
+export function KeyedSeq(value?: unknown): KeyedSeqImpl<unknown, unknown> {
   return value === undefined || value === null
     ? emptySequence().toKeyedSeq()
     : isCollection(value)
@@ -91,12 +106,34 @@ export function KeyedSeq(value?: unknown): CollectionImpl<unknown, unknown> {
         : value.fromEntrySeq()
       : isRecord(value)
         ? // TODO [TS-MIGRATION] Record is still typed via the d.ts
-          (value.toSeq() as unknown as CollectionImpl<unknown, unknown>)
+          (value.toSeq() as unknown as KeyedSeqImpl<unknown, unknown>)
         : keyedSeqFromValue(value);
 }
 
 export class KeyedSeqImpl<K, V> extends KeyedCollectionImpl<K, V> {
   declare [IS_SEQ_SYMBOL]: true;
+
+  /**
+   * Returns a new Seq with other collections concatenated to this one.
+   *
+   * All entries will be present in the resulting Seq, even if they
+   * have the same key.
+   *
+   * Provided by the mixin (CollectionImpl.js); typed per the public contract.
+   * Not declared on `SeqImpl`: a `declare` property is checked with strict
+   * parameter contravariance, and a base-level `concat` would break the
+   * structural `*SeqImpl` → `SeqImpl` assignability `toSeq` relies on. The
+   * base-level `concat` arrives with the mixin migration, as a real (bivariant)
+   * method.
+   */
+  declare concat: {
+    <KC, VC>(
+      ...collections: Array<Iterable<[KC, VC]>>
+    ): KeyedSeqImpl<K | KC, V | VC>;
+    <C>(
+      ...collections: Array<{ [key: string]: C }>
+    ): KeyedSeqImpl<K | string, V | C>;
+  };
 
   override toSeq(): this {
     return this;
@@ -113,13 +150,28 @@ export class KeyedSeqImpl<K, V> extends KeyedCollectionImpl<K, V> {
   cacheResult(): this {
     return cacheResultOf(this);
   }
+
+  override partition<F extends V, C>(
+    predicate: (this: C, value: V, key: K, iter: this) => value is F,
+    context?: C
+  ): [KeyedSeqImpl<K, V>, KeyedSeqImpl<K, F>];
+  override partition<C>(
+    predicate: (this: C, value: V, key: K, iter: this) => unknown,
+    context?: C
+  ): [this, this];
+  override partition(
+    predicate: (value: V, key: K, iter: this) => unknown,
+    context?: unknown
+  ): unknown {
+    return super.partition(predicate, context);
+  }
 }
 
 export function IndexedSeq<T>(
   value?: Iterable<T> | ArrayLike<T>
-): IndexedCollectionImpl<T>;
-export function IndexedSeq(value: unknown): IndexedCollectionImpl<unknown>;
-export function IndexedSeq(value?: unknown): IndexedCollectionImpl<unknown> {
+): IndexedSeqImpl<T>;
+export function IndexedSeq(value: unknown): IndexedSeqImpl<unknown>;
+export function IndexedSeq(value?: unknown): IndexedSeqImpl<unknown> {
   return value === undefined || value === null
     ? emptySequence()
     : isCollection(value)
@@ -128,18 +180,26 @@ export function IndexedSeq(value?: unknown): IndexedCollectionImpl<unknown> {
         : value.toIndexedSeq()
       : isRecord(value)
         ? // TODO [TS-MIGRATION] Record is still typed via the d.ts
-          (value
-            .toSeq()
-            .entrySeq() as unknown as IndexedCollectionImpl<unknown>)
+          (value.toSeq().entrySeq() as unknown as IndexedSeqImpl<unknown>)
         : indexedSeqFromValue(value);
 }
 
-IndexedSeq.of = function <T>(...values: Array<T>): IndexedCollectionImpl<T> {
+IndexedSeq.of = function <T>(...values: Array<T>): IndexedSeqImpl<T> {
   return IndexedSeq(values);
 };
 
 export class IndexedSeqImpl<T> extends IndexedCollectionImpl<T> {
   declare [IS_SEQ_SYMBOL]: true;
+
+  /**
+   * Returns a new Seq with other collections concatenated to this one.
+   *
+   * Provided by the mixin (CollectionImpl.js); typed per the public contract
+   * (see `KeyedSeqImpl.concat` for why it is not on `SeqImpl`).
+   */
+  declare concat: <C>(
+    ...valuesOrCollections: Array<Iterable<C> | C>
+  ) => IndexedSeqImpl<T | C>;
 
   override toSeq(): this {
     return this;
@@ -156,23 +216,47 @@ export class IndexedSeqImpl<T> extends IndexedCollectionImpl<T> {
   cacheResult(): this {
     return cacheResultOf(this);
   }
+
+  override partition<F extends T, C>(
+    predicate: (this: C, value: T, index: number, iter: this) => value is F,
+    context?: C
+  ): [IndexedSeqImpl<T>, IndexedSeqImpl<F>];
+  override partition<C>(
+    predicate: (this: C, value: T, index: number, iter: this) => unknown,
+    context?: C
+  ): [this, this];
+  override partition(
+    predicate: (value: T, index: number, iter: this) => unknown,
+    context?: unknown
+  ): unknown {
+    return super.partition(predicate, context);
+  }
 }
 
-export function SetSeq<T>(
-  value?: Iterable<T> | ArrayLike<T>
-): SetCollectionImpl<T>;
-export function SetSeq(value?: unknown): SetCollectionImpl<unknown> {
+export function SetSeq<T>(value?: Iterable<T> | ArrayLike<T>): SetSeqImpl<T>;
+export function SetSeq(value?: unknown): SetSeqImpl<unknown> {
   return (
     isCollection(value) && !isAssociative(value) ? value : IndexedSeq(value)
   ).toSetSeq();
 }
 
-SetSeq.of = function <T>(...values: Array<T>): SetCollectionImpl<T> {
+SetSeq.of = function <T>(...values: Array<T>): SetSeqImpl<T> {
   return SetSeq(values);
 };
 
 export class SetSeqImpl<T> extends SetCollectionImpl<T> {
   declare [IS_SEQ_SYMBOL]: true;
+
+  /**
+   * Returns a new Seq with other collections concatenated to this one.
+   *
+   * All entries will be present in the resulting Seq, even if they
+   * are duplicates.
+   *
+   * Provided by the mixin (CollectionImpl.js); typed per the public contract
+   * (see `KeyedSeqImpl.concat` for why it is not on `SeqImpl`).
+   */
+  declare concat: <U>(...collections: Array<Iterable<U>>) => SetSeqImpl<T | U>;
 
   override toSeq(): this {
     return this;
@@ -184,6 +268,21 @@ export class SetSeqImpl<T> extends SetCollectionImpl<T> {
 
   cacheResult(): this {
     return cacheResultOf(this);
+  }
+
+  override partition<F extends T, C>(
+    predicate: (this: C, value: T, key: T, iter: this) => value is F,
+    context?: C
+  ): [SetSeqImpl<T>, SetSeqImpl<F>];
+  override partition<C>(
+    predicate: (this: C, value: T, key: T, iter: this) => unknown,
+    context?: C
+  ): [this, this];
+  override partition(
+    predicate: (value: T, key: T, iter: this) => unknown,
+    context?: unknown
+  ): unknown {
+    return super.partition(predicate, context);
   }
 }
 
@@ -411,7 +510,7 @@ function emptySequence(): ArraySeq<never> {
 
 export function keyedSeqFromValue(
   value: unknown
-): CollectionImpl<unknown, unknown> {
+): KeyedSeqImpl<unknown, unknown> {
   const seq = maybeIndexedSeqFromValue(value);
   if (seq) {
     return seq.fromEntrySeq();
@@ -425,9 +524,7 @@ export function keyedSeqFromValue(
   );
 }
 
-export function indexedSeqFromValue(
-  value: unknown
-): IndexedCollectionImpl<unknown> {
+export function indexedSeqFromValue(value: unknown): IndexedSeqImpl<unknown> {
   const seq = maybeIndexedSeqFromValue(value);
   if (seq) {
     return seq;
@@ -437,7 +534,7 @@ export function indexedSeqFromValue(
   );
 }
 
-function seqFromValue(value: unknown): CollectionImpl<unknown, unknown> {
+function seqFromValue(value: unknown): SeqImpl<unknown, unknown> {
   const seq = maybeIndexedSeqFromValue(value);
   if (seq) {
     return isEntriesIterable(value)

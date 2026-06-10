@@ -54,6 +54,10 @@ export function makeSequence(
 export function makeSequence(
   collection: SetCollectionImpl<unknown>
 ): SetSeqImpl<unknown>;
+// Unknown-kind collection: the seq kind is only known at runtime.
+export function makeSequence(
+  collection: CollectionImpl<unknown, unknown>
+): SeqImpl<unknown, unknown>;
 export function makeSequence(
   collection: CollectionImpl<unknown, unknown>
 ): SeqImpl<unknown, unknown> {
@@ -80,6 +84,10 @@ export function collectionClass(
 export function collectionClass(
   collection: SetCollectionImpl<unknown>
 ): typeof SetCollection;
+// Unknown-kind collection: the factory kind is only known at runtime.
+export function collectionClass(
+  collection: CollectionImpl<unknown, unknown>
+): typeof KeyedCollection | typeof IndexedCollection | typeof SetCollection;
 export function collectionClass(
   collection: CollectionImpl<unknown, unknown>
 ): typeof KeyedCollection | typeof IndexedCollection | typeof SetCollection {
