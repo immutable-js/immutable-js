@@ -226,6 +226,19 @@ describe('slice', () => {
     expect(iterTail.next()).toEqual({ value: undefined, done: true });
   });
 
+  it('slices a sequence with unknown size and no end', () => {
+    let seq = Seq([0, 1, 2, 3, 4, 5]);
+    expect(seq.size).toEqual(6);
+
+    // flatMap is lazy and thus the resulting sequence has no size.
+    seq = seq.flatMap((a) => [a]);
+    expect(seq.size).toEqual(undefined);
+
+    const sliced = seq.slice(4);
+    expect(sliced.size).toEqual(undefined);
+    expect(sliced.toArray()).toEqual([4, 5]);
+  });
+
   it('works like Array.prototype.slice', () => {
     fc.assert(
       fc.property(
