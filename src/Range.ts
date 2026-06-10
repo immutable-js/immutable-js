@@ -1,4 +1,3 @@
-import type { Seq } from '../type-definitions/immutable';
 import {
   ITERATE_ENTRIES,
   ITERATE_KEYS,
@@ -14,14 +13,14 @@ import deepEqual from './utils/deepEqual';
 import invariant from './utils/invariant';
 
 /**
- * Returns a `Seq.Indexed` of numbers from `start` (inclusive) to `end`
+ * Returns a `IndexedSeqImpl` of numbers from `start` (inclusive) to `end`
  * (exclusive), by `step`, where `start` defaults to 0, `step` to 1, and `end` to
  * infinity. When `start` is equal to `end`, returns empty range.
  *
  * Note: `Range` is a factory function and not a class, and does not use the
  * `new` keyword during construction.
  */
-// Declared to return the public contract's type (`Seq.Indexed<number>` in the
+// Declared to return the public contract's type (`IndexedSeqImpl<number>` in the
 // d.ts) rather than leaking the concrete `RangeImpl` class.
 export const Range = (
   start: number,
@@ -43,10 +42,7 @@ export const Range = (
   return new RangeImpl(start, end, step, size);
 };
 
-export class RangeImpl
-  extends IndexedSeqImpl<number>
-  implements Seq.Indexed<number>
-{
+export class RangeImpl extends IndexedSeqImpl<number> {
   private _start: number;
   private _end: number;
   private _step: number;
@@ -93,7 +89,7 @@ export class RangeImpl
   // Slicing a Range produces a Range (possibly an empty one), never `this`;
   // the base `slice(): this` cannot express that, hence the expect-error.
   // @ts-expect-error -- see above
-  slice(
+  override slice(
     begin?: number | undefined,
     end?: number | undefined
   ): IndexedSeqImpl<number> {
