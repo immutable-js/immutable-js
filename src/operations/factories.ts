@@ -371,16 +371,12 @@ export function sliceFactory<C extends CollectionImpl<unknown, unknown>>(
   const resolvedEnd = resolveEnd(end, originalSize);
 
   // Note: resolvedEnd is undefined when the original sequence's length is
-  // unknown and this slice did not supply an end and should contain all
-  // elements after resolvedBegin.
-  // In that case, resolvedSize will be NaN and sliceSize will remain undefined.
-  const resolvedSize =
-    resolvedEnd === undefined ? NaN : resolvedEnd - resolvedBegin;
-  let sliceSize: number | undefined;
-  if (resolvedSize === resolvedSize) {
-    // TODO useless branch ?
-    sliceSize = resolvedSize < 0 ? 0 : resolvedSize;
-  }
+  // unknown and this slice did not supply an end. In that case the slice runs
+  // to the end of the collection, so its size remains unknown.
+  const sliceSize =
+    resolvedEnd === undefined
+      ? undefined
+      : Math.max(0, resolvedEnd - resolvedBegin);
 
   // TODO [TS-MIGRATION] build-by-mutation scaffold (see MutableSequence)
   const sliceSeq = makeSequence(collection) as unknown as MutableSequence;
