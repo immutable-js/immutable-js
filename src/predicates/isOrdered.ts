@@ -22,6 +22,9 @@ export function isOrdered<I>(
 ): maybeOrdered is OrderedCollection<I>;
 export function isOrdered(
   maybeOrdered: unknown
+): maybeOrdered is OrderedCollection<unknown>;
+export function isOrdered(
+  maybeOrdered: unknown
 ): maybeOrdered is OrderedCollection<unknown> {
   return Boolean(
     maybeOrdered &&

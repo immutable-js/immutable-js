@@ -46,13 +46,11 @@ export default tseslintConfig(
   {
     rules: {
       eqeqeq: 'error',
-      'constructor-super': 'off',
       'no-constructor-return': 'error',
       'no-else-return': 'error',
       'no-lonely-if': 'error',
       'no-object-constructor': 'error',
       'no-prototype-builtins': 'off',
-      'no-this-before-super': 'off',
       'no-useless-concat': 'error',
       'no-var': 'error',
       'operator-assignment': 'error',
@@ -70,6 +68,13 @@ export default tseslintConfig(
         'error',
         {
           alphabetize: { order: 'asc' },
+          pathGroups: [
+            {
+              pattern: 'immutable',
+              group: 'builtin',
+              position: 'before',
+            },
+          ],
           // warnOnUnassignedImports: true,
         },
       ],
@@ -115,7 +120,7 @@ export default tseslintConfig(
   },
 
   {
-    files: ['type-definitions/ts-tests/*'],
+    files: ['type-definitions/ts-tests/*', 'type-definitions/ts-tests-src/*'],
 
     rules: {
       '@typescript-eslint/no-unused-vars': 'off',

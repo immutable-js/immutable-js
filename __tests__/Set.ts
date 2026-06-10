@@ -2,6 +2,13 @@ import { describe, expect, it, jest } from '@jest/globals';
 import { List, Map, OrderedSet, Seq, Set, fromJS, is } from 'immutable';
 
 describe('Set', () => {
+  it('constructor provides different instances', () => {
+    expect(Set()).not.toBe(Set());
+    expect(Set()).toEqual(Set());
+    expect(Set([1])).not.toBe(Set([1]));
+    expect(Set([1])).toEqual(Set([1]));
+  });
+
   it('accepts array of values', () => {
     const s = Set([1, 2, 3]);
     expect(s.has(1)).toBe(true);
@@ -121,7 +128,7 @@ describe('Set', () => {
     const cat = Set(['c', 'a', 't']);
     expect(Set.union([abc, cat]).toArray()).toEqual(['c', 'a', 't', 'b']);
     expect(Set.union([abc])).toBe(abc);
-    expect(Set.union([])).toBe(Set());
+    expect(Set.union([])).toEqual(Set());
   });
 
   it('intersects an unknown collection of Sets', () => {
@@ -129,7 +136,7 @@ describe('Set', () => {
     const cat = Set(['c', 'a', 't']);
     expect(Set.intersect([abc, cat]).toArray()).toEqual(['c', 'a']);
     expect(Set.intersect([abc])).toBe(abc);
-    expect(Set.intersect([])).toBe(Set());
+    expect(Set.intersect([])).toEqual(Set());
   });
 
   it('concatenates strings using union', () => {
@@ -220,7 +227,7 @@ describe('Set', () => {
 
   it('deletes down to empty set', () => {
     const s = Set.of('A').remove('A');
-    expect(s).toBe(Set());
+    expect(s).toEqual(Set());
   });
 
   it('unions multiple sets', () => {

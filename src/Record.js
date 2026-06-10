@@ -1,6 +1,6 @@
 import { KeyedCollection } from './Collection';
 import { CollectionPrototype } from './CollectionImpl';
-import { ITERATE_ENTRIES, ITERATOR_SYMBOL } from './Iterator';
+import { ITERATE_ENTRIES } from './Iterator';
 import { List } from './List';
 import { keyedSeqFromValue } from './Seq';
 import { DELETE } from './TrieUtils';
@@ -43,72 +43,72 @@ function throwOnInvalidDefaultValues(defaultValues) {
   }
 }
 
-export class Record {
-  constructor(defaultValues, name) {
-    let hasInitialized;
+export const Record = (defaultValues, name) => {
+  let hasInitialized;
 
-    throwOnInvalidDefaultValues(defaultValues);
+  throwOnInvalidDefaultValues(defaultValues);
 
-    const RecordType = function Record(values) {
-      if (values instanceof RecordType) {
-        return values;
-      }
-      if (!(this instanceof RecordType)) {
-        return new RecordType(values);
-      }
-      if (!hasInitialized) {
-        hasInitialized = true;
-        const keys = Object.keys(defaultValues);
-        const indices = (RecordTypePrototype._indices = {});
-        // Deprecated: left to attempt not to break any external code which
-        // relies on a ._name property existing on record instances.
-        // Use Record.getDescriptiveName() instead
-        RecordTypePrototype._name = name;
-        RecordTypePrototype._keys = keys;
-        RecordTypePrototype._defaultValues = defaultValues;
-        for (let i = 0; i < keys.length; i++) {
-          const propName = keys[i];
-          indices[propName] = i;
-          if (RecordTypePrototype[propName]) {
-            /* eslint-disable no-console */
-            // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
-            typeof console === 'object' &&
-              console.warn &&
-              console.warn(
-                'Cannot define ' +
-                  recordName(this) +
-                  ' with property "' +
-                  propName +
-                  '" since that property name is part of the Record API.'
-              );
-            /* eslint-enable no-console */
-          } else {
-            setProp(RecordTypePrototype, propName);
-          }
+  const RecordType = function Record(values) {
+    if (values instanceof RecordType) {
+      return values;
+    }
+    if (!(this instanceof RecordType)) {
+      return new RecordType(values);
+    }
+    if (!hasInitialized) {
+      hasInitialized = true;
+      const keys = Object.keys(defaultValues);
+      const indices = (RecordTypePrototype._indices = {});
+      // Deprecated: left to attempt not to break any external code which
+      // relies on a ._name property existing on record instances.
+      // Use Record.getDescriptiveName() instead
+      RecordTypePrototype._name = name;
+      RecordTypePrototype._keys = keys;
+      RecordTypePrototype._defaultValues = defaultValues;
+      for (let i = 0; i < keys.length; i++) {
+        const propName = keys[i];
+        indices[propName] = i;
+        if (RecordTypePrototype[propName]) {
+          /* eslint-disable no-console */
+          // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
+          typeof console === 'object' &&
+            console.warn &&
+            console.warn(
+              'Cannot define ' +
+                recordName(this) +
+                ' with property "' +
+                propName +
+                '" since that property name is part of the Record API.'
+            );
+          /* eslint-enable no-console */
+        } else {
+          setProp(RecordTypePrototype, propName);
         }
       }
-      this.__ownerID = undefined;
-      this._values = List().withMutations((l) => {
-        l.setSize(this._keys.length);
-        KeyedCollection(values).forEach((v, k) => {
-          l.set(this._indices[k], v === this._defaultValues[k] ? undefined : v);
-        });
-      });
-      return this;
-    };
-
-    const RecordTypePrototype = (RecordType.prototype =
-      Object.create(RecordPrototype));
-    RecordTypePrototype.constructor = RecordType;
-
-    if (name) {
-      RecordType.displayName = name;
     }
+    this.__ownerID = undefined;
+    this._values = List().withMutations((l) => {
+      l.setSize(this._keys.length);
+      KeyedCollection(values).forEach((v, k) => {
+        l.set(this._indices[k], v === this._defaultValues[k] ? undefined : v);
+      });
+    });
+    return this;
+  };
 
-    // eslint-disable-next-line no-constructor-return
-    return RecordType;
+  const RecordTypePrototype = (RecordType.prototype =
+    Object.create(RecordPrototype));
+  RecordTypePrototype.constructor = RecordType;
+  RecordTypePrototype.create = RecordType;
+
+  if (name) {
+    RecordType.displayName = name;
   }
 
+  return RecordType;
+};
+
+export class RecordImpl {
   toString() {
     let str = recordName(this) + ' { ';
     const keys = this._keys;
@@ -211,7 +211,7 @@ export class Record {
 
 Record.isRecord = isRecord;
 Record.getDescriptiveName = recordName;
-const RecordPrototype = Record.prototype;
+const RecordPrototype = RecordImpl.prototype;
 RecordPrototype[IS_RECORD_SYMBOL] = true;
 RecordPrototype[DELETE] = RecordPrototype.remove;
 RecordPrototype.deleteIn = RecordPrototype.removeIn = deleteIn;
@@ -229,7 +229,7 @@ RecordPrototype.updateIn = updateIn;
 RecordPrototype.withMutations = withMutations;
 RecordPrototype.asMutable = asMutable;
 RecordPrototype.asImmutable = asImmutable;
-RecordPrototype[ITERATOR_SYMBOL] = RecordPrototype.entries;
+RecordPrototype[Symbol.iterator] = RecordPrototype.entries;
 RecordPrototype.toJSON = RecordPrototype.toObject =
   CollectionPrototype.toObject;
 RecordPrototype.inspect = RecordPrototype.toSource = function () {

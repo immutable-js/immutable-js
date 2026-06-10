@@ -14,6 +14,13 @@ describe('OrderedMap', () => {
     ]);
   });
 
+  it('constructor provides different instances', () => {
+    expect(OrderedMap()).not.toBe(OrderedMap());
+    expect(OrderedMap()).toEqual(OrderedMap());
+    expect(OrderedMap({ a: 'A' })).not.toBe(OrderedMap({ a: 'A' }));
+    expect(OrderedMap({ a: 'A' })).toEqual(OrderedMap({ a: 'A' }));
+  });
+
   it('constructor provides initial values', () => {
     const m = OrderedMap({ a: 'A', b: 'B', c: 'C' });
     expect(m.get('a')).toBe('A');

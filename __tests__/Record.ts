@@ -8,10 +8,10 @@ describe('Record', () => {
     const t1 = MyType();
     const t2 = t1.set('a', 10);
 
-    expect(t1 instanceof Record).toBe(true);
+    expect(Record.isRecord(t1)).toBe(true);
     expect(t1 instanceof MyType).toBe(true);
 
-    expect(t2 instanceof Record).toBe(true);
+    expect(Record.isRecord(t2)).toBe(true);
     expect(t2 instanceof MyType).toBe(true);
 
     expect(t1.get('a')).toBe(1);
