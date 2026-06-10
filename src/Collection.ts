@@ -102,9 +102,9 @@ export class CollectionImpl<K, V> implements ValueObject {
   declare [IS_COLLECTION_SYMBOL]: true;
 
   // Provided by the mixin (CollectionImpl.js) at runtime, which overwrites these
-  // throwing placeholders. They are methods (not `declare` properties) so the
-  // Seq subclasses — which re-parent onto the matching `*CollectionImpl` — can
-  // override them with real methods returning `this`.
+  // throwing placeholders. They are methods (not `declare` properties) so
+  // subclasses — the re-parented Seq classes and the operation sequences
+  // (operations/sequences.ts) — can override them with real methods.
   toIndexedSeq(): IndexedSeqImpl<V> {
     throw new Error('toIndexedSeq is provided by the mixin');
   }
@@ -114,11 +114,13 @@ export class CollectionImpl<K, V> implements ValueObject {
   toSetSeq(): SetSeqImpl<V> {
     throw new Error('toSetSeq is provided by the mixin');
   }
+  entrySeq(): IndexedSeqImpl<[K, V]> {
+    throw new Error('entrySeq is provided by the mixin');
+  }
 
   // Provided by the mixin (CollectionImpl.js); declared so callers (including
   // the Seq classes) can use them. TODO [TS-MIGRATION] real methods as the
   // mixin is dismantled.
-  declare entrySeq: () => IndexedSeqImpl<[K, V]>;
   declare fromEntrySeq: () => KeyedSeqImpl<unknown, unknown>;
   declare __toString: (head: string, tail: string) => string;
 
