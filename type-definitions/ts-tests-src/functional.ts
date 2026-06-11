@@ -18,7 +18,7 @@ import {
 } from 'immutable';
 import { expect, test } from 'tstyche';
 
-test.skip('get', () => {
+test('get', () => {
   expect(get([1, 2, 3], 0)).type.toBe<number | undefined>();
 
   expect(get([1, 2, 3], 0, 'a')).type.toBe<number | 'a'>();
@@ -75,7 +75,7 @@ test.skip('getIn', () => {
   expect(getIn(o, ['x', 0, 'y'])).type.toBe<number>();
 });
 
-test.skip('has', () => {
+test('has', () => {
   expect(has([1, 2, 3], 0)).type.toBe<boolean>();
 
   expect(has({ x: 10, y: 20 }, 'x')).type.toBe<boolean>();
@@ -126,7 +126,7 @@ test.skip('hasIn', () => {
   expect(hasIn(o, ['x' as const, 0, 'y' as const])).type.toBe<boolean>();
 });
 
-test.skip('set', () => {
+test('set', () => {
   expect(set([1, 2, 3], 0, 10)).type.toBe<number[]>();
 
   expect(set([1, 2, 3], 0, 'a')).type.toRaiseError();
@@ -141,7 +141,7 @@ test.skip('set', () => {
   expect(set({ x: 10, y: 20 }, 'x', 'a')).type.toRaiseError();
 });
 
-test.skip('remove', () => {
+test('remove', () => {
   expect(remove([1, 2, 3], 0)).type.toBe<number[]>();
 
   expect(remove({ x: 10, y: 20 }, 'x')).type.toBe<{
@@ -150,7 +150,7 @@ test.skip('remove', () => {
   }>();
 });
 
-test.skip('update', () => {
+test('update', () => {
   expect(update([1, 2, 3], 0, (v: number) => v + 1)).type.toBe<number[]>();
 
   expect(update([1, 2, 3], 0, 1)).type.toRaiseError();

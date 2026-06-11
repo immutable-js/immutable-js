@@ -10,9 +10,21 @@ import {
   ITERATE_ENTRIES,
   ITERATE_KEYS,
   ITERATE_VALUES,
+  Iterator,
+  iteratorDone,
+  iteratorValue,
   type IteratorType,
 } from './Iterator';
-import { IndexedSeq, KeyedSeq, Seq, SetSeq } from './Seq';
+import {
+  IndexedSeq,
+  KeyedSeq,
+  Seq,
+  SetSeq,
+  type IndexedSeqImpl,
+  type KeyedSeqImpl,
+  type SeqImpl,
+  type SetSeqImpl,
+} from './Seq';
 import { ensureSize, NOT_SET, returnTrue, wrapIndex } from './TrieUtils';
 import type ValueObject from './ValueObject';
 import { getIn as functionalGetIn } from './functional/getIn';
@@ -56,10 +68,11 @@ export function Collection<T>(
 export function Collection<V>(obj: {
   [key: string]: V;
 }): KeyedCollectionImpl<string, V>;
+export function Collection<K = unknown, V = unknown>(): CollectionImpl<K, V>;
 export function Collection<K = unknown, V = unknown>(
   value: never
 ): CollectionImpl<K, V>;
-export function Collection(value: unknown): CollectionImpl<unknown, unknown> {
+export function Collection(value?: unknown): CollectionImpl<unknown, unknown> {
   return isCollection(value) ? value : Seq(value);
 }
 
@@ -88,9 +101,26 @@ export class CollectionImpl<K, V> implements ValueObject {
   // the many instances built via `Object.create(prototype)` (e.g. mapped Seqs).
   declare [IS_COLLECTION_SYMBOL]: true;
 
-  declare toIndexedSeq: () => IndexedCollectionImpl<V>;
-  declare toKeyedSeq: () => KeyedCollectionImpl<K, V>;
-  declare toSetSeq: () => SetCollectionImpl<V>;
+  // Provided by the mixin (CollectionImpl.js) at runtime, which overwrites these
+  // throwing placeholders. They are methods (not `declare` properties) so the
+  // Seq subclasses — which re-parent onto the matching `*CollectionImpl` — can
+  // override them with real methods returning `this`.
+  toIndexedSeq(): IndexedSeqImpl<V> {
+    throw new Error('toIndexedSeq is provided by the mixin');
+  }
+  toKeyedSeq(): KeyedSeqImpl<K, V> {
+    throw new Error('toKeyedSeq is provided by the mixin');
+  }
+  toSetSeq(): SetSeqImpl<V> {
+    throw new Error('toSetSeq is provided by the mixin');
+  }
+
+  // Provided by the mixin (CollectionImpl.js); declared so callers (including
+  // the Seq classes) can use them. TODO [TS-MIGRATION] real methods as the
+  // mixin is dismantled.
+  declare entrySeq: () => IndexedSeqImpl<[K, V]>;
+  declare fromEntrySeq: () => KeyedSeqImpl<unknown, unknown>;
+  declare __toString: (head: string, tail: string) => string;
 
   /**
    * True if this and the other Collection have value equality, as defined
@@ -497,7 +527,7 @@ export class CollectionImpl<K, V> implements ValueObject {
    * Converts this Collection to a Seq of the same kind (indexed,
    * keyed, or set).
    */
-  toSeq(): CollectionImpl<K, V> {
+  toSeq(): SeqImpl<K, V> {
     // Indexed and set collections override `toSeq` with their concrete Seq
     // kind, where the key type is fixed by the class. A keyed collection (and
     // the abstract base) converts to a keyed Seq.
@@ -848,22 +878,51 @@ export class CollectionImpl<K, V> implements ValueObject {
    * Returns a new Seq.Indexed of the keys of this Collection,
    * discarding values.
    */
-  keySeq(): IndexedCollectionImpl<K> {
+  keySeq(): IndexedSeqImpl<K> {
     return this.toSeq().map(keyMapper).toIndexedSeq();
   }
 
   /**
    * Returns a Seq.Indexed of the values of this Collection, discarding keys.
    */
-  valueSeq(): IndexedCollectionImpl<V> {
+  valueSeq(): IndexedSeqImpl<V> {
     return this.toIndexedSeq();
   }
 
+  // Realized cache of [key, value] entries, populated by `cacheResult` on lazy
+  // Seqs; `__iterate`/`__iterator` below iterate it when present. Concrete
+  // collections override `__iterate`/`__iterator` and never set `_cache`.
+  // TODO [TS-MIGRATION] these support lazy materialization (a Seq concept living
+  // on the base so re-parented `*SeqImpl` inherit the dispatch).
+  declare _cache?: Array<[K, V]>;
+  declare __iterateUncached?: (
+    fn: (value: V, key: K, iter: this) => unknown,
+    reverse?: boolean
+  ) => number;
+  declare __iteratorUncached?: (
+    type: IteratorType,
+    reverse?: boolean
+  ) => IterableIterator<K | V | [K, V]>;
+
   __iterate(
     fn: (value: V, index: K, iter: this) => unknown,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     reverse: boolean = false
   ): number {
+    const cache = this._cache;
+    if (cache) {
+      const size = cache.length;
+      let i = 0;
+      while (i !== size) {
+        const entry = cache[reverse ? size - ++i : i++];
+        if (entry && fn(entry[1], entry[0], this) === false) {
+          break;
+        }
+      }
+      return i;
+    }
+    if (this.__iterateUncached) {
+      return this.__iterateUncached(fn, reverse);
+    }
     throw new Error(
       'CollectionImpl does not implement __iterate. Use a subclass instead.'
     );
@@ -887,9 +946,23 @@ export class CollectionImpl<K, V> implements ValueObject {
   ): IterableIterator<K | V | [K, V]>;
   __iterator(
     type: IteratorType,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     reverse: boolean = false
   ): IterableIterator<K | V | [K, V]> {
+    const cache = this._cache;
+    if (cache) {
+      const size = cache.length;
+      let i = 0;
+      return new Iterator<K | V | [K, V]>(() => {
+        if (i === size) {
+          return iteratorDone();
+        }
+        const entry = cache[reverse ? size - ++i : i++];
+        return entry ? iteratorValue(type, entry[0], entry[1]) : iteratorDone();
+      });
+    }
+    if (this.__iteratorUncached) {
+      return this.__iteratorUncached(type, reverse);
+    }
     throw new Error(
       'CollectionImpl does not implement __iterator. Use a subclass instead.'
     );
@@ -923,6 +996,10 @@ export class KeyedCollectionImpl<K, V> extends CollectionImpl<K, V> {
   // otherwise `isKeyed`'s negative narrowing collapses `this` to `never`.
   declare [IS_KEYED_SYMBOL]: true;
 
+  override toSeq(): KeyedSeqImpl<K, V> {
+    return this.toKeyedSeq();
+  }
+
   /**
    * Returns a new Collection.Keyed of the same type where the keys and values
    * have been flipped.
@@ -930,12 +1007,27 @@ export class KeyedCollectionImpl<K, V> extends CollectionImpl<K, V> {
   flip(): KeyedCollectionImpl<V, K> {
     return reify(this, flipFactory(this));
   }
+
+  override partition<F extends V, C>(
+    predicate: (this: C, value: V, key: K, iter: this) => value is F,
+    context?: C
+  ): [KeyedCollectionImpl<K, V>, KeyedCollectionImpl<K, F>];
+  override partition<C>(
+    predicate: (this: C, value: V, key: K, iter: this) => unknown,
+    context?: C
+  ): [this, this];
+  override partition(
+    predicate: (value: V, key: K, iter: this) => unknown,
+    context?: unknown
+  ): unknown {
+    return super.partition(predicate, context);
+  }
 }
 
 KeyedCollectionImpl.prototype[IS_KEYED_SYMBOL] = true;
 
 export function IndexedCollection<T>(
-  value: Iterable<T> | ArrayLike<T>
+  value?: Iterable<T> | ArrayLike<T>
 ): IndexedCollectionImpl<T> {
   return isIndexed<T>(value) ? value : IndexedSeq(value);
 }
@@ -967,7 +1059,7 @@ export class IndexedCollectionImpl<T>
   declare [IS_INDEXED_SYMBOL]: true;
   declare [IS_ORDERED_SYMBOL]: true;
 
-  override toSeq(): IndexedCollectionImpl<T> {
+  override toSeq(): IndexedSeqImpl<T> {
     return this.toIndexedSeq();
   }
 
@@ -1061,6 +1153,21 @@ export class IndexedCollectionImpl<T>
     context?: unknown
   ): unknown {
     return reify(this, filterFactory(this, predicate, context, false));
+  }
+
+  override partition<F extends T, C>(
+    predicate: (this: C, value: T, index: number, iter: this) => value is F,
+    context?: C
+  ): [IndexedCollectionImpl<T>, IndexedCollectionImpl<F>];
+  override partition<C>(
+    predicate: (this: C, value: T, index: number, iter: this) => unknown,
+    context?: C
+  ): [this, this];
+  override partition(
+    predicate: (value: T, index: number, iter: this) => unknown,
+    context?: unknown
+  ): unknown {
+    return super.partition(predicate, context);
   }
 
   override reverse(): this {
@@ -1205,10 +1312,12 @@ IndexedCollectionImpl.prototype[IS_INDEXED_SYMBOL] = true;
 IndexedCollectionImpl.prototype[IS_ORDERED_SYMBOL] = true;
 
 export function SetCollection<T>(
-  value: Iterable<T> | ArrayLike<T>
+  value?: Iterable<T> | ArrayLike<T>
 ): SetCollectionImpl<T> {
   return isCollection<T, T>(value) && !isAssociative<T, T>(value)
-    ? value
+    ? // A non-associative collection is set-like by definition, but there is no
+      // positive brand for it the type system could narrow on.
+      (value as unknown as SetCollectionImpl<T>)
     : SetSeq(value);
 }
 
@@ -1240,12 +1349,27 @@ export class SetCollectionImpl<T> extends CollectionImpl<T, T> {
    * Returns a new Seq.Indexed of the keys of this Collection,
    * discarding values.
    */
-  override keySeq(): IndexedCollectionImpl<T> {
+  override keySeq(): IndexedSeqImpl<T> {
     return this.valueSeq();
   }
 
-  override toSeq(): SetCollectionImpl<T> {
+  override toSeq(): SetSeqImpl<T> {
     return this.toSetSeq();
+  }
+
+  override partition<F extends T, C>(
+    predicate: (this: C, value: T, key: T, iter: this) => value is F,
+    context?: C
+  ): [SetCollectionImpl<T>, SetCollectionImpl<F>];
+  override partition<C>(
+    predicate: (this: C, value: T, key: T, iter: this) => unknown,
+    context?: C
+  ): [this, this];
+  override partition(
+    predicate: (value: T, key: T, iter: this) => unknown,
+    context?: unknown
+  ): unknown {
+    return super.partition(predicate, context);
   }
 }
 
