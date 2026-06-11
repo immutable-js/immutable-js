@@ -2,21 +2,16 @@ import {
   Collection,
   CollectionImpl,
   IndexedCollectionImpl,
-  KeyedCollectionImpl,
-  SetCollectionImpl,
 } from './Collection';
-import { entryMapper } from './CollectionHelperMethods';
 import { Iterator } from './Iterator';
 import { List } from './List';
 import { Map } from './Map';
 import { OrderedMap } from './OrderedMap';
 import { OrderedSet } from './OrderedSet';
 import { Range } from './Range';
-import { ArraySeq } from './Seq';
 import { Set } from './Set';
 import { Stack } from './Stack';
 import { resolveBegin } from './TrieUtils';
-import { toObject } from './methods/toObject';
 import { countByFactory, groupByFactory } from './operations/aggregations';
 import { reify } from './operations/helpers';
 import {
@@ -27,9 +22,7 @@ import {
   ToSetSequence,
 } from './operations/sequences';
 import { isKeyed } from './predicates/isKeyed';
-import assertNotInfinite from './utils/assertNotInfinite';
 import mixin from './utils/mixin';
-import quoteString from './utils/quoteString';
 
 export { Collection, CollectionPrototype, IndexedCollectionPrototype };
 
@@ -37,18 +30,6 @@ Collection.Iterator = Iterator;
 
 mixin(CollectionImpl, {
   // ### Conversion to other types
-
-  toArray() {
-    assertNotInfinite(this.size);
-    const array = new Array(this.size || 0);
-    const useTuples = isKeyed(this);
-    let i = 0;
-    this.__iterate((v, k) => {
-      // Keyed collections produce an array of tuples.
-      array[i++] = useTuples ? [k, v] : v;
-    });
-    return array;
-  },
 
   toIndexedSeq() {
     return new ToIndexedSequence(this);
@@ -92,21 +73,6 @@ mixin(CollectionImpl, {
     return List(isKeyed(this) ? this.valueSeq() : this);
   },
 
-  // ### Common JavaScript methods and properties
-
-  __toString(head, tail) {
-    if (this.size === 0) {
-      return head + tail;
-    }
-    return (
-      head +
-      ' ' +
-      this.toSeq().map(this.__toStringMapper).join(', ') +
-      ' ' +
-      tail
-    );
-  },
-
   // ### ES6 Collection methods (ES6 Array and Map)
 
   concat(...values) {
@@ -122,18 +88,6 @@ mixin(CollectionImpl, {
   // equals(other) {
   //   return deepEqual(this, other);
   // },
-
-  entrySeq() {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const collection = this;
-    if (collection._cache) {
-      // We cache as an entries array, so we can just return the cache!
-      return new ArraySeq(collection._cache);
-    }
-    const entriesSequence = collection.toSeq().map(entryMapper).toIndexedSeq();
-    entriesSequence.fromEntrySeq = () => collection.toSeq();
-    return entriesSequence;
-  },
 
   fromEntrySeq() {
     return new FromEntriesSequence(this);
@@ -157,44 +111,9 @@ mixin(CollectionImpl, {
 });
 
 const CollectionPrototype = CollectionImpl.prototype;
-CollectionPrototype[Symbol.iterator] = CollectionPrototype.values;
-CollectionPrototype.toJSON = CollectionPrototype.toArray;
-CollectionPrototype.__toStringMapper = quoteString;
-CollectionPrototype.inspect = CollectionPrototype.toSource = function () {
-  return this.toString();
-};
+// `chain` is a legacy alias of `flatMap`, absent from the public type
+// declarations.
 CollectionPrototype.chain = CollectionPrototype.flatMap;
-CollectionPrototype.contains = CollectionPrototype.includes;
-
-mixin(KeyedCollectionImpl, {
-  // ### More sequential methods
-
-  mapEntries(mapper, context) {
-    let iterations = 0;
-    return reify(
-      this,
-      this.toSeq()
-        .map((v, k) => mapper.call(context, [k, v], iterations++, this))
-        .fromEntrySeq()
-    );
-  },
-
-  mapKeys(mapper, context) {
-    return reify(
-      this,
-      this.toSeq()
-        .flip()
-        .map((k, v) => mapper.call(context, k, v, this))
-        .flip()
-    );
-  },
-});
-
-const KeyedCollectionPrototype = KeyedCollectionImpl.prototype;
-KeyedCollectionPrototype[Symbol.iterator] = CollectionPrototype.entries;
-KeyedCollectionPrototype.toJSON = toObject;
-KeyedCollectionPrototype.__toStringMapper = (v, k) =>
-  quoteString(k) + ': ' + quoteString(v);
 
 mixin(IndexedCollectionImpl, {
   // ### Conversion to other types
@@ -228,8 +147,3 @@ mixin(IndexedCollectionImpl, {
 });
 
 const IndexedCollectionPrototype = IndexedCollectionImpl.prototype;
-
-const SetCollectionPrototype = SetCollectionImpl.prototype;
-SetCollectionPrototype.has = CollectionPrototype.includes;
-SetCollectionPrototype.contains = SetCollectionPrototype.includes;
-SetCollectionPrototype.keys = SetCollectionPrototype.values;
