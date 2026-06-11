@@ -1083,11 +1083,19 @@ export class KeyedCollectionImpl<K, V> extends CollectionImpl<K, V> {
     return this.toKeyedSeq();
   }
 
+  /**
+   * Shallowly converts this collection to an Array.
+   */
   override toArray(): Array<[K, V]>;
   override toArray(): unknown {
     return super.toArray();
   }
 
+  /**
+   * Shallowly converts this Keyed collection to equivalent native JavaScript Object.
+   *
+   * Converts keys to Strings.
+   */
   override toJSON(): { [key in PropertyKey]: V } {
     return this.toObject();
   }
@@ -1198,11 +1206,17 @@ export class IndexedCollectionImpl<T>
   extends CollectionImpl<number, T>
   implements OrderedCollection<T>
 {
+  /**
+   * Shallowly converts this collection to an Array.
+   */
   override toArray(): Array<T>;
   override toArray(): unknown {
     return super.toArray();
   }
 
+  /**
+   * Shallowly converts this Indexed collection to equivalent native JavaScript Array.
+   */
   override toJSON(): Array<T> {
     return this.toArray();
   }
@@ -1478,11 +1492,17 @@ export function SetCollection<T>(
 }
 
 export class SetCollectionImpl<T> extends CollectionImpl<T, T> {
+  /**
+   * Shallowly converts this collection to an Array.
+   */
   override toArray(): Array<T>;
   override toArray(): unknown {
     return super.toArray();
   }
 
+  /**
+   * Shallowly converts this Set collection to equivalent native JavaScript Array.
+   */
   override toJSON(): Array<T> {
     return this.toArray();
   }
