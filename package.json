@@ -101,7 +101,7 @@
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.2",
     "@size-limit/esbuild-why": "^11.2.0",
-    "@size-limit/preset-small-lib": "^11.2.0",
+    "@size-limit/preset-small-lib": "^12.1.0",
     "@types/mdx": "^2.0.13",
     "@types/node": "^25.0.0",
     "@types/prismjs": "^1.26.3",
