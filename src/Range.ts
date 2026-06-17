@@ -13,14 +13,14 @@ import deepEqual from './utils/deepEqual';
 import invariant from './utils/invariant';
 
 /**
- * Returns a `IndexedSeqImpl` of numbers from `start` (inclusive) to `end`
+ * Returns a `Seq.Indexed` of numbers from `start` (inclusive) to `end`
  * (exclusive), by `step`, where `start` defaults to 0, `step` to 1, and `end` to
  * infinity. When `start` is equal to `end`, returns empty range.
  *
  * Note: `Range` is a factory function and not a class, and does not use the
  * `new` keyword during construction.
  */
-// Declared to return the public contract's type (`IndexedSeqImpl<number>` in the
+// Declared to return the public contract's type (`Seq.Indexed<number>` in the
 // d.ts) rather than leaking the concrete `RangeImpl` class.
 export const Range = (
   start: number,
