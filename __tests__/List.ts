@@ -1,6 +1,6 @@
+import { List, Map, Range, Seq, Set, fromJS } from 'immutable';
 import { describe, expect, it, jest } from '@jest/globals';
 import fc from 'fast-check';
-import { List, Map, Range, Seq, Set, fromJS } from 'immutable';
 import { create as createSeed } from 'random-seed';
 import invariant from '../src/utils/invariant';
 

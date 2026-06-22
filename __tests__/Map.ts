@@ -1,5 +1,3 @@
-import { describe, expect, it, jest } from '@jest/globals';
-import fc from 'fast-check';
 import {
   List,
   Map,
@@ -10,6 +8,8 @@ import {
   fromJS,
   is,
 } from 'immutable';
+import { describe, expect, it, jest } from '@jest/globals';
+import fc from 'fast-check';
 
 describe('Map', () => {
   it('converts from object', () => {

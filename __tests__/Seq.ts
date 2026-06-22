@@ -1,4 +1,3 @@
-import { describe, expect, it } from '@jest/globals';
 import {
   Seq,
   isCollection,
@@ -7,6 +6,7 @@ import {
   isOrdered,
   isSeq,
 } from 'immutable';
+import { describe, expect, it } from '@jest/globals';
 
 describe('Seq', () => {
   it('constructor provides different instances', () => {
