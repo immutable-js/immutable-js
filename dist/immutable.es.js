@@ -6106,15 +6106,15 @@ var Repeat = /*@__PURE__*/(function (IndexedSeq) {
   };
 
   Repeat.prototype.indexOf = function indexOf (searchValue) {
-    if (is(this._value, searchValue)) {
+    if (this.size !== 0 && is(this._value, searchValue)) {
       return 0;
     }
     return -1;
   };
 
   Repeat.prototype.lastIndexOf = function lastIndexOf (searchValue) {
-    if (is(this._value, searchValue)) {
-      return this.size;
+    if (this.size !== 0 && is(this._value, searchValue)) {
+      return this.size - 1;
     }
     return -1;
   };
