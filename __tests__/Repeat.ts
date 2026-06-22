@@ -23,4 +23,18 @@ describe('Repeat', () => {
   it('does not claim to be equal to undefined', () => {
     expect(Repeat(1).equals(undefined)).toEqual(false);
   });
+
+  it('indexOf and lastIndexOf return the first and last index', () => {
+    const v = Repeat('wtf', 3);
+    expect(v.indexOf('wtf')).toBe(0);
+    expect(v.lastIndexOf('wtf')).toBe(2);
+    expect(v.indexOf('nope')).toBe(-1);
+    expect(v.lastIndexOf('nope')).toBe(-1);
+  });
+
+  it('lastIndexOf on an empty Repeat returns -1', () => {
+    const v = Repeat('wtf', 0);
+    expect(v.indexOf('wtf')).toBe(-1);
+    expect(v.lastIndexOf('wtf')).toBe(-1);
+  });
 });

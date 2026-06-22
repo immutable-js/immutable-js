@@ -51,15 +51,15 @@ export class RepeatImpl extends IndexedSeqImpl {
   }
 
   indexOf(searchValue) {
-    if (is(this._value, searchValue)) {
+    if (this.size !== 0 && is(this._value, searchValue)) {
       return 0;
     }
     return -1;
   }
 
   lastIndexOf(searchValue) {
-    if (is(this._value, searchValue)) {
-      return this.size;
+    if (this.size !== 0 && is(this._value, searchValue)) {
+      return this.size - 1;
     }
     return -1;
   }
