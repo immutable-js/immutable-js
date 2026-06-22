@@ -75,6 +75,11 @@ export default tseslintConfig(
               position: 'before',
             },
           ],
+          // `immutable` resolves to a local path once `dist/` is built, so it is
+          // not classified as `external`. Without emptying this list the
+          // pathGroup above would only apply in a built tree, making the rule
+          // behave differently locally vs. on CI (which lints without a build).
+          pathGroupsExcludedImportTypes: [],
           // warnOnUnassignedImports: true,
         },
       ],

@@ -1,5 +1,5 @@
-import { describe, expect, it } from '@jest/globals';
 import { Range } from 'immutable';
+import { describe, expect, it } from '@jest/globals';
 
 describe('interpose', () => {
   it('separates with a value', () => {

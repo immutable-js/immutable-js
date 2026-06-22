@@ -1,4 +1,3 @@
-import { describe, expect, it } from '@jest/globals';
 import {
   List,
   Map,
@@ -9,6 +8,7 @@ import {
   Set,
   fromJS,
 } from 'immutable';
+import { describe, expect, it } from '@jest/globals';
 
 describe('Issue #1175', () => {
   it('invalid hashCode() response should not infinitly recurse', () => {

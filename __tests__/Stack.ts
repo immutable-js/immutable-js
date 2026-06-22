@@ -1,6 +1,6 @@
+import { Seq, Stack } from 'immutable';
 import { describe, expect, it } from '@jest/globals';
 import fc from 'fast-check';
-import { Seq, Stack } from 'immutable';
 
 function arrayOfSize(s: number): Array<number> {
   const a = new Array(s);
