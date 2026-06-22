@@ -10,10 +10,10 @@
 
 import { Range } from 'immutable';
 import { expect, test } from 'tstyche';
-import type { IndexedSeqImpl } from '../../src/Seq';
+import type { RangeImpl } from '../../src/Range';
 
 test('#constructor', () => {
-  expect(Range(0, 0, 1)).type.toBe<IndexedSeqImpl<number>>();
+  expect(Range(0, 0, 1)).type.toBe<RangeImpl>();
 
   expect(Range('a', 0, 0)).type.toRaiseError();
 

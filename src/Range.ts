@@ -26,7 +26,7 @@ export const Range = (
   start: number,
   end: number,
   step: number = 1
-): IndexedSeqImpl<number> => {
+): RangeImpl => {
   invariant(step !== 0, 'Cannot step a Range by 0');
   invariant(
     start !== undefined,
@@ -86,26 +86,26 @@ export class RangeImpl extends IndexedSeqImpl<number> {
     );
   }
 
-  // Slicing a Range produces a Range (possibly an empty one), never `this`;
-  // the base `slice(): this` cannot express that, hence the expect-error.
-  // @ts-expect-error -- see above
-  override slice(
-    begin?: number | undefined,
-    end?: number | undefined
-  ): IndexedSeqImpl<number> {
+  override slice(begin?: number | undefined, end?: number | undefined): this {
     if (wholeSlice(begin, end, this.size)) {
       return this;
     }
     begin = resolveBegin(begin, this.size);
     end = resolveEnd(end, this.size);
     if (end <= begin) {
-      return Range(0, 0);
+      // `as this`: see the note on the return below.
+      return Range(0, 0) as this;
     }
+    // The base contract is `slice(): this`, but we rebuild a fresh Range via
+    // the concrete `Range()` factory, which TS cannot prove equals the
+    // polymorphic `this`. This `as this` is the same cast the base hides inside
+    // `reify`/`sliceFactory` — erased at compile time, zero runtime cost —
+    // surfaced here because Range bypasses those generic helpers.
     return Range(
       this.get(begin, this._end),
       this.get(end, this._end),
       this._step
-    );
+    ) as this;
   }
 
   override indexOf(searchValue: number): number {
