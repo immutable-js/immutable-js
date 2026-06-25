@@ -135,4 +135,41 @@ describe('Map', function () {
       });
     });
   });
+
+  // Keys built from "Aa"/"BB" blocks all share the same string hash, so they
+  // pile into a single HashCollisionNode. This is the hash-flooding scenario:
+  // with a plain linear scan it is O(n²) to build or read them all.
+  describe('hash collisions', () => {
+    function collisionKeys(rounds) {
+      let keys = [''];
+      for (let i = 0; i < rounds; i++) {
+        const next = [];
+        for (let j = 0; j < keys.length; j++) {
+          next.push(keys[j] + 'Aa');
+          next.push(keys[j] + 'BB');
+        }
+        keys = next;
+      }
+      return keys;
+    }
+
+    [8, 10, 12].forEach((rounds) => {
+      const keys = collisionKeys(rounds);
+      const obj = {};
+      for (let ii = 0; ii < keys.length; ii++) {
+        obj[keys[ii]] = ii;
+      }
+      const map = Immutable.Map(obj);
+
+      it('builds ' + keys.length + ' colliding keys', () => {
+        Immutable.Map(obj);
+      });
+
+      it('reads ' + keys.length + ' colliding keys', () => {
+        for (let ii = 0; ii < keys.length; ii++) {
+          map.get(keys[ii]);
+        }
+      });
+    });
+  });
 });
