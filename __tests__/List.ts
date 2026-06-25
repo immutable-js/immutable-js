@@ -988,7 +988,7 @@ describe('List', () => {
 
     it('still allows operations within the addressable range', () => {
       expect(List([1, 2, 3]).setSize(1500).size).toBe(1500);
-      expect(List([1, 2, 3]).set(5, 'x').size).toBe(6);
+      expect(List<string | number>([1, 2, 3]).set(5, 'x').size).toBe(6);
       // Largest in-range size is accepted by the bounds math (sparse, no alloc).
       expect(List([1, 2, 3]).setSize(tooBig).size).toBe(tooBig);
     });
@@ -997,7 +997,7 @@ describe('List', () => {
       // Exercises the deep-tree origin-normalization path (the `2 ** exp`
       // fallback). Must terminate rather than spin forever; the existing values
       // are shifted to the end of the grown List.
-      const result = List([1, 2, 3]).set(-(2 ** 29), 'x');
+      const result = List<string | number>([1, 2, 3]).set(-(2 ** 29), 'x');
       expect(result.size).toBe(2 ** 29);
       expect(result.get(result.size - 3)).toBe(1);
       expect(result.get(result.size - 2)).toBe(2);
