@@ -618,12 +618,16 @@ function setListBounds(list, begin, end) {
         ? new VNode([], owner)
         : oldTail;
 
-  // Merge Tail into tree.
+  // Merge Tail into tree. An empty tail is normally skipped as an
+  // optimization, but when the origin will sit below the new tail offset
+  // the (possibly empty) tail node must still be grafted into the tree so
+  // those raw indices route through a root rather than the absent one,
+  // which would otherwise read stored `undefined` back as `null`.
   if (
     oldTail &&
     newTailOffset > oldTailOffset &&
     newOrigin < oldCapacity &&
-    oldTail.array.length
+    (oldTail.array.length || newOrigin < newTailOffset)
   ) {
     newRoot = editableVNode(newRoot, owner);
     let node = newRoot;

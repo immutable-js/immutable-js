@@ -935,6 +935,34 @@ describe('List', () => {
     );
   });
 
+  it('preserves stored undefined across a tail/root boundary shift', () => {
+    // Builds a List whose only element lives entirely in the tail
+    // (_origin 31, _capacity 32, _root null), then grows past the next
+    // 32-boundary so getTailOffset jumps 0 -> 32. The element must remain
+    // an authentic undefined and not be read back as null.
+    const list = List<number | undefined>()
+      .unshift(86)
+      .unshift(87)
+      .unshift(54) // [54, 87, 86]
+      .delete(1) // [54, 86]
+      .setSize(6) // [54, 86, undefined, undefined, undefined, undefined]
+      .shift()
+      .shift() // [undefined, undefined, undefined, undefined]
+      .delete(1); // remove index 1 -> [undefined, undefined, undefined]
+
+    const expected = List<number | undefined>([
+      undefined,
+      undefined,
+      undefined,
+    ]);
+
+    expect(list.size).toBe(3);
+    expect(list.get(0)).toBeUndefined();
+    expect(list.toArray()).toEqual([undefined, undefined, undefined]);
+    expect(list.equals(expected)).toBe(true);
+    expect(list.hashCode()).toBe(expected.hashCode());
+  });
+
   it('can be efficiently sliced', () => {
     const v1 = Range(0, 2000).toList();
     const v2 = v1.slice(100, -100).toList();
