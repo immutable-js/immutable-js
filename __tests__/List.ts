@@ -913,6 +913,55 @@ describe('List', () => {
     });
   });
 
+  // A List addresses its values through a 32-wide trie using signed 32-bit
+  // bitwise math. Sizes/indices at or beyond 2 ** 30 used to overflow that math:
+  // the level-raising loop spun forever, hanging an empty List and OOM-crashing
+  // (SIGABRT) a populated one, while `setSize` silently wrapped large values.
+  // All of these must now throw a clear, catchable RangeError.
+  describe('rejects out-of-range sizes instead of hanging / crashing', () => {
+    const tooBig = 2 ** 30;
+
+    it('throws (does not hang) when setting a too-large index on an empty List', () => {
+      expect(() => List().set(tooBig, 'x')).toThrow(RangeError);
+    });
+
+    it('throws (does not OOM-crash) when setting a too-large index on a populated List', () => {
+      const list = List(arrayOfSize(64));
+      expect(() => list.set(tooBig, 'x')).toThrow(RangeError);
+    });
+
+    it('throws for a numeric-string index coming through a setIn key path', () => {
+      const state = fromJS({ items: arrayOfSize(64) });
+      expect(() => state.setIn(['items', '1073741824'], 'x')).toThrow(
+        RangeError
+      );
+    });
+
+    it('throws on setSize beyond the max rather than silently truncating', () => {
+      // Previously returned size 0 and size 5 respectively.
+      expect(() => List([1, 2, 3]).setSize(2 ** 31)).toThrow(RangeError);
+      expect(() => List([1, 2, 3]).setSize(2 ** 32 + 5)).toThrow(RangeError);
+    });
+
+    it('still allows operations within the addressable range', () => {
+      expect(List([1, 2, 3]).setSize(1500).size).toBe(1500);
+      expect(List([1, 2, 3]).set(5, 'x').size).toBe(6);
+      // Largest in-range size is accepted by the bounds math (sparse, no alloc).
+      expect(List([1, 2, 3]).setSize(tooBig).size).toBe(tooBig);
+    });
+
+    it('handles a large in-range negative index without hanging', () => {
+      // Exercises the deep-tree origin-normalization path (the `2 ** exp`
+      // fallback). Must terminate rather than spin forever; the existing values
+      // are shifted to the end of the grown List.
+      const result = List([1, 2, 3]).set(-(2 ** 29), 'x');
+      expect(result.size).toBe(2 ** 29);
+      expect(result.get(result.size - 3)).toBe(1);
+      expect(result.get(result.size - 2)).toBe(2);
+      expect(result.get(result.size - 1)).toBe(3);
+    });
+  });
+
   it('Does not infinite loop when sliced with NaN #459', () => {
     const list = List([1, 2, 3, 4, 5]);
     const newList = list.slice(0, NaN);
