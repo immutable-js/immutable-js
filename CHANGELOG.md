@@ -8,9 +8,7 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
-## 5.1.9
-
-- fix(List): a `List` grown past 32 elements while all its values are `undefined` no longer reads those values back as `null` (affected `get`, iteration, `toArray`, `equals` and `hashCode`)
+- [TypeScript]: `Range` is now written in TypeScript and returns a `RangeImpl` instance, a subtype of `Seq.Indexed<number>`.
 
 ## 6.0.0
 
@@ -90,6 +88,10 @@ Remove transducersjs compatibility, as `cognitect-labs/transducers-js` has been 
 #### Pull request details
 
 - better types 6.x [2204](https://github.com/immutable-js/immutable-js/pull/2204)
+
+## 5.1.9
+
+- fix(List): a `List` grown past 32 elements while all its values are `undefined` no longer reads those values back as `null` (affected `get`, iteration, `toArray`, `equals` and `hashCode`)
 
 ## 5.1.8
 
