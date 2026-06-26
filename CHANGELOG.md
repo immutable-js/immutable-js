@@ -90,6 +90,20 @@ Remove transducersjs compatibility, as `cognitect-labs/transducers-js` has been 
 
 - better types 6.x [2204](https://github.com/immutable-js/immutable-js/pull/2204)
 
+## 5.1.8
+
+- fix(List): guard oversized bounds in setListBounds. Fixes CVE https://github.com/immutable-js/immutable-js/security/advisories/GHSA-v56q-mh7h-f735
+- perf(Map): index large hash-collision buckets for faster lookups. Fixes CVE https://github.com/immutable-js/immutable-js/security/advisories/GHSA-xvcm-6775-5m9r
+
+## 4.3.9
+
+- fix(List): guard oversized bounds in setListBounds. Fixes CVE https://github.com/immutable-js/immutable-js/security/advisories/GHSA-v56q-mh7h-f735
+- perf(Map): index large hash-collision buckets for faster lookups. Fixes CVE https://github.com/immutable-js/immutable-js/security/advisories/GHSA-xvcm-6775-5m9r
+
+## 5.1.7
+
+- fix(Repeat): lastIndexOf returned size instead of size - 1 by @chatman-media in https://github.com/immutable-js/immutable-js/pull/2227. Fixes CVE [CVE-2026-29063 ](https://github.com/immutable-js/immutable-js/security/advisories/GHSA-wf6x-7x77-mvgw)
+
 ## 5.1.6
 
 - fix(reverseFactory): read `reversedSequence.size` in `__iterator` instead of this [#2196](https://github.com/immutable-js/immutable-js/pull/2196)
