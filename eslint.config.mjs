@@ -144,7 +144,12 @@ export default tseslintConfig(
       'jest/expect-expect': [
         'error',
         {
-          assertFunctionNames: ['expect', 'expectIs', 'expectIsNot'],
+          assertFunctionNames: [
+            'expect',
+            'expectIs',
+            'expectIsNot',
+            'expectAllUndefined',
+          ],
           additionalTestBlockFunctions: [],
         },
       ],
