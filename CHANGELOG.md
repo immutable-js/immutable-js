@@ -8,8 +8,9 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
-- fix(IndexedCollection): `has(index)` on a lazy `Seq` of unknown size now checks index existence instead of searching for a value equal to the index
-- [TypeScript]: `reduce`/`reduceRight` without an initial value now infer the result type from the collection's values when the reducer returns a value (e.g. `list.reduce((a, b) => a + b)` infers `number`), matching `Array#reduce`. Previously an explicit type argument was required.
+## 5.1.9
+
+- fix(List): a `List` grown past 32 elements while all its values are `undefined` no longer reads those values back as `null` (affected `get`, iteration, `toArray`, `equals` and `hashCode`)
 
 ## 6.0.0
 
@@ -103,6 +104,8 @@ Remove transducersjs compatibility, as `cognitect-labs/transducers-js` has been 
 ## 5.1.7
 
 - fix(Repeat): lastIndexOf returned size instead of size - 1 by @chatman-media in https://github.com/immutable-js/immutable-js/pull/2227. Fixes CVE [CVE-2026-29063 ](https://github.com/immutable-js/immutable-js/security/advisories/GHSA-wf6x-7x77-mvgw)
+- fix(IndexedCollection): `has(index)` on a lazy `Seq` of unknown size now checks index existence instead of searching for a value equal to the index [#2203](https://github.com/immutable-js/immutable-js/pull/2203)
+- [TypeScript]: `reduce`/`reduceRight` without an initial value now infer the result type from the collection's values when the reducer returns a value (e.g. `list.reduce((a, b) => a + b)` infers `number`), matching `Array#reduce`. Previously an explicit type argument was required. [#2205](https://github.com/immutable-js/immutable-js/pull/2205)
 
 ## 5.1.6
 

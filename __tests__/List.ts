@@ -935,6 +935,100 @@ describe('List', () => {
     );
   });
 
+  // A List grown past 32 elements while every value is `undefined` must read
+  // back `undefined` at every index, never `null`.
+  describe('preserves stored undefined (never reads back as null)', () => {
+    // Asserts every in-bounds slot reads as `undefined` (not `null`) through
+    // every read path: get, toArray, the values iterator (both directions),
+    // forEach, and the structural equals / hashCode.
+    function expectAllUndefined(list: List<number | undefined>, size: number) {
+      const expected = List<number | undefined>(
+        new Array(size).fill(undefined)
+      );
+
+      expect(list.size).toBe(size);
+      for (let i = 0; i < size; i++) {
+        expect(list.get(i)).toBeUndefined();
+      }
+      expect(list.toArray()).toEqual(new Array(size).fill(undefined));
+      expect([...list.values()]).toEqual(new Array(size).fill(undefined));
+      expect([...list.toSeq().reverse().values()]).toEqual(
+        new Array(size).fill(undefined)
+      );
+      list.forEach((value) => expect(value).toBeUndefined());
+      // @ts-expect-error null should not be here
+      expect(list.includes(null)).toBe(false);
+      expect(list.equals(expected)).toBe(true);
+      expect(list.hashCode()).toBe(expected.hashCode());
+    }
+
+    it('setSize(32).setSize(33) — minimal repro', () => {
+      expectAllUndefined(
+        List<number | undefined>().setSize(32).setSize(33),
+        33
+      );
+    });
+
+    it('setSize(1).setSize(33) — grows a tiny List across the boundary', () => {
+      expectAllUndefined(List<number | undefined>().setSize(1).setSize(33), 33);
+    });
+
+    it('setSize(31).setSize(33)', () => {
+      expectAllUndefined(
+        List<number | undefined>().setSize(31).setSize(33),
+        33
+      );
+    });
+
+    it('setSize(32).setSize(65) — undefined region spanning two leaf nodes', () => {
+      expectAllUndefined(
+        List<number | undefined>().setSize(32).setSize(65),
+        65
+      );
+    });
+
+    it('setSize(32).push(undefined) — grow via push, not setSize', () => {
+      expectAllUndefined(
+        List<number | undefined>().setSize(32).push(undefined),
+        33
+      );
+    });
+
+    it('writing undefined past index 32 in a mutation', () => {
+      const list = List<number | undefined>().withMutations((m) => {
+        for (let i = 0; i < 33; i++) {
+          m.set(i, undefined);
+        }
+      });
+      expectAllUndefined(list, 33);
+    });
+
+    // The sequence reported in #2230, reaching the same all-undefined state
+    // through unshift/delete/shift rather than setSize.
+    it('unshift/delete/setSize/shift sequence (issue #2230)', () => {
+      const list = List<number | undefined>()
+        .unshift(86)
+        .unshift(87)
+        .unshift(54) // [54, 87, 86]
+        .delete(1) // [54, 86]
+        .setSize(6) // [54, 86, undefined, undefined, undefined, undefined]
+        .shift()
+        .shift() // [undefined, undefined, undefined, undefined]
+        .delete(1); // -> [undefined, undefined, undefined]
+
+      expectAllUndefined(list, 3);
+    });
+
+    // A genuine `null` value is a valid element and must round-trip as `null`,
+    // distinct from an absent / undefined slot.
+    it('keeps an explicitly stored null as null', () => {
+      const list = List<number | null>().setSize(32).setSize(33).set(0, null);
+      expect(list.get(0)).toBeNull();
+      expect(list.get(1)).toBeUndefined();
+      expect(list.toArray()[0]).toBeNull();
+    });
+  });
+
   it('can be efficiently sliced', () => {
     const v1 = Range(0, 2000).toList();
     const v2 = v1.slice(100, -100).toList();
