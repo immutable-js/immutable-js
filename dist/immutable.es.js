@@ -3474,7 +3474,7 @@ var List = /*@__PURE__*/(function (IndexedCollection) {
     assertNotInfinite(size);
     if (size > 0 && size < SIZE) {
       // eslint-disable-next-line no-constructor-return
-      return makeList(0, size, SHIFT, null, new VNode(iter.toArray()));
+      return makeList(0, size, SHIFT, undefined, new VNode(iter.toArray()));
     }
     // eslint-disable-next-line no-constructor-return
     return empty.withMutations(function (list) {
@@ -3717,6 +3717,13 @@ ListPrototype['@@transducer/result'] = function (obj) {
   return obj.asImmutable();
 };
 
+/**
+ * A node in the List's 32-wide trie. At inner levels `array` holds child
+ * `VNode`s; at the leaf level it holds the List's values. Missing slots are
+ * `undefined` array holes.
+ *
+ * @template T
+ */
 var VNode = function VNode(array, ownerID) {
   this.array = array;
   this.ownerID = ownerID;
@@ -3853,6 +3860,16 @@ function iterateList(list, reverse) {
   }
 }
 
+/**
+ * @param {number} origin
+ * @param {number} capacity
+ * @param {number} level
+ * @param {VNode | undefined} [root] The trie root, or `undefined` when every
+ *   in-range value lives in the tail (or is a virtual `undefined`).
+ * @param {VNode | undefined} [tail]
+ * @param {OwnerID} [ownerID]
+ * @param {number} [hash]
+ */
 function makeList(origin, capacity, level, root, tail, ownerID, hash) {
   var list = Object.create(ListPrototype);
   list.size = capacity - origin;
@@ -3970,6 +3987,14 @@ function editableVNode(node, ownerID) {
   return new VNode(node ? node.array.slice() : [], ownerID);
 }
 
+/**
+ * Returns the leaf `VNode` holding `rawIndex`, or `undefined` when no node is
+ * allocated for it (an all-`undefined` region).
+ *
+ * @param {List} list
+ * @param {number} rawIndex
+ * @returns {VNode | undefined}
+ */
 function listNodeFor(list, rawIndex) {
   if (rawIndex >= getTailOffset(list._capacity)) {
     return list._tail;
@@ -4113,7 +4138,7 @@ function setListBounds(list, begin, end) {
     newOrigin -= newTailOffset;
     newCapacity -= newTailOffset;
     newLevel = SHIFT;
-    newRoot = null;
+    newRoot = undefined;
     newTail = newTail && newTail.removeBefore(owner, 0, newOrigin);
 
     // Otherwise, if the root has been trimmed, garbage collect.
