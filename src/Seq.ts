@@ -266,6 +266,10 @@ export class SetSeqImpl<T> extends SetCollectionImpl<T> {
     return this;
   }
 
+  override toString(): string {
+    return this.__toString('Seq {', '}');
+  }
+
   cacheResult(): this {
     return cacheResultOf(this);
   }
