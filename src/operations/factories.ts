@@ -41,8 +41,11 @@ export type Comparator<T> = (a: T, b: T) => number;
 // every "makeSequence(...) as unknown as MutableSequence", every "return ... as
 // unknown as <kind>", and every loose method reassignment
 // (get/has/reverse/flip/cacheResult/...) — exists only because operation
-// sequences are built by mutating a bare object. Once sequences.js becomes real
-// typed classes, the mutation pattern and all these casts disappear.
+// sequences are built by mutating a bare object. It is NOT lifted by migrating
+// sequences.ts (whose To*Sequence/ConcatSeq are already real classes): it only
+// disappears if the seqs built *here* by the factories become real typed
+// classes (e.g. a MapSequence, FilterSequence, …) instead of mutated bare
+// objects — a separate design decision.
 // The factories build a sequence by dynamically mutating the bare object
 // returned by `makeSequence`, assigning operation-specific implementations of
 // `_iter`, `size`, `get`, `__iterate`, `__iterator`, etc. Those assignments
