@@ -1,4 +1,4 @@
-import type { Collection } from '../type-definitions/immutable';
+import type { CollectionImpl } from './Collection';
 
 // Used for setting prototype methods that IE8 chokes on.
 export const DELETE = 'delete';
@@ -30,18 +30,17 @@ export function SetRef(ref: Ref): void {
 // the return of any subsequent call of this function.
 export function OwnerID() {}
 
-export function ensureSize(iter: Collection<unknown, unknown>): number {
-  // @ts-expect-error size should exists on Collection
+export function ensureSize(iter: CollectionImpl<unknown, unknown>): number {
   if (iter.size === undefined) {
-    // @ts-expect-error size should exists on Collection, __iterate does exist on Collection
-    iter.size = iter.__iterate(returnTrue);
+    // Materialize the size; the assignment yields the freshly counted `number`.
+    return (iter.size = iter.__iterate(returnTrue));
   }
-  // @ts-expect-error size should exists on Collection
+
   return iter.size;
 }
 
 export function wrapIndex(
-  iter: Collection<unknown, unknown>,
+  iter: CollectionImpl<unknown, unknown>,
   index: number
 ): number {
   // This implements "is array index" which the ECMAString spec defines as:
@@ -65,27 +64,55 @@ export function returnTrue(): true {
   return true;
 }
 
-export function wholeSlice(begin: number, end: number, size: number): boolean {
+export function wholeSlice(
+  begin: number | undefined,
+  end: number | undefined,
+  size: number | undefined
+): boolean {
   return (
     ((begin === 0 && !isNeg(begin)) ||
-      (size !== undefined && begin <= -size)) &&
+      (size !== undefined && (begin ?? 0) <= -size)) &&
     (end === undefined || (size !== undefined && end >= size))
   );
 }
 
-export function resolveBegin(begin: number, size: number): number {
+export function resolveBegin(
+  begin: number | undefined,
+  size: number | undefined
+): number {
   return resolveIndex(begin, size, 0);
 }
 
-export function resolveEnd(end: number, size: number): number {
+// With a known `size` the end always resolves to a number. With an unknown size
+// and no explicit `end`, the end stays `undefined` (the slice runs to the —
+// not-yet-known — end of the sequence).
+export function resolveEnd(end: number | undefined, size: number): number;
+export function resolveEnd(
+  end: number | undefined,
+  size: number | undefined
+): number | undefined;
+export function resolveEnd(
+  end: number | undefined,
+  size: number | undefined
+): number | undefined {
   return resolveIndex(end, size, size);
 }
 
 function resolveIndex(
-  index: number,
-  size: number,
+  index: number | undefined,
+  size: number | undefined,
   defaultIndex: number
-): number {
+): number;
+function resolveIndex(
+  index: number | undefined,
+  size: number | undefined,
+  defaultIndex: number | undefined
+): number | undefined;
+function resolveIndex(
+  index: number | undefined,
+  size: number | undefined,
+  defaultIndex: number | undefined
+): number | undefined {
   // Sanitize indices using this shorthand for ToInt32(argument)
   // http://www.ecma-international.org/ecma-262/6.0/#sec-toint32
   return index === undefined
@@ -93,7 +120,7 @@ function resolveIndex(
     : isNeg(index)
       ? size === Infinity
         ? size
-        : Math.max(0, size + index) | 0
+        : Math.max(0, (size ?? 0) + index) | 0
       : size === undefined || size === index
         ? index
         : Math.min(size, index) | 0;

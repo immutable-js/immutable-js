@@ -1,4 +1,3 @@
-import { describe, expect, it } from '@jest/globals';
 import {
   Seq,
   isCollection,
@@ -7,8 +6,16 @@ import {
   isOrdered,
   isSeq,
 } from 'immutable';
+import { describe, expect, it } from '@jest/globals';
 
 describe('Seq', () => {
+  it('constructor provides different instances', () => {
+    expect(Seq()).not.toBe(Seq());
+    expect(Seq()).toEqual(Seq());
+    expect(Seq([1])).not.toBe(Seq([1]));
+    expect(Seq([1])).toEqual(Seq([1]));
+  });
+
   it('returns undefined if empty and first is called without default argument', () => {
     expect(Seq().first()).toBeUndefined();
   });
