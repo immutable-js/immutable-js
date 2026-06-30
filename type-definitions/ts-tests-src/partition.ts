@@ -4,36 +4,43 @@
 // collection/method is migrated to TS; un-skip them as migration progresses.
 // Some d.ts-only types (MapOf, RecordOf, DeepCopy) are omitted from imports
 // until they exist in the source. See .agents/commands/migrate-to-ts.md.
+// The source does not emit the public type names (`Collection.Keyed<K, V>`, …)
+// yet, so the assertions reference the internal `*Impl` classes imported
+// straight from the source; switch back to the public names once they exist.
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-import {
-  Collection,
-  List,
-  Map,
-  OrderedMap,
-  OrderedSet,
-  Seq,
-  Set,
-} from 'immutable';
+import { List, Map, OrderedMap, OrderedSet, Set } from 'immutable';
 import { expect, test } from 'tstyche';
+import type {
+  CollectionImpl,
+  IndexedCollectionImpl,
+  KeyedCollectionImpl,
+  SetCollectionImpl,
+} from '../../src/Collection';
+import type {
+  IndexedSeqImpl,
+  KeyedSeqImpl,
+  SeqImpl,
+  SetSeqImpl,
+} from '../../src/Seq';
 
 abstract class A {}
 class B extends A {}
 
-test.skip('Collection', () => {
-  type Indexed<T> = Collection.Indexed<T>;
-  type Keyed<K, V> = Collection.Keyed<K, V>;
-  type Set<T> = Collection.Set<T>;
+test('Collection', () => {
+  type Indexed<T> = IndexedCollectionImpl<T>;
+  type Keyed<K, V> = KeyedCollectionImpl<K, V>;
+  type Set<T> = SetCollectionImpl<T>;
 
-  (c: Collection<string, number>) => {
+  (c: CollectionImpl<string, number>) => {
     expect(c.partition((x) => x % 2)).type.toBe<
-      [Collection<string, number>, Collection<string, number>]
+      [CollectionImpl<string, number>, CollectionImpl<string, number>]
     >();
   };
 
-  (c: Collection<string, A>) => {
+  (c: CollectionImpl<string, A>) => {
     expect(c.partition((x): x is B => x instanceof B)).type.toBe<
-      [Collection<string, A>, Collection<string, B>]
+      [CollectionImpl<string, A>, CollectionImpl<string, B>]
     >();
   };
 
@@ -72,20 +79,20 @@ test.skip('Collection', () => {
   };
 });
 
-test.skip('Seq', () => {
-  type Indexed<T> = Seq.Indexed<T>;
-  type Keyed<K, V> = Seq.Keyed<K, V>;
-  type Set<T> = Seq.Set<T>;
+test('Seq', () => {
+  type Indexed<T> = IndexedSeqImpl<T>;
+  type Keyed<K, V> = KeyedSeqImpl<K, V>;
+  type Set<T> = SetSeqImpl<T>;
 
-  (c: Seq<string, number>) => {
+  (c: SeqImpl<string, number>) => {
     expect(c.partition((x) => x % 2)).type.toBe<
-      [Seq<string, number>, Seq<string, number>]
+      [SeqImpl<string, number>, SeqImpl<string, number>]
     >();
   };
 
-  (c: Seq<string, A>) => {
+  (c: SeqImpl<string, A>) => {
     expect(c.partition((x): x is B => x instanceof B)).type.toBe<
-      [Seq<string, A>, Seq<string, B>]
+      [SeqImpl<string, A>, SeqImpl<string, B>]
     >();
   };
 

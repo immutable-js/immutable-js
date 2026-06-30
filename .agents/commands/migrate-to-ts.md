@@ -74,7 +74,7 @@ conventions of the immutable-js 6.x branch.
 
    Every test there starts as `test.skip(...)` because, mid-migration, the
    public factories (`List`, `Map`, …) and public type names (`List<number>` as
-   a *type*) live only in `immutable.d.ts` — a test routed through a not-yet-
+   a _type_) live only in `immutable.d.ts` — a test routed through a not-yet-
    migrated factory cannot even type-check against the source (its errors are
    suppressed only because the test is skipped).
 
@@ -83,7 +83,7 @@ conventions of the immutable-js 6.x branch.
    - In the corresponding `ts-tests-src/*.ts` file(s), change `test.skip(` back
      to `test(` for the tests that now pass against the source, and run
      `npm run test:types`. A test only goes green here once **everything it
-     touches** is migrated (the factory *and* the methods *and* the public type
+     touches** is migrated (the factory _and_ the methods _and_ the public type
      name it asserts) — so a single collection migration may un-skip a whole
      file, or only part of it.
    - If a d.ts-only type was removed from a duplicate's imports (e.g. `MapOf`,
@@ -112,3 +112,43 @@ conventions of the immutable-js 6.x branch.
 - Imports must be ordered alphabetically (`import/order` ESLint rule).
 - `import type` for type-only imports (`verbatimModuleSyntax` is enabled).
 - Run `npm run format` after editing to apply Prettier.
+
+## Covariant `this` return types (`slice` / `reverse` / `sort` / `skip` / …)
+
+A family of methods (`slice`, `reverse`, `sort`, `sortBy`, `skip`, `skipLast`,
+`skipWhile`, `skipUntil`, `take`, `takeLast`, `takeWhile`, `rest`, `butLast`,
+`interpose`, `interleave`) is declared **once** on the base `Collection`
+interface as `: this`. `CollectionImpl`/`IndexedCollectionImpl` implement them
+through the generic helpers `reify<S>(iter, seq: S): S` and
+`sliceFactory<C extends CollectionImpl>(c: C, …): C` (`src/operations/`). Because
+those signatures are _generic identities_, calling `reify(this, sliceFactory(this, …))`
+infers `S = C = this`, so the base returns `this` with **no call-site cast** —
+the single `as unknown as` cast lives once inside `reify`. `List`/`Map`/`Stack`
+inherit this and need nothing.
+
+The problem only appears in a **leaf** that _overrides_ one of these methods and
+rebuilds its result via a **concrete factory** (`new RangeImpl(…)`, `Range(…)`,
+`makeStack(…)`, `OrderedMap(…)`): TypeScript cannot prove the concrete instance
+equals the polymorphic `this`. Decision rule when migrating such a leaf:
+
+1. **You don't override it** → nothing to do (inherited via `reify`, cast-free).
+2. **You rebuild through a generic-identity helper** (`reify(this, …Factory(this, …))`,
+   or an internal factory you type `<C extends XImpl>(c: C, …): C` — e.g.
+   `setListBounds`) → cast-free; the generic carries `this`. **Prefer this**: when
+   the result derives from the receiver, make the internal factory generic-identity
+   instead of casting.
+3. **You rebuild from scratch via a concrete factory** → keep the `: this`
+   return type and cast the constructed value: `return Range(…) as this;`. This is
+   the same cast `reify` hides, just surfaced because the helper is bypassed.
+4. **The override returns a _divergent_ concrete type** (e.g. `Map.sort` →
+   `OrderedMap`) → type it as the intersection the d.ts already uses,
+   `this & OrderedMap<K, V>` (assignable to `this`, so a valid override), and cast:
+   `return OrderedMap(…) as this & OrderedMap<K, V>;`.
+
+The `as this` / `as this & …` cast is **erased at compile time — zero runtime
+cost**. Do **not** reach for an F-bounded `Self` type parameter (viral across the
+whole class hierarchy, risks `tsc` slowdowns, and cannot express the divergent
+`sort` return) nor a runtime `__reconstruct()` hook (adds runtime code, same
+`sort` limitation). The localized cast is the minimum and the idiomatic choice
+here. Known sites: `Range.slice`, and (once migrated) `Repeat.slice`,
+`Stack.slice`, `Map.sort`/`sortBy`, `Set.sort`/`sortBy`.

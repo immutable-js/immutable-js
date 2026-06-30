@@ -45,18 +45,22 @@ export function reify<S extends CollectionImpl<unknown, unknown>>(
  * Creates a bare `Seq` instance of the same kind (keyed, indexed or set) as
  * `collection`, to be populated by the calling operation factory.
  */
-export function makeSequence(
-  collection: KeyedCollectionImpl<unknown, unknown>
-): KeyedSeqImpl;
-export function makeSequence(
-  collection: IndexedCollectionImpl<unknown>
-): IndexedSeqImpl;
-export function makeSequence(
-  collection: SetCollectionImpl<unknown>
-): SetSeqImpl;
+export function makeSequence<K, V>(
+  collection: KeyedCollectionImpl<K, V>
+): KeyedSeqImpl<K, V>;
+export function makeSequence<T>(
+  collection: IndexedCollectionImpl<T>
+): IndexedSeqImpl<T>;
+export function makeSequence<T>(
+  collection: SetCollectionImpl<T>
+): SetSeqImpl<T>;
+// Unknown-kind collection: the seq kind is only known at runtime.
 export function makeSequence(
   collection: CollectionImpl<unknown, unknown>
-): SeqImpl {
+): SeqImpl<unknown, unknown>;
+export function makeSequence(
+  collection: CollectionImpl<unknown, unknown>
+): SeqImpl<unknown, unknown> {
   return Object.create(
     (isKeyed(collection)
       ? KeyedSeqImpl
@@ -71,18 +75,28 @@ export function makeSequence(
  * Returns the public collection factory matching the kind of `collection`.
  */
 
-export function collectionClass(
-  collection: KeyedCollectionImpl<unknown, unknown>
+export function collectionClass<K, V>(
+  collection: KeyedCollectionImpl<K, V>
 ): typeof KeyedCollection;
-export function collectionClass(
-  collection: IndexedCollectionImpl<unknown>
-): typeof IndexedCollection;
-export function collectionClass(
-  collection: SetCollectionImpl<unknown>
-): typeof SetCollection;
-export function collectionClass(
-  collection: CollectionImpl<unknown, unknown>
-): typeof KeyedCollection | typeof IndexedCollection | typeof SetCollection {
+export function collectionClass<T>(
+  collection: IndexedCollectionImpl<T>
+): typeof IndexedCollection<T>;
+export function collectionClass<T>(
+  collection: SetCollectionImpl<T>
+): typeof SetCollection<T>;
+// Unknown-kind collection: the factory kind is only known at runtime.
+export function collectionClass<K, V>(
+  collection: CollectionImpl<K, V>
+):
+  | typeof KeyedCollection<K, V>
+  | typeof IndexedCollection<V>
+  | typeof SetCollection<V>;
+export function collectionClass<K, V>(
+  collection: CollectionImpl<K, V>
+):
+  | typeof KeyedCollection<K, V>
+  | typeof IndexedCollection<V>
+  | typeof SetCollection<V> {
   return isKeyed(collection)
     ? KeyedCollection
     : isIndexed(collection)

@@ -330,12 +330,17 @@ export function partitionFactory<K, V, C extends CollectionImpl<K, V>>(
       isKeyedIter ? [k, v] : v
     );
   });
-  const coerce = collectionClass(collection);
-  // Dynamic-build boundary: each partition is rebuilt through `coerce` and
-  // reified back to the collection's kind.
-  return groups.map((arr) =>
-    reify(collection, coerce(arr as Array<unknown>))
-  ) as unknown as [C, C];
+  // Dynamic-build boundary: `coerce` is one of three collection factories with
+  // distinct signatures; here it is driven generically over the entry arrays.
+  const coerce = collectionClass(collection) as unknown as (
+    values: Array<unknown>
+  ) => CollectionImpl<unknown, unknown>;
+  // Each partition is rebuilt through `coerce` and reified back to the
+  // collection's kind.
+  return groups.map((arr) => reify(collection, coerce(arr))) as unknown as [
+    C,
+    C,
+  ];
 }
 
 export function sliceFactory<C extends CollectionImpl<unknown, unknown>>(

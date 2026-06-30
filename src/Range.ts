@@ -1,4 +1,3 @@
-import type { Seq } from '../type-definitions/immutable';
 import {
   ITERATE_ENTRIES,
   ITERATE_KEYS,
@@ -14,7 +13,7 @@ import deepEqual from './utils/deepEqual';
 import invariant from './utils/invariant';
 
 /**
- * Returns a `Seq.Indexed` of numbers from `start` (inclusive) to `end`
+ * Returns a `Range` of numbers from `start` (inclusive) to `end`
  * (exclusive), by `step`, where `start` defaults to 0, `step` to 1, and `end` to
  * infinity. When `start` is equal to `end`, returns empty range.
  *
@@ -41,7 +40,7 @@ export const Range = (
   return new RangeImpl(start, end, step, size);
 };
 
-export class RangeImpl extends IndexedSeqImpl implements Seq.Indexed<number> {
+export class RangeImpl extends IndexedSeqImpl<number> {
   private _start: number;
   private _end: number;
   private _step: number;
@@ -85,24 +84,29 @@ export class RangeImpl extends IndexedSeqImpl implements Seq.Indexed<number> {
     );
   }
 
-  // @ts-expect-error TypeScript does not understand the mixin
-  slice(begin?: number | undefined, end?: number | undefined): RangeImpl {
+  override slice(begin?: number | undefined, end?: number | undefined): this {
     if (wholeSlice(begin, end, this.size)) {
       return this;
     }
     begin = resolveBegin(begin, this.size);
     end = resolveEnd(end, this.size);
     if (end <= begin) {
-      return Range(0, 0);
+      // `as this`: see the note on the return below.
+      return Range(0, 0) as this;
     }
+    // The base contract is `slice(): this`, but we rebuild a fresh Range via
+    // the concrete `Range()` factory, which TS cannot prove equals the
+    // polymorphic `this`. This `as this` is the same cast the base hides inside
+    // `reify`/`sliceFactory` — erased at compile time, zero runtime cost —
+    // surfaced here because Range bypasses those generic helpers.
     return Range(
       this.get(begin, this._end),
       this.get(end, this._end),
       this._step
-    );
+    ) as this;
   }
 
-  indexOf(searchValue: number): number {
+  override indexOf(searchValue: number): number {
     const offsetValue = searchValue - this._start;
     if (offsetValue % this._step === 0) {
       const index = offsetValue / this._step;
@@ -113,7 +117,7 @@ export class RangeImpl extends IndexedSeqImpl implements Seq.Indexed<number> {
     return -1;
   }
 
-  lastIndexOf(searchValue: number): number {
+  override lastIndexOf(searchValue: number): number {
     return this.indexOf(searchValue);
   }
 

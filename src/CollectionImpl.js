@@ -12,7 +12,7 @@ import { Map } from './Map';
 import { OrderedMap } from './OrderedMap';
 import { OrderedSet } from './OrderedSet';
 import { Range } from './Range';
-import { ArraySeq, IndexedSeqImpl, KeyedSeqImpl, SetSeqImpl } from './Seq';
+import { ArraySeq } from './Seq';
 import { Set } from './Set';
 import { Stack } from './Stack';
 import { resolveBegin } from './TrieUtils';
@@ -233,9 +233,3 @@ const SetCollectionPrototype = SetCollectionImpl.prototype;
 SetCollectionPrototype.has = CollectionPrototype.includes;
 SetCollectionPrototype.contains = SetCollectionPrototype.includes;
 SetCollectionPrototype.keys = SetCollectionPrototype.values;
-
-// Mixin subclasses
-
-mixin(KeyedSeqImpl, KeyedCollectionPrototype);
-mixin(IndexedSeqImpl, IndexedCollectionPrototype);
-mixin(SetSeqImpl, SetCollectionPrototype);
