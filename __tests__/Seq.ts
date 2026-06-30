@@ -219,6 +219,23 @@ describe('Seq kinds expose the kind-specific methods', () => {
   });
 });
 
+describe('Seq toString across the hierarchy', () => {
+  // `toString` was inherited from the shared `SeqImpl` ancestor before the
+  // re-parenting; each kind now has to carry it (the base `CollectionImpl`
+  // returns the placeholder `'[Collection]'`).
+  it('prints each kind with the Seq prefix', () => {
+    expect(Seq([1, 2, 3]).toString()).toBe('Seq [ 1, 2, 3 ]');
+    expect(Seq.Keyed({ a: 1, b: 2 }).toString()).toBe('Seq { "a": 1, "b": 2 }');
+    expect(Seq.Set([1, 2, 3]).toString()).toBe('Seq { 1, 2, 3 }');
+  });
+
+  it('prints empty Seqs with the Seq prefix', () => {
+    expect(Seq([]).toString()).toBe('Seq []');
+    expect(Seq.Keyed({}).toString()).toBe('Seq {}');
+    expect(Seq.Set([]).toString()).toBe('Seq {}');
+  });
+});
+
 describe('cacheResult', () => {
   function* numbers() {
     yield 1;
