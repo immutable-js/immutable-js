@@ -1,6 +1,7 @@
 import type { DeepCopy, KeyPath } from '../type-definitions/immutable';
 import {
   defaultNegComparator,
+  entryMapper,
   keyMapper,
   neg,
   not,
@@ -16,6 +17,7 @@ import {
   type IteratorType,
 } from './Iterator';
 import {
+  ArraySeq,
   IndexedSeq,
   KeyedSeq,
   Seq,
@@ -58,6 +60,7 @@ import assertNotInfinite from './utils/assertNotInfinite';
 import deepEqual from './utils/deepEqual';
 import { hashCollection } from './utils/hashCollection';
 import { isProtoKey } from './utils/protoInjection';
+import quoteString from './utils/quoteString';
 
 export function Collection<I extends CollectionImpl<unknown, unknown>>(
   collection: I
@@ -102,9 +105,9 @@ export class CollectionImpl<K, V> implements ValueObject {
   declare [IS_COLLECTION_SYMBOL]: true;
 
   // Provided by the mixin (CollectionImpl.js) at runtime, which overwrites these
-  // throwing placeholders. They are methods (not `declare` properties) so the
-  // Seq subclasses — which re-parent onto the matching `*CollectionImpl` — can
-  // override them with real methods returning `this`.
+  // throwing placeholders. They are methods (not `declare` properties) so
+  // subclasses — the re-parented Seq classes and the operation sequences
+  // (operations/sequences.ts) — can override them with real methods.
   toIndexedSeq(): IndexedSeqImpl<V> {
     throw new Error('toIndexedSeq is provided by the mixin');
   }
@@ -114,13 +117,27 @@ export class CollectionImpl<K, V> implements ValueObject {
   toSetSeq(): SetSeqImpl<V> {
     throw new Error('toSetSeq is provided by the mixin');
   }
+  /**
+   * Returns a new Seq.Indexed of [key, value] tuples.
+   */
+  entrySeq(): IndexedSeqImpl<[K, V]> {
+    if (this._cache) {
+      // We cache as an entries array, so we can just return the cache!
+      return new ArraySeq(this._cache);
+    }
+    const entriesSequence = this.toSeq().map(entryMapper).toIndexedSeq();
+    entriesSequence.fromEntrySeq = () =>
+      // TODO [TS-MIGRATION] the optimized round-trip returns the source seq,
+      // which is keyed only when the source is keyed; the public contract
+      // types `fromEntrySeq` as a keyed seq.
+      this.toSeq() as unknown as KeyedSeqImpl<unknown, unknown>;
+    return entriesSequence;
+  }
 
   // Provided by the mixin (CollectionImpl.js); declared so callers (including
   // the Seq classes) can use them. TODO [TS-MIGRATION] real methods as the
   // mixin is dismantled.
-  declare entrySeq: () => IndexedSeqImpl<[K, V]>;
   declare fromEntrySeq: () => KeyedSeqImpl<unknown, unknown>;
-  declare __toString: (head: string, tail: string) => string;
 
   /**
    * True if this and the other Collection have value equality, as defined
@@ -158,6 +175,36 @@ export class CollectionImpl<K, V> implements ValueObject {
    */
   toJS(): Array<DeepCopy<V>> | { [key in PropertyKey]: DeepCopy<V> } {
     return toJS(this);
+  }
+
+  /**
+   * Shallowly converts this collection to an Array.
+   *
+   * `Collection.Indexed`, and `Collection.Set` produce an Array of values.
+   * `Collection.Keyed` produce an Array of [key, value] tuples.
+   */
+  toArray(): Array<V> | Array<[K, V]> {
+    assertNotInfinite(this.size);
+    const array: Array<V | [K, V]> = new Array(this.size || 0);
+    const useTuples = isKeyed(this);
+    let i = 0;
+    this.__iterate((v, k) => {
+      // Keyed collections produce an array of tuples.
+      array[i++] = useTuples ? [k, v] : v;
+    });
+    // The array is homogeneous: tuples when keyed, plain values otherwise.
+    return array as Array<V> | Array<[K, V]>;
+  }
+
+  /**
+   * Shallowly converts this Collection to equivalent native JavaScript Array or Object.
+   *
+   * `Collection.Indexed`, and `Collection.Set` become `Array`, while
+   * `Collection.Keyed` become `Object`, converting keys to Strings.
+   */
+  toJSON(): Array<V> | { [key in PropertyKey]: V } {
+    // Keyed collections override `toJSON` with the object form (`toObject`).
+    return this.toArray() as Array<V>;
   }
 
   /**
@@ -200,6 +247,33 @@ export class CollectionImpl<K, V> implements ValueObject {
 
   toString(): string {
     return '[Collection]';
+  }
+
+  inspect(): string {
+    return this.toString();
+  }
+
+  toSource(): string {
+    return this.toString();
+  }
+
+  __toString(head: string, tail: string): string {
+    if (this.size === 0) {
+      return head + tail;
+    }
+    return (
+      head +
+      ' ' +
+      this.toSeq().map(this.__toStringMapper).join(', ') +
+      ' ' +
+      tail
+    );
+  }
+
+  // Stringifies a single entry for `__toString`; keyed collections override it
+  // with the `key: value` form.
+  __toStringMapper(value: V, _key: K): string {
+    return quoteString(value);
   }
 
   /**
@@ -252,6 +326,11 @@ export class CollectionImpl<K, V> implements ValueObject {
   values(): IterableIterator<V> {
     return this.__iterator(ITERATE_VALUES);
   }
+
+  // Reference-equal alias of `values` (`entries` for keyed collections) —
+  // tested behaviour, so it is assigned on the prototypes below the classes
+  // rather than defined as a method.
+  declare [Symbol.iterator]: () => IterableIterator<unknown>;
 
   /**
    * True if `predicate` returns true for any entry in the Collection.
@@ -388,6 +467,10 @@ export class CollectionImpl<K, V> implements ValueObject {
    */
   includes(searchValue: V): boolean {
     return this.some((value) => is(value, searchValue));
+  }
+
+  contains(searchValue: V): boolean {
+    return this.includes(searchValue);
   }
 
   /**
@@ -1001,11 +1084,84 @@ export class KeyedCollectionImpl<K, V> extends CollectionImpl<K, V> {
   }
 
   /**
+   * Shallowly converts this collection to an Array.
+   */
+  override toArray(): Array<[K, V]>;
+  override toArray(): unknown {
+    return super.toArray();
+  }
+
+  /**
+   * Shallowly converts this Keyed collection to equivalent native JavaScript Object.
+   *
+   * Converts keys to Strings.
+   */
+  override toJSON(): { [key in PropertyKey]: V } {
+    return this.toObject();
+  }
+
+  // Reference-equal alias of `entries` (see the base class declaration).
+  declare [Symbol.iterator]: () => IterableIterator<[K, V]>;
+
+  override __toStringMapper(value: V, key: K): string {
+    return quoteString(key) + ': ' + quoteString(value);
+  }
+
+  /**
    * Returns a new Collection.Keyed of the same type where the keys and values
    * have been flipped.
    */
   flip(): KeyedCollectionImpl<V, K> {
     return reify(this, flipFactory(this));
+  }
+
+  /**
+   * Returns a new Collection.Keyed of the same type with entries
+   * ([key, value] tuples) passed through a `mapper` function.
+   *
+   * Note: `mapEntries()` always returns a new instance, even if it produced
+   * the same entry at every step.
+   *
+   * If the mapper function returns `undefined`, then the entry will be filtered
+   */
+  mapEntries<KM, VM>(
+    mapper: (entry: [K, V], index: number, iter: this) => [KM, VM] | undefined,
+    context?: unknown
+  ): KeyedCollectionImpl<KM, VM> {
+    let iterations = 0;
+    return reify(
+      this,
+      this.toSeq()
+        .map((v, k) => mapper.call(context, [k, v], iterations++, this))
+        .fromEntrySeq()
+      // TODO [TS-MIGRATION] `fromEntrySeq` is declared with unknown entry
+      // types, so the mapped entry types are reasserted at this boundary.
+    ) as unknown as KeyedCollectionImpl<KM, VM>;
+  }
+
+  /**
+   * Returns a new Collection.Keyed of the same type with keys passed through
+   * a `mapper` function.
+   *
+   * Note: `mapKeys()` always returns a new instance, even if it produced
+   * the same key at every step.
+   */
+  mapKeys<M>(
+    mapper: (key: K, value: V, iter: this) => M,
+    context?: unknown
+  ): KeyedCollectionImpl<M, V> {
+    return reify(
+      this,
+      (
+        this.toSeq()
+          .flip()
+          // TODO [TS-MIGRATION] `map` does not preserve the keyed kind at the
+          // type level (the public narrowing lives in the d.ts).
+          .map((k, v) =>
+            mapper.call(context, k, v, this)
+          ) as KeyedCollectionImpl<V, M>
+      ).flip()
+    );
   }
 
   override partition<F extends V, C>(
@@ -1050,8 +1206,22 @@ export class IndexedCollectionImpl<T>
   extends CollectionImpl<number, T>
   implements OrderedCollection<T>
 {
-  declare toArray: () => T[];
+  /**
+   * Shallowly converts this collection to an Array.
+   */
+  override toArray(): Array<T>;
+  override toArray(): unknown {
+    return super.toArray();
+  }
 
+  /**
+   * Shallowly converts this Indexed collection to equivalent native JavaScript Array.
+   */
+  override toJSON(): Array<T> {
+    return this.toArray();
+  }
+
+  // Reference-equal alias of `values` (see the base class declaration).
   declare [Symbol.iterator]: () => IterableIterator<T>;
 
   // Brands tested by the `isIndexed` / `isOrdered` predicates. Declared for the
@@ -1323,6 +1493,24 @@ export function SetCollection<T>(
 
 export class SetCollectionImpl<T> extends CollectionImpl<T, T> {
   /**
+   * Shallowly converts this collection to an Array.
+   */
+  override toArray(): Array<T>;
+  override toArray(): unknown {
+    return super.toArray();
+  }
+
+  /**
+   * Shallowly converts this Set collection to equivalent native JavaScript Array.
+   */
+  override toJSON(): Array<T> {
+    return this.toArray();
+  }
+
+  // Reference-equal alias of `values` (see the base class declaration).
+  declare [Symbol.iterator]: () => IterableIterator<T>;
+
+  /**
    * Returns the value associated with the provided key, or notSetValue if
    * the Collection does not contain this key.
    *
@@ -1334,6 +1522,16 @@ export class SetCollectionImpl<T> extends CollectionImpl<T, T> {
   override get(value: T): T | undefined;
   override get(value: T, notSetValue?: unknown): unknown {
     return this.has(value) ? value : notSetValue;
+  }
+
+  /**
+   * True if a key exists within this `Collection`, using `Immutable.is`
+   * to determine equality
+   */
+  override has(key: T): boolean {
+    // The base `includes` body: Set's own `includes` delegates to `has`, so
+    // it cannot be reused here.
+    return this.some((value) => is(value, key));
   }
 
   /**
@@ -1376,6 +1574,15 @@ export class SetCollectionImpl<T> extends CollectionImpl<T, T> {
 Collection.Keyed = KeyedCollection;
 Collection.Indexed = IndexedCollection;
 Collection.Set = SetCollection;
+
+// `Symbol.iterator` must be reference-equal to the iteration method it
+// delegates to (`values`, or `entries` for keyed collections), and a set's
+// `keys` to its `values` — tested behaviour, so they are aliased on the
+// prototypes rather than defined as methods.
+CollectionImpl.prototype[Symbol.iterator] = CollectionImpl.prototype.values;
+KeyedCollectionImpl.prototype[Symbol.iterator] =
+  KeyedCollectionImpl.prototype.entries;
+SetCollectionImpl.prototype.keys = SetCollectionImpl.prototype.values;
 
 function defaultZipper(...values: Array<unknown>): Array<unknown> {
   return values;

@@ -660,4 +660,48 @@ describe('Map sequence helpers', () => {
   it('flip swaps keys and values', () => {
     expect(Map({ a: 1, b: 2 }).flip().toObject()).toEqual({ 1: 'a', 2: 'b' });
   });
+
+  it('mapEntries maps [key, value] tuples', () => {
+    expect(
+      Map({ a: 1, b: 2 })
+        .mapEntries(([k, v]) => [k.toUpperCase(), v * 10])
+        .toObject()
+    ).toEqual({ A: 10, B: 20 });
+  });
+
+  it('mapEntries passes the entry, the iteration index and the collection', () => {
+    const m = Map({ a: 1, b: 2 });
+    const seen: Array<[[string, number], number]> = [];
+    m.mapEntries((entry, index, iter) => {
+      expect(iter).toBe(m);
+      seen.push([entry, index]);
+      return entry;
+    });
+    expect(seen).toEqual([
+      [['a', 1], 0],
+      [['b', 2], 1],
+    ]);
+  });
+
+  it('mapEntries filters out entries for which the mapper returns undefined', () => {
+    expect(
+      Map({ a: 1, b: 2, c: 3 })
+        .mapEntries(([k, v]) => (v % 2 === 0 ? undefined : [k, v]))
+        .toObject()
+    ).toEqual({ a: 1, c: 3 });
+  });
+
+  it('mapKeys passes the key, the value and the collection', () => {
+    const m = Map({ a: 1, b: 2 });
+    const seen: Array<[string, number]> = [];
+    m.mapKeys((key, value, iter) => {
+      expect(iter).toBe(m);
+      seen.push([key, value]);
+      return key;
+    });
+    expect(seen).toEqual([
+      ['a', 1],
+      ['b', 2],
+    ]);
+  });
 });
