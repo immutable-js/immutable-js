@@ -1,47 +1,96 @@
-.repl-editor-container {
+.rd-repl {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--code-bg);
+  margin: 13px 0;
+}
+
+.rd-repl__bar {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--border);
 }
 
-.repl-editor {
-  flex: 1;
-  width: 0; /* See https://stackoverflow.com/a/75423682/2111353, but does only work on "row" mode */
-
-  border: 1px solid var(--code-block-bg-color);
+.rd-repl__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
 }
 
-.js-repl textarea {
-  width: 100%;
-  height: 100px;
-  margin-bottom: 10px;
-  padding: 10px;
-  font-family: monospace;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  resize: none;
+.rd-repl__label {
+  font-family: 'Fira Code', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
-.js-repl button {
-  padding: 10px 15px;
-  font-size: 14px;
-  background-color: var(--link-color);
-  color: white;
+.rd-repl__run {
+  margin-left: auto;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
+  font-family: 'Fira Sans', sans-serif;
+  font-weight: 600;
+  font-size: 11.5px;
+  color: #fff;
+  background: var(--red);
+  padding: 4px 14px;
+  border-radius: 6px;
+  transition: background-color 0.15s;
 }
 
-.js-repl button:hover {
-  background-color: var(--link-hover-color);
+.rd-repl__run:hover {
+  background: var(--red-ink);
 }
 
-.js-repl pre.repl-output {
-  background-color: var(--code-block-bg-color);
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.rd-repl__editor {
+  font-family: 'Fira Code', monospace;
+  font-size: 12.5px;
+}
+
+.rd-repl__editor .cm-editor {
+  background: transparent;
+}
+
+.rd-repl__editor .cm-editor .cm-gutters {
+  background: transparent;
+  border-right: 1px solid var(--border);
+}
+
+.rd-repl__editor .cm-editor .cm-content {
+  font-family: 'Fira Code', monospace;
+  font-size: 12.5px;
+}
+
+.rd-repl__editor .cm-editor.cm-focused {
+  outline: none;
+}
+
+/* Read-only imports line */
+.rd-repl__imports .cm-editor {
+  border-bottom: 1px solid var(--border);
+  opacity: 0.75;
+}
+
+.rd-repl__out {
+  border-top: 1px solid var(--border);
+  padding: 10px 15px;
+  font-family: 'Fira Code', monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--accent-ink);
   white-space: pre-wrap;
-  word-wrap: break-word;
+  word-break: break-word;
+}
+
+.rd-repl__out-prefix {
+  color: var(--muted);
+}
+
+.rd-repl__out > div {
+  display: inline;
 }

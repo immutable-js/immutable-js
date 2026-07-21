@@ -1,5 +1,7 @@
-import { DocSearch } from '../../../../DocSearch';
+import { DocsBreadcrumb } from '../../../../DocsBreadcrumb';
 import { FocusType, Sidebar } from '../../../../sidebar';
+import { slugify } from '../../../../slug';
+import { getVersions } from '../../../../static/getVersions';
 import { getDocDetail, getDocFiles } from '../../../../utils/doc';
 
 export async function generateStaticParams() {
@@ -11,7 +13,6 @@ export async function generateStaticParams() {
 }
 
 type Params = {
-  version: string;
   type: string;
 };
 
@@ -55,16 +56,33 @@ export default async function TypeDocPage(props: Props) {
     return carry;
   }, []);
 
+  const tocItems = detail
+    .filter((item) => item.type === 'title')
+    .map((item) => ({ label: item.name, href: `#${slugify(item.name)}` }));
+
   const { default: MdxContent } = await import(`@/docs/${type}.mdx`);
+  const versions = getVersions();
 
   return (
-    <div className="contents">
-      <Sidebar focus={focus} activeType={type} />
+    <div className="docs-grid">
+      <Sidebar focus={focus} activeType={type} versions={versions} />
 
-      <div className="docContents">
-        <DocSearch />
-        <MdxContent />;
-      </div>
+      <main className="docs-main">
+        <article className="doc-article">
+          <DocsBreadcrumb />
+
+          <MdxContent />
+        </article>
+      </main>
+
+      <nav className="docs-toc" aria-label="On this page">
+        <div className="docs-toc__title">On this page</div>
+        {tocItems.map((item, i) => (
+          <a key={`${item.href}-${i}`} href={item.href}>
+            {item.label}
+          </a>
+        ))}
+      </nav>
     </div>
   );
 }
