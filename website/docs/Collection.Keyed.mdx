@@ -196,13 +196,6 @@ Note: `filter()` always returns a new instance, even if it results in not filter
 />
 
 Returns a new keyed Collection with the values for which the `predicate` function returns false and another for which it returns true.
-
-<MemberLabel label="[Symbol.iterator]()" />
-
-<Signature code={`[Symbol.iterator](): IterableIterator<[K, V]>;`} />
-
-Yields [key, value] pairs.
-
 ## Value equality
 
 <MemberLabel label="equals()" />
@@ -404,6 +397,13 @@ An iterator of this `Collection`'s entries as `[ key, value ]` tuples.
 <Signature code={`entries(): IterableIterator<[K, V]>;`} />
 
 Note: this will return an ES6 iterator which does not support Immutable.js sequence algorithms. Use `entrySeq` instead if you want an Immutable.js Seq.
+
+<MemberLabel label="[Symbol.iterator]()" />
+
+<Signature code={`[Symbol.iterator](): IterableIterator<[K, V]>;`} />
+
+Yields [key, value] pairs.
+
 
 ## Collections (Seq)
 
