@@ -291,13 +291,6 @@ const c = a.zipWith((a, b) => a + b, b);
 ## Sequence algorithms
 
 <MemberLabel label="partition()" />
-
-<MemberLabel label="[Symbol.iterator]()" />
-
-Returns an iterator of this Stack.
-
-<Signature code={`[Symbol.iterator](): IterableIterator<T>`} />
-
 <MemberLabel label="filterNot()" />
 
 Returns a new Stack with only the values for which the `predicate` function returns false.
@@ -660,6 +653,13 @@ An iterator of this Stack's values.
 An iterator of this Stack's entries as [key, value] tuples.
 
 <Signature code={`entries(): IterableIterator<[number, T]>`} />
+
+<MemberLabel label="[Symbol.iterator]()" />
+
+Returns an iterator of this Stack.
+
+<Signature code={`[Symbol.iterator](): IterableIterator<T>`} />
+
 
 ## Collections (Seq)
 
