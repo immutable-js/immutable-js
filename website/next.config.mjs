@@ -8,6 +8,11 @@ const nextConfig = {
   reactStrictMode: true,
   trailingSlash: true,
   output: 'export',
+
+  // ESLint is run separately (npm run lint), not during the Next.js build
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 const withMDX = createMDX({
