@@ -460,14 +460,10 @@ code {
 
 .docs-grid {
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr) 210px;
+  grid-template-columns: 300px minmax(0, 1fr);
   max-width: 1400px;
   margin: 0 auto;
   align-items: start;
-}
-
-.docs-grid--notoc {
-  grid-template-columns: 300px minmax(0, 1fr);
 }
 
 .docs-sidebar {
@@ -492,30 +488,9 @@ code {
   min-width: 0;
 }
 
-.docs-toc {
-  position: sticky;
-  top: var(--header-h);
-  height: calc(100vh - var(--header-h));
-  overflow: auto;
-  padding: 34px 24px 60px 8px;
-}
-
-.docs-toc a {
-  display: block;
-  padding: 4px 0;
-  font-size: 13px;
-  color: var(--fg);
-}
-.docs-toc a:hover {
-  color: var(--accent-ink);
-}
-
 @media only screen and (max-width: 1100px) {
   .docs-grid {
     grid-template-columns: 260px minmax(0, 1fr);
-  }
-  .docs-toc {
-    display: none;
   }
 }
 
@@ -1096,16 +1071,6 @@ blockquote {
   border: 1px solid var(--border);
   padding: 1px 6px;
   border-radius: 5px;
-}
-
-/* Docs "On this page" title */
-.docs-toc__title {
-  font-family: 'Fira Code', monospace;
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 12px;
 }
 
 /* Docs overview collection cards */

@@ -84,16 +84,30 @@
   border-radius: 11px;
   font-weight: 600;
   font-size: 15px;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    box-shadow 0.15s;
 }
 .home-btn--primary {
   background: var(--red);
   color: #fff;
   box-shadow: 0 8px 22px rgba(252, 67, 73, 0.4);
 }
+.home-btn--primary:hover {
+  background: var(--red-ink);
+  color: #fff;
+  box-shadow: 0 10px 26px rgba(252, 67, 73, 0.5);
+}
 .home-btn--ghost {
   background: rgba(255, 255, 255, 0.09);
   color: #fff;
   border: 1px solid rgba(255, 255, 255, 0.22);
+}
+.home-btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.38);
 }
 .home-hero__install {
   display: flex;

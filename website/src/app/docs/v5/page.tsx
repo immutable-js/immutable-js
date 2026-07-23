@@ -16,7 +16,7 @@ export default async function OverviewDocPage() {
   const versions = getVersions();
 
   return (
-    <div className="docs-grid docs-grid--notoc">
+    <div className="docs-grid">
       <Sidebar versions={versions} />
 
       <main className="docs-main">
