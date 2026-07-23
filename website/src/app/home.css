@@ -1,0 +1,342 @@
+/* ==========================================================================
+   Home landing page
+   ========================================================================== */
+
+.home {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+/* ---- Hero ---- */
+.home-hero {
+  position: relative;
+  background: #0c141d;
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    rgba(63, 198, 182, 0.13) 1.4px,
+    transparent 0
+  );
+  background-size: 28px 28px;
+  overflow: hidden;
+}
+.home-hero__glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    120% 80% at 50% 0%,
+    rgba(252, 67, 73, 0.1),
+    transparent 55%
+  );
+}
+.home-hero__inner {
+  position: relative;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 94px 24px 100px;
+  text-align: center;
+}
+.home-hero__logo {
+  width: min(430px, 74%);
+  margin: 0 auto 30px;
+}
+.home-hero__logo .svg {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 300 / 42;
+  display: block;
+  filter: drop-shadow(0 12px 30px rgba(252, 67, 73, 0.32));
+}
+.home-hero__title {
+  font-size: 38px;
+  line-height: 1.14;
+  font-weight: 300;
+  color: #fff;
+  margin: 0 auto 22px;
+  max-width: 660px;
+  letter-spacing: -0.01em;
+}
+.home-hero__title strong {
+  font-weight: 700;
+}
+.home-hero__lede {
+  font-size: 17px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.68);
+  max-width: 560px;
+  margin: 0 auto 38px;
+}
+.home-code-pill {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.86em;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 7px;
+  border-radius: 5px;
+  color: #fff;
+}
+.home-hero__ctas {
+  display: flex;
+  gap: 13px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.home-btn {
+  padding: 13px 26px;
+  border-radius: 11px;
+  font-weight: 600;
+  font-size: 15px;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+.home-btn--primary {
+  background: var(--red);
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(252, 67, 73, 0.4);
+}
+.home-btn--primary:hover {
+  background: var(--red-ink);
+  color: #fff;
+  box-shadow: 0 10px 26px rgba(252, 67, 73, 0.5);
+}
+.home-btn--ghost {
+  background: rgba(255, 255, 255, 0.09);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+.home-btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.38);
+}
+.home-hero__install {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 26px;
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+}
+.home-hero__prompt {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ---- Sections ---- */
+.home-section {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+.home-section--family {
+  padding: 74px 24px 30px;
+}
+.home-section--why {
+  padding: 64px 24px 20px;
+}
+.home-section--try {
+  padding: 64px 24px 40px;
+}
+.home-section__head {
+  margin-bottom: 30px;
+}
+.home-section__head--center {
+  text-align: center;
+  margin-bottom: 36px;
+}
+.home-eyebrow {
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+  margin-bottom: 12px;
+}
+.home-h2 {
+  font-size: 27px;
+  font-weight: 700;
+  color: var(--fg-strong);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+/* Collection family cards */
+.home-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+.home-card {
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  transition: border-color 0.15s;
+}
+.home-card:hover {
+  border-color: var(--accent);
+}
+.home-card__name {
+  font-family: 'Fira Code', monospace;
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--fg-strong);
+  margin-bottom: 5px;
+}
+.home-card__desc {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* Why grid */
+.home-why-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+.home-why-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  padding: 22px;
+}
+.home-why-card__label {
+  font-family: 'Fira Code', monospace;
+  font-size: 12.5px;
+  color: var(--accent-ink);
+  margin-bottom: 11px;
+}
+.home-why-card__title {
+  font-weight: 700;
+  color: var(--fg-strong);
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+.home-why-card__desc {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+/* Examples panel */
+.home-examples__title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--fg-strong);
+  margin: 44px 0 16px;
+  letter-spacing: -0.01em;
+}
+.home-examples {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.home-examples__bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.home-tabs {
+  display: flex;
+  gap: 2px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+}
+.home-tab {
+  border: none;
+  cursor: pointer;
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 13px;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+}
+.home-tab--active {
+  background: var(--surface);
+  color: var(--fg-strong);
+  box-shadow: var(--shadow-sm);
+}
+.home-examples__caption {
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  color: var(--muted);
+}
+.home-examples__code {
+  margin: 0;
+  padding: 22px 24px;
+  font-family: 'Fira Code', monospace;
+  font-size: 13.5px;
+  line-height: 1.9;
+  white-space: pre;
+  overflow: auto;
+}
+
+/* Try it */
+.home-try {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(320px, 1.1fr);
+}
+.home-try__copy {
+  padding: 40px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.home-try__copy .home-eyebrow {
+  margin-bottom: 14px;
+}
+.home-try__title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--fg-strong);
+  margin: 0 0 12px;
+  letter-spacing: -0.01em;
+}
+.home-try__text {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0 0 22px;
+}
+.home-try__link {
+  align-self: flex-start;
+  padding: 11px 20px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--fg-strong);
+  font-weight: 600;
+  font-size: 14px;
+  transition: border-color 0.15s;
+}
+.home-try__link:hover {
+  border-color: var(--accent);
+}
+.home-try__editor {
+  padding: 18px;
+  min-width: 0;
+}
+
+@media only screen and (max-width: 720px) {
+  .home-try {
+    grid-template-columns: 1fr;
+  }
+  .home-try__copy {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+}

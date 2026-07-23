@@ -1,4 +1,5 @@
 import pluginJs from '@eslint/js';
+import eslintNextPlugin from '@next/eslint-plugin-next';
 import importPlugin from 'eslint-plugin-import';
 import pluginJest from 'eslint-plugin-jest';
 import pluginReact from 'eslint-plugin-react';
@@ -87,7 +88,14 @@ export default tseslintConfig(
     files: ['website/'],
     ...pluginReact.configs.flat.recommended,
     ...pluginReact.configs.flat['jsx-runtime'],
-
+    plugins: {
+      next: eslintNextPlugin,
+    },
+    settings: {
+      next: {
+        rootDir: 'website/src/',
+      },
+    },
     rules: {
       'react/destructuring-assignment': 'off',
       'react/jsx-boolean-value': 'off',

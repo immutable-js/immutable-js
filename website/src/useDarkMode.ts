@@ -1,18 +1,13 @@
-import { useEffect, useState } from 'react';
+'use client';
 
+import { useTheme } from './ThemeContext';
+
+/**
+ * Returns whether the effective theme is dark. Backed by the 3-state
+ * (light/dark/auto) preference in ThemeContext, resolved against the system
+ * preference for "auto". Used e.g. to pick the CodeMirror editor theme.
+ */
 export default function useDarkMode(): boolean {
-  const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-  const [darkMode, setDarkMode] = useState(darkModeMediaQuery.matches);
-
-  useEffect(() => {
-    const handleChange = (e: MediaQueryListEvent) => {
-      setDarkMode(e.matches);
-    };
-    darkModeMediaQuery.addEventListener('change', handleChange);
-    return () => {
-      darkModeMediaQuery.removeEventListener('change', handleChange);
-    };
-  }, [darkModeMediaQuery]);
-
-  return darkMode;
+  const { resolved } = useTheme();
+  return resolved === 'dark';
 }
