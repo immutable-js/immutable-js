@@ -8,6 +8,7 @@ import { Logo } from './Logo';
 import { SVGSet } from './SVGSet';
 import { StarBtn } from './StarBtn';
 import { ThemeSwitch } from './ThemeSwitch';
+import { VERSION } from './app/docs/currentVersion';
 
 type NavItem = {
   label: string;
@@ -18,7 +19,7 @@ type NavItem = {
 const NAV: Array<NavItem> = [
   {
     label: 'Docs',
-    href: '/docs/v5',
+    href: `/docs/${VERSION}`,
     isActive: (p) => p.startsWith('/docs'),
   },
   {

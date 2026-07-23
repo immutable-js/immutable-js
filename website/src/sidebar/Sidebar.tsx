@@ -5,18 +5,14 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Fragment, useEffect, useState, type JSX } from 'react';
 import { Logo } from '../Logo';
 import { SVGSet } from '../SVGSet';
-import { SIDEBAR_LINKS, VERSION } from '../app/docs/currentVersion';
+import {
+  SIDEBAR_LINKS,
+  SidebarLinkType,
+  VERSION,
+} from '../app/docs/currentVersion';
 import type { FocusType } from './Focus';
 
 export type SidebarLinks = Array<{ label: string; url: string }>;
-
-// Range()/Repeat() end with "()" but are collection constructors, not the
-// top-level helper functions listed under "Functions".
-const CONSTRUCTOR_LABELS = new Set(['Range()', 'Repeat()']);
-
-function isFunctionLabel(label: string): boolean {
-  return label.endsWith('()') && !CONSTRUCTOR_LABELS.has(label);
-}
 
 const SearchIcon = () => (
   <svg
@@ -77,10 +73,10 @@ export default function SideBar({
   const match = (label: string) => !q || label.toLowerCase().includes(q);
 
   const collections = SIDEBAR_LINKS.filter(
-    (l) => !isFunctionLabel(l.label) && match(l.label)
+    (l) => l.type === SidebarLinkType.Collection && match(l.label)
   );
   const functions = SIDEBAR_LINKS.filter(
-    (l) => isFunctionLabel(l.label) && match(l.label)
+    (l) => l.type === SidebarLinkType.Function && match(l.label)
   );
 
   const renderCollection = (link: { label: string; url: string }) => {

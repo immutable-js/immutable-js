@@ -8,29 +8,50 @@ import { Logo } from '../Logo';
 import { SVGSet } from '../SVGSet';
 import { SiteFooter } from '../SiteFooter';
 import Repl from '../repl/Repl';
+import { VERSION } from './docs/currentVersion';
 import './home.css';
 
 const COLLECTIONS: Array<{ name: string; desc: string; href: string }> = [
   {
     name: 'List',
     desc: 'Ordered, indexed — like Array',
-    href: '/docs/v5/List',
+    href: `/docs/${VERSION}/List`,
   },
-  { name: 'Map', desc: 'Keyed pairs, keys of any type', href: '/docs/v5/Map' },
-  { name: 'Set', desc: 'Unique values by equality', href: '/docs/v5/Set' },
-  { name: 'Record', desc: 'Typed keyed structures', href: '/docs/v5/Record' },
+  {
+    name: 'Map',
+    desc: 'Keyed pairs, keys of any type',
+    href: `/docs/${VERSION}/Map`,
+  },
+  {
+    name: 'Set',
+    desc: 'Unique values by equality',
+    href: `/docs/${VERSION}/Set`,
+  },
+  {
+    name: 'Record',
+    desc: 'Typed keyed structures',
+    href: `/docs/${VERSION}/Record`,
+  },
   {
     name: 'OrderedMap',
     desc: 'Map that keeps insertion order',
-    href: '/docs/v5/OrderedMap',
+    href: `/docs/${VERSION}/OrderedMap`,
   },
   {
     name: 'OrderedSet',
     desc: 'Set that keeps insertion order',
-    href: '/docs/v5/OrderedSet',
+    href: `/docs/${VERSION}/OrderedSet`,
   },
-  { name: 'Stack', desc: 'LIFO, fast prepend', href: '/docs/v5/Stack' },
-  { name: 'Seq', desc: 'Lazy — plus Range & Repeat', href: '/docs/v5/Seq' },
+  {
+    name: 'Stack',
+    desc: 'LIFO, fast prepend',
+    href: `/docs/${VERSION}/Stack`,
+  },
+  {
+    name: 'Seq',
+    desc: 'Lazy — plus Range & Repeat',
+    href: `/docs/${VERSION}/Seq`,
+  },
 ];
 
 const WHY: Array<{ label: string; title: string; desc: string }> = [
@@ -149,7 +170,10 @@ export default function Home(): JSX.Element {
           </p>
 
           <div className="home-hero__ctas">
-            <Link href="/docs/v5" className="home-btn home-btn--primary">
+            <Link
+              href={`/docs/${VERSION}`}
+              className="home-btn home-btn--primary"
+            >
               Read the docs
             </Link>
             <Link href="/play" className="home-btn home-btn--ghost">
