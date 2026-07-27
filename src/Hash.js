@@ -79,6 +79,28 @@ function hashString(string) {
   return smi(hash);
 }
 
+// Per-process seed for the secondary collision hash. Never exposed nor
+// serialized, so the public `hash()` stays deterministic. An odd base in
+// [3, 2^20) keeps `base * h` exact as a double (no `Math.imul`).
+var COLLISION_HASH_BASE = ((Math.random() * 0x100000) | 1) % 0x100000 || 0x9e37;
+
+// Secondary hash to index entries within a `HashCollisionNode`, where every key
+// shares the same primary `hash()`. Using a different, seeded base scatters
+// crafted collision families (e.g. "Aa"/"BB", which only collide under base 31)
+// that an attacker cannot precompute without the seed. It only narrows
+// candidates — `is()` still decides equality — so non-string keys can safely
+// fall back to the (here constant) primary hash and a linear scan.
+export function hashCollisionKey(key) {
+  if (typeof key !== 'string') {
+    return hash(key);
+  }
+  var hashed = 0;
+  for (var ii = 0; ii < key.length; ii++) {
+    hashed = (COLLISION_HASH_BASE * hashed + key.charCodeAt(ii)) | 0;
+  }
+  return hashed;
+}
+
 function hashJSObj(obj) {
   var hash;
   if (usingWeakMap) {

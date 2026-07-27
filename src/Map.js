@@ -11,7 +11,7 @@ import { isIterable, KeyedIterable, isOrdered } from './Iterable'
 import { KeyedCollection } from './Collection'
 import { DELETE, SHIFT, SIZE, MASK, NOT_SET, CHANGE_LENGTH, DID_ALTER, OwnerID,
           MakeRef, SetRef, arrCopy } from './TrieUtils'
-import { hash } from './Hash'
+import { hash, hashCollisionKey } from './Hash'
 import { Iterator, iteratorValue, iteratorDone } from './Iterator'
 import { sortFactory } from './Operations'
 import forceIterator from './utils/forceIterator'
@@ -413,22 +413,77 @@ class HashArrayMapNode {
   }
 }
 
+/**
+ * Trie leaf gathering entries whose keys all share the same 32-bit `hash()`.
+ * The trie routes by hash, so colliding keys cannot be separated and land here
+ * in a flat `entries` array, disambiguated by `is()`.
+ *
+ * To guard against hash-flooding DoS (CWE-407), large buckets build a secondary
+ * index keyed by a per-process seeded hash (`hashCollisionKey`). `is()` still
+ * decides equality, so the index can only ever narrow candidates, never lose a key.
+ */
 class HashCollisionNode {
 
   constructor(ownerID, keyHash, entries) {
     this.ownerID = ownerID;
     this.keyHash = keyHash;
     this.entries = entries;
+    // Lazy `{ [secondaryHash]: number[] }`, built only past
+    // MIN_HASH_COLLISION_INDEX_SIZE so small buckets keep their linear path.
+    this._index = undefined;
+  }
+
+  // Returns the position of `key` in `this.entries`, or -1. Uses the secondary
+  // index when present; builds it only when `buildIndex` is true (reads and
+  // transient inserts, where the node is reused so the O(n) build amortizes).
+  // Persistent inserts already pay an O(n) copy, so a throwaway index is skipped.
+  _positionOf(key, buildIndex) {
+    var entries = this.entries;
+    var index = this._index;
+    if (index === undefined && buildIndex && entries.length >= MIN_HASH_COLLISION_INDEX_SIZE) {
+      index = this._buildIndex();
+    }
+    if (index !== undefined) {
+      var positions = index[hashCollisionKey(key)];
+      if (positions !== undefined) {
+        for (var jj = 0; jj < positions.length; jj++) {
+          var idx = positions[jj];
+          if (is(key, entries[idx][0])) {
+            return idx;
+          }
+        }
+      }
+      return -1;
+    }
+    for (var ii = 0, len = entries.length; ii < len; ii++) {
+      if (is(key, entries[ii][0])) {
+        return ii;
+      }
+    }
+    return -1;
+  }
+
+  // Builds and memoizes the secondary index. A plain object, not `Map` — which
+  // in this module resolves to the *Immutable* Map, not the native one.
+  _buildIndex() {
+    var index = Object.create(null);
+    var entries = this.entries;
+    for (var ii = 0, len = entries.length; ii < len; ii++) {
+      var secondaryHash = hashCollisionKey(entries[ii][0]);
+      var positions = index[secondaryHash];
+      if (positions !== undefined) {
+        positions.push(ii);
+      } else {
+        index[secondaryHash] = [ii];
+      }
+    }
+    this._index = index;
+    return index;
   }
 
   get(shift, keyHash, key, notSetValue) {
-    var entries = this.entries;
-    for (var ii = 0, len = entries.length; ii < len; ii++) {
-      if (is(key, entries[ii][0])) {
-        return entries[ii][1];
-      }
-    }
-    return notSetValue;
+    var idx = this._positionOf(key, true);
+    return idx === -1 ? notSetValue : this.entries[idx][1];
   }
 
   update(ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
@@ -448,13 +503,11 @@ class HashCollisionNode {
     }
 
     var entries = this.entries;
-    var idx = 0;
-    for (var len = entries.length; idx < len; idx++) {
-      if (is(key, entries[idx][0])) {
-        break;
-      }
-    }
-    var exists = idx < len;
+    var len = entries.length;
+    var isEditable = ownerID && ownerID === this.ownerID;
+    var foundIdx = this._positionOf(key, isEditable);
+    var idx = foundIdx === -1 ? len : foundIdx;
+    var exists = foundIdx !== -1;
 
     if (exists ? entries[idx][1] === value : removed) {
       return this;
@@ -467,17 +520,32 @@ class HashCollisionNode {
       return new ValueNode(ownerID, this.keyHash, entries[idx ^ 1]);
     }
 
-    var isEditable = ownerID && ownerID === this.ownerID;
     var newEntries = isEditable ? entries : arrCopy(entries);
 
     if (exists) {
       if (removed) {
         idx === len - 1 ? newEntries.pop() : (newEntries[idx] = newEntries.pop());
+        // The swap-pop reshuffles positions; drop the stale index (rebuilt lazily).
+        if (isEditable) {
+          this._index = undefined;
+        }
       } else {
+        // Same key, same position: the index stays valid.
         newEntries[idx] = [key, value];
       }
     } else {
       newEntries.push([key, value]);
+      // Keep the index in sync on the transient insert path. Persistent inserts
+      // return a fresh node below whose index rebuilds lazily, so skip them.
+      if (isEditable && this._index !== undefined) {
+        var secondaryHash = hashCollisionKey(key);
+        var positions = this._index[secondaryHash];
+        if (positions !== undefined) {
+          positions.push(len);
+        } else {
+          this._index[secondaryHash] = [len];
+        }
+      }
     }
 
     if (isEditable) {
@@ -854,3 +922,9 @@ function spliceOut(array, idx, canEdit) {
 var MAX_ARRAY_MAP_SIZE = SIZE / 4;
 var MAX_BITMAP_INDEXED_SIZE = SIZE / 2;
 var MIN_HASH_ARRAY_MAP_SIZE = SIZE / 4;
+
+// Above this many colliding entries, a HashCollisionNode builds a seeded
+// secondary index instead of scanning linearly. Kept small so the rare,
+// naturally-occurring collision buckets stay overhead-free, while adversarial
+// hash-flooding (thousands of keys sharing one hash) degrades gracefully.
+var MIN_HASH_COLLISION_INDEX_SIZE = 16;
