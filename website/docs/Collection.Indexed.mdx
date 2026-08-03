@@ -464,11 +464,6 @@ Returns a new indexed Collection with the values for which the `predicate` funct
 <Signature
   code={`partition<C>(predicate: (this: C, value: T, index: number, iter: this) => unknown, context?: C): [this, this];`}
 />
-
-<MemberLabel label="[Symbol.iterator]()" />
-
-<Signature code={`[Symbol.iterator](): IterableIterator<T>;`} />
-
 <MemberLabel label="filterNot()" />
 
 Returns a new Collection with only the values for which the `predicate` function returns false.
@@ -615,6 +610,11 @@ Returns an Iterable of the values in the Collection.
 Returns an Iterable of the [key, value] entries in the Collection.
 
 <Signature code={`entries(): Iterable<[number, T]>;`} />
+
+<MemberLabel label="[Symbol.iterator]()" />
+
+<Signature code={`[Symbol.iterator](): IterableIterator<T>;`} />
+
 
 ## Collections (Seq)
 
