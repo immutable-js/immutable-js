@@ -130,7 +130,7 @@ export class CollectionImpl<K, V> implements ValueObject {
       // TODO [TS-MIGRATION] the optimized round-trip returns the source seq,
       // which is keyed only when the source is keyed; the public contract
       // types `fromEntrySeq` as a keyed seq.
-      this.toSeq() as unknown as KeyedSeqImpl<unknown, unknown>;
+      this.toSeq() as KeyedSeqImpl<unknown, unknown>;
     return entriesSequence;
   }
 

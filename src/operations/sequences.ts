@@ -143,7 +143,8 @@ export class ToIndexedSequence<T> extends IndexedSeqImpl<T> {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
     reverse && ensureSize(this);
     return this._iter.__iterate(
-      (v) => fn(v, reverse ? (this.size ?? 0) - ++i : i++, this),
+      // `ensureSize` fixed `size` above whenever `reverse` is set.
+      (v) => fn(v, reverse ? this.size! - ++i : i++, this),
       reverse
     );
   }
@@ -178,7 +179,8 @@ export class ToIndexedSequence<T> extends IndexedSeqImpl<T> {
         ? step
         : iteratorValue(
             type,
-            reverse ? (this.size ?? 0) - ++i : i++,
+            // `ensureSize` fixed `size` above whenever `reverse` is set.
+            reverse ? this.size! - ++i : i++,
             step.value,
             step
           );
@@ -475,10 +477,9 @@ export function concatFactory(
           : indexedSeqFromValue(Array.isArray(v) ? v : [v]);
       }
       if (isKeyedCollection) {
-        // TODO [TS-MIGRATION] the base collection type is not statically
-        // iterable yet ([Symbol.iterator] still lives in the mixin), while
-        // `KeyedCollection` only accepts iterables of entries.
-        return KeyedCollection(v as unknown as Iterable<[unknown, unknown]>);
+        // TODO [TS-MIGRATION] the base collection statically yields `unknown`,
+        // while `KeyedCollection` only accepts iterables of entries.
+        return KeyedCollection(v as Iterable<[unknown, unknown]>);
       }
       return v;
     })
