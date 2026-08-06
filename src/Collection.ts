@@ -1529,9 +1529,9 @@ export class SetCollectionImpl<T> extends CollectionImpl<T, T> {
    * to determine equality
    */
   override has(key: T): boolean {
-    // The base `includes` body: Set's own `includes` delegates to `has`, so
-    // it cannot be reused here.
-    return this.some((value) => is(value, key));
+    // `this.includes` would recurse (Set's own `includes` delegates to
+    // `has`); the base `includes` is the semantics we want.
+    return super.includes(key);
   }
 
   /**
