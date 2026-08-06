@@ -371,9 +371,19 @@ class ConcatSeq extends SeqImpl<unknown, unknown> {
       [IS_INDEXED_SYMBOL]?: boolean;
       [IS_ORDERED_SYMBOL]?: boolean;
     };
-    this[IS_KEYED_SYMBOL] = first[IS_KEYED_SYMBOL];
-    this[IS_INDEXED_SYMBOL] = first[IS_INDEXED_SYMBOL];
-    this[IS_ORDERED_SYMBOL] = first[IS_ORDERED_SYMBOL];
+    // Copy only the brands the first iterable actually carries: assigning
+    // `undefined` would still create own properties, which an `in`-based
+    // predicate check (planned for 6.0, see isOrdered.ts) would read as
+    // branded.
+    if (first[IS_KEYED_SYMBOL] !== undefined) {
+      this[IS_KEYED_SYMBOL] = first[IS_KEYED_SYMBOL];
+    }
+    if (first[IS_INDEXED_SYMBOL] !== undefined) {
+      this[IS_INDEXED_SYMBOL] = first[IS_INDEXED_SYMBOL];
+    }
+    if (first[IS_ORDERED_SYMBOL] !== undefined) {
+      this[IS_ORDERED_SYMBOL] = first[IS_ORDERED_SYMBOL];
+    }
   }
 
   // Arrow fields (not methods): the base declares the uncached hooks as
