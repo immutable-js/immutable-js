@@ -14,13 +14,9 @@ import { Stack } from './Stack';
 import { resolveBegin } from './TrieUtils';
 import { countByFactory, groupByFactory } from './operations/aggregations';
 import { reify } from './operations/helpers';
-import {
-  concatFactory,
-  FromEntriesSequence,
-  ToIndexedSequence,
-  ToKeyedSequence,
-  ToSetSequence,
-} from './operations/sequences';
+// Side-effect import: installs the To*Seq/fromEntrySeq/concat methods on the
+// collection prototypes; nothing else loads that module.
+import './operations/sequences';
 import { isKeyed } from './predicates/isKeyed';
 import mixin from './utils/mixin';
 
@@ -30,14 +26,6 @@ Collection.Iterator = Iterator;
 
 mixin(CollectionImpl, {
   // ### Conversion to other types
-
-  toIndexedSeq() {
-    return new ToIndexedSequence(this);
-  },
-
-  toKeyedSeq() {
-    return new ToKeyedSequence(this, true);
-  },
 
   toMap() {
     // Use Late Binding here to solve the circular dependency.
@@ -59,10 +47,6 @@ mixin(CollectionImpl, {
     return Set(isKeyed(this) ? this.valueSeq() : this);
   },
 
-  toSetSeq() {
-    return new ToSetSequence(this);
-  },
-
   toStack() {
     // Use Late Binding here to solve the circular dependency.
     return Stack(isKeyed(this) ? this.valueSeq() : this);
@@ -71,12 +55,6 @@ mixin(CollectionImpl, {
   toList() {
     // Use Late Binding here to solve the circular dependency.
     return List(isKeyed(this) ? this.valueSeq() : this);
-  },
-
-  // ### ES6 Collection methods (ES6 Array and Map)
-
-  concat(...values) {
-    return reify(this, concatFactory(this, values));
   },
 
   // ### More sequential methods
@@ -88,10 +66,6 @@ mixin(CollectionImpl, {
   // equals(other) {
   //   return deepEqual(this, other);
   // },
-
-  fromEntrySeq() {
-    return new FromEntriesSequence(this);
-  },
 
   groupBy(grouper, context) {
     return groupByFactory(this, grouper, context);
@@ -116,12 +90,6 @@ const CollectionPrototype = CollectionImpl.prototype;
 CollectionPrototype.chain = CollectionPrototype.flatMap;
 
 mixin(IndexedCollectionImpl, {
-  // ### Conversion to other types
-
-  toKeyedSeq() {
-    return new ToKeyedSequence(this, false);
-  },
-
   splice(index, removeNum, ...values) {
     const numArgs = arguments.length;
     removeNum = Math.max(removeNum || 0, 0);
