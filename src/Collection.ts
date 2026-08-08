@@ -104,18 +104,40 @@ export class CollectionImpl<K, V> implements ValueObject {
   // the many instances built via `Object.create(prototype)` (e.g. mapped Seqs).
   declare [IS_COLLECTION_SYMBOL]: true;
 
-  // Provided by the mixin (CollectionImpl.js) at runtime, which overwrites these
-  // throwing placeholders. They are methods (not `declare` properties) so
-  // subclasses — the re-parented Seq classes and the operation sequences
-  // (operations/sequences.ts) — can override them with real methods.
+  // Installed by operations/sequences.ts at runtime (it builds the wrapping
+  // To* sequences, which Collection.ts cannot import without a cycle),
+  // overwriting these throwing placeholders. They are methods (not `declare`
+  // properties) so subclasses — the re-parented Seq classes and the operation
+  // sequences (operations/sequences.ts) — can override them with real methods.
   toIndexedSeq(): IndexedSeqImpl<V> {
-    throw new Error('toIndexedSeq is provided by the mixin');
+    throw new Error('toIndexedSeq is installed by operations/sequences.ts');
   }
   toKeyedSeq(): KeyedSeqImpl<K, V> {
-    throw new Error('toKeyedSeq is provided by the mixin');
+    throw new Error('toKeyedSeq is installed by operations/sequences.ts');
   }
   toSetSeq(): SetSeqImpl<V> {
-    throw new Error('toSetSeq is provided by the mixin');
+    throw new Error('toSetSeq is installed by operations/sequences.ts');
+  }
+  fromEntrySeq(): KeyedSeqImpl<unknown, unknown> {
+    throw new Error('fromEntrySeq is installed by operations/sequences.ts');
+  }
+
+  /**
+   * Returns a new Collection of the same type with other values and
+   * collection-like concatenated to this one.
+   *
+   * For Seqs, all entries will be present in the resulting Seq, even if they
+   * have the same key.
+   *
+   * Installed by operations/sequences.ts too (it relies on `concatFactory`).
+   * TODO [TS-MIGRATION] add the per-kind narrowings from the d.ts
+   * (`Collection.Keyed`/`Indexed`/`Set`) on the kind classes below, as
+   * `declare` properties like the `*SeqImpl.concat` ones in Seq.ts.
+   */
+  concat(
+    ..._valuesOrCollections: Array<unknown>
+  ): CollectionImpl<unknown, unknown> {
+    throw new Error('concat is installed by operations/sequences.ts');
   }
   /**
    * Returns a new Seq.Indexed of [key, value] tuples.
@@ -133,11 +155,6 @@ export class CollectionImpl<K, V> implements ValueObject {
       this.toSeq() as KeyedSeqImpl<unknown, unknown>;
     return entriesSequence;
   }
-
-  // Provided by the mixin (CollectionImpl.js); declared so callers (including
-  // the Seq classes) can use them. TODO [TS-MIGRATION] real methods as the
-  // mixin is dismantled.
-  declare fromEntrySeq: () => KeyedSeqImpl<unknown, unknown>;
 
   /**
    * True if this and the other Collection have value equality, as defined
