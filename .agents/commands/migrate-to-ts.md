@@ -23,6 +23,13 @@ conventions of the immutable-js 6.x branch.
    It must not be modified during a file migration: it will be deleted in one
    shot once the full migration is complete.
 
+   The end goal is to **emit the public `.d.ts` from the sources**, so the
+   migrated source's public types must stay as close as possible to today's
+   `immutable.d.ts`. When the source cannot express the declared type exactly,
+   or the two conflict, the source may deviate **only in the stricter
+   direction**: tightening a type, or introducing type parameters to eliminate
+   an `unknown`/`any` — never loosening the public contract.
+
    When writing types for the migrated file:
 
    - Open `immutable.d.ts` and find the declarations that correspond to the

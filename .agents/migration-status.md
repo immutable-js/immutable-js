@@ -49,6 +49,10 @@ Done:
 - `toIndexedSeq`, `toKeyedSeq` (both variants), `toSetSeq`, `fromEntrySeq` and
   `concat` installed on the prototypes from `operations/sequences.ts`
   (this branch). `CollectionImpl.js` now only side-effect-imports that module.
+- `concat` fully typed per the d.ts: base method on `CollectionImpl`, `declare`
+  narrowings on the `*CollectionImpl` kind classes (matching the existing
+  `*SeqImpl` ones), and a `SeqImpl`-level method for the `Seq` contract
+  (this branch).
 
 Still in the mixin:
 
@@ -61,7 +65,7 @@ Still in the mixin:
 - The `chain` → `flatMap` legacy alias (must stay reference-equal).
 - `Collection.Iterator = Iterator` static assignment.
 
-## `TODO [TS-MIGRATION]` inventory (50 comments)
+## `TODO [TS-MIGRATION]` inventory (49 comments)
 
 | Theme                                                                                                      | Count | Where                                                                |
 | ---------------------------------------------------------------------------------------------------------- | ----- | -------------------------------------------------------------------- |
@@ -71,28 +75,30 @@ Still in the mixin:
 | Record still typed via the d.ts                                                                            | 3     | `Seq.ts`                                                             |
 | `fromEntrySeq` round-trip / keyed-kind preservation                                                        | 3     | `Collection.ts`, `operations/sequences.ts`                           |
 | Lazy-materialization internals (`_cache`, `__iterateUncached`…) declared on the base                       | 1     | `Collection.ts`                                                      |
-| Per-kind `concat` narrowings still to declare on the `*CollectionImpl` classes                             | 1     | `Collection.ts`                                                      |
 | Misc (indexed-only shortcuts in `ToKeyedSequence`, `updateIn` collection typing…)                          | rest  | `operations/sequences.ts`, `functional/updateIn.ts`, `Collection.ts` |
 
 ## Source-pass type tests (`type-definitions/ts-tests-src/`)
 
-197 `test.skip` remaining. Biggest blockers are simply the not-yet-migrated
-public factories/types:
+196 `test.skip` remaining. The goal is to keep this number strictly
+decreasing: the source's public types must converge on `immutable.d.ts`
+(which will eventually be generated from the source — see the note in
+`.agents/commands/migrate-to-ts.md` step 5). Biggest blockers are simply the
+not-yet-migrated public factories/types:
 
-| File                                                           | Skips   | Blocked by                                                                                                                                                     |
-| -------------------------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `list.ts`                                                      | 34      | `List` migration                                                                                                                                               |
-| `map.ts`                                                       | 32      | `Map` migration                                                                                                                                                |
-| `ordered-map.ts`                                               | 27      | `OrderedMap` migration                                                                                                                                         |
-| `set.ts`                                                       | 22      | `Set` migration                                                                                                                                                |
-| `ordered-set.ts`                                               | 18      | `OrderedSet` migration                                                                                                                                         |
-| `stack.ts`                                                     | 17      | `Stack` migration                                                                                                                                              |
-| `collection.ts`                                                | 13      | Concrete public types (`List<number>` as a type, …)                                                                                                            |
-| `deepCopy.ts` / `covariance.ts` / `record.ts` / `partition.ts` | 7/6/5/5 | `DeepCopy` (d.ts-only), concrete types, `Record` migration                                                                                                     |
-| others                                                         | ≤2 each | `fromJS` + `MapOf` (d.ts-only), exports (needs ~everything), ES6 collections (`Map`/`Set`), `groupBy` (returns `Map`), `Repeat`, base `Seq#concat` return type |
+| File                                                           | Skips   | Blocked by                                                                                                                      |
+| -------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `list.ts`                                                      | 34      | `List` migration                                                                                                                |
+| `map.ts`                                                       | 32      | `Map` migration                                                                                                                 |
+| `ordered-map.ts`                                               | 27      | `OrderedMap` migration                                                                                                          |
+| `set.ts`                                                       | 22      | `Set` migration                                                                                                                 |
+| `ordered-set.ts`                                               | 18      | `OrderedSet` migration                                                                                                          |
+| `stack.ts`                                                     | 17      | `Stack` migration                                                                                                               |
+| `collection.ts`                                                | 13      | Concrete public types (`List<number>` as a type, …)                                                                             |
+| `deepCopy.ts` / `covariance.ts` / `record.ts` / `partition.ts` | 7/6/5/5 | `DeepCopy` (d.ts-only), concrete types, `Record` migration                                                                      |
+| others                                                         | ≤2 each | `fromJS` + `MapOf` (d.ts-only), exports (needs ~everything), ES6 collections (`Map`/`Set`), `groupBy` (returns `Map`), `Repeat` |
 
-`empty.ts` and `range.ts` are fully un-skipped; the other active tests are
-concentrated in `seq.ts`, `partition.ts` and `functional.ts`.
+`empty.ts`, `range.ts` and `seq.ts` are fully un-skipped; the other active
+tests are concentrated in `partition.ts` and `functional.ts`.
 
 ## JS → TS consistency review (behavioural check)
 
@@ -165,14 +171,11 @@ deserves its own small PR (or an explicit "intended, document it" decision).
 1. **`operations/aggregations.js` → `.ts`** — small, unlocks moving
    `countBy`/`groupBy` out of the mixin the same way `sequences.ts` now hosts
    the `To*`/`concat` group.
-2. **Per-kind `concat` narrowings** on `KeyedCollectionImpl` /
-   `IndexedCollectionImpl` / `SetCollectionImpl` (`declare` properties, like
-   the `*SeqImpl.concat` ones in `Seq.ts`).
-3. **`src/methods/*.js`** — mostly mechanical; unblocks `Record.js` and the
+2. **`src/methods/*.js`** — mostly mechanical; unblocks `Record.js` and the
    concrete collections.
-4. **Leaf collections** (`Repeat`, `Stack`, `Set`, `OrderedSet`), then
+3. **Leaf collections** (`Repeat`, `Stack`, `Set`, `OrderedSet`), then
    `Map`/`OrderedMap`/`List`, then `Record`.
-5. **`fromJS.js`, `functional/merge.js`, `Immutable.js`**, then flip
+4. **`fromJS.js`, `functional/merge.js`, `Immutable.js`**, then flip
    `ts-tests/tsconfig.json` to the source and delete
    `type-definitions/immutable.d.ts` (see `.agents/commands/migrate-to-ts.md`
    step 8).
