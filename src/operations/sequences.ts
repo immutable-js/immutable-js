@@ -473,6 +473,18 @@ class ConcatSeq extends SeqImpl<unknown, unknown> {
   };
 }
 
+// The Seq overload mirrors the public contract (`Seq#concat`). Runtime corner
+// inherited from the JS version: the single-non-empty-iterable shortcut can
+// return that iterable itself, which may be a concrete collection rather than
+// a Seq — the hand-written d.ts makes the same claim.
+export function concatFactory(
+  collection: SeqImpl<unknown, unknown>,
+  values: Array<unknown>
+): SeqImpl<unknown, unknown>;
+export function concatFactory(
+  collection: CollectionImpl<unknown, unknown>,
+  values: Array<unknown>
+): CollectionImpl<unknown, unknown>;
 export function concatFactory(
   collection: CollectionImpl<unknown, unknown>,
   values: Array<unknown>
@@ -556,6 +568,16 @@ CollectionImpl.prototype.concat = function (
   this: CollectionImpl<unknown, unknown>,
   ...values: Array<unknown>
 ): CollectionImpl<unknown, unknown> {
+  return reify(this, concatFactory(this, values));
+};
+
+// `SeqImpl` re-declares `concat` as a real method to narrow the return type
+// per the public contract (see the comment there), so its own throwing
+// placeholder must be overwritten too.
+SeqImpl.prototype.concat = function (
+  this: SeqImpl<unknown, unknown>,
+  ...values: Array<unknown>
+): SeqImpl<unknown, unknown> {
   return reify(this, concatFactory(this, values));
 };
 
