@@ -1,7 +1,8 @@
 # TypeScript migration — status report
 
-> Snapshot taken on the `To*`/`concat` prototype-relocation branch (follow-up
-> to PR #2215), 2026-08-08. Update this file as migration PRs land.
+> Snapshot last updated on the `operations/aggregations.js` migration branch
+> (stacked on the `To*`/`concat` relocation, itself a follow-up to PR #2215),
+> 2026-08-09. Update this file as migration PRs land.
 
 ## Where the migration stands
 
@@ -15,29 +16,29 @@
 | `src/Range.ts`, `src/Hash.ts`, `src/Iterator.ts`, `src/Math.ts`, `src/PairSorting.ts`, `src/TrieUtils.ts`, `src/ValueObject.ts`, `src/is.ts`, `src/toJS.ts` |                                                                                                                                   |
 | `src/operations/factories.ts`                                                                                                                               | PR #2194 split, typed with the `MutableSequence` scaffolding (see TODO inventory)                                                 |
 | `src/operations/helpers.ts`                                                                                                                                 | PR #2206                                                                                                                          |
+| `src/operations/aggregations.ts`                                                                                                                            | Also installs `countBy`/`groupBy` on the collection prototype; `Map` types still come from the d.ts until `Map.js` is migrated    |
 | `src/operations/sequences.ts`                                                                                                                               | PR #2215; also installs `toIndexedSeq`/`toKeyedSeq`/`toSetSeq`/`fromEntrySeq`/`concat` on the collection prototypes (this branch) |
 | `src/predicates/*.ts`                                                                                                                                       | All                                                                                                                               |
 | `src/utils/*.ts`                                                                                                                                            | All                                                                                                                               |
 | `src/functional/*.ts`                                                                                                                                       | All except `merge.js`                                                                                                             |
 
-### Still JavaScript (17 files)
+### Still JavaScript (26 files)
 
-| File                             | Notes / suggested order                                                                                 |
-| -------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `src/operations/aggregations.js` | Small (`countByFactory`, `groupByFactory`); good next candidate                                         |
-| `src/fromJS.js`                  | Standalone; low coupling                                                                                |
-| `src/methods/*.js` (15 files)    | Mixin methods shared by the concrete collections; several are one-liners (`asImmutable`, `wasAltered`…) |
-| `src/functional/merge.js`        | Depends on `Map`/collection factories                                                                   |
-| `src/Repeat.js`                  | Small leaf (see the covariant-`this` guide section for `slice`)                                         |
-| `src/Stack.js`                   | Medium                                                                                                  |
-| `src/OrderedSet.js`              | Small, but copies `zip*` from `IndexedCollectionPrototype`                                              |
-| `src/Set.js`                     | Medium                                                                                                  |
-| `src/OrderedMap.js`              | Depends on Map + List                                                                                   |
-| `src/List.js`                    | Large (VList trie)                                                                                      |
-| `src/Map.js`                     | Large (HAMT trie)                                                                                       |
-| `src/Record.js`                  | Copies methods from `CollectionPrototype` and `src/methods/*`                                           |
-| `src/CollectionImpl.js`          | Shrinking mixin — see below                                                                             |
-| `src/Immutable.js`               | Entry point; migrate last (re-exports only)                                                             |
+| File                          | Notes / suggested order                                                                                 |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `src/fromJS.js`               | Standalone; low coupling                                                                                |
+| `src/methods/*.js` (14 files) | Mixin methods shared by the concrete collections; several are one-liners (`asImmutable`, `wasAltered`…) |
+| `src/functional/merge.js`     | Depends on `Map`/collection factories                                                                   |
+| `src/Repeat.js`               | Small leaf (see the covariant-`this` guide section for `slice`)                                         |
+| `src/Stack.js`                | Medium                                                                                                  |
+| `src/OrderedSet.js`           | Small, but copies `zip*` from `IndexedCollectionPrototype`                                              |
+| `src/Set.js`                  | Medium                                                                                                  |
+| `src/OrderedMap.js`           | Depends on Map + List                                                                                   |
+| `src/List.js`                 | Large (VList trie)                                                                                      |
+| `src/Map.js`                  | Large (HAMT trie)                                                                                       |
+| `src/Record.js`               | Copies methods from `CollectionPrototype` and `src/methods/*`                                           |
+| `src/CollectionImpl.js`       | Shrinking mixin — see below                                                                             |
+| `src/Immutable.js`            | Entry point; migrate last (re-exports only)                                                             |
 
 ### `CollectionImpl.js` mixin dismantling
 
@@ -53,19 +54,19 @@ Done:
   narrowings on the `*CollectionImpl` kind classes (matching the existing
   `*SeqImpl` ones), and a `SeqImpl`-level method for the `Seq` contract
   (this branch).
+- `countBy` / `groupBy` installed on the prototype from
+  `operations/aggregations.ts` (migrated to TS in the same move), mirroring
+  the sequences.ts pattern.
 
 Still in the mixin:
 
 - Late-binding conversions (circular-dependency escape hatch): `toMap`,
   `toOrderedMap`, `toOrderedSet`, `toSet`, `toStack`, `toList`.
-- `countBy` / `groupBy` (pull in `operations/aggregations.js` — migrate that
-  file first, then these could be installed from it, mirroring the
-  sequences.ts pattern).
 - `IndexedCollectionImpl`: `splice`, `keySeq`.
 - The `chain` → `flatMap` legacy alias (must stay reference-equal).
 - `Collection.Iterator = Iterator` static assignment.
 
-## `TODO [TS-MIGRATION]` inventory (49 comments)
+## `TODO [TS-MIGRATION]` inventory (51 comments)
 
 | Theme                                                                                                      | Count | Where                                                                |
 | ---------------------------------------------------------------------------------------------------------- | ----- | -------------------------------------------------------------------- |
@@ -75,6 +76,7 @@ Still in the mixin:
 | Record still typed via the d.ts                                                                            | 3     | `Seq.ts`                                                             |
 | `fromEntrySeq` round-trip / keyed-kind preservation                                                        | 3     | `Collection.ts`, `operations/sequences.ts`                           |
 | Lazy-materialization internals (`_cache`, `__iterateUncached`…) declared on the base                       | 1     | `Collection.ts`                                                      |
+| `Map` runtime factory still untyped JS (boundary annotations, group-kind assertion)                        | 2     | `operations/aggregations.ts`                                         |
 | Misc (indexed-only shortcuts in `ToKeyedSequence`, `updateIn` collection typing…)                          | rest  | `operations/sequences.ts`, `functional/updateIn.ts`, `Collection.ts` |
 
 ## Source-pass type tests (`type-definitions/ts-tests-src/`)
@@ -168,14 +170,11 @@ deserves its own small PR (or an explicit "intended, document it" decision).
 
 ## Suggested next steps
 
-1. **`operations/aggregations.js` → `.ts`** — small, unlocks moving
-   `countBy`/`groupBy` out of the mixin the same way `sequences.ts` now hosts
-   the `To*`/`concat` group.
-2. **`src/methods/*.js`** — mostly mechanical; unblocks `Record.js` and the
+1. **`src/methods/*.js`** — mostly mechanical; unblocks `Record.js` and the
    concrete collections.
-3. **Leaf collections** (`Repeat`, `Stack`, `Set`, `OrderedSet`), then
+2. **Leaf collections** (`Repeat`, `Stack`, `Set`, `OrderedSet`), then
    `Map`/`OrderedMap`/`List`, then `Record`.
-4. **`fromJS.js`, `functional/merge.js`, `Immutable.js`**, then flip
+3. **`fromJS.js`, `functional/merge.js`, `Immutable.js`**, then flip
    `ts-tests/tsconfig.json` to the source and delete
    `type-definitions/immutable.d.ts` (see `.agents/commands/migrate-to-ts.md`
    step 8).
