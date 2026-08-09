@@ -130,9 +130,8 @@ export class CollectionImpl<K, V> implements ValueObject {
    * have the same key.
    *
    * Installed by operations/sequences.ts too (it relies on `concatFactory`).
-   * TODO [TS-MIGRATION] add the per-kind narrowings from the d.ts
-   * (`Collection.Keyed`/`Indexed`/`Set`) on the kind classes below, as
-   * `declare` properties like the `*SeqImpl.concat` ones in Seq.ts.
+   * The kind classes below narrow it with `declare` properties — valid
+   * because this base declaration is a real (bivariant) method.
    */
   concat(
     ..._valuesOrCollections: Array<unknown>
@@ -1133,6 +1132,23 @@ export class KeyedCollectionImpl<K, V> extends CollectionImpl<K, V> {
   }
 
   /**
+   * Returns a new Collection with other collections concatenated to this one.
+   *
+   * A `declare` property (type-only): the runtime implementation is the base
+   * method installed by operations/sequences.ts, and a property narrowing is
+   * valid against it because the base declaration is a real (bivariant)
+   * method.
+   */
+  declare concat: {
+    <KC, VC>(
+      ...collections: Array<Iterable<[KC, VC]>>
+    ): KeyedCollectionImpl<K | KC, V | VC>;
+    <C>(
+      ...collections: Array<{ [key: string]: C }>
+    ): KeyedCollectionImpl<K | string, V | C>;
+  };
+
+  /**
    * Returns a new Collection.Keyed of the same type with entries
    * ([key, value] tuples) passed through a `mapper` function.
    *
@@ -1249,6 +1265,17 @@ export class IndexedCollectionImpl<T>
   override toSeq(): IndexedSeqImpl<T> {
     return this.toIndexedSeq();
   }
+
+  /**
+   * Returns a new Collection with other collections concatenated to this one.
+   *
+   * A `declare` property (type-only): the runtime implementation is the base
+   * method installed by operations/sequences.ts (see
+   * `KeyedCollectionImpl.concat`).
+   */
+  declare concat: <C>(
+    ...valuesOrCollections: Array<Iterable<C> | C>
+  ) => IndexedCollectionImpl<T | C>;
 
   /**
    * Returns the first index in the Collection where a value satisfies the
@@ -1571,6 +1598,17 @@ export class SetCollectionImpl<T> extends CollectionImpl<T, T> {
   override toSeq(): SetSeqImpl<T> {
     return this.toSetSeq();
   }
+
+  /**
+   * Returns a new Collection with other collections concatenated to this one.
+   *
+   * A `declare` property (type-only): the runtime implementation is the base
+   * method installed by operations/sequences.ts (see
+   * `KeyedCollectionImpl.concat`).
+   */
+  declare concat: <U>(
+    ...collections: Array<Iterable<U>>
+  ) => SetCollectionImpl<T | U>;
 
   override partition<F extends T, C>(
     predicate: (this: C, value: T, key: T, iter: this) => value is F,
