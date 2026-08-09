@@ -1,4 +1,8 @@
-import type { DeepCopy, KeyPath } from '../type-definitions/immutable';
+import type {
+  DeepCopy,
+  KeyPath,
+  Map as MapType,
+} from '../type-definitions/immutable';
 import {
   defaultNegComparator,
   entryMapper,
@@ -137,6 +141,37 @@ export class CollectionImpl<K, V> implements ValueObject {
     ..._valuesOrCollections: Array<unknown>
   ): CollectionImpl<unknown, unknown> {
     throw new Error('concat is installed by operations/sequences.ts');
+  }
+
+  /**
+   * Returns a `Seq.Keyed` of counts, grouped by the return value of
+   * the `grouper` function.
+   *
+   * Note: This is not a lazy operation.
+   *
+   * Installed by operations/aggregations.ts (it builds Maps, which this
+   * module cannot import without a cycle), like the placeholders above.
+   */
+  countBy<G>(
+    _grouper: (value: V, key: K, iter: this) => G,
+    _context?: unknown
+  ): MapType<G, number> {
+    throw new Error('countBy is installed by operations/aggregations.ts');
+  }
+
+  /**
+   * Returns a `Map` of `Collection`, grouped by the return
+   * value of the `grouper` function.
+   *
+   * Note: This is always an eager operation.
+   *
+   * Installed by operations/aggregations.ts (see `countBy`).
+   */
+  groupBy<G>(
+    _grouper: (value: V, key: K, iter: this) => G,
+    _context?: unknown
+  ): MapType<G, this> {
+    throw new Error('groupBy is installed by operations/aggregations.ts');
   }
   /**
    * Returns a new Seq.Indexed of [key, value] tuples.

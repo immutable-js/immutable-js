@@ -12,10 +12,11 @@ import { Range } from './Range';
 import { Set } from './Set';
 import { Stack } from './Stack';
 import { resolveBegin } from './TrieUtils';
-import { countByFactory, groupByFactory } from './operations/aggregations';
+// Side-effect imports: they install the countBy/groupBy (aggregations) and
+// To*Seq/fromEntrySeq/concat (sequences) methods on the collection
+// prototypes; nothing else loads those modules.
+import './operations/aggregations';
 import { reify } from './operations/helpers';
-// Side-effect import: installs the To*Seq/fromEntrySeq/concat methods on the
-// collection prototypes; nothing else loads that module.
 import './operations/sequences';
 import { isKeyed } from './predicates/isKeyed';
 import mixin from './utils/mixin';
@@ -57,19 +58,9 @@ mixin(CollectionImpl, {
     return List(isKeyed(this) ? this.valueSeq() : this);
   },
 
-  // ### More sequential methods
-
-  countBy(grouper, context) {
-    return countByFactory(this, grouper, context);
-  },
-
   // equals(other) {
   //   return deepEqual(this, other);
   // },
-
-  groupBy(grouper, context) {
-    return groupByFactory(this, grouper, context);
-  },
 
   // ### Hashable Object
 
