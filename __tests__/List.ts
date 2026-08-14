@@ -612,6 +612,80 @@ describe('List', () => {
     });
   });
 
+  // A List addresses its values through a 32-wide trie using signed 32-bit
+  // bitwise math. Sizes/indices at or beyond 2^30 used to overflow that math:
+  // the level-raising loops in setListBounds() spun forever -- hanging an empty
+  // List and OOM-crashing (SIGABRT) a populated one -- while `setSize` silently
+  // wrapped large values through ToInt32. All of these must now throw a clear,
+  // catchable RangeError. GHSA-v56q-mh7h-f735
+  describe('rejects out-of-range sizes instead of hanging / crashing', () => {
+    var TOO_BIG = Math.pow(2, 30);
+
+    // jasmine 1.3's toThrow() only compares message strings, so assert the
+    // error type by hand.
+    function expectRangeError(fn) {
+      var error = null;
+      try {
+        fn();
+      } catch (e) {
+        error = e;
+      }
+      expect(error instanceof RangeError).toBe(true);
+      expect(error.message).toMatch(/cannot hold more than 1073741824/);
+    }
+
+    it('throws (does not hang) when setting a too-large index on an empty List', () => {
+      expectRangeError(() => List().set(TOO_BIG, 'x'));
+    });
+
+    it('throws (does not OOM-crash) when setting a too-large index on a populated List', () => {
+      var list = List(arrayOfSize(64));
+      expectRangeError(() => list.set(TOO_BIG, 'x'));
+    });
+
+    it('throws for a numeric-string index coming through a setIn key path', () => {
+      var state = fromJS({ items: arrayOfSize(64) });
+      expectRangeError(() => state.setIn(['items', '1073741824'], 'x'));
+    });
+
+    it('throws on setSize beyond the max rather than silently truncating', () => {
+      // Previously returned size 0 and size 5 respectively.
+      expectRangeError(() => List([1, 2, 3]).setSize(Math.pow(2, 31)));
+      expectRangeError(() => List([1, 2, 3]).setSize(Math.pow(2, 32) + 5));
+    });
+
+    it('still allows operations within the addressable range', () => {
+      expect(List([1, 2, 3]).setSize(1500).size).toBe(1500);
+      // List<any> because TypeScript 1.7 infers List<number> from [1, 2, 3]
+      // and would reject the 'x' upstream uses here.
+      expect(List<any>([1, 2, 3]).set(5, 'x').size).toBe(6);
+      // Largest in-range size is accepted by the bounds math (sparse, no alloc).
+      expect(List([1, 2, 3]).setSize(TOO_BIG).size).toBe(TOO_BIG);
+    });
+
+    // The bounds check above must not fire for non-finite sizes: these keep
+    // their long-standing behaviour of collapsing to size 0, which is what the
+    // isFiniteNumber() guard in setListBounds() exists to preserve.
+    // Non-numeric sizes are covered in __tests__/ListJS.js, where the type
+    // system does not object to passing them to setSize(size: number).
+    it('still treats non-finite sizes as zero', () => {
+      expect(List([1, 2, 3]).setSize(Infinity).size).toBe(0);
+      expect(List([1, 2, 3]).setSize(NaN).size).toBe(0);
+      expect(List([1, 2, 3]).slice(0, Infinity).size).toBe(3);
+    });
+
+    it('handles a large in-range negative index without hanging', () => {
+      // Exercises the deep-tree origin-normalization path (the `2 ** exp`
+      // fallback). Must terminate rather than spin forever; the existing values
+      // are shifted to the end of the grown List.
+      var result = List([1, 2, 3]).set(-Math.pow(2, 29), 99);
+      expect(result.size).toBe(Math.pow(2, 29));
+      expect(result.get(result.size - 3)).toBe(1);
+      expect(result.get(result.size - 2)).toBe(2);
+      expect(result.get(result.size - 1)).toBe(3);
+    });
+  });
+
   it('Does not infinite loop when sliced with NaN #459', () => {
     var list = List([1, 2, 3, 4, 5]);
     var newList = list.slice(0, NaN);

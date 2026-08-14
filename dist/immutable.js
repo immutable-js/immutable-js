@@ -1092,6 +1092,28 @@
     return smi(hash);
   }
 
+  // Per-process seed for the secondary collision hash. Never exposed nor
+  // serialized, so the public `hash()` stays deterministic. An odd base in
+  // [3, 2^20) keeps `base * h` exact as a double (no `Math.imul`).
+  var COLLISION_HASH_BASE = ((Math.random() * 0x100000) | 1) % 0x100000 || 0x9e37;
+
+  // Secondary hash to index entries within a `HashCollisionNode`, where every key
+  // shares the same primary `hash()`. Using a different, seeded base scatters
+  // crafted collision families (e.g. "Aa"/"BB", which only collide under base 31)
+  // that an attacker cannot precompute without the seed. It only narrows
+  // candidates — `is()` still decides equality — so non-string keys can safely
+  // fall back to the (here constant) primary hash and a linear scan.
+  function hashCollisionKey(key) {
+    if (typeof key !== 'string') {
+      return hash(key);
+    }
+    var hashed = 0;
+    for (var ii = 0; ii < key.length; ii++) {
+      hashed = (COLLISION_HASH_BASE * hashed + key.charCodeAt(ii)) | 0;
+    }
+    return hashed;
+  }
+
   function hashJSObj(obj) {
     var hash;
     if (usingWeakMap) {
@@ -1601,22 +1623,77 @@
     };
 
 
+  /**
+   * Trie leaf gathering entries whose keys all share the same 32-bit `hash()`.
+   * The trie routes by hash, so colliding keys cannot be separated and land here
+   * in a flat `entries` array, disambiguated by `is()`.
+   *
+   * To guard against hash-flooding DoS (CWE-407), large buckets build a secondary
+   * index keyed by a per-process seeded hash (`hashCollisionKey`). `is()` still
+   * decides equality, so the index can only ever narrow candidates, never lose a key.
+   */
 
 
     function HashCollisionNode(ownerID, keyHash, entries) {
       this.ownerID = ownerID;
       this.keyHash = keyHash;
       this.entries = entries;
+      // Lazy `{ [secondaryHash]: number[] }`, built only past
+      // MIN_HASH_COLLISION_INDEX_SIZE so small buckets keep their linear path.
+      this._index = undefined;
     }
 
-    HashCollisionNode.prototype.get = function(shift, keyHash, key, notSetValue) {
+    // Returns the position of `key` in `this.entries`, or -1. Uses the secondary
+    // index when present; builds it only when `buildIndex` is true (reads and
+    // transient inserts, where the node is reused so the O(n) build amortizes).
+    // Persistent inserts already pay an O(n) copy, so a throwaway index is skipped.
+    HashCollisionNode.prototype._positionOf = function(key, buildIndex) {
       var entries = this.entries;
+      var index = this._index;
+      if (index === undefined && buildIndex && entries.length >= MIN_HASH_COLLISION_INDEX_SIZE) {
+        index = this._buildIndex();
+      }
+      if (index !== undefined) {
+        var positions = index[hashCollisionKey(key)];
+        if (positions !== undefined) {
+          for (var jj = 0; jj < positions.length; jj++) {
+            var idx = positions[jj];
+            if (is(key, entries[idx][0])) {
+              return idx;
+            }
+          }
+        }
+        return -1;
+      }
       for (var ii = 0, len = entries.length; ii < len; ii++) {
         if (is(key, entries[ii][0])) {
-          return entries[ii][1];
+          return ii;
         }
       }
-      return notSetValue;
+      return -1;
+    };
+
+    // Builds and memoizes the secondary index. A plain object, not `Map` — which
+    // in this module resolves to the *Immutable* Map, not the native one.
+    HashCollisionNode.prototype._buildIndex = function() {
+      var index = Object.create(null);
+      var entries = this.entries;
+      for (var ii = 0, len = entries.length; ii < len; ii++) {
+        var secondaryHash = hashCollisionKey(entries[ii][0]);
+        var positions = index[secondaryHash];
+        if (positions !== undefined) {
+          positions.push(ii);
+        } else {
+          index[secondaryHash] = [ii];
+        }
+      }
+      this._index = index;
+      return index;
+    };
+
+    HashCollisionNode.prototype.get = function(shift, keyHash, key, notSetValue) {
+      var idx = this._positionOf(key, true);
+      return idx === -1 ? notSetValue : this.entries[idx][1];
     };
 
     HashCollisionNode.prototype.update = function(ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
@@ -1636,13 +1713,11 @@
       }
 
       var entries = this.entries;
-      var idx = 0;
-      for (var len = entries.length; idx < len; idx++) {
-        if (is(key, entries[idx][0])) {
-          break;
-        }
-      }
-      var exists = idx < len;
+      var len = entries.length;
+      var isEditable = ownerID && ownerID === this.ownerID;
+      var foundIdx = this._positionOf(key, isEditable);
+      var idx = foundIdx === -1 ? len : foundIdx;
+      var exists = foundIdx !== -1;
 
       if (exists ? entries[idx][1] === value : removed) {
         return this;
@@ -1655,17 +1730,32 @@
         return new ValueNode(ownerID, this.keyHash, entries[idx ^ 1]);
       }
 
-      var isEditable = ownerID && ownerID === this.ownerID;
       var newEntries = isEditable ? entries : arrCopy(entries);
 
       if (exists) {
         if (removed) {
           idx === len - 1 ? newEntries.pop() : (newEntries[idx] = newEntries.pop());
+          // The swap-pop reshuffles positions; drop the stale index (rebuilt lazily).
+          if (isEditable) {
+            this._index = undefined;
+          }
         } else {
+          // Same key, same position: the index stays valid.
           newEntries[idx] = [key, value];
         }
       } else {
         newEntries.push([key, value]);
+        // Keep the index in sync on the transient insert path. Persistent inserts
+        // return a fresh node below whose index rebuilds lazily, so skip them.
+        if (isEditable && this._index !== undefined) {
+          var secondaryHash = hashCollisionKey(key);
+          var positions = this._index[secondaryHash];
+          if (positions !== undefined) {
+            positions.push(len);
+          } else {
+            this._index[secondaryHash] = [len];
+          }
+        }
       }
 
       if (isEditable) {
@@ -2042,6 +2132,12 @@
   var MAX_ARRAY_MAP_SIZE = SIZE / 4;
   var MAX_BITMAP_INDEXED_SIZE = SIZE / 2;
   var MIN_HASH_ARRAY_MAP_SIZE = SIZE / 4;
+
+  // Above this many colliding entries, a HashCollisionNode builds a seeded
+  // secondary index instead of scanning linearly. Kept small so the rare,
+  // naturally-occurring collision buckets stay overhead-free, while adversarial
+  // hash-flooding (thousands of keys sharing one hash) degrades gracefully.
+  var MIN_HASH_COLLISION_INDEX_SIZE = 16;
 
   createClass(List, IndexedCollection);
 
@@ -2491,7 +2587,41 @@
     }
   }
 
+  // True only for real, finite numbers. Stands in for ES6's Number.isFinite(),
+  // which does not exist in the ES5 environments this version supports.
+  function isFiniteNumber(value) {
+    return typeof value === 'number' && isFinite(value);
+  }
+
+  /**
+   * Validates requested bounds before int32 coercion in setListBounds().
+   * Throws when origin/capacity would exceed the trie's safe range.
+   */
+  function validateListBoundsRequest(list, begin, end) {
+    var requestedOrigin = list._origin + (begin === undefined ? 0 : begin);
+    var requestedCapacity = end === undefined ? list._capacity :
+      end < 0 ? list._capacity + end : list._origin + end;
+
+    // Keep origin/capacity within the trie's safe signed 32-bit range.
+    if (
+      (isFiniteNumber(requestedCapacity) && requestedCapacity > MAX_LIST_SIZE) ||
+      (isFiniteNumber(requestedOrigin) && requestedOrigin < -MAX_LIST_SIZE) ||
+      (isFiniteNumber(requestedCapacity) &&
+        isFiniteNumber(requestedOrigin) &&
+        requestedCapacity - requestedOrigin > MAX_LIST_SIZE)
+    ) {
+      throw new RangeError(
+        'Invalid List size: a List cannot hold more than ' +
+          MAX_LIST_SIZE +
+          ' (2 ** 30) values.'
+      );
+    }
+  }
+
   function setListBounds(list, begin, end) {
+    // Validate full-precision bounds before int32 coercion.
+    validateListBoundsRequest(list, begin, end);
+
     // Sanitize begin & end using this shorthand for ToInt32(argument)
     // http://www.ecma-international.org/ecma-262/6.0/#sec-toint32
     if (begin !== undefined) {
@@ -2522,7 +2652,8 @@
     while (newOrigin + offsetShift < 0) {
       newRoot = new VNode(newRoot && newRoot.array.length ? [undefined, newRoot] : [], owner);
       newLevel += SHIFT;
-      offsetShift += 1 << newLevel;
+      // Shift origin into non-negative space as trie height grows.
+      offsetShift += levelCapacity(newLevel);
     }
     if (offsetShift) {
       newOrigin += offsetShift;
@@ -2535,7 +2666,7 @@
     var newTailOffset = getTailOffset(newCapacity);
 
     // New size might need creating a higher root.
-    while (newTailOffset >= 1 << (newLevel + SHIFT)) {
+    while (newTailOffset >= levelCapacity(newLevel + SHIFT)) {
       newRoot = new VNode(newRoot && newRoot.array.length ? [newRoot] : [], owner);
       newLevel += SHIFT;
     }
@@ -2636,6 +2767,21 @@
 
   function getTailOffset(size) {
     return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
+  }
+
+  // The largest number of values a List can hold. Above this the 32-bit trie math
+  // in setListBounds() stays in the safe signed 32-bit range.
+  var MAX_LIST_SIZE = 1073741824; // 2 ** 30
+
+  /**
+   * Computes 2 ** exp for the trie level-raising loops in setListBounds().
+   * Use the cheap bitwise operator shift whenever possible, otherwise fall back
+   * to Math.pow. This is necessary because bitwise operators in JavaScript only
+   * work on 32-bit signed integers, so for exp >= 31 we need Math.pow to avoid
+   * overflow.
+   */
+  function levelCapacity(exp) {
+    return exp < 31 ? 1 << exp : Math.pow(2, exp);
   }
 
   createClass(OrderedMap, Map);

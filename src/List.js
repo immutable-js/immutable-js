@@ -464,7 +464,41 @@ function listNodeFor(list, rawIndex) {
   }
 }
 
+// True only for real, finite numbers. Stands in for ES6's Number.isFinite(),
+// which does not exist in the ES5 environments this version supports.
+function isFiniteNumber(value) {
+  return typeof value === 'number' && isFinite(value);
+}
+
+/**
+ * Validates requested bounds before int32 coercion in setListBounds().
+ * Throws when origin/capacity would exceed the trie's safe range.
+ */
+function validateListBoundsRequest(list, begin, end) {
+  var requestedOrigin = list._origin + (begin === undefined ? 0 : begin);
+  var requestedCapacity = end === undefined ? list._capacity :
+    end < 0 ? list._capacity + end : list._origin + end;
+
+  // Keep origin/capacity within the trie's safe signed 32-bit range.
+  if (
+    (isFiniteNumber(requestedCapacity) && requestedCapacity > MAX_LIST_SIZE) ||
+    (isFiniteNumber(requestedOrigin) && requestedOrigin < -MAX_LIST_SIZE) ||
+    (isFiniteNumber(requestedCapacity) &&
+      isFiniteNumber(requestedOrigin) &&
+      requestedCapacity - requestedOrigin > MAX_LIST_SIZE)
+  ) {
+    throw new RangeError(
+      'Invalid List size: a List cannot hold more than ' +
+        MAX_LIST_SIZE +
+        ' (2 ** 30) values.'
+    );
+  }
+}
+
 function setListBounds(list, begin, end) {
+  // Validate full-precision bounds before int32 coercion.
+  validateListBoundsRequest(list, begin, end);
+
   // Sanitize begin & end using this shorthand for ToInt32(argument)
   // http://www.ecma-international.org/ecma-262/6.0/#sec-toint32
   if (begin !== undefined) {
@@ -495,7 +529,8 @@ function setListBounds(list, begin, end) {
   while (newOrigin + offsetShift < 0) {
     newRoot = new VNode(newRoot && newRoot.array.length ? [undefined, newRoot] : [], owner);
     newLevel += SHIFT;
-    offsetShift += 1 << newLevel;
+    // Shift origin into non-negative space as trie height grows.
+    offsetShift += levelCapacity(newLevel);
   }
   if (offsetShift) {
     newOrigin += offsetShift;
@@ -508,7 +543,7 @@ function setListBounds(list, begin, end) {
   var newTailOffset = getTailOffset(newCapacity);
 
   // New size might need creating a higher root.
-  while (newTailOffset >= 1 << (newLevel + SHIFT)) {
+  while (newTailOffset >= levelCapacity(newLevel + SHIFT)) {
     newRoot = new VNode(newRoot && newRoot.array.length ? [newRoot] : [], owner);
     newLevel += SHIFT;
   }
@@ -609,4 +644,19 @@ function mergeIntoListWith(list, merger, iterables) {
 
 function getTailOffset(size) {
   return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
+}
+
+// The largest number of values a List can hold. Above this the 32-bit trie math
+// in setListBounds() stays in the safe signed 32-bit range.
+var MAX_LIST_SIZE = 1073741824; // 2 ** 30
+
+/**
+ * Computes 2 ** exp for the trie level-raising loops in setListBounds().
+ * Use the cheap bitwise operator shift whenever possible, otherwise fall back
+ * to Math.pow. This is necessary because bitwise operators in JavaScript only
+ * work on 32-bit signed integers, so for exp >= 31 we need Math.pow to avoid
+ * overflow.
+ */
+function levelCapacity(exp) {
+  return exp < 31 ? 1 << exp : Math.pow(2, exp);
 }
