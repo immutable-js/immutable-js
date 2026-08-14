@@ -22,10 +22,10 @@ jobs:
       - name: Build with Node 6 (via Docker)
         run: docker run --rm -v $(pwd):/app -w /app node:6 sh -c "npm install && npm run build"
 
-      # use node 20 to publish
+      # use node 24 to publish
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           registry-url: 'https://registry.npmjs.org'
 
       # Ensure npm 11.5.1 or later is installed
