@@ -11,6 +11,24 @@ import {
 } from 'immutable';
 import { describe, expect, it } from '@jest/globals';
 
+type StringCollectionFactory = (
+  values: Array<string>
+) => Collection<unknown, string>;
+
+const kinds: Array<
+  [
+    kind: string,
+    constructor: StringCollectionFactory,
+    isKind: (v: unknown) => boolean,
+  ]
+> = [
+  ['List', List, List.isList],
+  ['Set', Set, Set.isSet],
+  ['OrderedSet', OrderedSet, OrderedSet.isOrderedSet],
+  ['Stack', Stack, Stack.isStack],
+  ['Seq', Seq, Seq.isSeq],
+];
+
 describe('groupBy', () => {
   it.each`
     constructor   | constructorIsOrdered | isObject
@@ -49,6 +67,40 @@ describe('groupBy', () => {
       }
     }
   );
+
+  it.each(kinds)(
+    'rebuilds every group as a %s, like the source',
+    (_kind, constructor, isKind) => {
+      const grouped = constructor(['a', 'bb', 'cc', 'd']).groupBy(
+        (v) => v.length
+      );
+
+      expect(grouped.every((group) => isKind(group))).toBe(true);
+    }
+  );
+
+  it('rebuilds the groups of a keyed collection as keyed collections', () => {
+    const grouped = Map({ a: 1, b: 2, c: 3 }).groupBy((v) => v % 2);
+
+    expect(grouped.every((group) => Map.isMap(group))).toBe(true);
+    expect(grouped.get(1)?.toJS()).toEqual({ a: 1, c: 3 });
+  });
+
+  it('passes value, key and source collection to the grouper, bound to `context`', () => {
+    const source = List(['a', 'bb']);
+    const context = { tag: 'ctx' };
+    const calls: Array<unknown> = [];
+
+    source.groupBy(function (this: unknown, v, k, iter) {
+      calls.push([this === context, v, k, iter === source]);
+      return v.length;
+    }, context);
+
+    expect(calls).toEqual([
+      [true, 'a', 0, true],
+      [true, 'bb', 1, true],
+    ]);
+  });
 
   it('groups keyed sequence', () => {
     const grouped = Seq({ a: 1, b: 2, c: 3, d: 4 }).groupBy((x) => x % 2);

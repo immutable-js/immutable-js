@@ -1,5 +1,34 @@
-import { Range, Seq } from 'immutable';
+import {
+  Collection,
+  List,
+  Map,
+  OrderedMap,
+  OrderedSet,
+  Range,
+  Seq,
+  Set,
+  Stack,
+  isOrdered,
+} from 'immutable';
 import { describe, expect, it } from '@jest/globals';
+
+type StringCollection = Collection<unknown, string>;
+
+const kinds: Array<
+  [kind: string, constructor: (v: Array<string>) => StringCollection]
+> = [
+  ['List', List],
+  ['Set', Set],
+  ['OrderedSet', OrderedSet],
+  ['Stack', Stack],
+  ['Seq', Seq],
+];
+
+const orderedSources: Array<[kind: string, source: StringCollection]> = [
+  ['List', List(['a', 'bb'])],
+  ['OrderedSet', OrderedSet(['a', 'bb'])],
+  ['OrderedMap', OrderedMap({ a: 'a', b: 'bb' })],
+];
 
 describe('count', () => {
   it('counts sequences with known lengths', () => {
@@ -41,6 +70,50 @@ describe('count', () => {
           .countBy((x) => (x % 2 ? 'odd' : 'even'))
           .toJS()
       ).toEqual({ odd: 3, even: 3 });
+    });
+
+    it.each(kinds)('counts the values of a %s', (_kind, constructor) => {
+      const counted = constructor(['a', 'bb', 'cc', 'd']).countBy(
+        (v) => v.length
+      );
+
+      expect(counted.toJS()).toEqual({ 1: 2, 2: 2 });
+    });
+
+    it('counts the values of a keyed collection', () => {
+      expect(
+        Map({ a: 1, b: 2, c: 3, d: 4 })
+          .countBy((v) => v % 2)
+          .toJS()
+      ).toEqual({ 0: 2, 1: 2 });
+    });
+
+    // Unlike `groupBy`, which mirrors the ordering of its source, `countBy`
+    // always builds an unordered Map.
+    it.each(orderedSources)(
+      'returns an unordered Map even from a %s',
+      (_kind, source) => {
+        const counted = source.countBy((v) => v.length);
+
+        expect(Map.isMap(counted)).toBe(true);
+        expect(isOrdered(counted)).toBe(false);
+      }
+    );
+
+    it('passes value, key and source collection to the grouper, bound to `context`', () => {
+      const source = List(['a', 'bb']);
+      const context = { tag: 'ctx' };
+      const calls: Array<unknown> = [];
+
+      source.countBy(function (this: unknown, v, k, iter) {
+        calls.push([this === context, v, k, iter === source]);
+        return v.length;
+      }, context);
+
+      expect(calls).toEqual([
+        [true, 'a', 0, true],
+        [true, 'bb', 1, true],
+      ]);
     });
   });
 
