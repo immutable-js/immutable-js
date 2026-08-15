@@ -55,18 +55,38 @@ Still in the mixin:
 - The `chain` → `flatMap` legacy alias (must stay reference-equal).
 - `Collection.Iterator = Iterator` static assignment.
 
-## `TODO [TS-MIGRATION]` inventory (51 comments)
+## Cast inventory
 
-| Theme                                                                                                      | Count | Where                                                                |
-| ---------------------------------------------------------------------------------------------------------- | ----- | -------------------------------------------------------------------- |
-| `MutableSequence` build-by-mutation scaffolding (interface, dynamic-build boundaries, loose builder casts) | ~30   | `operations/factories.ts`                                            |
-| unknown-key/value bridges (`get`/`has` receive `unknown` from loosely-typed seqs)                          | ~5    | `operations/factories.ts`                                            |
-| `cacheResult`/`cacheResultThrough` typing (`this`-returning cache hooks)                                   | 3     | `operations/factories.ts`, `operations/sequences.ts`                 |
-| Record still typed via the d.ts                                                                            | 3     | `Seq.ts`                                                             |
-| `fromEntrySeq` round-trip / keyed-kind preservation                                                        | 3     | `Collection.ts`, `operations/sequences.ts`                           |
-| Lazy-materialization internals (`_cache`, `__iterateUncached`…) declared on the base                       | 1     | `Collection.ts`                                                      |
-| `Map` runtime factory still untyped JS (boundary annotations, group-kind assertion)                        | 2     | `operations/aggregations.ts`                                         |
-| Misc (indexed-only shortcuts in `ToKeyedSequence`, `updateIn` collection typing…)                          | rest  | `operations/sequences.ts`, `functional/updateIn.ts`, `Collection.ts` |
+The 51 documented casts are split by _who can remove them_ (see the tagging
+rule in `.agents/commands/migrate-to-ts.md`). Only the first table shrinks as
+files get migrated.
+
+### `TODO [TS-MIGRATION]` — lifted by the migration (7)
+
+| Theme                                                                  | Count | Where                              |
+| ---------------------------------------------------------------------- | ----- | ---------------------------------- |
+| Record still typed via the d.ts (`src/Record.js`)                      | 4     | `Seq.ts`, `functional/updateIn.ts` |
+| `Map` runtime factory still untyped JS (boundary annotations)          | 1     | `operations/aggregations.ts`       |
+| d.ts convergence: `fromEntrySeq` entry types, keyed narrowing of `map` | 2     | `Collection.ts`                    |
+
+### `TODO [TS-DESIGN]` — needs a refactor unrelated to the migration (39)
+
+| Theme                                                                                                      | Count | Where                                                |
+| ---------------------------------------------------------------------------------------------------------- | ----- | ---------------------------------------------------- |
+| `MutableSequence` build-by-mutation scaffolding (interface, dynamic-build boundaries, loose builder casts) | ~30   | `operations/factories.ts`                            |
+| unknown-key/value bridges (`get`/`has` receive `unknown` from loosely-typed seqs)                          | ~5    | `operations/factories.ts`                            |
+| `cacheResult`/`cacheResultThrough` typing (`this`-returning cache hooks)                                   | 3     | `operations/factories.ts`, `operations/sequences.ts` |
+| Lazy-materialization internals (`_cache`, `__iterateUncached`…) declared on the base                       | 1     | `Collection.ts`                                      |
+
+All of `operations/factories.ts` collapses into one decision: turning the
+factory-built seqs into real classes.
+
+### Untagged — irreducible runtime invariants (5)
+
+Documented in place, no `TODO`: the group kind in `operations/aggregations.ts`,
+the `_useKeys` indexed-only shortcuts and the keyed-`concat` member type in
+`operations/sequences.ts`, the `entrySeq`/`fromEntrySeq` round-trip in
+`Collection.ts`.
 
 ## Source-pass type tests (`type-definitions/ts-tests-src/`)
 

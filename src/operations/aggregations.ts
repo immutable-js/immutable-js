@@ -38,13 +38,16 @@ function groupByFactory<K, V, G>(
       return entries;
     });
   });
-  // TODO [TS-MIGRATION] each group holds entries when the source is keyed and
-  // plain values otherwise; that kind-correlation is runtime-only, so the
-  // unknown-kind factory union from `collectionClass` is asserted callable
-  // with it.
+
+  // A group holds entries when the source is keyed and plain values otherwise,
+  // and `collectionClass` returns the factory matching that same kind. Both
+  // follow the runtime kind of `collection`, which a kind-generic signature
+  // cannot express: splitting this factory per kind is the only way to type it,
+  // and it does not pay for the duplication. Not lifted by the TS migration.
   const coerce = collectionClass(collection) as (
     values: Array<[K, V] | V>
   ) => CollectionImpl<K, V>;
+
   return groups
     .map((entries) => reify(collection, coerce(entries)))
     .asImmutable();

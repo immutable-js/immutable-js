@@ -24,7 +24,8 @@ import { set } from './set';
  */
 
 export type PossibleCollection<K, V, TProps extends object> =
-  // TODO [TS-MIGRATION] migrate to CollectionImpl in the end
+  // TODO [TS-MIGRATION] `Collection`/`Record` come from the d.ts; swap them for
+  // `CollectionImpl`/`RecordImpl` once `src/Record.js` is migrated
   Collection<K, V> | Record<TProps> | Array<V>;
 
 type UpdaterFunction<K, C> = (

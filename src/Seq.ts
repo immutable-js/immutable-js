@@ -55,8 +55,9 @@ export function Seq(value?: unknown): SeqImpl<unknown, unknown> {
   return value === undefined || value === null
     ? emptySequence()
     : isImmutable(value)
-      ? // TODO [TS-MIGRATION] `value` may be a Record, still typed via the d.ts;
-        // its `toSeq()` returns the public Seq type rather than the impl.
+      ? // TODO [TS-MIGRATION] `value` may be a Record, still typed via the d.ts
+        // while `src/Record.js` is JS; its `toSeq()` returns the public Seq
+        // type rather than the impl.
         (value.toSeq() as unknown as SeqImpl<unknown, unknown>)
       : seqFromValue(value);
 }
@@ -124,7 +125,8 @@ export function KeyedSeq(value?: unknown): KeyedSeqImpl<unknown, unknown> {
         ? value.toSeq()
         : value.fromEntrySeq()
       : isRecord(value)
-        ? // TODO [TS-MIGRATION] Record is still typed via the d.ts
+        ? // TODO [TS-MIGRATION] Record is still typed via the d.ts while
+          // `src/Record.js` is JS
           (value.toSeq() as unknown as KeyedSeqImpl<unknown, unknown>)
         : keyedSeqFromValue(value);
 }
@@ -201,7 +203,8 @@ export function IndexedSeq(value?: unknown): IndexedSeqImpl<unknown> {
         ? value.entrySeq()
         : value.toIndexedSeq()
       : isRecord(value)
-        ? // TODO [TS-MIGRATION] Record is still typed via the d.ts
+        ? // TODO [TS-MIGRATION] Record is still typed via the d.ts while
+          // `src/Record.js` is JS
           (value.toSeq().entrySeq() as unknown as IndexedSeqImpl<unknown>)
         : indexedSeqFromValue(value);
 }
