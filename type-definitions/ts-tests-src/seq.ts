@@ -32,11 +32,7 @@ test('Set.Indexed concat', () => {
   expect(s.concat(Seq([4, 5, 6]))).type.toBe<IndexedSeqImpl<number>>();
 });
 
-// Stays skipped: the base `Seq` type has no `concat` yet — it lives in the
-// not-yet-migrated mixin (CollectionImpl.js) and cannot be `declare`d on
-// `SeqImpl` without breaking the structural `*SeqImpl` → `SeqImpl`
-// assignability (see `KeyedSeqImpl.concat` in src/Seq.ts).
-test.skip('Set concat', () => {
+test('Set concat', () => {
   const s: SeqImpl<unknown, unknown> = Seq([1]);
   expect(s).type.toBe<SeqImpl<unknown, unknown>>();
   expect(s.concat([4, 5, 6])).type.toBe<SeqImpl<unknown, unknown>>();

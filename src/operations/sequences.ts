@@ -1,7 +1,7 @@
 import {
+  CollectionImpl,
+  IndexedCollectionImpl,
   KeyedCollection,
-  type CollectionImpl,
-  type IndexedCollectionImpl,
 } from '../Collection';
 import {
   ITERATE_ENTRIES,
@@ -26,7 +26,7 @@ import { IS_INDEXED_SYMBOL, isIndexed } from '../predicates/isIndexed';
 import { IS_KEYED_SYMBOL, isKeyed } from '../predicates/isKeyed';
 import { IS_ORDERED_SYMBOL } from '../predicates/isOrdered';
 import { mapFactory, reverseFactory } from './factories';
-import { cacheResultThrough } from './helpers';
+import { cacheResultThrough, reify } from './helpers';
 
 export class ToKeyedSequence<K, V> extends KeyedSeqImpl<K, V> {
   declare [IS_ORDERED_SYMBOL]: true;
@@ -473,6 +473,18 @@ class ConcatSeq extends SeqImpl<unknown, unknown> {
   };
 }
 
+// The Seq overload mirrors the public contract (`Seq#concat`). Runtime corner
+// inherited from the JS version: the single-non-empty-iterable shortcut can
+// return that iterable itself, which may be a concrete collection rather than
+// a Seq — the hand-written d.ts makes the same claim.
+export function concatFactory(
+  collection: SeqImpl<unknown, unknown>,
+  values: Array<unknown>
+): SeqImpl<unknown, unknown>;
+export function concatFactory(
+  collection: CollectionImpl<unknown, unknown>,
+  values: Array<unknown>
+): CollectionImpl<unknown, unknown>;
 export function concatFactory(
   collection: CollectionImpl<unknown, unknown>,
   values: Array<unknown>
@@ -518,3 +530,62 @@ function validateEntry(entry: unknown): void {
     throw new TypeError('Expected [K, V] tuple: ' + entry);
   }
 }
+
+// The base conversion methods build the wrapping sequences above, so they are
+// installed here rather than defined on the classes: Collection.ts cannot
+// import this module without a cycle (sequences extend the Seq classes, which
+// extend the Collection classes). They overwrite the throwing placeholders
+// declared on `CollectionImpl` in Collection.ts, which carry the public types.
+
+CollectionImpl.prototype.toIndexedSeq = function <V>(
+  this: CollectionImpl<unknown, V>
+): IndexedSeqImpl<V> {
+  return new ToIndexedSequence(this);
+};
+
+CollectionImpl.prototype.toKeyedSeq = function <K, V>(
+  this: CollectionImpl<K, V>
+): KeyedSeqImpl<K, V> {
+  return new ToKeyedSequence(this, true);
+};
+
+CollectionImpl.prototype.toSetSeq = function <V>(
+  this: CollectionImpl<unknown, V>
+): SetSeqImpl<V> {
+  return new ToSetSequence(this);
+};
+
+// Meaningful only on an indexed collection of entries, per the public
+// contract (`Collection.Indexed#fromEntrySeq` in the d.ts); the runtime
+// method lives on the base prototype like the mixin version it replaces.
+CollectionImpl.prototype.fromEntrySeq = function (
+  this: IndexedCollectionImpl<[unknown, unknown]>
+): KeyedSeqImpl<unknown, unknown> {
+  return new FromEntriesSequence(this);
+};
+
+CollectionImpl.prototype.concat = function (
+  this: CollectionImpl<unknown, unknown>,
+  ...values: Array<unknown>
+): CollectionImpl<unknown, unknown> {
+  return reify(this, concatFactory(this, values));
+};
+
+// `SeqImpl` re-declares `concat` as a real method to narrow the return type
+// per the public contract (see the comment there), so its own throwing
+// placeholder must be overwritten too.
+SeqImpl.prototype.concat = function (
+  this: SeqImpl<unknown, unknown>,
+  ...values: Array<unknown>
+): SeqImpl<unknown, unknown> {
+  return reify(this, concatFactory(this, values));
+};
+
+// `useKeys: false`: an indexed collection's keys are just its indices, so
+// downstream `map`/`reverse` re-derive them from the values seq instead of
+// preserving them (see `ToKeyedSequence`).
+IndexedCollectionImpl.prototype.toKeyedSeq = function <T>(
+  this: IndexedCollectionImpl<T>
+): KeyedSeqImpl<number, T> {
+  return new ToKeyedSequence(this, false);
+};

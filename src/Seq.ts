@@ -76,6 +76,25 @@ export class SeqImpl<K, V> extends CollectionImpl<K, V> {
     return cacheResultOf(this);
   }
 
+  /**
+   * Returns a new Sequence of the same type with other values and
+   * collection-like concatenated to this one.
+   *
+   * All entries will be present in the resulting Seq, even if they
+   * have the same key.
+   *
+   * A real method — a `declare` property here would break the structural
+   * `*SeqImpl` → `SeqImpl` assignability `toSeq` relies on (see
+   * `KeyedSeqImpl.concat`). Like the base one, the throwing placeholder is
+   * overwritten by operations/sequences.ts, which this module cannot import
+   * without a load-order cycle.
+   */
+  override concat(
+    ..._valuesOrCollections: Array<unknown>
+  ): SeqImpl<unknown, unknown> {
+    throw new Error('concat is installed by operations/sequences.ts');
+  }
+
   override partition<F extends V, C>(
     predicate: (this: C, value: V, key: K, iter: this) => value is F,
     context?: C
@@ -119,12 +138,15 @@ export class KeyedSeqImpl<K, V> extends KeyedCollectionImpl<K, V> {
    * All entries will be present in the resulting Seq, even if they
    * have the same key.
    *
-   * Provided by the mixin (CollectionImpl.js); typed per the public contract.
-   * Not declared on `SeqImpl`: a `declare` property is checked with strict
-   * parameter contravariance, and a base-level `concat` would break the
-   * structural `*SeqImpl` → `SeqImpl` assignability `toSeq` relies on. The
-   * base-level `concat` arrives with the mixin migration, as a real (bivariant)
-   * method.
+   * Installed on the prototypes by operations/sequences.ts; typed per the
+   * public contract. This stays a `declare` property (type-only, no runtime
+   * emit) so it never shadows that implementation. Narrowing a *method*
+   * (`SeqImpl.concat`, `CollectionImpl.concat`) with a property is valid —
+   * methods are compared bivariantly — but the reverse is not: were
+   * `SeqImpl.concat` itself a `declare` property, its strict parameter
+   * contravariance would break the structural `*SeqImpl` → `SeqImpl`
+   * assignability `toSeq` relies on (the `*SeqImpl` classes extend the
+   * `*CollectionImpl` classes, not `SeqImpl`).
    */
   declare concat: {
     <KC, VC>(
@@ -194,8 +216,9 @@ export class IndexedSeqImpl<T> extends IndexedCollectionImpl<T> {
   /**
    * Returns a new Seq with other collections concatenated to this one.
    *
-   * Provided by the mixin (CollectionImpl.js); typed per the public contract
-   * (see `KeyedSeqImpl.concat` for why it is not on `SeqImpl`).
+   * Installed on the base prototype by operations/sequences.ts; typed per the
+   * public contract (see `KeyedSeqImpl.concat` for why it must stay a
+   * `declare` property and is not on `SeqImpl`).
    */
   declare concat: <C>(
     ...valuesOrCollections: Array<Iterable<C> | C>
@@ -253,8 +276,9 @@ export class SetSeqImpl<T> extends SetCollectionImpl<T> {
    * All entries will be present in the resulting Seq, even if they
    * are duplicates.
    *
-   * Provided by the mixin (CollectionImpl.js); typed per the public contract
-   * (see `KeyedSeqImpl.concat` for why it is not on `SeqImpl`).
+   * Installed on the base prototype by operations/sequences.ts; typed per the
+   * public contract (see `KeyedSeqImpl.concat` for why it must stay a
+   * `declare` property and is not on `SeqImpl`).
    */
   declare concat: <U>(...collections: Array<Iterable<U>>) => SetSeqImpl<T | U>;
 
