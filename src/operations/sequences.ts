@@ -59,10 +59,11 @@ export class ToKeyedSequence<K, V> extends KeyedSeqImpl<K, V> {
   override reverse(): this {
     const reversedSequence = reverseFactory(this, true);
     if (!this._useKeys) {
-      // TODO [TS-MIGRATION] `_useKeys` is false only when wrapping an indexed
-      // collection (`Collection.Indexed#toKeyedSeq`): the reversed wrapped
-      // collection is then this sequence's values seq, which the kind-agnostic
-      // static type of `_iter` cannot express.
+      // `_useKeys` is false only when wrapping an indexed collection
+      // (`Collection.Indexed#toKeyedSeq`): the reversed wrapped collection is
+      // then this sequence's values seq. That correlation between a runtime
+      // flag and a kind is what the static type of `_iter` cannot express;
+      // removing the cast would mean one class per wrapped kind.
       reversedSequence.valueSeq = () =>
         this._iter.toSeq().reverse() as unknown as IndexedSeqImpl<V>;
     }
@@ -75,9 +76,9 @@ export class ToKeyedSequence<K, V> extends KeyedSeqImpl<K, V> {
   ): CollectionImpl<K, M> {
     const mappedSequence = mapFactory(this, mapper, context);
     if (!this._useKeys) {
-      // TODO [TS-MIGRATION] same indexed-only shortcut as in `reverse` above;
-      // the mapper is re-driven over the wrapped values seq, so its `iter`
-      // param is not `this` there.
+      // Same indexed-only shortcut as in `reverse` above; the mapper is
+      // re-driven over the wrapped values seq, so its `iter` param is not
+      // `this` there.
       mappedSequence.valueSeq = () =>
         this._iter
           .toSeq()
@@ -319,9 +320,10 @@ export class FromEntriesSequence extends KeyedSeqImpl<unknown, unknown> {
 
 // All four wrapping sequences cache through their wrapped `_iter`, which also
 // fixes their own `size`.
-// TODO [TS-MIGRATION] `cacheResultThrough` is typed against the loose wrapping
-// shape while the prototypes expect `() => this` (see MutableSequence in
-// factories.ts).
+// TODO [TS-DESIGN] `cacheResultThrough` is typed against the loose wrapping
+// shape while the prototypes expect `() => this`; it is shared with the
+// build-by-mutation factories (see MutableSequence in factories.ts) and can
+// only be tightened with them.
 ToIndexedSequence.prototype.cacheResult =
   ToKeyedSequence.prototype.cacheResult =
   ToSetSequence.prototype.cacheResult =
@@ -499,8 +501,10 @@ export function concatFactory(
           : indexedSeqFromValue(Array.isArray(v) ? v : [v]);
       }
       if (isKeyedCollection) {
-        // TODO [TS-MIGRATION] the base collection statically yields `unknown`,
-        // while `KeyedCollection` only accepts iterables of entries.
+        // Concatenating into a keyed collection means every member is an
+        // iterable of entries, but `isCollection` only proves `v` yields
+        // `unknown` — a correlation carried by `isKeyedCollection` at runtime
+        // and by nothing at the type level.
         return KeyedCollection(v as Iterable<[unknown, unknown]>);
       }
       return v;

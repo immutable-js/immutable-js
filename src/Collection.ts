@@ -1,4 +1,8 @@
-import type { DeepCopy, KeyPath } from '../type-definitions/immutable';
+import type {
+  DeepCopy,
+  KeyPath,
+  Map as MapType,
+} from '../type-definitions/immutable';
 import {
   defaultNegComparator,
   entryMapper,
@@ -138,6 +142,37 @@ export class CollectionImpl<K, V> implements ValueObject {
   ): CollectionImpl<unknown, unknown> {
     throw new Error('concat is installed by operations/sequences.ts');
   }
+
+  /**
+   * Returns a `Seq.Keyed` of counts, grouped by the return value of
+   * the `grouper` function.
+   *
+   * Note: This is not a lazy operation.
+   *
+   * Installed by operations/aggregations.ts (it builds Maps, which this
+   * module cannot import without a cycle), like the placeholders above.
+   */
+  countBy<G>(
+    _grouper: (value: V, key: K, iter: this) => G,
+    _context?: unknown
+  ): MapType<G, number> {
+    throw new Error('countBy is installed by operations/aggregations.ts');
+  }
+
+  /**
+   * Returns a `Map` of `Collection`, grouped by the return
+   * value of the `grouper` function.
+   *
+   * Note: This is always an eager operation.
+   *
+   * Installed by operations/aggregations.ts (see `countBy`).
+   */
+  groupBy<G>(
+    _grouper: (value: V, key: K, iter: this) => G,
+    _context?: unknown
+  ): MapType<G, this> {
+    throw new Error('groupBy is installed by operations/aggregations.ts');
+  }
   /**
    * Returns a new Seq.Indexed of [key, value] tuples.
    */
@@ -148,9 +183,10 @@ export class CollectionImpl<K, V> implements ValueObject {
     }
     const entriesSequence = this.toSeq().map(entryMapper).toIndexedSeq();
     entriesSequence.fromEntrySeq = () =>
-      // TODO [TS-MIGRATION] the optimized round-trip returns the source seq,
-      // which is keyed only when the source is keyed; the public contract
-      // types `fromEntrySeq` as a keyed seq.
+      // The optimized round-trip returns the source seq, which is keyed only
+      // when the source is keyed, while the public contract types
+      // `fromEntrySeq` as a keyed seq. Nothing ties the two statically: this
+      // shortcut is only ever reached from a keyed source at runtime.
       this.toSeq() as KeyedSeqImpl<unknown, unknown>;
     return entriesSequence;
   }
@@ -991,8 +1027,10 @@ export class CollectionImpl<K, V> implements ValueObject {
   // Realized cache of [key, value] entries, populated by `cacheResult` on lazy
   // Seqs; `__iterate`/`__iterator` below iterate it when present. Concrete
   // collections override `__iterate`/`__iterator` and never set `_cache`.
-  // TODO [TS-MIGRATION] these support lazy materialization (a Seq concept living
-  // on the base so re-parented `*SeqImpl` inherit the dispatch).
+  // TODO [TS-DESIGN] these support lazy materialization, a Seq concept living
+  // on the base so re-parented `*SeqImpl` inherit the dispatch. Moving them
+  // back onto `SeqImpl` is a class-hierarchy change, unrelated to the JS-to-TS
+  // migration.
   declare _cache?: Array<[K, V]>;
   declare __iterateUncached?: (
     fn: (value: V, key: K, iter: this) => unknown,
@@ -1167,8 +1205,10 @@ export class KeyedCollectionImpl<K, V> extends CollectionImpl<K, V> {
       this.toSeq()
         .map((v, k) => mapper.call(context, [k, v], iterations++, this))
         .fromEntrySeq()
-      // TODO [TS-MIGRATION] `fromEntrySeq` is declared with unknown entry
-      // types, so the mapped entry types are reasserted at this boundary.
+      // TODO [TS-MIGRATION] the entry-typed contract of `fromEntrySeq` still
+      // lives in the d.ts (`Collection.Indexed#fromEntrySeq`); the placeholder
+      // here returns unknown entry types, so they are reasserted at this
+      // boundary until that declaration moves into the source.
     ) as unknown as KeyedCollectionImpl<KM, VM>;
   }
 
@@ -1188,8 +1228,9 @@ export class KeyedCollectionImpl<K, V> extends CollectionImpl<K, V> {
       (
         this.toSeq()
           .flip()
-          // TODO [TS-MIGRATION] `map` does not preserve the keyed kind at the
-          // type level (the public narrowing lives in the d.ts).
+          // TODO [TS-MIGRATION] the keyed narrowing of `map` still lives in the
+          // d.ts (`Collection.Keyed#map`), so the source loses the keyed kind
+          // here until that overload moves in.
           .map((k, v) =>
             mapper.call(context, k, v, this)
           ) as KeyedCollectionImpl<V, M>

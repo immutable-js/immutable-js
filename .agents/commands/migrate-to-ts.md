@@ -110,6 +110,32 @@ conventions of the immutable-js 6.x branch.
    ```
    Fix any errors before considering the migration complete.
 
+## Marking unavoidable casts
+
+Every cast (`as`, `as unknown as`) and every deliberately loose type left in a
+migrated file must carry a comment saying **why**. The tag encodes _who_ can
+remove it, so pick it deliberately: an over-tagged `TS-MIGRATION` makes the
+inventory in `.agents/migration-status.md` read as migration debt when it is
+not, and the count never goes down as files get migrated.
+
+- `TODO [TS-MIGRATION]` — **the migration itself lifts it**, with no decision to
+  make: the cast is there only because a collaborating file is still `.js` (so
+  its types come from `immutable.d.ts`), or because the precise contract still
+  lives in the d.ts and moves into the source at convergence. Name the file or
+  the declaration that unblocks it.
+- `TODO [TS-DESIGN]` — removable, but only through a refactor that is
+  **independent of the migration** (e.g. turning the build-by-mutation operation
+  seqs of `operations/factories.ts` into real classes). Migrating every
+  remaining `.js` file changes nothing for these.
+- **No `TODO` at all** — a plain comment when the cast is irreducible: a runtime
+  invariant that a kind-generic signature cannot express (the group kind in
+  `operations/aggregations.ts`, `_useKeys` in `operations/sequences.ts`).
+  Explain the invariant _and_ why typing it out is not worth it, so the next
+  reader does not re-litigate it.
+
+Before writing `TODO [TS-MIGRATION]`, ask: _when the last `.js` file becomes
+`.ts`, does this cast disappear on its own?_ If not, it is one of the other two.
+
 ## Conventions to follow
 
 - Strict TypeScript: no `any`, honour `noUncheckedIndexedAccess`.
