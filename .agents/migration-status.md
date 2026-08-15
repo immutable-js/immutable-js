@@ -1,8 +1,6 @@
 # TypeScript migration — status report
 
-> Snapshot last updated on the `operations/aggregations.js` migration branch
-> (stacked on the `To*`/`concat` relocation, itself a follow-up to PR #2215),
-> 2026-08-09. Update this file as migration PRs land.
+> Snapshot last updated on the `operations/aggregations.js` migration branch (stacked on the `To*`/`concat` relocation, itself a follow-up to PR #2215), 2026-08-09. Update this file as migration PRs land.
 
 ## Where the migration stands
 
@@ -45,23 +43,14 @@
 Done:
 
 - “Group A” methods moved onto the `Collection.ts` classes (PR #2192).
-- Order-safe methods (`toArray`, `toJSON`, `entrySeq`, `mapEntries`, `mapKeys`,
-  `Set#has`…) moved onto the classes (PR #2215).
-- `toIndexedSeq`, `toKeyedSeq` (both variants), `toSetSeq`, `fromEntrySeq` and
-  `concat` installed on the prototypes from `operations/sequences.ts`
-  (this branch). `CollectionImpl.js` now only side-effect-imports that module.
-- `concat` fully typed per the d.ts: base method on `CollectionImpl`, `declare`
-  narrowings on the `*CollectionImpl` kind classes (matching the existing
-  `*SeqImpl` ones), and a `SeqImpl`-level method for the `Seq` contract
-  (this branch).
-- `countBy` / `groupBy` installed on the prototype from
-  `operations/aggregations.ts` (migrated to TS in the same move), mirroring
-  the sequences.ts pattern.
+- Order-safe methods (`toArray`, `toJSON`, `entrySeq`, `mapEntries`, `mapKeys`, `Set#has`…) moved onto the classes (PR #2215).
+- `toIndexedSeq`, `toKeyedSeq` (both variants), `toSetSeq`, `fromEntrySeq` and `concat` installed on the prototypes from `operations/sequences.ts` (this branch). `CollectionImpl.js` now only side-effect-imports that module.
+- `concat` fully typed per the d.ts: base method on `CollectionImpl`, `declare` narrowings on the `*CollectionImpl` kind classes (matching the existing `*SeqImpl` ones), and a `SeqImpl`-level method for the `Seq` contract (this branch).
+- `countBy` / `groupBy` installed on the prototype from `operations/aggregations.ts` (migrated to TS in the same move), mirroring the sequences.ts pattern.
 
 Still in the mixin:
 
-- Late-binding conversions (circular-dependency escape hatch): `toMap`,
-  `toOrderedMap`, `toOrderedSet`, `toSet`, `toStack`, `toList`.
+- Late-binding conversions (circular-dependency escape hatch): `toMap`, `toOrderedMap`, `toOrderedSet`, `toSet`, `toStack`, `toList`.
 - `IndexedCollectionImpl`: `splice`, `keySeq`.
 - The `chain` → `flatMap` legacy alias (must stay reference-equal).
 - `Collection.Iterator = Iterator` static assignment.
@@ -81,11 +70,7 @@ Still in the mixin:
 
 ## Source-pass type tests (`type-definitions/ts-tests-src/`)
 
-196 `test.skip` remaining. The goal is to keep this number strictly
-decreasing: the source's public types must converge on `immutable.d.ts`
-(which will eventually be generated from the source — see the note in
-`.agents/commands/migrate-to-ts.md` step 5). Biggest blockers are simply the
-not-yet-migrated public factories/types:
+196 `test.skip` remaining. The goal is to keep this number strictly decreasing: the source's public types must converge on `immutable.d.ts` (which will eventually be generated from the source — see the note in `.agents/commands/migrate-to-ts.md` step 5). Biggest blockers are simply the not-yet-migrated public factories/types:
 
 | File                                                           | Skips   | Blocked by                                                                                                                      |
 | -------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------- |
@@ -99,19 +84,11 @@ not-yet-migrated public factories/types:
 | `deepCopy.ts` / `covariance.ts` / `record.ts` / `partition.ts` | 7/6/5/5 | `DeepCopy` (d.ts-only), concrete types, `Record` migration                                                                      |
 | others                                                         | ≤2 each | `fromJS` + `MapOf` (d.ts-only), exports (needs ~everything), ES6 collections (`Map`/`Set`), `groupBy` (returns `Map`), `Repeat` |
 
-`empty.ts`, `range.ts` and `seq.ts` are fully un-skipped; the other active
-tests are concentrated in `partition.ts` and `functional.ts`.
+`empty.ts`, `range.ts` and `seq.ts` are fully un-skipped; the other active tests are concentrated in `partition.ts` and `functional.ts`.
 
 ## JS → TS consistency review (behavioural check)
 
-Each migrated file was compared function-by-function against its last
-JavaScript version (`Seq.js`, `Operations.js`, the `CollectionImpl.js` mixin
-before PRs #2192/#2215, and the pre-migration `.js` utility files from
-v5.0.3). Method inventory is complete — nothing was lost in the moves, and
-the three reference-equality aliases pinned by tests (`Symbol.iterator ===
-values`, keyed `[Symbol.iterator] === entries`, `SetCollection.keys ===
-values`) are preserved. Findings below are **recorded, not fixed** — each
-deserves its own small PR (or an explicit "intended, document it" decision).
+Each migrated file was compared function-by-function against its last JavaScript version (`Seq.js`, `Operations.js`, the `CollectionImpl.js` mixin before PRs #2192/#2215, and the pre-migration `.js` utility files from v5.0.3). Method inventory is complete — nothing was lost in the moves, and the three reference-equality aliases pinned by tests (`Symbol.iterator === values`, keyed `[Symbol.iterator] === entries`, `SetCollection.keys === values`) are preserved. Findings below are **recorded, not fixed** — each deserves its own small PR (or an explicit "intended, document it" decision).
 
 ### Likely bugs / decisions needed
 
@@ -126,55 +103,22 @@ deserves its own small PR (or an explicit "intended, document it" decision).
 
 ### Latent risks (no active bug — audited)
 
-- `src/Collection.ts` — `size: number | undefined = 0` is a real initialized
-  class field; any future subclass whose constructor forgets to assign `size`
-  gets `0` instead of the `undefined` that `ensureSize`/`wholeSlice`/
-  `resolveIndex` are designed around. Every current subclass assigns it
-  (audited), and `makeSequence` bypasses constructors. `declare size` would
-  be safer.
-- `src/utils/arrCopy.ts` — now `arr.slice(offset)`: negative offsets,
-  array-likes and sparse-array densification silently changed contract. All
-  four current call sites are safe (real arrays, no offset), including the
-  sparse `HashArrayMapNode` arrays from `Map.js`, which only use
-  index-reads/`length`.
-- `src/utils/mixin.ts` — `getOwnPropertyNames` + `methods[key]` would invoke
-  getters if a class prototype with accessors is ever passed; both current
-  call sites are plain object literals.
-- `src/Collection.ts` `toSeq()` — the old dynamic kind-dispatch became static
-  per class. Correct for every current subclass (audited, including
-  `ConcatSeq` whose brands are instance-level but which inherits
-  `SeqImpl.toSeq() { return this }`), but a future direct `CollectionImpl`
-  subclass branded indexed/set would silently get a keyed seq.
-- Reference-equality aliases not pinned by tests were converted to separate
-  methods (`toJSON`→`toArray`/`toObject`, `contains`→`includes`,
-  `inspect`/`toSource`…). Return values are identical; one nuance: keyed
-  `toJSON` now calls `this.toObject()`, so overriding `toObject` in a
-  subclass now also changes `toJSON` (no such override exists today).
+- `src/Collection.ts` — `size: number | undefined = 0` is a real initialized class field; any future subclass whose constructor forgets to assign `size` gets `0` instead of the `undefined` that `ensureSize`/`wholeSlice`/ `resolveIndex` are designed around. Every current subclass assigns it (audited), and `makeSequence` bypasses constructors. `declare size` would be safer.
+- `src/utils/arrCopy.ts` — now `arr.slice(offset)`: negative offsets, array-likes and sparse-array densification silently changed contract. All four current call sites are safe (real arrays, no offset), including the sparse `HashArrayMapNode` arrays from `Map.js`, which only use index-reads/`length`.
+- `src/utils/mixin.ts` — `getOwnPropertyNames` + `methods[key]` would invoke getters if a class prototype with accessors is ever passed; both current call sites are plain object literals.
+- `src/Collection.ts` `toSeq()` — the old dynamic kind-dispatch became static per class. Correct for every current subclass (audited, including `ConcatSeq` whose brands are instance-level but which inherits `SeqImpl.toSeq() { return this }`), but a future direct `CollectionImpl` subclass branded indexed/set would silently get a keyed seq.
+- Reference-equality aliases not pinned by tests were converted to separate methods (`toJSON`→`toArray`/`toObject`, `contains`→`includes`, `inspect`/`toSource`…). Return values are identical; one nuance: keyed `toJSON` now calls `this.toObject()`, so overriding `toObject` in a subclass now also changes `toJSON` (no such override exists today).
 
 ### Intentional behaviour changes worth a CHANGELOG entry
 
-- `RangeImpl.equals`: `other instanceof Range` threw at runtime since `Range`
-  became an arrow factory (arrow functions have no `.prototype`) — the TS
-  version (`instanceof RangeImpl`) **fixes** `Range(...).equals(...)`.
-- Empty-singleton removal: `Range(0, 0) !== Range(0, 0)`, and
-  `Range(0, 0).equals(Range(5, 5))` is now `false` (was `true` via the shared
-  `EMPTY_RANGE`).
-- `IndexedCollectionImpl.has` on a lazy seq of unknown size now checks index
-  existence instead of value-equal-to-index search (commit `e8eea1c`).
-- `isSuperset` no longer delegates to a duck-typed `iter.isSubset`;
-  `isSubset(null)` / `isSuperset(null)` return a boolean instead of throwing.
-- Proto-key guards (pre-existing upstream, not migration artifacts): the
-  `isProtoKey` check also blocks `'constructor'` (silent key loss in
-  `toJS`/`set`), and in `functional/set.ts` it runs _before_
-  `isDataStructure`, so `set(42, '__proto__', v)` no longer throws.
+- `RangeImpl.equals`: `other instanceof Range` threw at runtime since `Range` became an arrow factory (arrow functions have no `.prototype`) — the TS version (`instanceof RangeImpl`) **fixes** `Range(...).equals(...)`.
+- Empty-singleton removal: `Range(0, 0) !== Range(0, 0)`, and `Range(0, 0).equals(Range(5, 5))` is now `false` (was `true` via the shared `EMPTY_RANGE`).
+- `IndexedCollectionImpl.has` on a lazy seq of unknown size now checks index existence instead of value-equal-to-index search (commit `e8eea1c`).
+- `isSuperset` no longer delegates to a duck-typed `iter.isSubset`; `isSubset(null)` / `isSuperset(null)` return a boolean instead of throwing.
+- Proto-key guards (pre-existing upstream, not migration artifacts): the `isProtoKey` check also blocks `'constructor'` (silent key loss in `toJS`/`set`), and in `functional/set.ts` it runs _before_ `isDataStructure`, so `set(42, '__proto__', v)` no longer throws.
 
 ## Suggested next steps
 
-1. **`src/methods/*.js`** — mostly mechanical; unblocks `Record.js` and the
-   concrete collections.
-2. **Leaf collections** (`Repeat`, `Stack`, `Set`, `OrderedSet`), then
-   `Map`/`OrderedMap`/`List`, then `Record`.
-3. **`fromJS.js`, `functional/merge.js`, `Immutable.js`**, then flip
-   `ts-tests/tsconfig.json` to the source and delete
-   `type-definitions/immutable.d.ts` (see `.agents/commands/migrate-to-ts.md`
-   step 8).
+1. **`src/methods/*.js`** — mostly mechanical; unblocks `Record.js` and the concrete collections.
+2. **Leaf collections** (`Repeat`, `Stack`, `Set`, `OrderedSet`), then `Map`/`OrderedMap`/`List`, then `Record`.
+3. **`fromJS.js`, `functional/merge.js`, `Immutable.js`**, then flip `ts-tests/tsconfig.json` to the source and delete `type-definitions/immutable.d.ts` (see `.agents/commands/migrate-to-ts.md` step 8).
