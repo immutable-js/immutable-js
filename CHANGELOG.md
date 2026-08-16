@@ -8,11 +8,6 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
-- [TypeScript]: `Range` is now written in TypeScript and returns a `RangeImpl` instance, a subtype of `Seq.Indexed<number>`.
-- [BREAKING] `isSubset` now treats a string argument as a collection of characters, consistently with `isSuperset` and with the rest of the API. The string was previously passed to `String.prototype.includes`, giving substring semantics: `Set(['ab']).isSubset('abc')` was `true`, it is now `false` (`'ab'` is not one of the characters of `'abc'`). [#2204](https://github.com/immutable-js/immutable-js/pull/2204)
-- [BREAKING] The legacy `'@@iterator'` string key is no longer recognized when reading iterables (follow-up of the removal of widely available polyfills in [#2127](https://github.com/immutable-js/immutable-js/pull/2127)). Objects exposing their iterator only under that pre-ES2015 key are now treated as plain objects by `Seq()`, `Collection()`, `fromJS()`… Define a real `Symbol.iterator` method instead.
-- Fixed the indices produced when iterating a reversed lazy `Seq` of unknown size in reverse order (e.g. `Seq(...).filter(...).reverse()` consumed through `reduceRight`): the size is now materialized first, where it previously yielded `NaN` indices.
-
 ## 6.0.0
 
 ### [BREAKING] Use modern JavaScript
@@ -41,6 +36,9 @@ For the record migrating to a modern codebase had a nice impact of the size of t
 - Use spread operator instead of arrCopy(arguments) [#2122](https://github.com/immutable-js/immutable-js/pull/2122) by [@jdeniau](https://github.com/jdeniau)
 - Array copy method: use .slice() instead of creating a new array by hand. [#2121](https://github.com/immutable-js/immutable-js/pull/2121) by [@jdeniau](https://github.com/jdeniau)
 - Remove widely available methods [#2127](https://github.com/immutable-js/immutable-js/pull/2127) by [@jdeniau](https://github.com/jdeniau)
+
+The legacy `'@@iterator'` string key is no longer recognized when reading iterables (follow-up of the removal of widely available polyfills in [#2127](https://github.com/immutable-js/immutable-js/pull/2127)). Objects exposing their iterator only under that pre-ES2015 key are now treated as plain objects by `Seq()`, `Collection()`, `fromJS()`… Define a real `Symbol.iterator` method instead.
+
 - clean iterator prototype to allow tree shaking [#2126](https://github.com/immutable-js/immutable-js/pull/2126) by [@jdeniau](https://github.com/jdeniau)
 
 ### [BREAKING] Drop support for `instanceof` on factory methods
@@ -70,11 +68,15 @@ It is now the case for all collections in 6.0.0.
 
 - Remove empty collection singletons [#2142](https://github.com/immutable-js/immutable-js/pull/2142) by [@6uzm4n](https://github.com/6uzm4n)
 
-### [BREAKING] Drop TS 4 support
+### [BREAKING][TYPESCRIPT] Drop TS 4 support
 
 We now use [const type parameters](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-0.html#const-type-parameters) for getIn path retrieval.
 
 This feature has been introduced in TS 5.0, which is more than two years old now. This mean that we are dropping support for TS < 5.0.
+
+### [BREAKING][TYPESCRIPT] Range return type has changed
+
+[TypeScript]: `Range` is now written in TypeScript and returns a `RangeImpl` instance, a subtype of `Seq.Indexed<number>`.
 
 #### Pull request details
 
