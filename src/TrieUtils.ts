@@ -71,7 +71,7 @@ export function wholeSlice(
 ): boolean {
   return (
     ((begin === 0 && !isNeg(begin)) ||
-      (begin !== undefined && size !== undefined && begin <= -size)) &&
+      (size !== undefined && begin !== undefined && begin <= -size)) &&
     (end === undefined || (size !== undefined && end >= size))
   );
 }
