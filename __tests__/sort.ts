@@ -57,6 +57,13 @@ describe('sort', () => {
     ).toEqual([6, 5, 4, 3, 2, 1]);
   });
 
+  it('falls back to the default comparator when given a falsy comparator', () => {
+    expect(
+      // @ts-expect-error -- runtime accepts a falsy comparator and falls back to the default comparator
+      Seq([4, 5, 6, 3, 2, 1]).sort(false).toArray()
+    ).toEqual([1, 2, 3, 4, 5, 6]);
+  });
+
   it('sorts by using a mapper', () => {
     expect(
       Range(1, 10)
