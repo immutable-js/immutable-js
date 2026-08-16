@@ -2932,7 +2932,7 @@ declare namespace Immutable {
    *
    * Note: An Iterator itself will be treated as an object, becoming a `Seq.Keyed`,
    * which is usually not what you want. You should turn your Iterator Object into
-   * an iterable object by defining a Symbol.iterator (or @@iterator) method which
+   * an iterable object by defining a Symbol.iterator method which
    * returns `this`.
    *
    * Note: `Seq` is a conversion function and not a class, and does not use the
@@ -3651,7 +3651,7 @@ declare namespace Immutable {
    *
    * Note: An Iterator itself will be treated as an object, becoming a `Seq.Keyed`,
    * which is usually not what you want. You should turn your Iterator Object into
-   * an iterable object by defining a Symbol.iterator (or @@iterator) method which
+   * an iterable object by defining a Symbol.iterator method which
    * returns `this`.
    *
    * Note: `Collection` is a conversion function and not a class, and does not
