@@ -52,6 +52,50 @@ describe('IndexedSequence', () => {
     ]);
   });
 
+  it('keeps size undefined for a lazy reversed seq', () => {
+    const rev = Seq([10, 11, 12])
+      .filter(() => true) // make this seq lazy
+      .reverse();
+
+    expect(rev.size).toBeUndefined();
+  });
+
+  it('produces correct indices when a lazy reversed seq is iterated backwards', () => {
+    const rev = Seq([10, 11, 12])
+      .filter(() => true) // make this seq lazy
+      .reverse();
+
+    const entries = rev.reduceRight<Array<[number, number]>>(
+      (acc, value, key) => {
+        acc.push([key, value]);
+
+        return acc;
+      },
+      []
+    );
+
+    expect(entries).toEqual([
+      [2, 10],
+      [1, 11],
+      [0, 12],
+    ]);
+  });
+
+  it('produces correct indices when a lazy reversed seq is consumed backwards through the iterator protocol', () => {
+    // Same test as above, through `__iterator` instead of `__iterate`:
+    // the keyed `.reverse()` wrapper (useKeys) passes the inner reversed
+    // seq's keys through untouched while pulling it backwards.
+    const rev = Seq([10, 11, 12])
+      .filter(() => true)
+      .reverse();
+
+    expect([...rev.toKeyedSeq().reverse().entries()]).toEqual([
+      [2, 10],
+      [1, 11],
+      [0, 12],
+    ]);
+  });
+
   it('has() checks index existence on a lazy seq of unknown size', () => {
     // A filtered indexed Seq has no known size, so `has` must iterate by key.
     // Regression: it previously delegated to `indexOf(index)`, which searches

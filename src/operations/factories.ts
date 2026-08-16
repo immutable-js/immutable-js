@@ -224,18 +224,27 @@ export function reverseFactory<C extends CollectionImpl<unknown, unknown>>(
   reversedSequence.cacheResult = cacheResultThrough as () => MutableSequence;
   reversedSequence.__iterate = function (this: MutableSequence, fn, reverse) {
     let i = 0;
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
-    reverse && ensureSize(collection);
+
+    // Reversed keys count down from the sequence's size, which may still be
+    // unknown when wrapping a lazy seq. The reversed sequence is the same
+    // size as `collection`, so use the size `ensureSize` materializes.
+    // size is ignored when not reversed, so it can be set to NaN to avoid TS report.
+    const size = reverse ? ensureSize(collection) : NaN;
+
     return collection.__iterate(
-      (v, k) =>
-        fn(v, useKeys ? k : reverse ? (this.size ?? 0) - ++i : i++, this),
+      (v, k) => fn(v, useKeys ? k : reverse ? size - ++i : i++, this),
       !reverse
     );
   };
   reversedSequence.__iterator = (type, reverse) => {
     let i = 0;
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
-    reverse && ensureSize(collection);
+
+    // Same as `__iterate` above: reversed keys count down from the
+    // materialized size of `collection` (the reversed sequence's own `size`
+    // may be undefined when wrapping a lazy seq).
+    // size is ignored when not reversed, so it can be set to NaN to avoid TS report.
+    const size = reverse ? ensureSize(collection) : NaN;
+
     const iterator = collection.__iterator(ITERATE_ENTRIES, !reverse);
     return new Iterator(() => {
       const step = iterator.next();
@@ -247,7 +256,7 @@ export function reverseFactory<C extends CollectionImpl<unknown, unknown>>(
         type,
         // `__iterator` is an arrow function, so `this` is not the reversed
         // sequence here — read `reversedSequence.size` explicitly.
-        useKeys ? entry[0] : reverse ? (reversedSequence.size ?? 0) - ++i : i++,
+        useKeys ? entry[0] : reverse ? size - ++i : i++,
         entry[1],
         step
       );
