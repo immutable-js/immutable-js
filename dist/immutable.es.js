@@ -1320,17 +1320,27 @@ function reverseFactory(collection, useKeys) {
     var this$1$1 = this;
 
     var i = 0;
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
-    reverse && ensureSize(collection);
+
+    // Reversed keys count down from the sequence's size, which may still be
+    // unknown when wrapping a lazy seq. The reversed sequence is the same
+    // size as `collection`, so use the size `ensureSize` materializes.
+    // size is ignored when not reversed, so it can be set to NaN to avoid TS report.
+    var size = reverse ? ensureSize(collection) : NaN;
+
     return collection.__iterate(
-      function (v, k) { return fn(v, useKeys ? k : reverse ? this$1$1.size - ++i : i++, this$1$1); },
+      function (v, k) { return fn(v, useKeys ? k : reverse ? size - ++i : i++, this$1$1); },
       !reverse
     );
   };
   reversedSequence.__iterator = function (type, reverse) {
     var i = 0;
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
-    reverse && ensureSize(collection);
+
+    // Same as `__iterate` above: reversed keys count down from the
+    // materialized size of `collection` (the reversed sequence's own `size`
+    // may be undefined when wrapping a lazy seq).
+    // size is ignored when not reversed, so it can be set to NaN to avoid TS report.
+    var size = reverse ? ensureSize(collection) : NaN;
+
     var iterator = collection.__iterator(ITERATE_ENTRIES, !reverse);
     return new Iterator(function () {
       var step = iterator.next();
@@ -1340,9 +1350,7 @@ function reverseFactory(collection, useKeys) {
       var entry = step.value;
       return iteratorValue(
         type,
-        // `__iterator` is an arrow function, so `this` is not the reversed
-        // sequence here — read `reversedSequence.size` explicitly.
-        useKeys ? entry[0] : reverse ? reversedSequence.size - ++i : i++,
+        useKeys ? entry[0] : reverse ? size - ++i : i++,
         entry[1],
         step
       );
