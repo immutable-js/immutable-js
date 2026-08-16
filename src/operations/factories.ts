@@ -763,7 +763,7 @@ export function sortFactory<K, V, C extends CollectionImpl<K, V>, SV>(
   comparator?: Comparator<SV>,
   mapper?: (value: V, key: K, collection: C) => SV
 ): C {
-  const cmp = comparator ?? defaultComparator;
+  const cmp = comparator ? comparator : defaultComparator;
   const isKeyedCollection = isKeyed(collection);
   let index = 0;
   const entries: Array<Array<unknown>> = collection
@@ -819,7 +819,7 @@ export function maxFactory<K, V, C extends CollectionImpl<K, V>, CV = V>(
   comparator?: Comparator<V | CV>,
   mapper?: (value: V, key: K, collection: C) => CV
 ): V | undefined {
-  const cmp = comparator ?? defaultComparator;
+  const cmp = comparator ? comparator : defaultComparator;
 
   if (mapper) {
     const entry = collection
