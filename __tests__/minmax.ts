@@ -16,6 +16,13 @@ describe('max', () => {
     expect(Seq([1, 9, 2, 8, 3, 7, 4, 6, 5]).max((a, b) => b - a)).toBe(1);
   });
 
+  it('falls back to the default comparator when given a falsy comparator', () => {
+    expect(
+      // @ts-expect-error -- runtime accepts a falsy comparator and falls back to the default comparator
+      Seq([1, 9, 2, 8, 3, 7, 4, 6, 5]).max(false)
+    ).toBe(9);
+  });
+
   it('by a mapper', () => {
     const family = Seq([
       { name: 'Oakley', age: 7 },
