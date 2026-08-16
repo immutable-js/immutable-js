@@ -301,6 +301,16 @@ describe('Set', () => {
     expect(Set.of('a', 'b').isSuperset('ab')).toBe(true);
   });
 
+  it('treats a string argument of isSubset as a collection of characters', () => {
+    // Since v6 a string is iterated character by character, like everywhere
+    // else in Immutable (and like `isSuperset` does). It is no longer passed
+    // to `String.prototype.includes`, which had substring semantics:
+    // 'ab' is not one of the characters of 'abc'.
+    expect(Set.of('ab').isSubset('abc')).toBe(false);
+    expect(Set('abc').isSubset('abc')).toBe(true);
+    expect(Set.of('ab').isSuperset('abc')).toBe(false);
+  });
+
   describe('accepts Symbol as entry #579', () => {
     it('operates on small number of symbols, preserving set uniqueness', () => {
       const a = Symbol();

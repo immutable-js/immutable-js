@@ -108,16 +108,27 @@ the `_useKeys` indexed-only shortcuts and the keyed-`concat` member type in
 
 ## JS → TS consistency review (behavioural check)
 
-Each migrated file was compared function-by-function against its last JavaScript version (`Seq.js`, `Operations.js`, the `CollectionImpl.js` mixin before PRs #2192/#2215, and the pre-migration `.js` utility files from v5.0.3). Method inventory is complete — nothing was lost in the moves, and the three reference-equality aliases pinned by tests (`Symbol.iterator === values`, keyed `[Symbol.iterator] === entries`, `SetCollection.keys === values`) are preserved. Findings below are **recorded, not fixed** — each deserves its own small PR (or an explicit "intended, document it" decision).
+Each migrated file was compared function-by-function against its last JavaScript version (`Seq.js`, `Operations.js`, the `CollectionImpl.js` mixin before PRs #2192/#2215, and the pre-migration `.js` utility files from v5.0.3). Method inventory is complete — nothing was lost in the moves, and the three reference-equality aliases pinned by tests (`Symbol.iterator === values`, keyed `[Symbol.iterator] === entries`, `SetCollection.keys === values`) are preserved. The likely-bugs findings below have all been **resolved** (fixed, or explicitly confirmed and documented); the latent risks remain recorded for future migrations.
 
 ### Likely bugs / decisions needed
 
-| #   | Where                                                                            | Issue                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| --- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| R1  | `src/Collection.ts` (`isSubset` + `hasIncludesMethod`)                           | The new `typeof iter === 'object'` guard excludes strings: `isSubset('abc')` used to hit `String.prototype.includes` (substring semantics), it now iterates characters via `Collection('abc')`. Result changes for multi-char values, e.g. `Set(['ab']).isSubset('abc')`: `true` → `false`. The added unit test only uses single-char values so it cannot catch this. Decide + document, or restore the old duck-typing.          |
-| R2  | `src/Iterator.ts`                                                                | The `'@@iterator'` (`FAUX_ITERATOR_SYMBOL`) fallback was dropped entirely, both when installing iterators and when _reading_ them (`hasIterator`/`getIteratorFn`): `Seq({'@@iterator': fn})` now takes the plain-object path. Probably intended modernisation, but `immutable.d.ts` (§"or @@iterator") and `immutable.js.flow` still promise it — either restore read-side support or document the break (d.ts, flow, CHANGELOG). |
-| R3  | `src/operations/factories.ts` (`reverseFactory`, the two `(… .size ?? 0) - ++i`) | For a lazy seq of unknown size, reversed indexed iteration used to produce `NaN` keys; `?? 0` turns them into `-1, -2, …`. Both are wrong — the real fix is to `ensureSize` the _reversed sequence_ (the existing `ensureSize(collection)` guard fixes the wrong object's size).                                                                                                                                                  |
-| R4  | `src/TrieUtils.ts` (`wholeSlice`, `(begin ?? 0) <= -size`)                       | With `begin === undefined` the old NaN-comparison was always `false`; the new `0 <= -size` is `true` for `size === 0`, so `slice()` on an empty collection now short-circuits to `this` instead of going through `sliceFactory`. Values are equivalent; returned-object identity changes. Faithful form: `begin !== undefined && begin <= -size`.                                                                                 |
+All resolved (2026-08-16). R5/R6 were fixed by PR #2262; R1–R4 were each traced
+back to their originating PR and either fixed or confirmed + documented:
+
+- **R1** — `isSubset` string argument (from PR #2204, `hasIncludesMethod` guard):
+  **kept** the new character-iteration semantics — consistent with `isSuperset`
+  and with `Collection('abc')` — and documented it as a v6 breaking change in
+  the CHANGELOG. Multi-char unit tests added (`__tests__/Set.ts`).
+- **R2** — `'@@iterator'` fallback removal (from PR #2127, which already had a
+  CHANGELOG line): **confirmed intended** modernisation; an explicit CHANGELOG
+  entry now documents the read-side break and the two `immutable.d.ts`
+  docstrings no longer mention `@@iterator`. `immutable.js.flow` needs no
+  change: Flow's `@@iterator(...)` member syntax is its spelling of
+  `Symbol.iterator`, not the string key.
+- **R4** — `wholeSlice` with `begin === undefined` (from PR #2128): **fixed** —
+  restored the faithful v5 form (`begin !== undefined && begin <= -size`), so
+  `slice()` with no arguments goes through `sliceFactory` again, on empty
+  collections too (identity test in `__tests__/slice.ts`).
 
 ### Latent risks (no active bug — audited)
 
@@ -133,6 +144,8 @@ Each migrated file was compared function-by-function against its last JavaScript
 - Empty-singleton removal: `Range(0, 0) !== Range(0, 0)`, and `Range(0, 0).equals(Range(5, 5))` is now `false` (was `true` via the shared `EMPTY_RANGE`).
 - `IndexedCollectionImpl.has` on a lazy seq of unknown size now checks index existence instead of value-equal-to-index search (commit `e8eea1c`).
 - `isSuperset` no longer delegates to a duck-typed `iter.isSubset`; `isSubset(null)` / `isSuperset(null)` return a boolean instead of throwing.
+- `isSubset` treats a string argument as a collection of characters instead of calling `String.prototype.includes` on it (R1 — in the CHANGELOG).
+- The `'@@iterator'` string-key fallback is gone on the read side too: `Seq({ '@@iterator': fn })` takes the plain-object path (R2 — in the CHANGELOG).
 - Proto-key guards (pre-existing upstream, not migration artifacts): the `isProtoKey` check also blocks `'constructor'` (silent key loss in `toJS`/`set`), and in `functional/set.ts` it runs _before_ `isDataStructure`, so `set(42, '__proto__', v)` no longer throws.
 
 ## Suggested next steps
