@@ -167,6 +167,16 @@ describe('slice', () => {
     expect(v.slice(-4, 4).toList()).toBe(v);
   });
 
+  it('goes through sliceFactory when called with no arguments, even on an empty seq', () => {
+    const s = Seq([]);
+    expect(s.slice().toArray()).toEqual([]);
+    expect(s.slice()).not.toBe(s);
+
+    const s2 = Seq([1, 2, 3]);
+    expect(s2.slice().toArray()).toEqual([1, 2, 3]);
+    expect(s2.slice()).not.toBe(s2);
+  });
+
   it('creates a sliced list in O(log32(n))', () => {
     expect(List([1, 2, 3, 4, 5]).slice(-3, -1).toList().toArray()).toEqual([
       3, 4,
