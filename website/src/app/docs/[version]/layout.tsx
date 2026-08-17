@@ -1,6 +1,5 @@
 import { DocHeader } from '../../../DocHeader';
 import { ImmutableConsole } from '../../../ImmutableConsole';
-import { getVersions } from '../../../static/getVersions';
 import { getVersionFromParams } from './getVersionFromParams';
 
 export default async function VersionLayout(props: {
@@ -11,14 +10,12 @@ export default async function VersionLayout(props: {
 
   const { children } = props;
 
-  const versions = getVersions();
-
   const version = getVersionFromParams(params);
 
   return (
     <div>
       <ImmutableConsole version={version} />
-      <DocHeader versions={versions} currentVersion={version} />
+      <DocHeader />
       <div className="pageBody">
         <div className="contents">{children}</div>
       </div>

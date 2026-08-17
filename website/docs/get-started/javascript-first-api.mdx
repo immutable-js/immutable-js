@@ -1,0 +1,124 @@
+import Repl from '@/repl/Repl.tsx';
+
+# JavaScript-first API
+
+While Immutable.js is inspired by Clojure, Scala, Haskell and other functional
+programming environments, it's designed to bring these powerful concepts to
+JavaScript, and therefore has an object-oriented API that closely mirrors that
+of the native [Array][], [Map][] and [Set][].
+
+The difference for the immutable collections is that methods which would mutate
+the collection, like `push`, `set`, `unshift` or `splice`, instead return a new
+immutable collection. Methods which return new arrays, like `slice` or `concat`,
+instead return new immutable collections.
+
+<Repl
+  imports={['List']}
+  defaultValue={`const list1 = List([1, 2]);
+const list2 = list1.push(3, 4, 5);
+const list3 = list2.unshift(0);
+const list4 = list1.concat(list2, list3);
+
+[list1.size, list2.size, list3.size, list4.size];`}
+/>
+
+Almost all of the methods on [Array][] will be found in similar form on
+[List](../../List/), those of [Map][] found on [Map](../../Map/), and those of
+[Set][] found on [Set](../../Set/), including collection operations like
+`forEach()` and `map()`.
+
+<Repl
+  imports={['Map']}
+  defaultValue={`const alpha = Map({ a: 1, b: 2, c: 3, d: 4 });
+
+alpha.map((v, k) => k.toUpperCase()).join();`}
+/>
+
+[array]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array
+[map]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
+[set]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set
+
+## Convert from raw JavaScript objects and arrays
+
+Designed to inter-operate with your existing JavaScript, Immutable.js accepts
+plain JavaScript Arrays and Objects anywhere a method expects a `Collection`.
+
+<Repl
+  imports={['Map', 'List']}
+  defaultValue={`const map1 = Map({ a: 1, b: 2, c: 3, d: 4 });
+const map2 = Map({ c: 10, a: 20, t: 30 });
+const obj = { d: 100, o: 200, g: 300 };
+
+map1.merge(map2, obj);`}
+/>
+
+This is possible because Immutable.js can treat any JavaScript Array or Object
+as a Collection. You can take advantage of this in order to get sophisticated
+collection methods on JavaScript Objects, which otherwise have a very sparse
+native API. Because [Seq](../../Seq/) evaluates lazily and does not cache
+intermediate results, these operations can be extremely efficient.
+
+<Repl
+  imports={['Seq']}
+  defaultValue={`const myObject = { a: 1, b: 2, c: 3 };
+
+Seq(myObject)
+  .map((x) => x * x)
+  .toObject();`}
+/>
+
+Keep in mind, when using JS objects to construct Immutable Maps, that JavaScript
+Object properties are always strings, even if written in a quote-less shorthand,
+while Immutable Maps accept keys of any type.
+
+```js
+import { fromJS } from 'immutable';
+
+const obj = { 1: 'one' };
+console.log(Object.keys(obj)); // [ "1" ]
+console.log(obj['1'], obj[1]); // "one", "one"
+
+const map = fromJS(obj);
+console.log(map.get('1'), map.get(1)); // "one", undefined
+```
+
+Property access for JavaScript Objects first converts the key to a string, but
+since Immutable Map keys can be of any type, the argument to `get()` is not
+altered.
+
+## Convert back to raw JavaScript objects
+
+All Immutable.js collections can be converted to plain JavaScript Arrays and
+Objects shallowly with `toArray()` and `toObject()`, or deeply with `toJS()`.
+All Immutable collections also implement `toJSON()`, allowing them to be passed
+to `JSON.stringify` directly. They also respect the custom `toJSON()` methods of
+nested objects.
+
+```js
+import { Map, List } from 'immutable';
+
+const deep = Map({ a: 1, b: 2, c: List([3, 4, 5]) });
+
+console.log(deep.toObject()); // { a: 1, b: 2, c: List [ 3, 4, 5 ] }
+console.log(deep.toArray()); // [ 1, 2, List [ 3, 4, 5 ] ]
+console.log(deep.toJS()); // { a: 1, b: 2, c: [ 3, 4, 5 ] }
+JSON.stringify(deep); // '{"a":1,"b":2,"c":[3,4,5]}'
+```
+
+## Iterable everywhere
+
+All Immutable.js collections are [Iterable][iterators], which allows them to be
+used anywhere an Iterable is expected, such as when spreading into an Array.
+
+<Repl
+  imports={['List']}
+  defaultValue={`const aList = List([1, 2, 3]);
+
+[0, ...aList, 4, 5];`}
+/>
+
+Note: a collection is always iterated in the same order, however that order may
+not always be well defined, as is the case for [Map](../../Map/) and
+[Set](../../Set/).
+
+[iterators]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/The_Iterator_protocol

@@ -6,7 +6,14 @@ import { getVersionFromParams } from '../getVersionFromParams';
 import { TypeDocumentation } from './TypeDocumentation';
 
 export async function generateStaticParams() {
-  return getVersionFromGitTag()
+  const versions = getVersionFromGitTag();
+
+  // Without git tags (e.g. Vercel's shallow clone), fall back to the version
+  // read from the local type definitions so `output: export` still has at
+  // least one path to generate for this dynamic route.
+  const effectiveVersions = versions.length === 0 ? ['latest@main'] : versions;
+
+  return effectiveVersions
     .map((version) =>
       Object.values(getTypeDefs(version).types).map((def) => ({
         version,

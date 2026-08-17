@@ -1,0 +1,79 @@
+import Repl from '@/repl/Repl.tsx';
+import PackageManagerTabs from '@/mdx-components/PackageManagerTabs.tsx';
+
+# Installation
+
+Immutable.js has no dependencies and ships with its own TypeScript definitions.
+In most projects, installing the package is all there is to do.
+
+## Install the package
+
+<PackageManagerTabs />
+
+Then import it into any module:
+
+<Repl
+  imports={['Map']}
+  defaultValue={`const map1 = Map({ a: 1, b: 2, c: 3 });
+const map2 = map1.set('b', 50);
+
+map1.get('b') + ' vs. ' + map2.get('b');`}
+/>
+
+`map1` is left untouched: `set()` returned a brand new Map instead of updating
+the existing one. That is the single idea every other page of this guide builds
+on.
+
+## TypeScript, out of the box
+
+Immutable.js is written with first class TypeScript support. Installing
+`immutable` brings its type definitions along with it, so there is nothing else
+to install and no `@types/…` package to look for.
+
+Use these collections and sequences as you would use native ones, while still
+taking advantage of type generics, error detection and auto-complete in your
+editor:
+
+```ts
+import { Map } from 'immutable';
+
+const map = Map<string, number>({ a: 1, b: 2, c: 3 });
+
+map.set('b', 50); // Map<string, number>
+map.set('b', 'fifty'); // error: 'fifty' is not assignable to number
+```
+
+Types flow through the whole chain, so the result of a `map()` or a `filter()`
+is typed as precisely as its input.
+
+## In the browser
+
+Immutable.js has no dependencies, which makes it predictable to include in a
+browser.
+
+It's highly recommended to use a module bundler like
+[Vite](https://vite.dev/), [webpack](https://webpack.js.org/) or
+[rollup](https://rollupjs.org/). The `immutable` npm module works without any
+additional consideration, and all examples throughout the documentation assume
+use of this kind of tool.
+
+Alternatively, Immutable.js may be included directly as a script tag. Download
+it or link to a CDN such as [CDNJS](https://cdnjs.com/libraries/immutable) or
+[jsDelivr](https://www.jsdelivr.com/package/npm/immutable). The script adds
+`Immutable` to the global scope:
+
+```html
+<script src="immutable.min.js"></script>
+<script>
+  const map1 = Immutable.Map({ a: 1, b: 2, c: 3 });
+  const map2 = map1.set('b', 50);
+  map1.get('b'); // 2
+  map2.get('b'); // 50
+</script>
+```
+
+## What's next
+
+Once installed, read [Why Immutable.js?](../why-immutable/) for the ideas behind
+the library, or jump straight to [List](../../List/) and [Map](../../Map/) in
+the API reference.

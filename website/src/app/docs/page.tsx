@@ -20,7 +20,7 @@ export default function Page() {
   return (
     <div>
       <ImmutableConsole version={latestVersion} />
-      <DocHeader versions={versions} currentVersion={latestVersion} />
+      <DocHeader />
       <div className="pageBody">
         <div className="contents">
           <RedirectExistingDocs version={latestVersion} />

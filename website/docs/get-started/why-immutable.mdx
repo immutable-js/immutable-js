@@ -1,0 +1,97 @@
+import Repl from '@/repl/Repl.tsx';
+
+# Why Immutable.js?
+
+[Immutable][] data cannot be changed once created, leading to much simpler
+application development, no defensive copying, and enabling advanced memoization
+and change detection techniques with simple logic. [Persistent][] data presents
+a mutative API which does not update the data in-place, but instead always
+yields new updated data.
+
+Immutable.js provides many persistent immutable data structures including
+[List](../../List/), [Stack](../../Stack/), [Map](../../Map/),
+[OrderedMap](../../OrderedMap/), [Set](../../Set/),
+[OrderedSet](../../OrderedSet/) and [Record](../../Record/).
+
+These data structures are highly efficient on modern JavaScript VMs by using
+structural sharing via [hash maps tries][] and [vector tries][] as popularized
+by Clojure and Scala, minimizing the need to copy or cache data.
+
+Immutable.js also provides a lazy [Seq](../../Seq/), allowing efficient chaining
+of collection methods like `map` and `filter` without creating intermediate
+representations. Create some `Seq` with [Range()](<../../Range()/>) and
+[Repeat()](<../../Repeat()/>).
+
+[persistent]: https://en.wikipedia.org/wiki/Persistent_data_structure
+[immutable]: https://en.wikipedia.org/wiki/Immutable_object
+[hash maps tries]: https://en.wikipedia.org/wiki/Hash_array_mapped_trie
+[vector tries]: https://hypirion.com/musings/understanding-persistent-vector-pt-1
+
+## The case for immutability
+
+Much of what makes application development difficult is tracking mutation and
+maintaining state. Developing with immutable data encourages you to think
+differently about how data flows through your application.
+
+Subscribing to data events throughout your application creates a huge overhead
+of book-keeping which can hurt performance, sometimes dramatically, and creates
+opportunities for areas of your application to get out of sync with each other
+due to easy to make programmer error. Since immutable data never changes,
+subscribing to changes throughout the model is a dead-end and new data can only
+ever be passed from above.
+
+This model of data flow aligns well with the architecture of [React][] and
+especially well with an application designed using the ideas of [Flux][].
+
+[react]: https://react.dev/
+[flux]: https://facebook.github.io/flux/docs/in-depth-overview/
+
+## Collections are values, not objects
+
+When data is passed from above rather than being subscribed to, and you're only
+interested in doing work when something has changed, you can use equality.
+
+Immutable collections should be treated as _values_ rather than _objects_. While
+objects represent some thing which could change over time, a value represents
+the state of that thing at a particular instance of time. This principle is the
+most important one to understand in order to use immutable data appropriately.
+
+To treat Immutable.js collections as values, use the [is()](<../../is()/>)
+function or the `.equals()` method to determine _value equality_, instead of the
+`===` operator which determines object _reference identity_.
+
+<Repl
+  imports={['Map']}
+  defaultValue={`const map1 = Map({ a: 1, b: 2, c: 3 });
+const map2 = Map({ a: 1, b: 2, c: 3 });
+
+[map1.equals(map2), map1 === map2];`}
+/>
+
+[Equality as values](../equality/) covers this in more detail, including the
+performance tradeoffs involved.
+
+## Copies are free
+
+If an object is immutable, it can be "copied" simply by making another reference
+to it instead of copying the entire object. Because a reference is much smaller
+than the object itself, this results in memory savings and a potential boost in
+execution speed for programs which rely on copies (such as an undo stack).
+
+```js
+import { Map } from 'immutable';
+
+const map = Map({ a: 1, b: 2, c: 3 });
+const mapCopy = map; // Look, "copies" are free!
+```
+
+## Watch the talk
+
+Want to hear more? Watch the presentation about Immutable.js:
+
+<a href="https://youtu.be/I7IdS-PbEgI">
+  <img
+    src="/Immutable-Data-and-React-YouTube.png"
+    alt="Immutable Data and React — talk on YouTube"
+  />
+</a>

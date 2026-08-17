@@ -1,180 +1,47 @@
-import { useEffect, useState } from 'react';
+'use client';
 
-// API endpoints
-// https://registry.npmjs.org/immutable/latest
-// https://api.github.com/repos/immutable-js/immutable-js
+import { type JSX, useEffect, useState } from 'react';
+import { GITHUB_API_URL, GITHUB_REPO_URL } from './constants';
 
-export function StarBtn() {
+function formatStars(count: number): string {
+  if (count >= 1000) {
+    return (count / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+  }
+  return String(count);
+}
+
+export function StarBtn(): JSX.Element {
   const [stars, setStars] = useState<number | null>(null);
 
   useEffect(() => {
-    loadJSON(
-      'https://api.github.com/repos/immutable-js/immutable-js',
-      (value) => {
-        if (
-          typeof value === 'object' &&
-          value !== null &&
-          'stargazers_count' in value &&
-          typeof value.stargazers_count === 'number'
-        ) {
-          setStars(value.stargazers_count);
-        }
+    loadJSON(GITHUB_API_URL, (value) => {
+      if (
+        typeof value === 'object' &&
+        value !== null &&
+        'stargazers_count' in value &&
+        typeof value.stargazers_count === 'number'
+      ) {
+        setStars(value.stargazers_count);
       }
-    );
+    });
   }, []);
 
   return (
-    <span className="github-btn">
-      <style jsx>{`
-        .github-btn {
-          margin-top: -10%;
-          display: flex;
-          flex-direction: row;
-        }
-
-        .gh-ico {
-          float: left;
-        }
-
-        .gh-btn,
-        .gh-count {
-          border: 1px solid #bababa;
-          border-bottom-color: #a6a6a6;
-          border-radius: 6px;
-          color: #212121;
-          cursor: pointer;
-          font-size: 24px;
-          font-weight: 300;
-          line-height: 32px;
-          padding: 6px 14px 6px 12px;
-          text-decoration: none;
-          text-shadow: 0 1px 0 #fff;
-          white-space: nowrap;
-        }
-
-        .gh-btn {
-          background-color: #fafafa;
-          background: linear-gradient(#fafafa, #eaeaea);
-        }
-
-        .gh-btn:hover,
-        .gh-btn:focus,
-        .gh-btn:active {
-          background-color: #3072b3;
-          border-color: #518cc6 #518cc6 #2a65a0;
-          color: #fff;
-          text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-        }
-
-        .gh-btn:hover,
-        .gh-btn:focus {
-          background-color: #599bdc;
-          background: linear-gradient(#599bdc, #3072b3);
-        }
-
-        .gh-btn:active {
-          background-image: none;
-          box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .gh-ico {
-          background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNy4xLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB3aWR0aD0iMTMycHgiIGhlaWdodD0iNjZweCIgdmlld0JveD0iMCAwIDEzMiA2NiIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTMyIDY2IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBmaWxsPSIjMzMzMzMzIiBkPSJNMzMsMS44Yy0xNy43LDAtMzIsMTQuMy0zMiwzMmMwLDE0LjEsOS4yLDI2LjEsMjEuOSwzMC40DQoJYzEuNiwwLjMsMi4yLTAuNywyLjItMS41YzAtMC44LDAtMi44LDAtNS40Yy04LjksMS45LTEwLjgtNC4zLTEwLjgtNC4zYy0xLjUtMy43LTMuNi00LjctMy42LTQuN2MtMi45LTIsMC4yLTEuOSwwLjItMS45DQoJYzMuMiwwLjIsNC45LDMuMyw0LjksMy4zYzIuOSw0LjksNy41LDMuNSw5LjMsMi43YzAuMy0yLjEsMS4xLTMuNSwyLTQuM2MtNy4xLTAuOC0xNC42LTMuNi0xNC42LTE1LjhjMC0zLjUsMS4yLTYuMywzLjMtOC42DQoJYy0wLjMtMC44LTEuNC00LjEsMC4zLTguNWMwLDAsMi43LTAuOSw4LjgsMy4zYzIuNi0wLjcsNS4zLTEuMSw4LTEuMWMyLjcsMCw1LjUsMC40LDgsMS4xYzYuMS00LjEsOC44LTMuMyw4LjgtMy4zDQoJYzEuNyw0LjQsMC42LDcuNywwLjMsOC41YzIuMSwyLjIsMy4zLDUuMSwzLjMsOC42YzAsMTIuMy03LjUsMTUtMTQuNiwxNS44YzEuMSwxLDIuMiwyLjksMi4yLDUuOWMwLDQuMywwLDcuNywwLDguOA0KCWMwLDAuOSwwLjYsMS45LDIuMiwxLjVDNTUuOCw1OS45LDY1LDQ3LjksNjUsMzMuOEM2NSwxNi4xLDUwLjcsMS44LDMzLDEuOHoiLz4NCjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBmaWxsPSIjRkZGRkZGIiBkPSJNOTksMS44Yy0xNy43LDAtMzIsMTQuMy0zMiwzMmMwLDE0LjEsOS4yLDI2LjEsMjEuOSwzMC40DQoJYzEuNiwwLjMsMi4yLTAuNywyLjItMS41YzAtMC44LDAtMi44LDAtNS40Yy04LjksMS45LTEwLjgtNC4zLTEwLjgtNC4zYy0xLjUtMy43LTMuNi00LjctMy42LTQuN2MtMi45LTIsMC4yLTEuOSwwLjItMS45DQoJYzMuMiwwLjIsNC45LDMuMyw0LjksMy4zYzIuOSw0LjksNy41LDMuNSw5LjMsMi43YzAuMy0yLjEsMS4xLTMuNSwyLTQuM2MtNy4xLTAuOC0xNC42LTMuNi0xNC42LTE1LjhjMC0zLjUsMS4yLTYuMywzLjMtOC42DQoJYy0wLjMtMC44LTEuNC00LjEsMC4zLTguNWMwLDAsMi43LTAuOSw4LjgsMy4zYzIuNi0wLjcsNS4zLTEuMSw4LTEuMWMyLjcsMCw1LjUsMC40LDgsMS4xYzYuMS00LjEsOC44LTMuMyw4LjgtMy4zDQoJYzEuNyw0LjQsMC42LDcuNywwLjMsOC41YzIuMSwyLjIsMy4zLDUuMSwzLjMsOC42YzAsMTIuMy03LjUsMTUtMTQuNiwxNS44YzEuMSwxLDIuMiwyLjksMi4yLDUuOWMwLDQuMywwLDcuNywwLDguOA0KCWMwLDAuOSwwLjYsMS45LDIuMiwxLjVjMTIuNy00LjIsMjEuOS0xNi4yLDIxLjktMzAuNEMxMzEsMTYuMSwxMTYuNywxLjgsOTksMS44eiIvPg0KPC9zdmc+DQo=);
-          background-position: 0 0;
-          background-repeat: no-repeat;
-          background-size: 56px 28px;
-          height: 28px;
-          margin: 2px 6px 0 0;
-          width: 28px;
-        }
-
-        .gh-btn:hover .gh-ico,
-        .gh-btn:focus .gh-ico,
-        .gh-btn:active .gh-ico {
-          background-position: -28px 0;
-        }
-
-        .gh-count {
-          background-color: #fafafa;
-          display: block !important;
-          display: none;
-        }
-
-        .gh-count:hover,
-        .gh-count:focus {
-          color: #4183c4;
-        }
-
-        .gh-triangle {
-          position: relative;
-          margin-left: 11px;
-          margin-right: -1px;
-        }
-
-        .gh-triangle:before,
-        .gh-triangle:after {
-          border-color: transparent;
-          border-style: solid;
-          content: '';
-          position: absolute;
-        }
-
-        .gh-triangle:before {
-          border-right-color: #fafafa;
-          border-width: 8px 8px 8px 0;
-          left: -7px;
-          margin-top: -8px;
-          top: 50%;
-        }
-
-        .gh-triangle:after {
-          border-right-color: #bababa;
-          border-width: 9px 9px 9px 0;
-          left: -8px;
-          margin-top: -9px;
-          top: 50%;
-          z-index: -1;
-        }
-
-        @media only screen and (max-width: 680px) {
-          .gh-btn,
-          .gh-count {
-            font-size: 16px;
-            line-height: 21px;
-            padding: 4px 12px 4px 10px;
-          }
-
-          .gh-ico {
-            background-size: 36px 18px;
-            height: 18px;
-            margin: 1px 4px 0 0;
-            width: 18px;
-          }
-
-          .gh-btn:hover .gh-ico,
-          .gh-btn:focus .gh-ico,
-          .gh-btn:active .gh-ico {
-            background-position: -18px 0;
-          }
-        }
-      `}</style>
-      <a
-        className="gh-btn"
-        id="gh-btn"
-        href="https://github.com/immutable-js/immutable-js/"
-      >
-        <span className="gh-ico" />
-        <span className="gh-text">Star</span>
-      </a>
-      {stars && <span className="gh-triangle" />}
-      {stars && (
-        <a
-          className="gh-count"
-          href="https://github.com/immutable-js/immutable-js/stargazers"
-        >
-          {stars}
-        </a>
+    <a
+      className="rd-star"
+      href={GITHUB_REPO_URL}
+      target="_blank"
+      rel="noopener"
+      aria-label="Star Immutable.js on GitHub"
+    >
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.25.45-2.28 1.19-3.08-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 2.9-.39c.98 0 1.97.13 2.9.39 2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.08 0 4.41-2.69 5.38-5.25 5.67.41.35.78 1.05.78 2.12 0 1.53-.01 2.76-.01 3.14 0 .31.21.68.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z" />
+      </svg>
+      Star
+      {stars !== null && (
+        <span className="rd-star__count">{formatStars(stars)}</span>
       )}
-    </span>
+    </a>
   );
 }
 

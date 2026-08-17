@@ -1,0 +1,66 @@
+import Repl from '@/repl/Repl.tsx';
+
+# Nested structures
+
+The collections in Immutable.js are intended to be nested, allowing for deep
+trees of data, similar to JSON.
+
+<Repl
+  imports={['fromJS']}
+  defaultValue={`fromJS({ a: { b: { c: [3, 4, 5] } } });`}
+/>
+
+[fromJS()](<../../fromJS()/>) converts a plain JavaScript tree into nested
+Immutable collections: objects become [Map](../../Map/) and arrays become
+[List](../../List/).
+
+## Reading and updating in depth
+
+A few power-tools allow for reading and operating on nested data. The most
+useful are [getIn()](<../../getIn()/>), [setIn()](<../../setIn()/>),
+[updateIn()](<../../updateIn()/>) and [mergeDeep()](<../../mergeDeep()/>), found
+on [List](../../List/), [Map](../../Map/) and [OrderedMap](../../OrderedMap/).
+
+Each of them takes a _key path_ — an iterable of keys describing where to look
+in the tree.
+
+<Repl
+  imports={['fromJS']}
+  defaultValue={`const nested = fromJS({ a: { b: { c: [3, 4, 5] } } });
+
+nested.getIn(['a', 'b', 'c', 0]);`}
+/>
+
+`mergeDeep()` merges a whole subtree in one call, recursing into the nested
+collections instead of replacing them:
+
+<Repl
+  imports={['fromJS']}
+  defaultValue={`const nested = fromJS({ a: { b: { c: [3, 4, 5] } } });
+
+nested.mergeDeep({ a: { b: { d: 6 } } });`}
+/>
+
+`updateIn()` applies a function to the value at a key path, and returns a new
+collection with the result in place. Every level of the tree above it is
+rebuilt, while everything else is shared with the original:
+
+<Repl
+  imports={['fromJS']}
+  defaultValue={`const nested = fromJS({ a: { b: { c: [3, 4, 5], d: 6 } } });
+
+nested.updateIn(['a', 'b', 'd'], (value) => value + 1);`}
+/>
+
+The value at a key path can itself be a collection, so nested updates compose
+naturally:
+
+<Repl
+  imports={['fromJS']}
+  defaultValue={`const nested = fromJS({ a: { b: { c: [3, 4, 5], d: 7 } } });
+
+nested.updateIn(['a', 'b', 'c'], (list) => list.push(6));`}
+/>
+
+Note that `setIn()` and `updateIn()` never mutate the original: `nested` still
+holds its initial value after every example above.

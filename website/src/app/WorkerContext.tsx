@@ -14,10 +14,19 @@ type Props = {
   children: React.ReactNode;
 };
 
-type OnSuccessType = (result: JsonMLElementList | Element) => void;
+type ResultHandler = (result: JsonMLElementList | Element) => void;
+
+type ResultHandlers = {
+  onSuccess: ResultHandler;
+  onError: ResultHandler;
+};
 
 type WorkerContextType = {
-  runCode: (code: string, onSuccess: OnSuccessType) => void;
+  runCode: (
+    code: string,
+    onSuccess: ResultHandler,
+    onError: ResultHandler
+  ) => void;
 };
 
 const WorkerContext = createContext<null | WorkerContextType>(null);
@@ -34,7 +43,7 @@ export function useWorkerContext() {
 
 export function WorkerContextProvider({ children }: Props): JSX.Element {
   const workerRef = useRef<Worker | null>(null);
-  const [successMap, setSuccessMap] = useState<Map<string, OnSuccessType>>(
+  const [handlersMap, setHandlersMap] = useState<Map<string, ResultHandlers>>(
     new Map()
   );
 
@@ -52,25 +61,25 @@ export function WorkerContextProvider({ children }: Props): JSX.Element {
         error?: string;
       };
     }) => {
-      const onSuccess = successMap.get(event.data.key);
+      const handlers = handlersMap.get(event.data.key);
 
-      if (!onSuccess) {
+      if (!handlers) {
         console.warn(
-          `No success handler found for key: ${event.data.key}. This is an issue with the single REPL worker.`
+          `No result handler found for key: ${event.data.key}. This is an issue with the single REPL worker.`
         );
 
         return;
       }
 
       if (event.data.error) {
-        onSuccess(['div', 'Error: ' + event.data.error]);
+        handlers.onError(['div', 'Error: ' + event.data.error]);
       } else {
         const { output } = event.data;
 
         if (typeof output === 'object' && !Array.isArray(output)) {
-          onSuccess(['div', { object: output }]);
+          handlers.onSuccess(['div', { object: output }]);
         } else {
-          onSuccess(output);
+          handlers.onSuccess(output);
         }
       }
     };
@@ -81,10 +90,12 @@ export function WorkerContextProvider({ children }: Props): JSX.Element {
   }, []);
 
   const runCode = useCallback(
-    (code: string, onSuccess: OnSuccessType): void => {
+    (code: string, onSuccess: ResultHandler, onError: ResultHandler): void => {
       const key = Math.random().toString(36).substring(2, 15);
 
-      setSuccessMap((successMap) => successMap.set(key, onSuccess));
+      setHandlersMap((handlersMap) =>
+        handlersMap.set(key, { onSuccess, onError })
+      );
 
       // ignore import statements as we do unpack all immutable data in the worker
       // but it might be useful in the documentation

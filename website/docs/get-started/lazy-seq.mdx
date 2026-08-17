@@ -1,0 +1,81 @@
+import Repl from '@/repl/Repl.tsx';
+
+# Lazy Seq
+
+[Seq](../../Seq/) describes a lazy operation, allowing it to efficiently chain
+use of all the higher-order collection methods (such as `map` and `filter`) by
+not creating intermediate collections.
+
+**Seq is immutable** — once a Seq is created, it cannot be changed, appended to,
+rearranged or otherwise modified. Instead, any mutative method called on a `Seq`
+will return a new `Seq`.
+
+**Seq is lazy** — `Seq` does as little work as necessary to respond to any
+method call. Values are often created during iteration, including implicit
+iteration when reducing or converting to a concrete data structure such as a
+`List` or a JavaScript `Array`.
+
+For example, the following performs no work, because the resulting `Seq`'s
+values are never iterated:
+
+```js
+import { Seq } from 'immutable';
+
+const oddSquares = Seq([1, 2, 3, 4, 5, 6, 7, 8])
+  .filter((x) => x % 2 !== 0)
+  .map((x) => x * x);
+```
+
+Once the `Seq` is used, it performs only the work necessary. In this example, no
+intermediate arrays are ever created, `filter` is called three times, and `map`
+is only called once:
+
+<Repl
+  imports={['Seq']}
+  defaultValue={`const oddSquares = Seq([1, 2, 3, 4, 5, 6, 7, 8])
+  .filter((x) => x % 2 !== 0)
+  .map((x) => x * x);
+
+oddSquares.get(1);`}
+/>
+
+## Any collection can become a Seq
+
+<Repl
+  imports={['Map', 'Seq']}
+  defaultValue={`const map = Map({ a: 1, b: 2, c: 3 });
+
+Seq(map);`}
+/>
+
+`Seq` allows for the efficient chaining of operations, allowing for the
+expression of logic that can otherwise be very tedious:
+
+<Repl
+  imports={['Map', 'Seq']}
+  defaultValue={`const lazySeq = Seq(Map({ a: 1, b: 2, c: 3 }));
+
+lazySeq
+  .flip()
+  .map((key) => key.toUpperCase())
+  .flip();`}
+/>
+
+## Infinite sequences
+
+Laziness makes it possible to express logic that would otherwise seem memory- or
+time-limited. [Range()](<../../Range()/>) is a special kind of lazy sequence,
+and can be infinite:
+
+<Repl
+  imports={['Range']}
+  defaultValue={`Range(1, Infinity)
+  .skip(1000)
+  .map((n) => -n)
+  .filter((n) => n % 2 === 0)
+  .take(2)
+  .reduce((r, n) => r * n, 1);`}
+/>
+
+[Repeat()](<../../Repeat()/>) is the other built-in lazy sequence, producing the
+same value a given number of times — or forever, when no count is given.

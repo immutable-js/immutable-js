@@ -1,198 +1,125 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { type JSX, useEffect, useState } from 'react';
+import { HeaderSearch } from './HeaderSearch';
 import { Logo } from './Logo';
 import { SVGSet } from './SVGSet';
 import { StarBtn } from './StarBtn';
-import { isMobile } from './isMobile';
+import { ThemeSwitch } from './ThemeSwitch';
+import { VERSION } from './app/docs/currentVersion';
 
+type NavItem = {
+  label: string;
+  href: string;
+  isActive: (pathname: string) => boolean;
+};
+
+const NAV: Array<NavItem> = [
+  {
+    label: 'Docs',
+    href: `/docs/${VERSION}`,
+    isActive: (p) => p.startsWith('/docs'),
+  },
+  {
+    label: 'Playground',
+    href: '/play',
+    isActive: (p) => p.startsWith('/play'),
+  },
+  {
+    label: 'Extension',
+    href: '/browser-extension',
+    isActive: (p) => p.startsWith('/browser-extension'),
+  },
+];
+
+/**
+ * The global sticky header, shared by every page (Home, Docs, Playground,
+ * Extension). Replaces the old miniHeader + animated cover.
+ */
 export function Header({
-  versions,
-  currentVersion,
+  flush = false,
 }: {
-  versions: Array<string>;
-  currentVersion?: string;
-}) {
-  const [scroll, setScroll] = useState(0);
+  /** Use fixed 26px horizontal padding (docs/playground) instead of the
+   * content-centered padding used on the home page. */
+  flush?: boolean;
+}): JSX.Element {
+  const pathname = usePathname() || '/';
+  const [menuOpen, setMenuOpen] = useState(false);
 
+  // Close the mobile menu whenever the route changes.
   useEffect(() => {
-    let _pending = false;
-    function handleScroll() {
-      if (!_pending) {
-        const headerHeight = Math.min(
-          800,
-          Math.max(260, document.documentElement.clientHeight * 0.7)
-        );
-        if (window.scrollY < headerHeight) {
-          _pending = true;
-          window.requestAnimationFrame(() => {
-            _pending = false;
-            setScroll(window.scrollY);
-          });
-        }
-      }
-    }
-
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
-
-  const neg = scroll < 0;
-  const s = neg ? 0 : scroll;
-  const sp = isMobile() ? 35 : 70;
+    setMenuOpen(false);
+  }, [pathname]);
 
   return (
-    <div className="header">
-      <div className="miniHeader">
-        <div className="miniHeaderContents">
-          <HeaderLogoLink />
-          <HeaderLinks versions={versions} currentVersion={currentVersion} />
+    <header className={`rd-header ${flush ? 'rd-header--flush' : ''}`}>
+      <Link href="/" aria-label="Immutable.js home" className="rd-header__logo">
+        <SVGSet>
+          <Logo color="#FC4349" />
+          <Logo color="#2C3E50" inline />
+        </SVGSet>
+      </Link>
+
+      <div
+        className={`rd-header__menu ${menuOpen ? 'rd-header__menu--open' : ''}`}
+      >
+        <nav className="rd-header__nav">
+          {NAV.map((item) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              onClick={() => setMenuOpen(false)}
+              className={`rd-navlink ${
+                item.isActive(pathname) ? 'rd-navlink--active' : ''
+              }`}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="rd-header__actions">
+          <HeaderSearch />
+          <ThemeSwitch />
+          <StarBtn />
         </div>
       </div>
-      <div className="coverContainer">
-        <div className="cover">
-          <div className="coverFixed">
-            <div className="filler">
-              <div className="miniHeaderContents">
-                <HeaderLinks
-                  versions={versions}
-                  currentVersion={currentVersion}
-                />
-              </div>
-            </div>
-            <div className="synopsis">
-              <div className="logo">
-                {[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0].map((_, i) => (
-                  <SVGSet key={i} style={t(ty(s, i * sp), tz(s, i * sp))}>
-                    <Logo color="#c1c6c8" />
-                    <Logo color="#6dbcdb" opacity={o(s, i * sp)} />
-                  </SVGSet>
-                ))}
-                <SVGSet style={t(s * -0.55, 1)}>
-                  <Logo color="#FC4349" />
-                  <Logo color="#2C3E50" inline />
-                </SVGSet>
-              </div>
-            </div>
-            <div className="buttons">
-              <StarBtn />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
-export function HeaderLogoLink() {
-  return (
-    <Link href="/" className="miniLogo">
-      <SVGSet>
-        <Logo color="#FC4349" />
-        <Logo color="#2C3E50" inline />
-      </SVGSet>
-    </Link>
-  );
-}
-
-export function HeaderLinks({
-  versions,
-  currentVersion,
-}: {
-  versions: Array<string>;
-  currentVersion?: string;
-}) {
-  return (
-    <div className="links">
-      <DocsDropdown versions={versions} currentVersion={currentVersion} />
-      <Link href="/play">Playground</Link>
-      <Link href="/browser-extension">Browser extension</Link>
-      <a
-        href="https://stackoverflow.com/questions/tagged/immutable.js?sort=votes"
-        target="_blank"
-        rel="noopener"
+      <button
+        type="button"
+        className="rd-burger"
+        aria-label="Toggle navigation menu"
+        aria-expanded={menuOpen}
+        onClick={() => setMenuOpen((open) => !open)}
       >
-        Questions
-      </a>
-      <a
-        href="https://github.com/immutable-js/immutable-js/"
-        target="_blank"
-        rel="noopener"
-      >
-        GitHub
-      </a>
-    </div>
+        {menuOpen ? (
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <line x1="6" y1="6" x2="18" y2="18" />
+            <line x1="18" y1="6" x2="6" y2="18" />
+          </svg>
+        ) : (
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <line x1="4" y1="8" x2="20" y2="8" />
+            <line x1="4" y1="16" x2="20" y2="16" />
+          </svg>
+        )}
+      </button>
+    </header>
   );
-}
-
-function DocsDropdown({
-  versions,
-  currentVersion,
-}: {
-  versions: Array<string>;
-  currentVersion?: string;
-}) {
-  return (
-    <div className="docsDropdown">
-      <style jsx>{`
-        .docsDropdown {
-          display: inline-block;
-          position: relative;
-        }
-
-        .docsDropdown > ul {
-          position: absolute;
-          visibility: hidden;
-          width: max-content;
-          top: 100%;
-          right: -0.75rem;
-          background: var(--header-bg-color);
-          margin: 0;
-          padding: 0.25rem 0 0.5rem;
-          box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.25);
-        }
-
-        .docsDropdown:hover > ul {
-          visibility: visible;
-        }
-
-        .docsDropdown:hover > ul > li {
-          display: block;
-          padding: 0.25rem 1rem;
-          text-align: left;
-        }
-      `}</style>
-      <div>
-        <Link href={`/docs/${currentVersion || versions[0]}`}>
-          Docs{currentVersion && ` (${currentVersion})`}
-        </Link>
-      </div>
-      <ul>
-        {versions.map((v) => (
-          <li key={v}>
-            <Link href={`/docs/${v}`}>{v}</Link>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function ty(s: number, p: number) {
-  return (p < s ? p : s) * -0.55;
-}
-
-function o(s: number, p: number) {
-  return Math.max(0, s > p ? 1 - (s - p) / 350 : 1);
-}
-
-function tz(s: number, p: number) {
-  return Math.max(0, s > p ? 1 - (s - p) / 20000 : 1);
-}
-
-function t(y: number, z: number) {
-  return { transform: 'translate3d(0, ' + y + 'px, 0) scale(' + z + ')' };
 }
