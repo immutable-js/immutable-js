@@ -21,6 +21,6 @@ export function isKeyed(
   return Boolean(
     maybeKeyed &&
       // @ts-expect-error: maybeKeyed is typed as `{}`, need to change in 6.0 to `maybeKeyed && typeof maybeKeyed === 'object' && IS_KEYED_SYMBOL in maybeKeyed`
-      maybeKeyed[IS_KEYED_SYMBOL]
+      maybeKeyed[IS_KEYED_SYMBOL] === true
   );
 }

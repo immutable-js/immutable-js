@@ -10,6 +10,16 @@ import {
   mergeDeepWith,
 } from 'immutable';
 
+function createTruthyGetProxy<T extends object>(target: T): T {
+  return new Proxy(target, {
+    get(target, property, receiver) {
+      return typeof property === 'symbol' || Reflect.has(target, property)
+        ? Reflect.get(target, property, receiver)
+        : () => undefined;
+    },
+  });
+}
+
 describe('merge', () => {
   it('merges two maps', () => {
     const m1 = Map({ a: 1, b: 2, c: 3 });
@@ -124,6 +134,13 @@ describe('merge', () => {
   it('returns self when a deep merges is a no-op on raw JS', () => {
     const m1 = { a: { b: { c: 1, d: 2 } } };
     expect(mergeDeep(m1, { a: { b: { c: 1 } } })).toBe(m1);
+  });
+
+  it('preserves plain object proxies with truthy fallback properties', () => {
+    const myMock = createTruthyGetProxy({});
+    const merged = mergeDeep({ myMock }, { myMock });
+
+    expect(merged.myMock).toBe(myMock);
   });
 
   it('can overwrite existing maps', () => {
