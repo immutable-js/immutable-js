@@ -50,6 +50,64 @@ describe('List', () => {
     expect(v.toArray()).toEqual(['a', 'b', 'c']);
   });
 
+  it.each([32, 33, 1024, 1025, 32768, 32769])(
+    'builds independent dense and sparse array tries of size %i',
+    (size) => {
+      for (const array of [
+        arrayOfSize(size),
+        new Array<number | undefined>(size),
+      ]) {
+        array[1] = 1;
+        array[size - 1] = size - 1;
+        const expected = Array.from(array);
+        const list = List(array);
+        array[1] = -1;
+        const updated = list.withMutations((mutable) => {
+          mutable
+            .set(1, -2)
+            .set(size - 1, -3)
+            .push(42);
+        });
+        expect(list.toArray()).toEqual(expected);
+        expect(updated.get(1)).toBe(-2);
+        expect(updated.get(size - 1)).toBe(-3);
+        expect(updated.last()).toBe(42);
+        expect(list.slice(1, -1).toArray()).toEqual(expected.slice(1, -1));
+        expect(list.pop().toArray()).toEqual(expected.slice(0, -1));
+        expect(list.set(1, 1)).toBe(list);
+      }
+      expect(List(new Array(size)).equals(List().setSize(size))).toBe(true);
+    }
+  );
+
+  it('reads array accessors once in index order and never uses array species', () => {
+    class InputArray extends Array<number> {
+      static override get [Symbol.species](): ArrayConstructor {
+        throw new Error('Array species must not be used');
+      }
+    }
+    const array = new InputArray(65);
+    const reads: number[] = [];
+    for (let i = 0; i < array.length; i++) {
+      Object.defineProperty(array, i, {
+        get() {
+          reads.push(i);
+          return i;
+        },
+      });
+    }
+    expect(List(array).toArray()).toEqual(arrayOfSize(65));
+    expect(reads).toEqual(arrayOfSize(65));
+  });
+
+  it('rejects oversized array input before reading its values', () => {
+    const array = new Array(2 ** 30 + 1);
+    const getter = jest.fn();
+    Object.defineProperty(array, 0, { get: getter });
+    expect(() => List(array)).toThrow(RangeError);
+    expect(getter).not.toHaveBeenCalled();
+  });
+
   it('accepts an array-like', () => {
     const v = List({ length: 3, 2: 'c' });
     expect(v.get(2)).toBe('c');
@@ -1195,6 +1253,40 @@ describe('List', () => {
   });
 
   describe('Iterator', () => {
+    it.each([0, 1, 31, 32, 33, 1023, 1024, 1025, 32769])(
+      'visits dense and sparse trie boundaries at size %i',
+      (size) => {
+        const dense = List(arrayOfSize(size));
+        const sparse = List<number | undefined>().setSize(size);
+        const lists = [dense, sparse, sparse.set(size >> 1, 42)];
+        for (const list of lists) {
+          for (const sliced of [
+            list,
+            list.slice(3, -2),
+            list.unshift(-1).slice(1),
+          ]) {
+            const expected = Array.from({ length: sliced.size }, (_, i) =>
+              sliced.get(i)
+            );
+            expect(sliced.toArray()).toEqual(expected);
+            expect(Array.from(sliced.values())).toEqual(expected);
+            expect(sliced.toSeq().reverse().toArray()).toEqual(
+              expected.slice().reverse()
+            );
+            expect(Array.from(sliced.toSeq().reverse().values())).toEqual(
+              expected.slice().reverse()
+            );
+            const iterator = sliced.entries();
+            expect(Array.from(iterator)).toEqual(
+              expected.map((value, key) => [key, value])
+            );
+            expect(iterator.next().done).toBe(true);
+            expect(iterator.next().done).toBe(true);
+          }
+        }
+      }
+    );
+
     const pInt = fc.nat(100);
 
     it('iterates through List', () => {
