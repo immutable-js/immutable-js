@@ -30,10 +30,9 @@ export class List extends IndexedCollection {
   // @pragma Construction
 
   constructor(value) {
-    const empty = emptyList();
     if (value === undefined || value === null) {
       // eslint-disable-next-line no-constructor-return
-      return empty;
+      return emptyList();
     }
     if (isList(value)) {
       // eslint-disable-next-line no-constructor-return
@@ -43,15 +42,19 @@ export class List extends IndexedCollection {
     const size = iter.size;
     if (size === 0) {
       // eslint-disable-next-line no-constructor-return
-      return empty;
+      return emptyList();
     }
     assertNotInfinite(size);
     if (size > 0 && size < SIZE) {
       // eslint-disable-next-line no-constructor-return
       return makeList(0, size, SHIFT, undefined, new VNode(iter.toArray()));
     }
+    if (Array.isArray(value)) {
+      // eslint-disable-next-line no-constructor-return
+      return makeListFromArray(value, size, emptyList());
+    }
     // eslint-disable-next-line no-constructor-return
-    return empty.withMutations((list) => {
+    return emptyList().withMutations((list) => {
       list.setSize(size);
       iter.forEach((v, i) => list.set(i, v));
     });
@@ -221,7 +224,8 @@ export class List extends IndexedCollection {
   }
 
   __iterate(fn, reverse) {
-    let index = reverse ? this.size : 0;
+    const size = this.size;
+    let index = reverse ? size : 0;
     const values = iterateList(this, reverse);
     let value;
     while ((value = values()) !== DONE) {
@@ -229,7 +233,7 @@ export class List extends IndexedCollection {
         break;
       }
     }
-    return index;
+    return reverse ? size - index : index;
   }
 
   __ensureOwner(ownerID) {
@@ -365,6 +369,53 @@ class VNode {
   }
 }
 
+function makeListFromArray(value, size, empty) {
+  validateListBoundsRequest(empty, 0, size);
+  const tailOffset = getTailOffset(size);
+  let level = SHIFT;
+  while (tailOffset >= levelCapacity(level + SHIFT)) {
+    level += SHIFT;
+  }
+  return makeList(
+    0,
+    size,
+    level,
+    buildVNodeFromArray(value, level, 0, tailOffset),
+    buildVNodeFromArray(value, 0, tailOffset, size)
+  );
+}
+
+// Build each node once, avoiding a root-to-leaf update for every array value.
+// Allocate lazily so all-undefined regions remain virtual, just like setSize().
+function buildVNodeFromArray(values, level, offset, end) {
+  const step = 1 << level;
+  const length = Math.ceil((end - offset) / step);
+  let array;
+  let lastIndex = 0;
+  for (let i = 0; i < length; i++, offset += step) {
+    const value =
+      level === 0
+        ? values[offset]
+        : buildVNodeFromArray(
+            values,
+            level - SHIFT,
+            offset,
+            Math.min(end, offset + step)
+          );
+    if (value !== undefined) {
+      if (!array) {
+        array = new Array(length);
+      }
+      array[i] = value;
+      lastIndex = i + 1;
+    }
+  }
+  if (array) {
+    array.length = lastIndex;
+    return new VNode(array);
+  }
+}
+
 const DONE = {};
 
 function iterateList(list, reverse) {
@@ -372,60 +423,33 @@ function iterateList(list, reverse) {
   const right = list._capacity;
   const tailPos = getTailOffset(right);
   const tail = list._tail;
+  const root = list._root;
+  const rootLevel = list._level;
+  let index = reverse ? right : left;
+  let leafIndex = -1;
+  let array;
 
-  return iterateNodeOrLeaf(list._root, list._level, 0);
-
-  function iterateNodeOrLeaf(node, level, offset) {
-    return level === 0
-      ? iterateLeaf(node, offset)
-      : iterateNode(node, level, offset);
-  }
-
-  function iterateLeaf(node, offset) {
-    const array = offset === tailPos ? tail && tail.array : node && node.array;
-    let from = offset > left ? 0 : left - offset;
-    let to = right - offset;
-    if (to > SIZE) {
-      to = SIZE;
+  // Resolve the trie path once per leaf, not once per value. A single cursor
+  // also avoids allocating a closure for every node visited during iteration.
+  return () => {
+    if (reverse ? index === left : index === right) {
+      return DONE;
     }
-    return () => {
-      if (from === to) {
-        return DONE;
+    const rawIndex = reverse ? --index : index++;
+    const nextLeafIndex = rawIndex >>> SHIFT;
+    if (nextLeafIndex !== leafIndex) {
+      let node = tail;
+      if (rawIndex < tailPos) {
+        node = root;
+        for (let level = rootLevel; node && level > 0; level -= SHIFT) {
+          node = node.array[(rawIndex >>> level) & MASK];
+        }
       }
-      const idx = reverse ? --to : from++;
-      return array && array[idx];
-    };
-  }
-
-  function iterateNode(node, level, offset) {
-    let values;
-    const array = node && node.array;
-    let from = offset > left ? 0 : (left - offset) >> level;
-    let to = ((right - offset) >> level) + 1;
-    if (to > SIZE) {
-      to = SIZE;
+      array = node && node.array;
+      leafIndex = nextLeafIndex;
     }
-    return () => {
-      while (true) {
-        if (values) {
-          const value = values();
-          if (value !== DONE) {
-            return value;
-          }
-          values = null;
-        }
-        if (from === to) {
-          return DONE;
-        }
-        const idx = reverse ? --to : from++;
-        values = iterateNodeOrLeaf(
-          array && array[idx],
-          level - SHIFT,
-          offset + (idx << level)
-        );
-      }
-    };
-  }
+    return array && array[rawIndex & MASK];
+  };
 }
 
 /**

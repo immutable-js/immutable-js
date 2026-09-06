@@ -269,6 +269,125 @@ describe('Map', () => {
     expect(r.toObject()).toEqual({ a: 'A', b: 'B', c: 'C' });
   });
 
+  it.each([1, 8, 9, 16, 32, 1024])(
+    'maps trie values without changing keys, order, or earlier snapshots (%i entries)',
+    (size) => {
+      const original = Map<number | string, number>(
+        Array.from({ length: size }, (_, i) => [i * 32, i])
+      )
+        .set('Aa', 10)
+        .set('BB', 20);
+      const entries = original.toArray();
+      const originalHash = original.hashCode();
+      const context = { increment: 1 };
+      const visited: Array<number | string> = [];
+      const mapped = original.map(function (
+        this: typeof context,
+        value,
+        key,
+        collection
+      ) {
+        expect(this).toBe(context);
+        expect(collection).toBe(original);
+        visited.push(key);
+        return value + this.increment;
+      }, context);
+      expect(visited).toEqual(entries.map(([key]) => key));
+      expect(mapped.toArray()).toEqual(
+        entries.map(([key, value]) => [key, value + 1])
+      );
+      expect(original.toArray()).toEqual(entries);
+      expect(original.hashCode()).toBe(originalHash);
+      expect(
+        mapped.equals(Map(entries.map(([key, value]) => [key, value + 1])))
+      ).toBe(true);
+      expect(original.map((value) => value)).toBe(original);
+      const partial = original.map((value, key) => (key === 'Aa' ? -1 : value));
+      expect(partial.get('Aa')).toBe(-1);
+      expect(partial.get('BB')).toBe(20);
+      const changed = mapped.withMutations((map) =>
+        map.set('BB', -1).remove(0)
+      );
+      expect(changed.get('BB')).toBe(-1);
+      expect(mapped.get('BB')).toBe(21);
+      expect(original.get('BB')).toBe(20);
+    }
+  );
+
+  it('preserves sequential mutable and ordered map callback behavior', () => {
+    for (const original of [
+      Map<string, number>([
+        ['a', 1],
+        ['b', 2],
+      ]),
+      OrderedMap<string, number>([
+        ['a', 1],
+        ['b', 2],
+      ]),
+    ]) {
+      const mutable = original.asMutable();
+      const keys = mutable.keySeq().toArray();
+      const result = mutable.map((value, key, collection) => {
+        expect(collection).toBe(mutable);
+        return key === keys[0] ? 10 : collection.get(keys[0]!)! + value;
+      });
+      expect(result).toBe(mutable);
+      expect(result.get(keys[0]!)).toBe(10);
+      expect(result.get(keys[1]!)).toBe(12);
+      expect(original.toArray()).toEqual([
+        ['a', 1],
+        ['b', 2],
+      ]);
+    }
+    const ordered = OrderedMap({ b: 2, a: 1 });
+    expect(OrderedMap.isOrderedMap(ordered.map((v) => v + 1))).toBe(true);
+    expect(
+      ordered
+        .map((v) => v + 1)
+        .keySeq()
+        .toArray()
+    ).toEqual(['b', 'a']);
+  });
+
+  it('leaves the original Map unchanged when mapping throws or reenters', () => {
+    const original = Range(0, 100).toMap();
+    expect(() =>
+      original.map((value) => {
+        if (value === 50) {
+          throw new Error('mapper failed');
+        }
+        return value + 1;
+      })
+    ).toThrow('mapper failed');
+    expect(original.equals(Range(0, 100).toMap())).toBe(true);
+    const mapped = original.map(
+      (value) => original.map((v) => v + 1).get(value)!
+    );
+    expect(mapped.equals(Range(1, 101).toMap())).toBe(true);
+  });
+
+  it('maps values without rehashing stored keys', () => {
+    const hashCode = jest.fn(function (this: { id: number }) {
+      return this.id;
+    });
+    const keys = Array.from({ length: 100 }, (_, id) => ({ id, hashCode }));
+    const original = Map(keys.map((key) => [key, key.id]));
+    hashCode.mockClear();
+    const mapped = original.map((value) => value + 1);
+    expect(hashCode).not.toHaveBeenCalled();
+    keys.forEach((key) => expect(mapped.get(key)).toBe(key.id + 1));
+  });
+
+  it('maps undefined and NaN without removing entries or changing keys', () => {
+    const original = Range(0, 32).toMap().set(0, NaN);
+    const mapped = original.map(() => undefined);
+    expect(mapped.size).toBe(original.size);
+    expect(mapped.keySeq().toArray()).toEqual(original.keySeq().toArray());
+    expect(mapped.valueSeq().every((value) => value === undefined)).toBe(true);
+    expect(original.map((value) => value)).not.toBe(original);
+    expect(original.get(0)).toBeNaN();
+  });
+
   it('maps keys', () => {
     const m = Map({ a: 'a', b: 'b', c: 'c' });
     const r = m.mapKeys((key) => key.toUpperCase());
@@ -430,6 +549,57 @@ describe('Map', () => {
         expect(a).toEqual(new Array(len));
       })
     );
+  });
+
+  it('keeps trie snapshots intact across transient insertions and removals', () => {
+    const entries: Array<[number, number]> = Array.from(
+      { length: 1024 },
+      (_, i) => [i * 32, i]
+    );
+    const original = Map(entries);
+    const originalHash = original.hashCode();
+    const updated = original.withMutations((map) => {
+      // Visit bitmap slots in descending order, forcing interior shifts.
+      for (let i = entries.length - 1; i >= 0; i--) {
+        map.remove(i * 32);
+        map.set(i * 32 + 1, -i);
+      }
+    });
+    expect(original.toArray()).toEqual(Map(entries).toArray());
+    expect(original.hashCode()).toBe(originalHash);
+    expect(updated.size).toBe(entries.length);
+    entries.forEach(([key, value]) => {
+      expect(updated.has(key)).toBe(false);
+      expect(updated.get(key + 1)).toBe(-value);
+    });
+    expect(updated.set(1, -0)).toBe(updated);
+    expect(updated.remove(-1)).toBe(updated);
+    const forward = Array.from(updated.entries());
+    expect(updated.toSeq().reverse().toArray()).toEqual(forward.reverse());
+    let visits = 0;
+    updated.forEach(() => {
+      visits++;
+      return false;
+    });
+    expect(visits).toBe(1);
+  });
+
+  it('iterates trie leaves with falsy keys and values', () => {
+    const keys = [
+      undefined,
+      null,
+      false,
+      0,
+      '',
+      NaN,
+      ...Array.from({ length: 40 }, (_, i) => i + 1),
+    ];
+    const map = Map(keys.map((key) => [key, undefined]));
+    expect(Array.from(map.keys())).toEqual(map.keySeq().toArray());
+    expect(Array.from(map.values())).toEqual(keys.map(() => undefined));
+    expect(Array.from(map.entries())).toEqual(map.toArray());
+    expect(map.toSeq().reverse().toArray()).toEqual(map.toArray().reverse());
+    keys.forEach((key) => expect(map.has(key)).toBe(true));
   });
 
   it('allows chained mutations', () => {

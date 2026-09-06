@@ -106,11 +106,15 @@ const COLLISION_HASH_BASE =
 // shares the same primary `hash()`. Using a different, seeded base scatters
 // crafted collision families (e.g. "Aa"/"BB", which only collide under base 31)
 // that an attacker cannot precompute without the seed. It only narrows
-// candidates — `is()` still decides equality — so non-string keys can safely
-// fall back to the (here constant) primary hash and a linear scan.
-export function hashCollisionKey(key: unknown): number {
+// candidates — `is()` still decides equality. Normalize string-valued objects
+// just as is() does, so equivalent primitive and object keys use the same index.
+// Other keys reuse the bucket's primary hash instead of calling hashCode again.
+export function hashCollisionKey(key: unknown, keyHash: number): number {
   if (typeof key !== 'string') {
-    return hash(key);
+    key = key && typeof key.valueOf === 'function' ? key.valueOf() : key;
+    if (typeof key !== 'string') {
+      return keyHash;
+    }
   }
   let hashed = 0;
   for (let ii = 0; ii < key.length; ii++) {
