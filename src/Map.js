@@ -108,6 +108,17 @@ export class Map extends KeyedCollection {
   }
 
   map(mapper, context) {
+    if (!this.size) {
+      return this;
+    }
+    // Mutable callbacks can observe earlier writes. OrderedMap also uses this
+    // method but has a different backing structure, so keep its update path.
+    if (!this.__ownerID && !isOrdered(this)) {
+      const root = mapNode(this._root, (value, key) =>
+        mapper.call(context, value, key, this)
+      );
+      return root === this._root ? this : makeMap(this.size, root);
+    }
     return this.withMutations((map) => {
       map.forEach((value, key) => {
         map.set(key, mapper.call(context, value, key, this));
@@ -418,8 +429,8 @@ class HashCollisionNode {
     this.ownerID = ownerID;
     this.keyHash = keyHash;
     this.entries = entries;
-    // Lazy `{ [secondaryHash]: number[] }`, built only past
-    // MIN_HASH_COLLISION_INDEX_SIZE so small buckets keep their linear path.
+    // Lazy `{ [secondaryHash]: number | number[] }`. Most secondary hashes
+    // identify one entry, so only shared hashes need a positions array.
     this._index = undefined;
   }
 
@@ -438,7 +449,10 @@ class HashCollisionNode {
       index = this._buildIndex();
     }
     if (index !== undefined) {
-      const positions = index[hashCollisionKey(key)];
+      const positions = index[hashCollisionKey(key, this.keyHash)];
+      if (typeof positions === 'number') {
+        return is(key, entries[positions][0]) ? positions : -1;
+      }
       if (positions !== undefined) {
         for (let jj = 0; jj < positions.length; jj++) {
           const ii = positions[jj];
@@ -463,13 +477,11 @@ class HashCollisionNode {
     const index = Object.create(null);
     const entries = this.entries;
     for (let ii = 0, len = entries.length; ii < len; ii++) {
-      const secondaryHash = hashCollisionKey(entries[ii][0]);
-      const positions = index[secondaryHash];
-      if (positions !== undefined) {
-        positions.push(ii);
-      } else {
-        index[secondaryHash] = [ii];
-      }
+      addCollisionIndex(
+        index,
+        hashCollisionKey(entries[ii][0], this.keyHash),
+        ii
+      );
     }
     this._index = index;
     return index;
@@ -519,14 +531,18 @@ class HashCollisionNode {
 
     if (exists) {
       if (removed) {
+        if (isEditable && this._index !== undefined) {
+          const removedHash = hashCollisionKey(entries[idx][0], this.keyHash);
+          const lastHash = hashCollisionKey(entries[len - 1][0], this.keyHash);
+          updateCollisionIndex(this._index, removedHash, idx, -1);
+          if (idx !== len - 1) {
+            updateCollisionIndex(this._index, lastHash, len - 1, idx);
+          }
+        }
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
         idx === len - 1
           ? newEntries.pop()
           : (newEntries[idx] = newEntries.pop());
-        // The swap-pop reshuffles positions; drop the stale index (rebuilt lazily).
-        if (isEditable) {
-          this._index = undefined;
-        }
       } else {
         // Same key, same position: the index stays valid.
         newEntries[idx] = [key, value];
@@ -536,13 +552,11 @@ class HashCollisionNode {
       // Keep the index in sync on the transient insert path. Persistent inserts
       // return a fresh node below whose index rebuilds lazily, so skip them.
       if (isEditable && this._index !== undefined) {
-        const secondaryHash = hashCollisionKey(key);
-        const positions = this._index[secondaryHash];
-        if (positions !== undefined) {
-          positions.push(len);
-        } else {
-          this._index[secondaryHash] = [len];
-        }
+        addCollisionIndex(
+          this._index,
+          hashCollisionKey(key, this.keyHash),
+          len
+        );
       }
     }
 
@@ -551,7 +565,13 @@ class HashCollisionNode {
       return this;
     }
 
-    return new HashCollisionNode(ownerID, this.keyHash, newEntries);
+    const newNode = new HashCollisionNode(ownerID, this.keyHash, newEntries);
+    if (!ownerID && exists && !removed) {
+      // Equivalent keys keep their secondary hash and position. Only share
+      // with immutable nodes; owned copies must build an independent index.
+      newNode._index = this._index;
+    }
+    return newNode;
   }
 }
 
@@ -590,6 +610,96 @@ class ValueNode {
 
     SetRef(didChangeSize);
     return mergeIntoNode(this, ownerID, shift, hash(key), [key, value]);
+  }
+}
+
+// Map immutable values in trie order, cloning only paths whose values change.
+// Keys and topology do not change, so no hashing or equality lookup is needed.
+function mapNode(node, mapper) {
+  if (node.constructor === ValueNode) {
+    const value = mapper(node.entry[1], node.entry[0]);
+    return value === node.entry[1]
+      ? node
+      : new ValueNode(undefined, node.keyHash, [node.entry[0], value]);
+  }
+  const entries = node.entries;
+  if (entries) {
+    let newEntries;
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+      const value = mapper(entry[1], entry[0]);
+      if (value !== entry[1]) {
+        if (!newEntries) {
+          newEntries = entries.slice();
+        }
+        newEntries[i] = [entry[0], value];
+      }
+    }
+    if (!newEntries) {
+      return node;
+    }
+    if (node.constructor === ArrayMapNode) {
+      return new ArrayMapNode(undefined, newEntries);
+    }
+    const newNode = new HashCollisionNode(undefined, node.keyHash, newEntries);
+    // Positions are unchanged. Owned updates copy the node before editing it
+    // and start with their own lazy index, so this read-only index can be shared.
+    newNode._index = node._index;
+    return newNode;
+  }
+  const nodes = node.nodes;
+  let newNodes;
+  for (let i = 0; i < nodes.length; i++) {
+    const child = nodes[i];
+    if (child) {
+      const newChild = mapNode(child, mapper);
+      if (newChild !== child) {
+        if (!newNodes) {
+          newNodes = nodes.slice();
+        }
+        newNodes[i] = newChild;
+      }
+    }
+  }
+  return !newNodes
+    ? node
+    : node.constructor === BitmapIndexedNode
+      ? new BitmapIndexedNode(undefined, node.bitmap, newNodes)
+      : new HashArrayMapNode(undefined, node.count, newNodes);
+}
+
+function addCollisionIndex(index, hash, position) {
+  const positions = index[hash];
+  if (positions === undefined) {
+    index[hash] = position;
+  } else if (typeof positions === 'number') {
+    index[hash] = [positions, position];
+  } else {
+    positions.push(position);
+  }
+}
+
+// Update a swap-pop position, or remove it when newPosition is -1. Secondary
+// hash collisions still keep all candidates; is() remains the equality check.
+function updateCollisionIndex(index, hash, oldPosition, newPosition) {
+  const positions = index[hash];
+  if (typeof positions === 'number') {
+    if (newPosition === -1) {
+      delete index[hash];
+    } else {
+      index[hash] = newPosition;
+    }
+  } else {
+    const i = positions.indexOf(oldPosition);
+    if (newPosition === -1) {
+      positions[i] = positions[positions.length - 1];
+      positions.pop();
+      if (positions.length === 1) {
+        index[hash] = positions[0];
+      }
+    } else {
+      positions[i] = newPosition;
+    }
   }
 }
 
