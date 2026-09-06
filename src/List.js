@@ -221,7 +221,8 @@ export class List extends IndexedCollection {
   }
 
   __iterate(fn, reverse) {
-    let index = reverse ? this.size : 0;
+    const size = this.size;
+    let index = reverse ? size : 0;
     const values = iterateList(this, reverse);
     let value;
     while ((value = values()) !== DONE) {
@@ -229,7 +230,7 @@ export class List extends IndexedCollection {
         break;
       }
     }
-    return index;
+    return reverse ? size - index : index;
   }
 
   __ensureOwner(ownerID) {
