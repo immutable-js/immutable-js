@@ -32,7 +32,7 @@ function mergeIntoKeyedWith(collection, collections, merger) {
   ) {
     return isRecord(collection)
       ? collection // Record is empty and will not be updated: return the same instance
-      : collection.constructor(iters[0]);
+      : collection.create(iters[0]);
   }
   return collection.withMutations((collection) => {
     const mergeIntoCollection = merger

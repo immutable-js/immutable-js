@@ -1,6 +1,6 @@
+import { List, Map, Set, fromJS, isCollection } from 'immutable';
 import { runInNewContext } from 'vm';
 import { describe, expect, it } from '@jest/globals';
-import { List, Map, Set, fromJS, isCollection } from 'immutable';
 
 describe('fromJS', () => {
   it('convert Array to Immutable.List', () => {

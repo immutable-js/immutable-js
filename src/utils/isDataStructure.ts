@@ -1,4 +1,5 @@
-import type { Collection, Record } from '../../type-definitions/immutable';
+import type { Record } from '../../type-definitions/immutable';
+import type { CollectionImpl } from '../Collection';
 import { isImmutable } from '../predicates/isImmutable';
 import isPlainObj from './isPlainObj';
 
@@ -9,7 +10,7 @@ import isPlainObj from './isPlainObj';
 export default function isDataStructure(
   value: unknown
 ): value is
-  | Collection<unknown, unknown>
+  | CollectionImpl<unknown, unknown>
   | Record<object>
   | Array<unknown>
   | object {

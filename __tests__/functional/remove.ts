@@ -1,5 +1,5 @@
-import { describe, expect, it } from '@jest/globals';
 import { List, Map, remove } from 'immutable';
+import { describe, expect, it } from '@jest/globals';
 
 describe('remove', () => {
   it('for immutable structure', () => {
