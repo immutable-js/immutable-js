@@ -14,11 +14,9 @@ const Point3: RecordFactory<{ x: number, y: number, z: number }> = Record({
 type TGeoPoint = { lat: ?number, lon: ?number };
 const GeoPoint: RecordFactory<TGeoPoint> = Record({ lat: null, lon: null });
 
-// TODO: this should be FlowExpectedError - 'abc' is not a number
-// However, due to support for the brittle support for subclassing, Flow
-// cannot also type check default values in this position.
 const PointWhoops: RecordFactory<{ x: number, y: number }> = Record({
   x: 0,
+  // $FlowExpectedError[incompatible-type-arg]
   y: 'abc',
 });
 
@@ -146,14 +144,15 @@ const mistakeNewInstance = new MakePointNew({ x: 'string' });
 // Note use of + for Read Only.
 type TPerson = { +name: string, +age: number };
 const defaultValues: TPerson = { name: 'Aristotle', age: 2400 };
-const PersonRecord = Record(defaultValues);
+const PersonRecord = Record<TPerson>(defaultValues);
 
-class Person extends PersonRecord<TPerson> {
+class Person extends PersonRecord {
   getName(): string {
     return this.get('name');
   }
 
   setName(name: string): this & TPerson {
+    // $FlowIssue[incompatible-return]
     return this.set('name', name);
   }
 }
@@ -169,23 +168,6 @@ person.set('name', 'Thales');
 person.get('unknown');
 // $FlowExpectedError[prop-missing]
 person.set('unknown', 'Thales');
-
-// Note: not <TPerson>
-class PersonWithoutTypes extends PersonRecord {
-  getName(): string {
-    return this.get('name');
-  }
-
-  setName(name: string): this & TPerson {
-    return this.set('name', name);
-  }
-}
-
-const person2 = new PersonWithoutTypes();
-
-person2.get('name');
-// Note: no error
-person2.get('unknown');
 
 
 // Functional Merge
@@ -215,3 +197,31 @@ const record = xyRecord();
 (merge(record, Map([['z', 123]])): XYPointRecord);
 // $FlowExpectedError[incompatible-call]
 (merge(record, List([123])): XYPointRecord);
+
+
+// Type inference (issue #1722)
+
+type Product = { address: string };
+type App = { name: string };
+const AppDefaults: App = { name: '' };
+
+const AppRecordImplicit = Record(AppDefaults);
+const AppRecordExplicit = Record<App>({ name: '' });
+// $FlowExpectedError[prop-missing]
+const AppRecordBorked: RecordFactory<App> = Record<Product>({ address: '' });
+
+const appImplicit = AppRecordImplicit({ name: 'i' });
+(appImplicit.get('name'): string);
+(appImplicit.name: string);
+// $FlowExpectedError[incompatible-call]
+appImplicit.get('address');
+// $FlowExpectedError[incompatible-use]
+appImplicit.address;
+
+const appExplicit = AppRecordExplicit({ name: 'e' });
+(appExplicit.get('name'): string);
+(appExplicit.name: string);
+// $FlowExpectedError[incompatible-call]
+appExplicit.get('address');
+// $FlowExpectedError[incompatible-use]
+appExplicit.address;
