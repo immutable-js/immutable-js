@@ -2,6 +2,21 @@ import { describe, expect, it } from '@jest/globals';
 import { Repeat } from 'immutable';
 
 describe('Repeat', () => {
+  it('does not include a value when empty', () => {
+    const empty = Repeat('empty', 0);
+    expect(empty.includes('empty')).toBe(false);
+    expect(empty.includes('wtf')).toBe(false);
+  });
+
+  it('compares both the repeated value and sequence size', () => {
+    expect(Repeat('a', 2).equals(Repeat('a', 3))).toBe(false);
+    expect(Repeat('a', 2).equals(Repeat('a'))).toBe(false);
+    expect(Repeat('a', 2).equals(Repeat('a', 2))).toBe(true);
+    expect(Repeat('a').equals(Repeat('a'))).toBe(true);
+    expect(Repeat('a', 2).equals(Repeat('b', 2))).toBe(false);
+    expect(Repeat('a', 0).equals(Repeat('b', 0))).toBe(true);
+  });
+
   it('fixed repeat', () => {
     const v = Repeat('wtf', 3);
     expect(v.size).toBe(3);
