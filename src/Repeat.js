@@ -39,7 +39,7 @@ export class Repeat extends IndexedSeq {
   }
 
   includes(searchValue) {
-    return is(this._value, searchValue);
+    return this.size !== 0 && is(this._value, searchValue);
   }
 
   slice(begin, end) {
@@ -93,7 +93,7 @@ export class Repeat extends IndexedSeq {
 
   equals(other) {
     return other instanceof Repeat
-      ? is(this._value, other._value)
+      ? this.size === other.size && is(this._value, other._value)
       : deepEqual(this, other);
   }
 }
