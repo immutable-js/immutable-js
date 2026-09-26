@@ -20,5 +20,13 @@ export default function shallowCopy<I, O extends object>(
       to[key] = from[key];
     }
   }
+  if (Object.getOwnPropertySymbols) {
+    Object.getOwnPropertySymbols(from).forEach((symbol) => {
+      if (Object.prototype.propertyIsEnumerable.call(from, symbol)) {
+        const key = symbol as keyof O;
+        to[key] = from[key];
+      }
+    });
+  }
   return to as O;
 }

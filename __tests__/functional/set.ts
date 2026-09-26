@@ -1,7 +1,25 @@
 import { describe, expect, it } from '@jest/globals';
-import { set } from 'immutable';
+import { remove, set, update } from 'immutable';
 
 describe('set', () => {
+  it('preserves enumerable symbol properties when updating plain objects', () => {
+    const metadata = Symbol('metadata');
+    const hidden = Symbol('hidden');
+    const original = { x: 1, [metadata]: 'keep' };
+    Object.defineProperty(original, hidden, { value: 'hidden' });
+
+    expect(set(original, 'x', 2)).toEqual({ x: 2, [metadata]: 'keep' });
+    expect(update(original, 'x', (value) => value + 1)).toEqual({
+      x: 2,
+      [metadata]: 'keep',
+    });
+    expect(remove(original, 'x')).toEqual({ [metadata]: 'keep' });
+    expect(Object.getOwnPropertySymbols(set(original, 'x', 2))).toEqual([
+      metadata,
+    ]);
+    expect(original).toEqual({ x: 1, [metadata]: 'keep' });
+  });
+
   it('for immutable structure', () => {
     const originalArray = ['dog', 'frog', 'cat'];
     expect(set(originalArray, 1, 'cow')).toEqual(['dog', 'cow', 'cat']);
