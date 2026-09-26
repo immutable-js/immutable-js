@@ -11,6 +11,15 @@ function arrayOfSize(s: number): Array<number> {
 }
 
 describe('Stack', () => {
+  it('returns the fallback for NaN indices', () => {
+    const stack = Stack.of('first', 'second');
+    expect(stack.get(NaN)).toBeUndefined();
+    expect(stack.get(NaN, 'missing')).toBe('missing');
+    expect(stack.get(Number('invalid'), 'missing')).toBe('missing');
+    expect(stack.get(0)).toBe('first');
+    expect(stack.get(-1)).toBe('second');
+  });
+
   it('constructor provides initial values', () => {
     const s = Stack.of('a', 'b', 'c');
     expect(s.get(0)).toBe('a');
