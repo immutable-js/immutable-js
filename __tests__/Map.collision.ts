@@ -1,4 +1,4 @@
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it, jest } from '@jest/globals';
 import { Map, Set, fromJS, hash, is } from 'immutable';
 
 /**
@@ -198,6 +198,131 @@ describe('Map hash collisions', () => {
     expect(removed.size).toBe(items.length - 1);
     expect(removed.get(new Collider(25), 'gone')).toBe('gone');
     expect(removed.get(new Collider(26))).toBe(26);
+  });
+
+  it('maintains the collision index instead of rebuilding it after each transient deletion', () => {
+    const keys = collisionKeys(7);
+    const map = Map(keys.map((key, i) => [key, i]));
+    // Observe the real node implementation, including new owned copies. This
+    // asserts the amount of indexing work without a wall-clock threshold.
+    const root = (map as unknown as { _root: object })._root;
+    const buildIndex = jest.spyOn(Object.getPrototypeOf(root), '_buildIndex');
+    try {
+      const removed = map.withMutations((mutable) => {
+        keys.forEach((key) => mutable.remove(key));
+      });
+      expect(removed.size).toBe(0);
+      // At most one lazy build on the owned copy, not one per deletion.
+      expect(buildIndex.mock.calls.length).toBeLessThanOrEqual(1);
+      expect(map.size).toBe(keys.length);
+      keys.forEach((key, i) => expect(map.get(key)).toBe(i));
+    } finally {
+      buildIndex.mockRestore();
+    }
+  });
+
+  it('reuses the read-only index for persistent value updates without sharing editable indexes', () => {
+    const keys = collisionKeys(6);
+    const original = Map<unknown, number>(keys.map((key, i) => [key, i]));
+    const root = (original as unknown as { _root: object })._root;
+    const buildIndex = jest.spyOn(Object.getPrototypeOf(root), '_buildIndex');
+    try {
+      const updated = original.set(keys[0], -1);
+      expect(updated.get(keys[0])).toBe(-1);
+      expect(updated.get(keys[1])).toBe(1);
+      expect(buildIndex).not.toHaveBeenCalled();
+      const changed = updated.withMutations((map) => {
+        map.set(keys[1], -2);
+        keys.slice(2, 40).forEach((key) => map.remove(key));
+      });
+      expect(changed.size).toBe(26);
+      expect(changed.get(keys[1])).toBe(-2);
+      keys.forEach((key, i) => {
+        expect(updated.get(key)).toBe(i === 0 ? -1 : i);
+        expect(original.get(key)).toBe(i);
+      });
+    } finally {
+      buildIndex.mockRestore();
+    }
+  });
+
+  it('promotes and compacts shared index slots while other collision entries remain', () => {
+    const keys = collisionKeys(5);
+    const keyHash = hash(keys[0]);
+    class Key {
+      constructor(readonly id: number) {}
+      hashCode() {
+        return keyHash;
+      }
+      equals(other: unknown) {
+        return other instanceof Key && this.id === other.id;
+      }
+    }
+    const original = Map<unknown, number>(keys.map((key, i) => [key, i]))
+      .set(new Key(0), -1)
+      .set(new Key(1), -2);
+    const changed = original.withMutations((map) => {
+      map.set(keys[0], -10);
+      expect(map.get(keys[0])).toBe(-10); // build the owned copy's index
+      map.remove(new Key(0));
+      expect(map.get(new Key(1))).toBe(-2);
+      map.set(new Key(2), -3);
+      map.remove(new Key(1));
+      expect(map.get(new Key(2))).toBe(-3);
+    });
+    expect(changed.size).toBe(keys.length + 1);
+    expect(changed.has(new Key(0))).toBe(false);
+    expect(changed.has(new Key(1))).toBe(false);
+    keys.forEach((key, i) => {
+      expect(changed.get(key)).toBe(i === 0 ? -10 : i);
+      expect(original.get(key)).toBe(i);
+    });
+    expect(original.get(new Key(0))).toBe(-1);
+    expect(original.get(new Key(1))).toBe(-2);
+  });
+
+  it('does not mutate a shared collision index after mapping values', () => {
+    const keys = collisionKeys(6);
+    const original = Map(keys.map((key, i) => [key, i]));
+    const mapped = original.map((value) => value + 1);
+    const updated = mapped.withMutations((map) => {
+      keys.slice(0, 40).forEach((key) => map.remove(key));
+      keys.slice(0, 20).forEach((key) => map.set(key, -1));
+    });
+    keys.forEach((key, i) => {
+      expect(original.get(key)).toBe(i);
+      expect(mapped.get(key)).toBe(i + 1);
+      expect(updated.get(key)).toBe(i < 20 ? -1 : i < 40 ? undefined : i + 1);
+    });
+  });
+
+  it('keeps shared secondary-hash buckets correct through removal and reinsertion', () => {
+    class Key {
+      constructor(readonly id: number) {}
+      hashCode() {
+        return 7;
+      }
+      equals(other: unknown) {
+        return other instanceof Key && this.id === other.id;
+      }
+    }
+    const keys = Array.from({ length: 64 }, (_, i) => new Key(i));
+    const original = Map(keys.map((key, i) => [key, i]));
+    const updated = original.withMutations((map) => {
+      // All keys share a secondary hash, including the entry swapped into each gap.
+      keys.forEach((key, i) => {
+        map.remove(new Key(i));
+        map.set(new Key(i + 100), i);
+        expect(map.has(key)).toBe(false);
+        expect(map.get(new Key(i + 100))).toBe(i);
+      });
+      for (let i = 0; i < keys.length - 1; i++) {
+        map.remove(new Key(i + 100));
+      }
+    });
+    expect(updated.size).toBe(1);
+    expect(updated.get(new Key(163))).toBe(63);
+    keys.forEach((key, i) => expect(original.get(key)).toBe(i));
   });
 
   it('does not degrade for a large flood of colliding keys', () => {

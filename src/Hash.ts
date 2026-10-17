@@ -108,9 +108,9 @@ const COLLISION_HASH_BASE =
 // that an attacker cannot precompute without the seed. It only narrows
 // candidates — `is()` still decides equality — so non-string keys can safely
 // fall back to the (here constant) primary hash and a linear scan.
-export function hashCollisionKey(key: unknown): number {
+export function hashCollisionKey(key: unknown, keyHash: number): number {
   if (typeof key !== 'string') {
-    return hash(key);
+    return keyHash;
   }
   let hashed = 0;
   for (let ii = 0; ii < key.length; ii++) {
