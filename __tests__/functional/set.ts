@@ -66,4 +66,11 @@ describe('set', () => {
     // The returned copy should NOT have 'admin' accessible via prototype pollution
     expect(result.admin).toBeUndefined();
   });
+
+  it('preserves unrelated enumerable symbol properties on plain objects', () => {
+    const metadata = Symbol('metadata');
+    const original = { x: 1, [metadata]: 'keep' };
+    expect(set(original, 'x', 2)).toEqual({ x: 2, [metadata]: 'keep' });
+    expect(original[metadata]).toBe('keep');
+  });
 });
