@@ -30,4 +30,12 @@ describe('Repeat', () => {
     expect(v.indexOf('wtf')).toBe(-1);
     expect(v.lastIndexOf('wtf')).toBe(-1);
   });
+
+  it('includes and equals respect the sequence size', () => {
+    expect(Repeat('empty', 0).includes('empty')).toBe(false);
+    expect(Repeat('a', 2).equals(Repeat('a', 3))).toBe(false);
+    expect(Repeat('a', 2).equals(Repeat('a'))).toBe(false);
+    expect(Repeat('a', 2).equals(Repeat('a', 2))).toBe(true);
+    expect(Repeat('a', 0).equals(Repeat('b', 0))).toBe(true);
+  });
 });
