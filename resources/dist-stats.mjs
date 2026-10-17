@@ -75,8 +75,8 @@ Promise.allSettled([
   if (minOld.status === 'fulfilled') {
     console.log(
       `  Min: ${space(14, bytes(promiseNumberValue(minNew)).cyan)}${percentage(
-        minNew.value,
-        rawNew.value
+        promiseNumberValue(minNew),
+        promiseNumberValue(rawNew)
       )}${space(15, diff(promiseNumberValue(minNew), promiseNumberValue(minOld)))}`
     );
   }
