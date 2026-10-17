@@ -829,9 +829,12 @@ function popCount(x) {
 }
 
 function setAt(array, idx, val, canEdit) {
-  const newArray = canEdit ? array : arrCopy(array);
-  newArray[idx] = val;
-  return newArray;
+  if (canEdit) {
+    array[idx] = val;
+    return array;
+  }
+
+  return array.toSpliced(idx, 1, val);
 }
 
 function spliceIn(array, idx, val, canEdit) {
@@ -840,17 +843,8 @@ function spliceIn(array, idx, val, canEdit) {
     array[idx] = val;
     return array;
   }
-  const newArray = new Array(newLen);
-  let after = 0;
-  for (let ii = 0; ii < newLen; ii++) {
-    if (ii === idx) {
-      newArray[ii] = val;
-      after = -1;
-    } else {
-      newArray[ii] = array[ii + after];
-    }
-  }
-  return newArray;
+
+  return array.toSpliced(idx, 0, val);
 }
 
 function spliceOut(array, idx, canEdit) {
@@ -859,15 +853,8 @@ function spliceOut(array, idx, canEdit) {
     array.pop();
     return array;
   }
-  const newArray = new Array(newLen);
-  let after = 0;
-  for (let ii = 0; ii < newLen; ii++) {
-    if (ii === idx) {
-      after = 1;
-    }
-    newArray[ii] = array[ii + after];
-  }
-  return newArray;
+
+  return array.toSpliced(idx, 1);
 }
 
 const MAX_ARRAY_MAP_SIZE = SIZE / 4;
