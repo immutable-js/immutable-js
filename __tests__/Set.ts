@@ -1,7 +1,14 @@
-import { describe, expect, it, jest } from '@jest/globals';
 import { List, Map, OrderedSet, Seq, Set, fromJS, is } from 'immutable';
+import { describe, expect, it, jest } from '@jest/globals';
 
 describe('Set', () => {
+  it('constructor provides different instances', () => {
+    expect(Set()).not.toBe(Set());
+    expect(Set()).toEqual(Set());
+    expect(Set([1])).not.toBe(Set([1]));
+    expect(Set([1])).toEqual(Set([1]));
+  });
+
   it('accepts array of values', () => {
     const s = Set([1, 2, 3]);
     expect(s.has(1)).toBe(true);
@@ -121,7 +128,7 @@ describe('Set', () => {
     const cat = Set(['c', 'a', 't']);
     expect(Set.union([abc, cat]).toArray()).toEqual(['c', 'a', 't', 'b']);
     expect(Set.union([abc])).toBe(abc);
-    expect(Set.union([])).toBe(Set());
+    expect(Set.union([])).toEqual(Set());
   });
 
   it('intersects an unknown collection of Sets', () => {
@@ -129,7 +136,7 @@ describe('Set', () => {
     const cat = Set(['c', 'a', 't']);
     expect(Set.intersect([abc, cat]).toArray()).toEqual(['c', 'a']);
     expect(Set.intersect([abc])).toBe(abc);
-    expect(Set.intersect([])).toBe(Set());
+    expect(Set.intersect([])).toEqual(Set());
   });
 
   it('concatenates strings using union', () => {
@@ -220,7 +227,7 @@ describe('Set', () => {
 
   it('deletes down to empty set', () => {
     const s = Set.of('A').remove('A');
-    expect(s).toBe(Set());
+    expect(s).toEqual(Set());
   });
 
   it('unions multiple sets', () => {
@@ -292,6 +299,16 @@ describe('Set', () => {
     expect(Set.of('a', 'b').isSubset('abc')).toBe(true);
     expect(Set.of('a', 'z').isSubset('abc')).toBe(false);
     expect(Set.of('a', 'b').isSuperset('ab')).toBe(true);
+  });
+
+  it('treats a string argument of isSubset as a collection of characters', () => {
+    // Since v6 a string is iterated character by character, like everywhere
+    // else in Immutable (and like `isSuperset` does). It is no longer passed
+    // to `String.prototype.includes`, which had substring semantics:
+    // 'ab' is not one of the characters of 'abc'.
+    expect(Set.of('ab').isSubset('abc')).toBe(false);
+    expect(Set('abc').isSubset('abc')).toBe(true);
+    expect(Set.of('ab').isSuperset('abc')).toBe(false);
   });
 
   describe('accepts Symbol as entry #579', () => {

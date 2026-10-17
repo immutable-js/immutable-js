@@ -23,7 +23,7 @@ describe('Utils', () => {
       ['Number primitive ', 5],
       ['String primitive ', 'P'],
       ['Number Object', Number(6)],
-      ['Immutable.List', new List()],
+      ['Immutable.List', List()],
       ['simple array', ['one']],
       ['Error', Error],
       ['Internal namespaces', Math],

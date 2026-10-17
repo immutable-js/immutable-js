@@ -1,4 +1,5 @@
-import type { Collection, Record } from '../../type-definitions/immutable';
+import type { Record } from '../../type-definitions/immutable';
+import type { CollectionImpl } from '../Collection';
 import { isImmutable } from '../predicates/isImmutable';
 import hasOwnProperty from '../utils/hasOwnProperty';
 import isDataStructure from '../utils/isDataStructure';
@@ -11,7 +12,7 @@ import shallowCopy from '../utils/shallowCopy';
  * with plain Objects and Arrays as an alternative for
  * `delete collectionCopy[key]`.
  */
-export function remove<K, C extends Collection<K, unknown>>(
+export function remove<K, C extends CollectionImpl<K, unknown>>(
   collection: C,
   key: K
 ): C;
@@ -29,13 +30,13 @@ export function remove<
 export function remove<
   K,
   C extends
-    | Collection<K, unknown>
+    | CollectionImpl<K, unknown>
     | Array<unknown>
     | { [key: PropertyKey]: unknown },
 >(collection: C, key: K): C;
 export function remove<K>(
   collection:
-    | Collection<K, unknown>
+    | CollectionImpl<K, unknown>
     | Array<unknown>
     | { [key: PropertyKey]: unknown },
   key: K
