@@ -169,7 +169,7 @@ declare namespace Immutable {
    *
    * @ignore
    */
-  export type Comparator<T> = (left: T, right: T) => PairSorting | number;
+  export type Comparator<in T> = (left: T, right: T) => PairSorting | number;
 
   /**
    * @ignore
@@ -215,7 +215,7 @@ declare namespace Immutable {
    */
   function List<T>(collection?: Iterable<T> | ArrayLike<T>): List<T>;
 
-  interface List<T> extends Collection.Indexed<T> {
+  interface List<out T> extends Collection.Indexed<T> {
     /**
      * The number of items in this List.
      */
@@ -718,7 +718,7 @@ declare namespace Immutable {
     ? P
     : RetrievePathReducer<R, Head<P>, Tail<P>>;
 
-  interface Map<K, V> extends Collection.Keyed<K, V> {
+  interface Map<out K, out V> extends Collection.Keyed<K, V> {
     /**
      * The number of entries in this Map.
      */
@@ -1198,7 +1198,9 @@ declare namespace Immutable {
   function OrderedMap<K, V>(collection?: Iterable<[K, V]>): OrderedMap<K, V>;
   function OrderedMap<V>(obj: { [key: string]: V }): OrderedMap<string, V>;
 
-  interface OrderedMap<K, V> extends Map<K, V>, OrderedCollection<[K, V]> {
+  interface OrderedMap<out K, out V>
+    extends Map<K, V>,
+      OrderedCollection<[K, V]> {
     /**
      * The number of entries in this OrderedMap.
      */
@@ -1407,7 +1409,7 @@ declare namespace Immutable {
    */
   function Set<T>(collection?: Iterable<T> | ArrayLike<T>): Set<T>;
 
-  interface Set<T> extends Collection.Set<T> {
+  interface Set<out T> extends Collection.Set<T> {
     /**
      * The number of items in this Set.
      */
@@ -1632,7 +1634,7 @@ declare namespace Immutable {
     collection?: Iterable<T> | ArrayLike<T>
   ): OrderedSet<T>;
 
-  interface OrderedSet<T> extends Set<T>, OrderedCollection<T> {
+  interface OrderedSet<out T> extends Set<T>, OrderedCollection<T> {
     /**
      * The number of items in this OrderedSet.
      */
@@ -1809,7 +1811,7 @@ declare namespace Immutable {
    */
   function Stack<T>(collection?: Iterable<T> | ArrayLike<T>): Stack<T>;
 
-  interface Stack<T> extends Collection.Indexed<T> {
+  interface Stack<out T> extends Collection.Indexed<T> {
     /**
      * The number of items in this Stack.
      */
@@ -2288,7 +2290,7 @@ declare namespace Immutable {
     name?: string
   ): Record.Factory<TProps>;
 
-  interface Record<TProps extends object> {
+  interface Record<in out TProps extends object> {
     // Reading values
 
     has(key: string): key is keyof TProps & string;
@@ -2514,7 +2516,7 @@ declare namespace Immutable {
     function Keyed<K, V>(collection?: Iterable<[K, V]>): Seq.Keyed<K, V>;
     function Keyed<V>(obj: { [key: string]: V }): Seq.Keyed<string, V>;
 
-    interface Keyed<K, V> extends Seq<K, V>, Collection.Keyed<K, V> {
+    interface Keyed<out K, out V> extends Seq<K, V>, Collection.Keyed<K, V> {
       /**
        * Deeply converts this Keyed Seq to equivalent native JavaScript Object.
        *
@@ -2658,7 +2660,7 @@ declare namespace Immutable {
       collection?: Iterable<T> | ArrayLike<T>
     ): Seq.Indexed<T>;
 
-    interface Indexed<T> extends Seq<number, T>, Collection.Indexed<T> {
+    interface Indexed<out T> extends Seq<number, T>, Collection.Indexed<T> {
       /**
        * Deeply converts this Indexed Seq to equivalent native JavaScript Array.
        */
@@ -2833,7 +2835,7 @@ declare namespace Immutable {
      */
     function Set<T>(collection?: Iterable<T> | ArrayLike<T>): Seq.Set<T>;
 
-    interface Set<T> extends Seq<T, T>, Collection.Set<T> {
+    interface Set<out T> extends Seq<T, T>, Collection.Set<T> {
       /**
        * Deeply converts this Set Seq to equivalent native JavaScript Array.
        */
@@ -2950,7 +2952,7 @@ declare namespace Immutable {
   function Seq<V>(obj: { [key: string]: V }): Seq.Keyed<string, V>;
   function Seq<K = unknown, V = unknown>(): Seq<K, V>;
 
-  interface Seq<K, V> extends Collection<K, V> {
+  interface Seq<out K, out V> extends Collection<K, V> {
     /**
      * Some Seqs can describe their size lazily. When this is the case,
      * size will be an integer. Otherwise it will be undefined.
@@ -3122,7 +3124,7 @@ declare namespace Immutable {
     function Keyed<K, V>(collection?: Iterable<[K, V]>): Collection.Keyed<K, V>;
     function Keyed<V>(obj: { [key: string]: V }): Collection.Keyed<string, V>;
 
-    interface Keyed<K, V> extends Collection<K, V> {
+    interface Keyed<out K, out V> extends Collection<K, V> {
       /**
        * Deeply converts this Keyed collection to equivalent native JavaScript Object.
        *
@@ -3284,7 +3286,9 @@ declare namespace Immutable {
       collection?: Iterable<T> | ArrayLike<T>
     ): Collection.Indexed<T>;
 
-    interface Indexed<T> extends Collection<number, T>, OrderedCollection<T> {
+    interface Indexed<out T>
+      extends Collection<number, T>,
+        OrderedCollection<T> {
       /**
        * Deeply converts this Indexed collection to equivalent native JavaScript Array.
        */
@@ -3548,7 +3552,7 @@ declare namespace Immutable {
      */
     function Set<T>(collection?: Iterable<T> | ArrayLike<T>): Collection.Set<T>;
 
-    interface Set<T> extends Collection<T, T> {
+    interface Set<out T> extends Collection<T, T> {
       /**
        * Deeply converts this Set collection to equivalent native JavaScript Array.
        */
@@ -3669,7 +3673,7 @@ declare namespace Immutable {
   }): Collection.Keyed<string, V>;
   function Collection<K = unknown, V = unknown>(): Collection<K, V>;
 
-  interface Collection<K, V> extends ValueObject {
+  interface Collection<out K, out V> extends ValueObject {
     // Value equality
 
     /**
@@ -4480,7 +4484,7 @@ declare namespace Immutable {
    * This includes `List`, `Stack`, `Map`, `OrderedMap`, `Set`, and `OrderedSet`.
    * return of `isOrdered()` return true in that case.
    */
-  interface OrderedCollection<T> {
+  interface OrderedCollection<out T> {
     /**
      * Shallowly converts this collection to an Array.
      */
