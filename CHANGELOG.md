@@ -8,6 +8,8 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+- [TypeScript]: declare the variance of collection and `Record` type parameters with `in`/`out` annotations, so TypeScript no longer has to compute it. This speeds up type-checking and lowers memory use. TypeScript 4.7 or higher is now required.
+
 ## 5.1.9
 
 - fix(List): a `List` grown past 32 elements while all its values are `undefined` no longer reads those values back as `null` (affected `get`, iteration, `toArray`, `equals` and `hashCode`)
