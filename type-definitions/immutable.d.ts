@@ -618,6 +618,8 @@ declare namespace Immutable {
    * not altered.
    */
   function Map<K, V>(collection?: Iterable<readonly [K, V]>): Map<K, V>;
+  // `Map({})` holds nothing, so it is assignable to any `Map<K, V>`
+  function Map(obj: { [key in PropertyKey]: never }): Map<never, never>;
   function Map<R extends { [key in PropertyKey]: unknown }>(obj: R): MapOf<R>;
   function Map<V>(obj: { [key: string]: V }): Map<string, V>;
   function Map<K extends string | symbol, V>(obj: { [P in K]?: V }): Map<K, V>;
@@ -625,9 +627,13 @@ declare namespace Immutable {
   /**
    * Represent a Map constructed by an object
    *
+   * `R` is invariant: a `MapOf` built from a narrower object, like
+   * `Map({ total: null })`, is not a `MapOf<{ total: number | null }>`.
+   * Pass the type explicitly instead: `Map<State>({ total: null })`.
+   *
    * @ignore
    */
-  interface MapOf<R extends { [key in PropertyKey]: unknown }>
+  interface MapOf<in out R extends { [key in PropertyKey]: unknown }>
     extends Map<keyof R, R[keyof R]> {
     /**
      * Returns the value associated with the provided key, or notSetValue if

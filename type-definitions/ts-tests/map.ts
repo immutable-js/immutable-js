@@ -30,6 +30,12 @@ test('#constructor', () => {
 
   expect(Map<{ a: string }>({ a: 'a', b: 'b' })).type.toRaiseError();
 
+  expect(Map<{ a: boolean; b: boolean }>({ a: true })).type.toRaiseError();
+
+  expect(Map({})).type.toBe<Map<never, never>>();
+
+  expect(Map({})).type.toBeAssignableTo<Map<string, number>>();
+
   // TODO this type is really weird, it should be `Map<string, string>` or MapOf<{ a: string }> See https://github.com/immutable-js/immutable-js/pull/1991#discussion_r1510863932
   expect(Map(List([List(['a', 'b'])]))).type.toBe<MapOf<List<List<string>>>>();
 
