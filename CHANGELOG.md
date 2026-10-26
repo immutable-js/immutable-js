@@ -8,6 +8,10 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+- [TypeScript]: declare the variance of collection and `Record` type parameters with `in`/`out` annotations, so TypeScript no longer has to compute it. This speeds up type-checking and lowers memory use. TypeScript 4.7 or higher is now required.
+- [TypeScript] [BREAKING]: `MapOf` is now invariant in its record type. A `Map` built from a narrower object, like `Map({ total: null })`, is no longer assignable to a `MapOf<{ total: number | null }>`: pass the type explicitly, `Map<State>({ total: null })`. Such assignments used to compile only through a slow structural comparison of every `Map` method. Types only, nothing changes at runtime.
+- [TypeScript]: `Map({})` returns a `Map<never, never>` instead of a `MapOf<{}>`, so it is assignable to any `Map<K, V>` without a structural comparison. An object typed `{}` matches too: `Map(obj)` with `obj: {}` is no longer a `MapOf`.
+
 ## 5.1.9
 
 - fix(List): a `List` grown past 32 elements while all its values are `undefined` no longer reads those values back as `null` (affected `get`, iteration, `toArray`, `equals` and `hashCode`)

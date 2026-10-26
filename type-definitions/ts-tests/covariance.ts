@@ -50,6 +50,22 @@ test('Map covariance', () => {
   expect<Map<string, B>>().type.not.toBeAssignableTo<Map<string, C>>();
 });
 
+test('MapOf invariance', () => {
+  expect<MapOf<{ b: B }>>().type.toBeAssignableTo<Map<string, A>>();
+
+  expect<MapOf<{ b: B }>>().type.not.toBeAssignableTo<MapOf<{ b: A }>>();
+
+  expect(Map<{ b: A }>({ b: new B() })).type.toBe<MapOf<{ b: A }>>();
+
+  expect(Map({ total: null })).type.not.toBeAssignableTo<
+    MapOf<{ total: number | null }>
+  >();
+
+  expect(Map<{ total: number | null }>({ total: null })).type.toBe<
+    MapOf<{ total: number | null }>
+  >();
+});
+
 test('Set covariance', () => {
   expect<Set<B>>().type.toBeAssignableTo<Set<A>>();
 
