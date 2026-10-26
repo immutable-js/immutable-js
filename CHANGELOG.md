@@ -74,13 +74,13 @@ We now use [const type parameters](https://www.typescriptlang.org/docs/handbook/
 
 This feature has been introduced in TS 5.0, which is more than two years old now. This mean that we are dropping support for TS < 5.0.
 
-### [BREAKING][TYPESCRIPT] Range return type has changed
-
-[TypeScript]: `Range` is now written in TypeScript and returns a `RangeImpl` instance, a subtype of `Seq.Indexed<number>`.
-
 #### Pull request details
 
 - Drop TS 4 support and add const P extends for getIn method types [#2072](https://github.com/immutable-js/immutable-js/pull/2072) by [@jdeniau](https://github.com/jdeniau)
+
+### [BREAKING][TYPESCRIPT] Range return type has changed
+
+[TypeScript]: `Range` is now written in TypeScript and returns a `RangeImpl` instance, a subtype of `Seq.Indexed<number>`.
 
 ### [BREAKING] Remove transducersjs compatibility
 
