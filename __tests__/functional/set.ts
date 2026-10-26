@@ -1,5 +1,5 @@
-import { describe, expect, it } from '@jest/globals';
 import { set } from 'immutable';
+import { describe, expect, it } from '@jest/globals';
 
 describe('set', () => {
   it('for immutable structure', () => {

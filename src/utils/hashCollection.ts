@@ -1,11 +1,10 @@
-import type { Collection } from '../../type-definitions/immutable';
+import type { CollectionImpl } from '../Collection';
 import { hash } from '../Hash';
 import { imul, smi } from '../Math';
 import { isKeyed } from '../predicates/isKeyed';
 import { isOrdered } from '../predicates/isOrdered';
 
-export function hashCollection<K, V>(collection: Collection<K, V>): number {
-  // @ts-expect-error Migrate to CollectionImpl in v6
+export function hashCollection<K, V>(collection: CollectionImpl<K, V>): number {
   if (collection.size === Infinity) {
     return 0;
   }
@@ -13,7 +12,6 @@ export function hashCollection<K, V>(collection: Collection<K, V>): number {
   const keyed = isKeyed(collection);
   let h: number = ordered ? 1 : 0;
 
-  // @ts-expect-error Migrate to CollectionImpl in v6
   collection.__iterate(
     keyed
       ? ordered
@@ -32,8 +30,9 @@ export function hashCollection<K, V>(collection: Collection<K, V>): number {
           }
   );
 
-  // @ts-expect-error Migrate to CollectionImpl in v6
-  return murmurHashOfSize(collection.size, h);
+  // An unmaterialized lazy seq has `size === undefined`; the original bitwise
+  // `^ size` coerced that to 0, so fall back to 0 explicitly.
+  return murmurHashOfSize(collection.size ?? 0, h);
 }
 
 function murmurHashOfSize(size: number, h: number): number {

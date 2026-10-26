@@ -1,19 +1,27 @@
 import path from 'path';
-import buble from '@rollup/plugin-buble';
+import { babel } from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
+import resolve from '@rollup/plugin-node-resolve';
 import terser from '@rollup/plugin-terser';
-// TODO replace @rollup/plugin-typescript with babel after babel migration
-import typescript from '@rollup/plugin-typescript';
 import copyright from './copyright.mjs';
 
 const SRC_DIR = path.resolve('src');
 const DIST_DIR = path.resolve('dist');
 
+const extensions = ['.ts', '.tsx', '.js', '.jsx'];
+
 export default [
   {
     input: path.join(SRC_DIR, 'Immutable.js'),
-    plugins: [commonjs(), json(), typescript(), buble()],
+    plugins: [
+      resolve({
+        extensions,
+      }),
+      commonjs(),
+      json(),
+      babel({ extensions, babelHelpers: 'bundled' }),
+    ],
     output: [
       // umd build
       {
@@ -38,7 +46,7 @@ export default [
       {
         banner: copyright,
         name: 'Immutable',
-        file: path.join(DIST_DIR, 'immutable.es.js'),
+        file: path.join(DIST_DIR, 'immutable.mjs'),
         format: 'es',
         sourcemap: false,
       },

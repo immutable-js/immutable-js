@@ -1,5 +1,5 @@
-import { describe, expect, it } from '@jest/globals';
 import { OrderedMap, Range, Seq } from 'immutable';
+import { describe, expect, it } from '@jest/globals';
 
 describe('OrderedMap', () => {
   it('converts from object', () => {
@@ -12,6 +12,13 @@ describe('OrderedMap', () => {
       ['b', 'B'],
       ['a', 'A'],
     ]);
+  });
+
+  it('constructor provides different instances', () => {
+    expect(OrderedMap()).not.toBe(OrderedMap());
+    expect(OrderedMap()).toEqual(OrderedMap());
+    expect(OrderedMap({ a: 'A' })).not.toBe(OrderedMap({ a: 'A' }));
+    expect(OrderedMap({ a: 'A' })).toEqual(OrderedMap({ a: 'A' }));
   });
 
   it('constructor provides initial values', () => {

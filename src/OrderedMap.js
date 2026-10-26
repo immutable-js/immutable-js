@@ -1,29 +1,27 @@
 import { KeyedCollection } from './Collection';
 import { emptyList } from './List';
-import { Map, emptyMap } from './Map';
+import { MapImpl, emptyMap } from './Map';
 import { DELETE, NOT_SET, SIZE } from './TrieUtils';
 import { IS_ORDERED_SYMBOL } from './predicates/isOrdered';
 import { isOrderedMap } from './predicates/isOrderedMap';
 import assertNotInfinite from './utils/assertNotInfinite';
 
-export class OrderedMap extends Map {
-  // @pragma Construction
-
-  constructor(value) {
-    // eslint-disable-next-line no-constructor-return
-    return value === undefined || value === null
-      ? emptyOrderedMap()
-      : isOrderedMap(value)
-        ? value
-        : emptyOrderedMap().withMutations((map) => {
-            const iter = KeyedCollection(value);
-            assertNotInfinite(iter.size);
-            iter.forEach((v, k) => map.set(k, v));
-          });
-  }
-
-  static of(/*...values*/) {
-    return this(arguments);
+export const OrderedMap = (value) =>
+  value === undefined || value === null
+    ? emptyOrderedMap()
+    : isOrderedMap(value)
+      ? value
+      : emptyOrderedMap().withMutations((map) => {
+          const iter = KeyedCollection(value);
+          assertNotInfinite(iter.size);
+          iter.forEach((v, k) => map.set(k, v));
+        });
+OrderedMap.of = function (...values) {
+  return OrderedMap(values);
+};
+export class OrderedMapImpl extends MapImpl {
+  create(value) {
+    return OrderedMap(value);
   }
 
   toString() {
@@ -94,11 +92,11 @@ export class OrderedMap extends Map {
 
 OrderedMap.isOrderedMap = isOrderedMap;
 
-OrderedMap.prototype[IS_ORDERED_SYMBOL] = true;
-OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
+OrderedMapImpl.prototype[IS_ORDERED_SYMBOL] = true;
+OrderedMapImpl.prototype[DELETE] = OrderedMapImpl.prototype.remove;
 
 function makeOrderedMap(map, list, ownerID, hash) {
-  const omap = Object.create(OrderedMap.prototype);
+  const omap = Object.create(OrderedMapImpl.prototype);
   omap.size = map ? map.size : 0;
   omap._map = map;
   omap._list = list;
@@ -108,12 +106,8 @@ function makeOrderedMap(map, list, ownerID, hash) {
   return omap;
 }
 
-let EMPTY_ORDERED_MAP;
 export function emptyOrderedMap() {
-  return (
-    EMPTY_ORDERED_MAP ||
-    (EMPTY_ORDERED_MAP = makeOrderedMap(emptyMap(), emptyList()))
-  );
+  return makeOrderedMap(emptyMap(), emptyList());
 }
 
 function updateOrderedMap(omap, k, v) {

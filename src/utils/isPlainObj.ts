@@ -1,11 +1,9 @@
-const toString = Object.prototype.toString;
-
 export default function isPlainObject(value: unknown): value is object {
   // The base prototype's toString deals with Argument objects and native namespaces like Math
   if (
     !value ||
     typeof value !== 'object' ||
-    toString.call(value) !== '[object Object]'
+    Object.prototype.toString.call(value) !== '[object Object]'
   ) {
     return false;
   }

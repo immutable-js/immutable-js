@@ -1,4 +1,5 @@
-import type { Collection, Record } from '../../type-definitions/immutable';
+import type { Record } from '../../type-definitions/immutable';
+import type { CollectionImpl } from '../Collection';
 import { isImmutable } from '../predicates/isImmutable';
 import hasOwnProperty from '../utils/hasOwnProperty';
 import isDataStructure from '../utils/isDataStructure';
@@ -13,7 +14,7 @@ import shallowCopy from '../utils/shallowCopy';
  * work with plain Objects and Arrays as an alternative for
  * `collectionCopy[key] = value`.
  */
-export function set<K, V, C extends Collection<K, V>>(
+export function set<K, V, C extends CollectionImpl<K, V>>(
   collection: C,
   key: K,
   value: V
@@ -34,11 +35,11 @@ export function set<V, C extends { [key: string]: V }>(
   key: string,
   value: V
 ): C;
-export function set<K, V, C extends Collection<K, V> | { [key: string]: V }>(
-  collection: C,
-  key: K | string,
-  value: V
-): C {
+export function set<
+  K,
+  V,
+  C extends CollectionImpl<K, V> | { [key: string]: V },
+>(collection: C, key: K | string, value: V): C {
   if (isProtoKey(key)) {
     return collection;
   }
