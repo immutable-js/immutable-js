@@ -53,6 +53,33 @@ describe('zip', () => {
     expect(zipped.count()).toBe(5);
   });
 
+  it('can be sliced from the end when zipped with unknown size', () => {
+    // Slicing from the end caches a Seq of unknown size to learn its size.
+    const seq = Range(0, 10);
+    const zipped = () => seq.zip(seq.filter((n) => n % 2 === 0));
+
+    expect(zipped().cacheResult().size).toBe(5);
+    expect(zipped().slice(-1).toArray()).toEqual([[4, 8]]);
+    expect(zipped().takeLast(2).toArray()).toEqual([
+      [3, 6],
+      [4, 8],
+    ]);
+    expect(
+      seq
+        .filter((n) => n % 2 === 0)
+        .zipWith<number, number>((a, b) => a + b, seq)
+        .slice(-1)
+        .toArray()
+    ).toEqual([12]);
+    expect(
+      seq
+        .filter((n) => n < 2)
+        .zipAll(Seq(['a', 'b', 'c']))
+        .slice(-1)
+        .toArray()
+    ).toEqual([[undefined, 'c']]);
+  });
+
   it('is always the size of the smaller sequence', () => {
     fc.assert(
       fc.property(fc.array(fc.nat(), { minLength: 1 }), (lengths) => {
