@@ -796,16 +796,22 @@ export function interposeFactory(collection, separator) {
   const interposedSequence = makeSequence(collection);
   interposedSequence.size = collection.size && collection.size * 2 - 1;
   interposedSequence.__iterateUncached = function (fn, reverse) {
+    // Keys are indices into the interposed sequence, so iterating in reverse
+    // has to count down from its size, which may be unknown until it has run.
+    const size = reverse ? ensureSize(this) : NaN;
     let iterations = 0;
+    const nextKey = () => (reverse ? size - ++iterations : iterations++);
     collection.__iterate(
       (v) =>
-        (!iterations || fn(separator, iterations++, this) !== false) &&
-        fn(v, iterations++, this) !== false,
+        (!iterations || fn(separator, nextKey(), this) !== false) &&
+        fn(v, nextKey(), this) !== false,
       reverse
     );
     return iterations;
   };
   interposedSequence.__iteratorUncached = function (type, reverse) {
+    // Same as `__iterateUncached` above.
+    const size = reverse ? ensureSize(this) : NaN;
     const iterator = collection.__iterator(ITERATE_VALUES, reverse);
     let iterations = 0;
     let step;
@@ -816,9 +822,10 @@ export function interposeFactory(collection, separator) {
           return step;
         }
       }
-      return iterations % 2
-        ? iteratorValue(type, iterations++, separator)
-        : iteratorValue(type, iterations++, step.value, step);
+      const key = reverse ? size - 1 - iterations : iterations;
+      return iterations++ % 2
+        ? iteratorValue(type, key, separator)
+        : iteratorValue(type, key, step.value, step);
     });
   };
   return interposedSequence;
