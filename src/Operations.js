@@ -359,11 +359,15 @@ export function filterFactory(collection, predicate, context, useKeys) {
     collection.__iterate((v, k, c) => {
       if (predicate.call(context, v, k, c)) {
         iterations++;
-        return fn(
-          v,
-          useKeys ? k : reverse ? size - iterations : iterations - 1,
-          this
-        );
+        let index;
+        if (useKeys) {
+          index = k;
+        } else if (reverse) {
+          index = size - iterations;
+        } else {
+          index = iterations - 1;
+        }
+        return fn(v, index, this);
       }
     }, reverse);
     return iterations;
@@ -383,12 +387,15 @@ export function filterFactory(collection, predicate, context, useKeys) {
         const key = entry[0];
         const value = entry[1];
         if (predicate.call(context, value, key, collection)) {
-          return iteratorValue(
-            type,
-            useKeys ? key : reverse ? size - ++iterations : iterations++,
-            value,
-            step
-          );
+          let index;
+          if (useKeys) {
+            index = key;
+          } else if (reverse) {
+            index = size - ++iterations;
+          } else {
+            index = iterations++;
+          }
+          return iteratorValue(type, index, value, step);
         }
       }
     });
