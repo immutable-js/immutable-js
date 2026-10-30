@@ -8,6 +8,8 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+- [TypeScript]: on a `MapOf` (a `Map` built from an object), `delete` and `remove` of a required key now give a `MapOf` without that key (`Map({ a: 1, b: 'b' }).delete('b')` is a `MapOf<{ a: number }>`) instead of `never`. Deleting an optional key still keeps the type. [#2312](https://github.com/immutable-js/immutable-js/pull/2312)
+
 ## 5.1.9
 
 - fix(List): a `List` grown past 32 elements while all its values are `undefined` no longer reads those values back as `null` (affected `get`, iteration, `toArray`, `equals` and `hashCode`)
