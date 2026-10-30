@@ -658,19 +658,32 @@ declare namespace Immutable {
       updater: (value: R[K]) => R[K]
     ): this;
 
-    // Possible best type is MapOf<Omit<R, K>> but Omit seems to broke other function calls
-    // and generate recursion error with other methods (update, merge, etc.) until those functions are defined in MapOf
-    delete<K extends keyof R>(
-      key: K
-    ): Extract<R[K], undefined> extends never ? never : this;
-    remove<K extends keyof R>(
-      key: K
-    ): Extract<R[K], undefined> extends never ? never : this;
+    // `Map#delete` returns `this`: an override is only accepted if one of its signatures does too.
+    // This one takes `never`, so no call reaches it. Declared first, it also keeps comparing a
+    // `MapOf` to a `Map` as cheap as before.
+    delete(key: never): this;
+    /**
+     * Deleting a required key gives a `MapOf` without it, deleting an optional
+     * key keeps the type.
+     */
+    delete<K extends keyof R>(key: K): MapOfDeleted<this, R, K>;
+    remove(key: never): this;
+    remove<K extends keyof R>(key: K): MapOfDeleted<this, R, K>;
 
     toJS(): { [K in keyof R]: DeepCopy<R[K]> };
 
     toJSON(): { [K in keyof R]: R[K] };
   }
+
+  /**
+   * @ignore
+   *
+   * `MapOf` without the key `K` when it is required, `Self` when it is optional.
+   */
+  type MapOfDeleted<Self, R, K extends keyof R> =
+    Extract<R[K], undefined> extends never
+      ? MapOf<{ [P in keyof R as P extends K ? never : P]: R[P] }>
+      : Self;
 
   // Loosely based off of this work.
   // https://github.com/immutable-js/immutable-js/issues/1462#issuecomment-584123268
