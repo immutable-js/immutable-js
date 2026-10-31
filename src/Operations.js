@@ -27,6 +27,7 @@ import {
 import {
   NOT_SET,
   ensureSize,
+  isNeg,
   resolveBegin,
   resolveEnd,
   wholeSlice,
@@ -424,7 +425,8 @@ export function sliceFactory(collection, begin, end, useKeys) {
   // begin or end can not be resolved if they were provided as negative numbers and
   // this collection's size is unknown. In that case, cache first so there is
   // a known size and these do not resolve to NaN.
-  if (typeof originalSize === 'undefined' && (begin < 0 || end < 0)) {
+  // isNeg also accounts for -0, which `takeLast(0)` passes as begin.
+  if (typeof originalSize === 'undefined' && (isNeg(begin) || isNeg(end))) {
     return sliceFactory(collection.toSeq().cacheResult(), begin, end, useKeys);
   }
 
