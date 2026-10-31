@@ -351,16 +351,30 @@ export function filterFactory(collection, predicate, context, useKeys) {
     };
   }
   filterSequence.__iterateUncached = function (fn, reverse) {
+    // Indexed keys are renumbered from 0, so iterating in reverse has to count
+    // down from the filtered size, which is unknown until the filter has run.
+    // size is ignored otherwise, so it can be set to NaN to avoid TS report.
+    const size = reverse && !useKeys ? ensureSize(this) : NaN;
     let iterations = 0;
     collection.__iterate((v, k, c) => {
       if (predicate.call(context, v, k, c)) {
         iterations++;
-        return fn(v, useKeys ? k : iterations - 1, this);
+        let index;
+        if (useKeys) {
+          index = k;
+        } else if (reverse) {
+          index = size - iterations;
+        } else {
+          index = iterations - 1;
+        }
+        return fn(v, index, this);
       }
     }, reverse);
     return iterations;
   };
   filterSequence.__iteratorUncached = function (type, reverse) {
+    // Same as `__iterateUncached` above.
+    const size = reverse && !useKeys ? ensureSize(this) : NaN;
     const iterator = collection.__iterator(ITERATE_ENTRIES, reverse);
     let iterations = 0;
     return new Iterator(() => {
@@ -373,7 +387,15 @@ export function filterFactory(collection, predicate, context, useKeys) {
         const key = entry[0];
         const value = entry[1];
         if (predicate.call(context, value, key, collection)) {
-          return iteratorValue(type, useKeys ? key : iterations++, value, step);
+          let index;
+          if (useKeys) {
+            index = key;
+          } else if (reverse) {
+            index = size - ++iterations;
+          } else {
+            index = iterations++;
+          }
+          return iteratorValue(type, index, value, step);
         }
       }
     });

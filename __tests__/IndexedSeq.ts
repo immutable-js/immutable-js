@@ -96,6 +96,43 @@ describe('IndexedSequence', () => {
     ]);
   });
 
+  it('keeps forward indices when a filtered seq is iterated backwards', () => {
+    // [1, 3, 1, 5]: a filtered indexed Seq renumbers its keys from 0, so
+    // iterating it backwards must still yield 3, 2, 1, 0 and not 0, 1, 2, 3.
+    const seq = Seq([1, 2, 3, 1, 5]).filter((x) => x !== 2);
+
+    expect(seq.lastIndexOf(1)).toBe(2);
+    expect(seq.findLastIndex((x) => x === 3)).toBe(1);
+    expect(seq.findLastKey((x) => x === 1)).toBe(2);
+    expect(seq.findLastEntry((x) => x === 5)).toEqual([3, 5]);
+
+    expect(
+      seq.reduceRight<Array<[number, number]>>((acc, value, key) => {
+        acc.push([key, value]);
+
+        return acc;
+      }, [])
+    ).toEqual([
+      [3, 5],
+      [2, 1],
+      [1, 3],
+      [0, 1],
+    ]);
+
+    expect([...seq.toKeyedSeq().reverse().entries()]).toEqual([
+      [3, 5],
+      [2, 1],
+      [1, 3],
+      [0, 1],
+    ]);
+
+    expect(
+      Seq([1, 2, 3, 1, 5])
+        .filterNot((x) => x === 2)
+        .lastIndexOf(1)
+    ).toBe(2);
+  });
+
   it('has() checks index existence on a lazy seq of unknown size', () => {
     // A filtered indexed Seq has no known size, so `has` must iterate by key.
     // Regression: it previously delegated to `indexOf(index)`, which searches
