@@ -1932,7 +1932,7 @@
       zipSequence.size = zipAll ? sizes.max() : sizes.min();
       // Note: this a generic base implementation of __iterate in terms of
       // __iterator which may be more generically useful in the future.
-      zipSequence.__iterate = function (fn, reverse) {
+      zipSequence.__iterateUncached = function (fn, reverse) {
         /* generic:
         var iterator = this.__iterator(ITERATE_ENTRIES, reverse);
         var step;
