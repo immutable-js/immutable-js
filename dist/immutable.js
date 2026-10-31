@@ -1846,15 +1846,21 @@
       interposedSequence.__iterateUncached = function (fn, reverse) {
         var this$1$1 = this;
 
+        // Keys are indices into the interposed sequence, so iterating in reverse
+        // has to count down from its size, which may be unknown until it has run.
+        var size = reverse ? ensureSize(this) : NaN;
         var iterations = 0;
+        var nextKey = function () { return (reverse ? size - ++iterations : iterations++); };
         collection.__iterate(
-          function (v) { return (!iterations || fn(separator, iterations++, this$1$1) !== false) &&
-            fn(v, iterations++, this$1$1) !== false; },
+          function (v) { return (!iterations || fn(separator, nextKey(), this$1$1) !== false) &&
+            fn(v, nextKey(), this$1$1) !== false; },
           reverse
         );
         return iterations;
       };
       interposedSequence.__iteratorUncached = function (type, reverse) {
+        // Same as `__iterateUncached` above.
+        var size = reverse ? ensureSize(this) : NaN;
         var iterator = collection.__iterator(ITERATE_VALUES, reverse);
         var iterations = 0;
         var step;
@@ -1865,9 +1871,10 @@
               return step;
             }
           }
-          return iterations % 2
-            ? iteratorValue(type, iterations++, separator)
-            : iteratorValue(type, iterations++, step.value, step);
+          var key = reverse ? size - 1 - iterations : iterations;
+          return iterations++ % 2
+            ? iteratorValue(type, key, separator)
+            : iteratorValue(type, key, step.value, step);
         });
       };
       return interposedSequence;
