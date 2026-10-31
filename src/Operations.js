@@ -518,10 +518,15 @@ export function takeWhileFactory(collection, predicate, context) {
       return this.cacheResult().__iterate(fn, reverse);
     }
     let iterations = 0;
-    collection.__iterate(
-      (v, k, c) =>
-        predicate.call(context, v, k, c) && ++iterations && fn(v, k, this)
-    );
+    collection.__iterate((v, k, c) => {
+      // `__iterate` only stops on `false`, so a falsy predicate result such
+      // as `null` or `0` must be turned into an explicit `false`.
+      if (!predicate.call(context, v, k, c)) {
+        return false;
+      }
+      iterations++;
+      return fn(v, k, this);
+    });
     return iterations;
   };
   takeSequence.__iteratorUncached = function (type, reverse) {
@@ -915,9 +920,20 @@ export function zipWithFactory(keyIter, zipper, iters, zipAll) {
     return iterations;
   };
   zipSequence.__iteratorUncached = function (type, reverse) {
-    const iterators = iters.map(
-      (i) => ((i = Collection(i)), getIterator(reverse ? i.reverse() : i))
-    );
+    if (reverse) {
+      // Reversing each collection on its own would misalign their values when
+      // they have different sizes, so zip them forward first.
+      const values = this.toArray();
+      let iterations = 0;
+      return new Iterator(() => {
+        if (iterations === values.length) {
+          return iteratorDone();
+        }
+        const value = values[values.length - 1 - iterations];
+        return iteratorValue(type, iterations++, value);
+      });
+    }
+    const iterators = iters.map((i) => getIterator(Collection(i)));
     let iterations = 0;
     let isDone = false;
     return new Iterator(() => {
