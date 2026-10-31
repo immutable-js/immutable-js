@@ -215,7 +215,9 @@ declare namespace Immutable {
    */
   function List<T>(collection?: Iterable<T> | ArrayLike<T>): List<T>;
 
-  interface List<T> extends Collection.Indexed<T> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  interface List<T, Self extends List<T, Self> = List<T, any>>
+    extends Collection.Indexed<T, Self> {
     /**
      * The number of items in this List.
      */
@@ -502,7 +504,7 @@ declare namespace Immutable {
     filter(
       predicate: (value: T, index: number, iter: this) => unknown,
       context?: unknown
-    ): this;
+    ): Self;
 
     /**
      * Returns a new List with the values for which the `predicate`
@@ -731,7 +733,9 @@ declare namespace Immutable {
     ? P
     : RetrievePathReducer<R, Head<P>, Tail<P>>;
 
-  interface Map<K, V> extends Collection.Keyed<K, V> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  interface Map<K, V, Self extends Map<K, V, Self> = Map<K, V, any>>
+    extends Collection.Keyed<K, V, Self> {
     /**
      * The number of entries in this Map.
      */
@@ -1116,7 +1120,7 @@ declare namespace Immutable {
     filter(
       predicate: (value: V, key: K, iter: this) => unknown,
       context?: unknown
-    ): this;
+    ): Self;
 
     /**
      * Returns a new Map with the values for which the `predicate`
@@ -1156,7 +1160,7 @@ declare namespace Immutable {
      *
      * Note: This is always an eager operation.
      */
-    sort(comparator?: Comparator<V>): this & OrderedMap<K, V>;
+    sort(comparator?: Comparator<V>): Self & OrderedMap<K, V>;
 
     /**
      * Like `sort`, but also accepts a `comparatorValueMapper` which allows for
@@ -1170,7 +1174,7 @@ declare namespace Immutable {
     sortBy<C>(
       comparatorValueMapper: (value: V, key: K, iter: this) => C,
       comparator?: (valueA: C, valueB: C) => number
-    ): this & OrderedMap<K, V>;
+    ): Self & OrderedMap<K, V>;
   }
 
   /**
@@ -1211,7 +1215,13 @@ declare namespace Immutable {
   function OrderedMap<K, V>(collection?: Iterable<[K, V]>): OrderedMap<K, V>;
   function OrderedMap<V>(obj: { [key: string]: V }): OrderedMap<string, V>;
 
-  interface OrderedMap<K, V> extends Map<K, V>, OrderedCollection<[K, V]> {
+  interface OrderedMap<
+    K,
+    V,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Self extends OrderedMap<K, V, Self> = OrderedMap<K, V, any>,
+  > extends Map<K, V, Self>,
+      OrderedCollection<[K, V]> {
     /**
      * The number of entries in this OrderedMap.
      */
@@ -1329,7 +1339,7 @@ declare namespace Immutable {
     filter(
       predicate: (value: V, key: K, iter: this) => unknown,
       context?: unknown
-    ): this;
+    ): Self;
 
     /**
      * Returns a new OrderedMap with the values for which the `predicate`
@@ -1420,7 +1430,9 @@ declare namespace Immutable {
    */
   function Set<T>(collection?: Iterable<T> | ArrayLike<T>): Set<T>;
 
-  interface Set<T> extends Collection.Set<T> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  interface Set<T, Self extends Set<T> = Set<any>>
+    extends Collection.Set<T, Self> {
     /**
      * The number of items in this Set.
      */
@@ -1550,7 +1562,7 @@ declare namespace Immutable {
     filter(
       predicate: (value: T, key: T, iter: this) => unknown,
       context?: unknown
-    ): this;
+    ): Self;
 
     /**
      * Returns a new Set with the values for which the `predicate` function
@@ -1585,7 +1597,7 @@ declare namespace Immutable {
      *
      * Note: This is always an eager operation.
      */
-    sort(comparator?: Comparator<T>): this & OrderedSet<T>;
+    sort(comparator?: Comparator<T>): Self & OrderedSet<T>;
 
     /**
      * Like `sort`, but also accepts a `comparatorValueMapper` which allows for
@@ -1599,7 +1611,7 @@ declare namespace Immutable {
     sortBy<C>(
       comparatorValueMapper: (value: T, key: T, iter: this) => C,
       comparator?: (valueA: C, valueB: C) => number
-    ): this & OrderedSet<T>;
+    ): Self & OrderedSet<T>;
   }
 
   /**
@@ -1701,7 +1713,7 @@ declare namespace Immutable {
     filter(
       predicate: (value: T, key: T, iter: this) => unknown,
       context?: unknown
-    ): this;
+    ): Self;
 
     /**
      * Returns a new OrderedSet with the values for which the `predicate`
@@ -1964,7 +1976,7 @@ declare namespace Immutable {
     filter(
       predicate: (value: T, index: number, iter: this) => unknown,
       context?: unknown
-    ): this;
+    ): Self;
 
     /**
      * Returns a Stack "zipped" with the provided collections.
@@ -2527,7 +2539,10 @@ declare namespace Immutable {
     function Keyed<K, V>(collection?: Iterable<[K, V]>): Seq.Keyed<K, V>;
     function Keyed<V>(obj: { [key: string]: V }): Seq.Keyed<string, V>;
 
-    interface Keyed<K, V> extends Seq<K, V>, Collection.Keyed<K, V> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    interface Keyed<K, V, Self extends Keyed<K, V, Self> = Keyed<K, V, any>>
+      extends Seq<K, V, Self>,
+        Collection.Keyed<K, V, Self> {
       /**
        * Deeply converts this Keyed Seq to equivalent native JavaScript Object.
        *
@@ -2627,7 +2642,7 @@ declare namespace Immutable {
       filter(
         predicate: (value: V, key: K, iter: this) => unknown,
         context?: unknown
-      ): this;
+      ): Self;
 
       /**
        * Returns a new keyed Seq with the values for which the `predicate`
@@ -2671,7 +2686,10 @@ declare namespace Immutable {
       collection?: Iterable<T> | ArrayLike<T>
     ): Seq.Indexed<T>;
 
-    interface Indexed<T> extends Seq<number, T>, Collection.Indexed<T> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    interface Indexed<T, Self extends Indexed<T, Self> = Indexed<T, any>>
+      extends Seq<number, T, Self>,
+        Collection.Indexed<T, Self> {
       /**
        * Deeply converts this Indexed Seq to equivalent native JavaScript Array.
        */
@@ -2741,7 +2759,7 @@ declare namespace Immutable {
       filter(
         predicate: (value: T, index: number, iter: this) => unknown,
         context?: unknown
-      ): this;
+      ): Self;
 
       /**
        * Returns a new indexed Seq with the values for which the `predicate`
@@ -2846,7 +2864,10 @@ declare namespace Immutable {
      */
     function Set<T>(collection?: Iterable<T> | ArrayLike<T>): Seq.Set<T>;
 
-    interface Set<T> extends Seq<T, T>, Collection.Set<T> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    interface Set<T, Self extends Set<T, Self> = Set<T, any>>
+      extends Seq<T, T, Self>,
+        Collection.Set<T, Self> {
       /**
        * Deeply converts this Set Seq to equivalent native JavaScript Array.
        */
@@ -2916,7 +2937,7 @@ declare namespace Immutable {
       filter(
         predicate: (value: T, key: T, iter: this) => unknown,
         context?: unknown
-      ): this;
+      ): Self;
 
       /**
        * Returns a new set Seq with the values for which the `predicate`
@@ -2963,7 +2984,9 @@ declare namespace Immutable {
   function Seq<V>(obj: { [key: string]: V }): Seq.Keyed<string, V>;
   function Seq<K = unknown, V = unknown>(): Seq<K, V>;
 
-  interface Seq<K, V> extends Collection<K, V> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  interface Seq<K, V, Self extends Seq<K, V, Self> = Seq<K, V, any>>
+    extends Collection<K, V, Self> {
     /**
      * Some Seqs can describe their size lazily. When this is the case,
      * size will be an integer. Otherwise it will be undefined.
@@ -3074,7 +3097,7 @@ declare namespace Immutable {
     filter(
       predicate: (value: V, key: K, iter: this) => unknown,
       context?: unknown
-    ): this;
+    ): Self;
 
     /**
      * Returns a new Seq with the values for which the `predicate` function
@@ -3135,7 +3158,9 @@ declare namespace Immutable {
     function Keyed<K, V>(collection?: Iterable<[K, V]>): Collection.Keyed<K, V>;
     function Keyed<V>(obj: { [key: string]: V }): Collection.Keyed<string, V>;
 
-    interface Keyed<K, V> extends Collection<K, V> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    interface Keyed<K, V, Self extends Keyed<K, V, Self> = Keyed<K, V, any>>
+      extends Collection<K, V, Self> {
       /**
        * Deeply converts this Keyed collection to equivalent native JavaScript Object.
        *
@@ -3251,7 +3276,7 @@ declare namespace Immutable {
       filter(
         predicate: (value: V, key: K, iter: this) => unknown,
         context?: unknown
-      ): this;
+      ): Self;
 
       /**
        * Returns a new keyed Collection with the values for which the
@@ -3297,7 +3322,12 @@ declare namespace Immutable {
       collection?: Iterable<T> | ArrayLike<T>
     ): Collection.Indexed<T>;
 
-    interface Indexed<T> extends Collection<number, T>, OrderedCollection<T> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    interface Indexed<T, Self extends Indexed<T, Self> = Indexed<T, any>>
+      extends Collection<number, T, Self>,
+        OrderedCollection<T> {
+      ['@@__IMMUTABLE_INDEXED__@@']: true;
+
       /**
        * Deeply converts this Indexed collection to equivalent native JavaScript Array.
        */
@@ -3515,7 +3545,7 @@ declare namespace Immutable {
       filter(
         predicate: (value: T, index: number, iter: this) => unknown,
         context?: unknown
-      ): this;
+      ): Self;
 
       /**
        * Returns a new indexed Collection with the values for which the
@@ -3561,7 +3591,9 @@ declare namespace Immutable {
      */
     function Set<T>(collection?: Iterable<T> | ArrayLike<T>): Collection.Set<T>;
 
-    interface Set<T> extends Collection<T, T> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    interface Set<T, Self extends Set<T, Self> = Set<T, any>>
+      extends Collection<T, T, Self> {
       /**
        * Deeply converts this Set collection to equivalent native JavaScript Array.
        */
@@ -3631,7 +3663,7 @@ declare namespace Immutable {
       filter(
         predicate: (value: T, key: T, iter: this) => unknown,
         context?: unknown
-      ): this;
+      ): Self;
 
       /**
        * Returns a new set Collection with the values for which the
@@ -3682,7 +3714,12 @@ declare namespace Immutable {
   }): Collection.Keyed<string, V>;
   function Collection<K = unknown, V = unknown>(): Collection<K, V>;
 
-  interface Collection<K, V> extends ValueObject {
+  interface Collection<
+    K,
+    V,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Self extends Collection<K, V, Self> = Collection<K, V, any>,
+  > extends ValueObject {
     // Value equality
 
     /**
@@ -3983,7 +4020,7 @@ declare namespace Immutable {
     filter(
       predicate: (value: V, key: K, iter: this) => unknown,
       context?: unknown
-    ): this;
+    ): Self;
 
     /**
      * Returns a new Collection of the same type with only the entries for which
@@ -3995,7 +4032,7 @@ declare namespace Immutable {
     filterNot(
       predicate: (value: V, key: K, iter: this) => boolean,
       context?: unknown
-    ): this;
+    ): Self;
 
     /**
      * Returns a new Collection with the values for which the `predicate`
@@ -4013,7 +4050,7 @@ declare namespace Immutable {
     /**
      * Returns a new Collection of the same type in reverse order.
      */
-    reverse(): this;
+    reverse(): Self;
 
     /**
      * Returns a new Collection of the same type which includes the same entries,
@@ -4038,7 +4075,7 @@ declare namespace Immutable {
      *
      * Note: This is always an eager operation.
      */
-    sort(comparator?: Comparator<V>): this;
+    sort(comparator?: Comparator<V>): Self;
 
     /**
      * Like `sort`, but also accepts a `comparatorValueMapper` which allows for
@@ -4052,7 +4089,7 @@ declare namespace Immutable {
     sortBy<C>(
       comparatorValueMapper: (value: V, key: K, iter: this) => C,
       comparator?: Comparator<C>
-    ): this;
+    ): Self;
 
     /**
      * Returns a `Map` of `Collection`, grouped by the return
@@ -4097,31 +4134,31 @@ declare namespace Immutable {
      * If the requested slice is equivalent to the current Collection, then it
      * will return itself.
      */
-    slice(begin?: number, end?: number): this;
+    slice(begin?: number, end?: number): Self;
 
     /**
      * Returns a new Collection of the same type containing all entries except
      * the first.
      */
-    rest(): this;
+    rest(): Self;
 
     /**
      * Returns a new Collection of the same type containing all entries except
      * the last.
      */
-    butLast(): this;
+    butLast(): Self;
 
     /**
      * Returns a new Collection of the same type which excludes the first `amount`
      * entries from this Collection.
      */
-    skip(amount: number): this;
+    skip(amount: number): Self;
 
     /**
      * Returns a new Collection of the same type which excludes the last `amount`
      * entries from this Collection.
      */
-    skipLast(amount: number): this;
+    skipLast(amount: number): Self;
 
     /**
      * Returns a new Collection of the same type which includes entries starting
@@ -4130,7 +4167,7 @@ declare namespace Immutable {
     skipWhile(
       predicate: (value: V, key: K, iter: this) => boolean,
       context?: unknown
-    ): this;
+    ): Self;
 
     /**
      * Returns a new Collection of the same type which includes entries starting
@@ -4139,19 +4176,19 @@ declare namespace Immutable {
     skipUntil(
       predicate: (value: V, key: K, iter: this) => boolean,
       context?: unknown
-    ): this;
+    ): Self;
 
     /**
      * Returns a new Collection of the same type which includes the first `amount`
      * entries from this Collection.
      */
-    take(amount: number): this;
+    take(amount: number): Self;
 
     /**
      * Returns a new Collection of the same type which includes the last `amount`
      * entries from this Collection.
      */
-    takeLast(amount: number): this;
+    takeLast(amount: number): Self;
 
     /**
      * Returns a new Collection of the same type which includes entries from this
@@ -4160,7 +4197,7 @@ declare namespace Immutable {
     takeWhile(
       predicate: (value: V, key: K, iter: this) => boolean,
       context?: unknown
-    ): this;
+    ): Self;
 
     /**
      * Returns a new Collection of the same type which includes entries from this
@@ -4169,7 +4206,7 @@ declare namespace Immutable {
     takeUntil(
       predicate: (value: V, key: K, iter: this) => boolean,
       context?: unknown
-    ): this;
+    ): Self;
 
     // Combination
 
