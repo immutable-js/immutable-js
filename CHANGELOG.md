@@ -9,6 +9,8 @@ Dates are formatted as YYYY-MM-DD.
 ## Unreleased
 
 - [TypeScript]: on a `MapOf` (a `Map` built from an object), `delete` and `remove` of a required key now give a `MapOf` without that key (`Map({ a: 1, b: 'b' }).delete('b')` is a `MapOf<{ a: number }>`) instead of `never`. Deleting an optional key still keeps the type. [#2312](https://github.com/immutable-js/immutable-js/pull/2312)
+- fix(Seq): Stack overflow when slicing a zipped Seq of unknown size from the end - by @b84330808 in https://github.com/immutable-js/immutable-js/pull/2311
+- fix(Seq): Incorrect keys of an interposed Seq when iterated in reverse - by @b84330808 in https://github.com/immutable-js/immutable-js/pull/2310
 
 ## 5.1.9
 
