@@ -12,6 +12,17 @@ installDevTools(Immutable);
 const immutableFormaters = globalThis.devtoolsFormatters;
 
 describe('normalizeResult', () => {
+  it.each([
+    ['a', 'b', 'c'],
+    ['1', 'a', 'b'],
+    ['span', { title: 'data' }, 'text'],
+    ['object', { object: Immutable.List(['a']) }],
+  ])('keeps a plain array as data: %j', (...value) => {
+    expect(normalizeResult(immutableFormaters, value)).toEqual(
+      JSON.stringify(value)
+    );
+  });
+
   it('should return the correct object', () => {
     const result = normalizeResult(immutableFormaters, { a: 1, b: 2 });
 

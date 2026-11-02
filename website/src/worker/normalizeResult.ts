@@ -25,22 +25,6 @@ export default function normalizeResult(
   const formatter = getFormatter(immutableFormaters, result);
 
   if (!formatter) {
-    if (Array.isArray(result) && result[0] === 'object' && result[1]?.object) {
-      // handle special case for deep objects
-      const objectFormatter = getFormatter(
-        immutableFormaters,
-        result[1].object
-      );
-
-      if (objectFormatter) {
-        return normalizeResult(immutableFormaters, result[1].object);
-      }
-    }
-
-    if (typeof result !== 'string' && isElement(result)) {
-      return normalizeElement(immutableFormaters, result);
-    }
-
     if (typeof result === 'string') {
       return result;
     }
@@ -81,8 +65,16 @@ function normalizeElement(
 
   const { tagName, attributes, children } = explodedItem;
 
+  if (tagName === 'object' && attributes?.object) {
+    // Only formatter output uses the JsonML object wrapper.
+    const objectFormatter = getFormatter(immutableFormaters, attributes.object);
+    if (objectFormatter) {
+      return normalizeResult(immutableFormaters, attributes.object);
+    }
+  }
+
   const normalizedChildren = children.map((child) =>
-    normalizeResult(immutableFormaters, child)
+    normalizeElement(immutableFormaters, child)
   );
 
   if (attributes) {
