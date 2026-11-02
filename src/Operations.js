@@ -697,6 +697,11 @@ class ConcatSeq extends Seq {
     }
 
     let iterableIndex = 0;
+    // The keys of an indexed concatenation run on across the wrapped
+    // collections, so they cannot be taken from each wrapped iterator, which
+    // starts again at 0 (as __iterateUncached already does).
+    const reIndex = isIndexed(this) && type !== ITERATE_VALUES;
+    let index = 0;
     let currentIterator = this._wrappedIterables[iterableIndex].__iterator(
       type,
       reverse
@@ -714,7 +719,14 @@ class ConcatSeq extends Seq {
         );
         next = currentIterator.next();
       }
-      return next;
+      return reIndex
+        ? iteratorValue(
+            type,
+            index++,
+            type === ITERATE_ENTRIES ? next.value[1] : undefined,
+            next
+          )
+        : next;
     });
   }
 }
