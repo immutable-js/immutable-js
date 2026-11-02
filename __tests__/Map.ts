@@ -608,6 +608,21 @@ describe('Map', () => {
     expect(m.toObject().admin).toBeUndefined();
     expect(m.toJS().admin).toBeUndefined();
   });
+
+  it('update can change a __proto__ key stored on the map', () => {
+    const m = Map()
+      .set('__proto__', 'set')
+      .update('__proto__', () => 'updated');
+    expect(m.get('__proto__')).toBe('updated');
+    expect(m.size).toBe(1);
+  });
+
+  it('update can change a constructor key stored on the map', () => {
+    const m = Map()
+      .set('constructor', 'set')
+      .update('constructor', () => 'updated');
+    expect(m.get('constructor')).toBe('updated');
+  });
 });
 
 describe('Map sequence helpers', () => {
