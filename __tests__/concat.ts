@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import { List, Seq, Set } from 'immutable';
+import { isIndexed, List, Seq, Set } from 'immutable';
 
 describe('concat', () => {
   it('concats two sequences', () => {
@@ -74,6 +74,17 @@ describe('concat', () => {
     const c = [7, 8, 9];
     expect(a.concat(b, c).size).toBe(9);
     expect(a.concat(b, c).toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  });
+
+  it('preserves indexed methods when concatenating multiple sequences', () => {
+    const indexed = Seq.Indexed([1]).concat([2], [3]);
+
+    expect(isIndexed(indexed)).toBe(true);
+    expect(indexed.zip(Seq(['a', 'b', 'c'])).toArray()).toEqual([
+      [1, 'a'],
+      [2, 'b'],
+      [3, 'c'],
+    ]);
   });
 
   it('can concat itself!', () => {
