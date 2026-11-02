@@ -28,7 +28,6 @@ import { wasAltered } from './methods/wasAltered';
 import { withMutations } from './methods/withMutations';
 import { IS_MAP_SYMBOL, isMap } from './predicates/isMap';
 import { isOrdered } from './predicates/isOrdered';
-import arrCopy from './utils/arrCopy';
 import assertNotInfinite from './utils/assertNotInfinite';
 
 export class Map extends KeyedCollection {
@@ -125,9 +124,9 @@ export class Map extends KeyedCollection {
     let iterations = 0;
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
     this._root &&
-      this._root.iterate((entry) => {
+      this._root.iterate((value, key) => {
         iterations++;
-        return fn(entry[1], entry[0], this);
+        return fn(value, key, this);
       }, reverse);
     return iterations;
   }
@@ -223,7 +222,7 @@ class ArrayMapNode {
     }
 
     const isEditable = ownerID && ownerID === this.ownerID;
-    const newEntries = isEditable ? entries : arrCopy(entries);
+    const newEntries = isEditable ? entries : entries.slice();
 
     if (exists) {
       if (removed) {
@@ -493,7 +492,7 @@ class HashCollisionNode {
       }
       SetRef(didAlter);
       SetRef(didChangeSize);
-      return mergeIntoNode(this, ownerID, shift, keyHash, [key, value]);
+      return mergeIntoNode(this, ownerID, shift, keyHash, key, value);
     }
 
     const entries = this.entries;
@@ -512,10 +511,11 @@ class HashCollisionNode {
     (removed || !exists) && SetRef(didChangeSize);
 
     if (removed && len === 2) {
-      return new ValueNode(ownerID, this.keyHash, entries[idx ^ 1]);
+      const entry = entries[idx ^ 1];
+      return new ValueNode(ownerID, this.keyHash, entry[0], entry[1]);
     }
 
-    const newEntries = isEditable ? entries : arrCopy(entries);
+    const newEntries = isEditable ? entries : entries.slice();
 
     if (exists) {
       if (removed) {
@@ -556,20 +556,22 @@ class HashCollisionNode {
 }
 
 class ValueNode {
-  constructor(ownerID, keyHash, entry) {
+  constructor(ownerID, keyHash, key, value) {
     this.ownerID = ownerID;
     this.keyHash = keyHash;
-    this.entry = entry;
+    // Store values inline: most entries need no separate key/value array.
+    this.key = key;
+    this.value = value;
   }
 
   get(shift, keyHash, key, notSetValue) {
-    return is(key, this.entry[0]) ? this.entry[1] : notSetValue;
+    return is(key, this.key) ? this.value : notSetValue;
   }
 
   update(ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
     const removed = value === NOT_SET;
-    const keyMatch = is(key, this.entry[0]);
-    if (keyMatch ? value === this.entry[1] : removed) {
+    const keyMatch = is(key, this.key);
+    if (keyMatch ? value === this.value : removed) {
       return this;
     }
 
@@ -582,14 +584,14 @@ class ValueNode {
 
     if (keyMatch) {
       if (ownerID && ownerID === this.ownerID) {
-        this.entry[1] = value;
+        this.value = value;
         return this;
       }
-      return new ValueNode(ownerID, this.keyHash, [key, value]);
+      return new ValueNode(ownerID, this.keyHash, key, value);
     }
 
     SetRef(didChangeSize);
-    return mergeIntoNode(this, ownerID, shift, hash(key), [key, value]);
+    return mergeIntoNode(this, ownerID, shift, hash(key), key, value);
   }
 }
 
@@ -599,7 +601,8 @@ ArrayMapNode.prototype.iterate = HashCollisionNode.prototype.iterate =
   function (fn, reverse) {
     const entries = this.entries;
     for (let ii = 0, maxIndex = entries.length - 1; ii <= maxIndex; ii++) {
-      if (fn(entries[reverse ? maxIndex - ii : ii]) === false) {
+      const entry = entries[reverse ? maxIndex - ii : ii];
+      if (fn(entry[1], entry[0]) === false) {
         return false;
       }
     }
@@ -618,7 +621,7 @@ BitmapIndexedNode.prototype.iterate = HashArrayMapNode.prototype.iterate =
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 ValueNode.prototype.iterate = function (fn, reverse) {
-  return fn(this.entry);
+  return fn(this.value, this.key);
 };
 
 class MapIterator extends Iterator {
@@ -635,9 +638,9 @@ class MapIterator extends Iterator {
       const node = stack.node;
       const index = stack.index++;
       let maxIndex;
-      if (node.entry) {
+      if (node.constructor === ValueNode) {
         if (index === 0) {
-          return mapIteratorValue(type, node.entry);
+          return iteratorValue(type, node.key, node.value);
         }
       } else if (node.entries) {
         maxIndex = node.entries.length - 1;
@@ -652,8 +655,8 @@ class MapIterator extends Iterator {
         if (index <= maxIndex) {
           const subNode = node.nodes[this._reverse ? maxIndex - index : index];
           if (subNode) {
-            if (subNode.entry) {
-              return mapIteratorValue(type, subNode.entry);
+            if (subNode.constructor === ValueNode) {
+              return iteratorValue(type, subNode.key, subNode.value);
             }
             stack = this._stack = mapIteratorFrame(subNode, stack);
           }
@@ -746,7 +749,7 @@ function updateNode(
     }
     SetRef(didAlter);
     SetRef(didChangeSize);
-    return new ValueNode(ownerID, keyHash, [key, value]);
+    return new ValueNode(ownerID, keyHash, key, value);
   }
   return node.update(
     ownerID,
@@ -765,9 +768,12 @@ function isLeafNode(node) {
   );
 }
 
-function mergeIntoNode(node, ownerID, shift, keyHash, entry) {
+function mergeIntoNode(node, ownerID, shift, keyHash, key, value) {
   if (node.keyHash === keyHash) {
-    return new HashCollisionNode(ownerID, keyHash, [node.entry, entry]);
+    return new HashCollisionNode(ownerID, keyHash, [
+      [node.key, node.value],
+      [key, value],
+    ]);
   }
 
   const idx1 = (shift === 0 ? node.keyHash : node.keyHash >>> shift) & MASK;
@@ -776,8 +782,8 @@ function mergeIntoNode(node, ownerID, shift, keyHash, entry) {
   let newNode;
   const nodes =
     idx1 === idx2
-      ? [mergeIntoNode(node, ownerID, shift + SHIFT, keyHash, entry)]
-      : ((newNode = new ValueNode(ownerID, keyHash, entry)),
+      ? [mergeIntoNode(node, ownerID, shift + SHIFT, keyHash, key, value)]
+      : ((newNode = new ValueNode(ownerID, keyHash, key, value)),
         idx1 < idx2 ? [node, newNode] : [newNode, node]);
 
   return new BitmapIndexedNode(ownerID, (1 << idx1) | (1 << idx2), nodes);
@@ -787,7 +793,7 @@ function createNodes(ownerID, entries, key, value) {
   if (!ownerID) {
     ownerID = new OwnerID();
   }
-  let node = new ValueNode(ownerID, hash(key), [key, value]);
+  let node = new ValueNode(ownerID, hash(key), key, value);
   for (let ii = 0; ii < entries.length; ii++) {
     const entry = entries[ii];
     node = node.update(ownerID, 0, undefined, entry[0], entry[1]);
@@ -829,14 +835,17 @@ function popCount(x) {
 }
 
 function setAt(array, idx, val, canEdit) {
-  const newArray = canEdit ? array : arrCopy(array);
+  const newArray = canEdit ? array : array.slice();
   newArray[idx] = val;
   return newArray;
 }
 
 function spliceIn(array, idx, val, canEdit) {
   const newLen = array.length + 1;
-  if (canEdit && idx + 1 === newLen) {
+  if (canEdit) {
+    for (let ii = newLen - 1; ii > idx; ii--) {
+      array[ii] = array[ii - 1];
+    }
     array[idx] = val;
     return array;
   }
@@ -855,7 +864,10 @@ function spliceIn(array, idx, val, canEdit) {
 
 function spliceOut(array, idx, canEdit) {
   const newLen = array.length - 1;
-  if (canEdit && idx === newLen) {
+  if (canEdit) {
+    for (let ii = idx; ii < newLen; ii++) {
+      array[ii] = array[ii + 1];
+    }
     array.pop();
     return array;
   }
