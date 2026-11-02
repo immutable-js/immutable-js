@@ -1382,16 +1382,30 @@
       filterSequence.__iterateUncached = function (fn, reverse) {
         var this$1$1 = this;
 
+        // Indexed keys are renumbered from 0, so iterating in reverse has to count
+        // down from the filtered size, which is unknown until the filter has run.
+        // size is ignored otherwise, so it can be set to NaN to avoid TS report.
+        var size = reverse && !useKeys ? ensureSize(this) : NaN;
         var iterations = 0;
         collection.__iterate(function (v, k, c) {
           if (predicate.call(context, v, k, c)) {
             iterations++;
-            return fn(v, useKeys ? k : iterations - 1, this$1$1);
+            var index;
+            if (useKeys) {
+              index = k;
+            } else if (reverse) {
+              index = size - iterations;
+            } else {
+              index = iterations - 1;
+            }
+            return fn(v, index, this$1$1);
           }
         }, reverse);
         return iterations;
       };
       filterSequence.__iteratorUncached = function (type, reverse) {
+        // Same as `__iterateUncached` above.
+        var size = reverse && !useKeys ? ensureSize(this) : NaN;
         var iterator = collection.__iterator(ITERATE_ENTRIES, reverse);
         var iterations = 0;
         return new Iterator(function () {
@@ -1404,7 +1418,15 @@
             var key = entry[0];
             var value = entry[1];
             if (predicate.call(context, value, key, collection)) {
-              return iteratorValue(type, useKeys ? key : iterations++, value, step);
+              var index = (void 0);
+              if (useKeys) {
+                index = key;
+              } else if (reverse) {
+                index = size - ++iterations;
+              } else {
+                index = iterations++;
+              }
+              return iteratorValue(type, index, value, step);
             }
           }
         });
