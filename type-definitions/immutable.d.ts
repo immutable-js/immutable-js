@@ -3547,7 +3547,7 @@ declare namespace Immutable {
      * const seq = Collection.Set([ 'A', 'B', 'C' ])
      * // Seq { "A", "B", "C" }
      * seq.forEach((v, k) =>
-     *  assert.equal(v, k)
+     *  console.log(v === k) // true
      * )
      * ```
      */

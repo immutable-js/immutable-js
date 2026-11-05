@@ -222,9 +222,9 @@ The `hashCode` of a Collection is used to determine potential equality, and is u
 <Repl
   defaultValue={`const a = Set([ 1, 2, 3 ]);
 const b = Set([ 1, 2, 3 ]);
-assert.notStrictEqual(a, b); // different instances
+console.log({ strictlyEquals: a === b }); // false: different instances
 const set = Set([ a ]);
-assert.equal(set.has(b), true);`}
+console.log({ setHasB: set.has(b) });`}
 />
 
 If two values have the same `hashCode`, they are [not guaranteed to be equal][Hash Collision]. If two values have different `hashCode`s, they must not be equal.

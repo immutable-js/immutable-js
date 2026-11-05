@@ -47,10 +47,10 @@ Keep in mind, when using JS objects to construct Immutable Maps, that JavaScript
 ```js
 let obj = { 1: 'one' };
 Object.keys(obj); // [ "1" ]
-assert.equal(obj['1'], obj[1]); // "one" === "one"
+console.log(obj['1'], obj[1]); // "one", "one"
 
 let map = Map(obj);
-assert.notEqual(map.get('1'), map.get(1)); // "one" !== undefined
+console.log(map.get('1'), map.get(1)); // "one", undefined
 ```
 
 Property access for JavaScript Objects first converts the key to a string, but since Immutable Map keys can be of any type the argument to `get()` is not altered.
@@ -173,7 +173,7 @@ However, if the `updater` function returns the same value it was called with, th
   defaultValue={`const aMap = Map({ apples: 10 })
 const newMap = aMap.update('oranges', 0, val => val)
 // Map { "apples": 10 }
-assert.strictEqual(newMap, aMap);`}
+console.log({ strictlyEquals: newMap === aMap }); // true: same instance`}
 />
 
 For code using ES2015 or later, using `notSetValue` is discouraged in favor of function parameter default values. This helps to avoid any potential confusion with identify functions as described above.
@@ -353,7 +353,7 @@ If the `updater` function returns the same value it was called with, then no cha
   defaultValue={`const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
 const newMap = map.updateIn(['a', 'b', 'x'], 100, val => val)
 // Map { "a": Map { "b": Map { "c": 10 } } }
-assert.strictEqual(newMap, map)`}
+console.log({ strictlyEquals: newMap === map }) // true: same instance`}
 />
 
 For code using ES2015 or later, using `notSetValue` is discouraged in favor of function parameter default values. This helps to avoid any potential confusion with identify functions as described above.
@@ -425,8 +425,8 @@ As an example, this results in the creation of 2, not 4, new Maps:
 const map2 = map1.withMutations(map => {
   map.set('a', 1).set('b', 2).set('c', 3)
 })
-assert.equal(map1.size, 0)
-assert.equal(map2.size, 3)`}
+console.log({ map1Size: map1.size })
+console.log({ map2Size: map2.size })`}
 />
 
 Note: Not all methods can be used on a mutable collection or within `withMutations`! Read the documentation for each method to see if it is safe to use in `withMutations`.
@@ -718,9 +718,9 @@ The `hashCode` of a Collection is used to determine potential equality, and is u
 <Repl
   defaultValue={`const a = Map({ a: 1, b: 2, c: 3 });
 const b = Map({ a: 1, b: 2, c: 3 });
-assert.notStrictEqual(a, b); // different instances
+console.log({ strictlyEquals: a === b }); // false: different instances
 const set = Set([ a ]);
-assert.equal(set.has(b), true);`}
+console.log({ setHasB: set.has(b) });`}
 />
 
 If two values have the same `hashCode`, they are [not guaranteed to be equal][Hash Collision]. If two values have different `hashCode`s, they must not be equal.
