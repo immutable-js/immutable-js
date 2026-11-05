@@ -57,7 +57,8 @@ export function WorkerContextProvider({ children }: Props): JSX.Element {
     workerRef.current.onmessage = (event: {
       data: {
         key: string;
-        output: JsonMLElementList | Element;
+        // the captured `console` calls, then the result of the code
+        lines: Array<JsonMLElementList | Element>;
         error?: string;
       };
     }) => {
@@ -71,16 +72,12 @@ export function WorkerContextProvider({ children }: Props): JSX.Element {
         return;
       }
 
-      if (event.data.error) {
-        handlers.onError(['div', 'Error: ' + event.data.error]);
-      } else {
-        const { output } = event.data;
+      const { lines, error } = event.data;
 
-        if (typeof output === 'object' && !Array.isArray(output)) {
-          handlers.onSuccess(['div', { object: output }]);
-        } else {
-          handlers.onSuccess(output);
-        }
+      if (error) {
+        handlers.onError(['div', ...lines, ['div', 'Error: ' + error]]);
+      } else {
+        handlers.onSuccess(['div', ...lines]);
       }
     };
 

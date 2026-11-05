@@ -1,5 +1,6 @@
 /// <reference lib="webworker" />
 import type * as ImmutableModule from '../../../type-definitions/immutable.js';
+import { Element, JsonMLElementList } from './jsonml-types';
 import normalizeResult, { DevToolsFormatter } from './normalizeResult';
 
 // Declare Immutable as they come from external scripts
@@ -12,6 +13,51 @@ declare global {
 }
 
 importScripts('https://cdn.jsdelivr.net/npm/immutable');
+
+const CAPTURED_CONSOLE_METHODS = [
+  'log',
+  'info',
+  'warn',
+  'error',
+  'debug',
+] as const;
+
+/**
+ * Redirect the `console` calls to `lines` instead of the browser console, until the returned function is called.
+ */
+function captureConsole(
+  immutableFormaters: Array<DevToolsFormatter>,
+  lines: Array<JsonMLElementList | Element>
+): () => void {
+  const originals = CAPTURED_CONSOLE_METHODS.map((method) => console[method]);
+
+  CAPTURED_CONSOLE_METHODS.forEach((method) => {
+    console[method] = (...args: Array<unknown>) => {
+      const parts: Array<JsonMLElementList | Element> = [];
+
+      args.forEach((arg, index) => {
+        if (index > 0) {
+          parts.push(' ');
+        }
+
+        // like the browsers, strings are logged without quotes
+        parts.push(
+          typeof arg === 'string'
+            ? arg
+            : normalizeResult(immutableFormaters, arg)
+        );
+      });
+
+      lines.push(['div', ...parts]);
+    };
+  });
+
+  return () => {
+    CAPTURED_CONSOLE_METHODS.forEach((method, index) => {
+      console[method] = originals[index];
+    });
+  };
+}
 
 (async () => {
   const immutableDevTools = (await import('@immutable/devtools')).default;
@@ -27,9 +73,12 @@ importScripts('https://cdn.jsdelivr.net/npm/immutable');
     const { code, key } = event.data;
 
     const timeoutId = setTimeout(() => {
-      self.postMessage({ key, error: 'Execution timed out' });
+      self.postMessage({ key, lines: [], error: 'Execution timed out' });
       self.close();
     }, 2000);
+
+    const lines: Array<JsonMLElementList | Element> = [];
+    const restoreConsole = captureConsole(immutableFormaters, lines);
 
     try {
       // extract all Immutable exports to have them available in the worker automatically
@@ -105,6 +154,8 @@ importScripts('https://cdn.jsdelivr.net/npm/immutable');
 
       const result = eval(code);
 
+      restoreConsole();
+
       // const globalThisKeys = Object.keys(globalThis).filter((key) => {
 
       //   return !globalThisKeysBefore.includes(key) && key !== 'globalThisKeysBefore';
@@ -129,14 +180,17 @@ importScripts('https://cdn.jsdelivr.net/npm/immutable');
 
       // }
 
-      self.postMessage({
-        key,
-        output: normalizeResult(immutableFormaters, result),
-      });
+      // only display `undefined` if nothing has been logged, like after a trailing `console.log()`
+      if (result !== undefined || lines.length === 0) {
+        lines.push(['div', normalizeResult(immutableFormaters, result)]);
+      }
+
+      self.postMessage({ key, lines });
     } catch (error) {
+      restoreConsole();
       console.log(error);
       clearTimeout(timeoutId);
-      self.postMessage({ key, error: String(error) });
+      self.postMessage({ key, lines, error: String(error) });
     }
   };
 })().catch((error) => {
