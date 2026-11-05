@@ -150,21 +150,21 @@ Similar to: `map.set(key, updater(map.get(key)))`.
 
 <Repl
   defaultValue={`const aMap = Map({ key: 'value' })
-const newMap = aMap.update('key', value => value + value)`}
+aMap.update('key', value => value + value)`}
 />
 
 This is most commonly used to call methods on collections within a structure of data. For example, in order to `.push()` onto a nested `List`, `update` and `push` can be used together:
 
 <Repl
   defaultValue={`const aMap = Map({ nestedList: List([ 1, 2, 3 ]) })
-const newMap = aMap.update('nestedList', list => list.push(4))`}
+aMap.update('nestedList', list => list.push(4))`}
 />
 
 When a `notSetValue` is provided, it is provided to the `updater` function when the value at the key does not exist in the Map.
 
 <Repl
   defaultValue={`const aMap = Map({ key: 'value' })
-const newMap = aMap.update('noKey', 'no value', value => value + value)`}
+aMap.update('noKey', 'no value', value => value + value)`}
 />
 
 However, if the `updater` function returns the same value it was called with, then no change will occur. This is still true if `notSetValue` is provided.
@@ -182,14 +182,14 @@ The previous example behaves differently when written with default values:
 
 <Repl
   defaultValue={`const aMap = Map({ apples: 10 })
-const newMap = aMap.update('oranges', (val = 0) => val)`}
+aMap.update('oranges', (val = 0) => val)`}
 />
 
 If no key is provided, then the `updater` function return value is returned as well.
 
 <Repl
   defaultValue={`const aMap = Map({ key: 'value' })
-const result = aMap.update(aMap => aMap.get('key'))
+aMap.update(aMap => aMap.get('key'))
 // "value"`}
 />
 
@@ -337,14 +337,14 @@ This is most commonly used to call methods on collections nested within a struct
 
 <Repl
   defaultValue={`const map = Map({ inMap: Map({ inList: List([ 1, 2, 3 ]) }) })
-const newMap = map.updateIn(['inMap', 'inList'], list => list.push(4))`}
+map.updateIn(['inMap', 'inList'], list => list.push(4))`}
 />
 
 If any keys in `keyPath` do not exist, new Immutable `Map`s will be created at those keys. If the `keyPath` does not already contain a value, the `updater` function will be called with `notSetValue`, if provided, otherwise `undefined`.
 
 <Repl
   defaultValue={`const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
-const newMap = map.updateIn(['a', 'b', 'c'], val => val * 2)`}
+map.updateIn(['a', 'b', 'c'], val => val * 2)`}
 />
 
 If the `updater` function returns the same value it was called with, then no change will occur. This is still true if `notSetValue` is provided.
@@ -362,14 +362,14 @@ The previous example behaves differently when written with default values:
 
 <Repl
   defaultValue={`const map = Map({ a: Map({ b: Map({ c: 10 }) }) })
-const newMap = map.updateIn(['a', 'b', 'x'], (val = 100) => val)`}
+map.updateIn(['a', 'b', 'x'], (val = 100) => val)`}
 />
 
 Plain JavaScript Object or Arrays may be nested within an Immutable.js Collection, and updateIn() can update those values as well, treating them immutably by creating new copies of those values with the changes applied.
 
 <Repl
   defaultValue={`const map = Map({ a: { b: { c: 10 } } })
-const newMap = map.updateIn(['a', 'b', 'c'], val => val * 2)`}
+map.updateIn(['a', 'b', 'c'], val => val * 2)`}
 />
 
 If any key in the path exists but cannot be updated (such as a primitive like number or a custom Object like Date), an error will be thrown.
@@ -630,7 +630,7 @@ Note: This is always an eager operation.
   Map({ v: 0 }),
   Map({ v: 2 })
 ])
-const groupsOfMaps = listOfMaps.groupBy(x => x.get('v'))`}
+listOfMaps.groupBy(x => x.get('v'))`}
 />
 
 ## Conversion to JavaScript types
@@ -844,7 +844,7 @@ This is similar to `List(collection)`, but provided to allow for chained express
 
 <Repl
   defaultValue={`var myMap = Map({ a: 'Apple', b: 'Banana' })
-export const listConstructor = List(myMap) // List [ [ "a", "Apple" ], [ "b", "Banana" ] ]
+const listConstructor = List(myMap) // List [ [ "a", "Apple" ], [ "b", "Banana" ] ]
 myMap.toList() // List [ "Apple", "Banana" ]`}
 />
 

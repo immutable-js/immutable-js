@@ -400,16 +400,19 @@ Returns the value found by following a path of keys or indices through nested Co
   code={`getIn(searchKeyPath: Iterable<unknown>, notSetValue?: unknown): unknown`}
 />
 
+A Set has no indices: the key of each value is the value itself, so the path is made of the values to follow.
+
 <Repl
   defaultValue={`const deepSet = Set([Set([1, 2, 3])]);
-deepSet.getIn([0, 1])`}
+deepSet.getIn([Set([1, 2, 3]), 2])`}
 />
 
-Plain JavaScript Object or Arrays may be nested within an Immutable.js Collection, and getIn() can access those values as well:
+Plain JavaScript Object or Arrays may be nested within an Immutable.js Collection, and getIn() can access those values as well. As they are compared by reference, the path must contain the same instance:
 
 <Repl
-  defaultValue={`const deepSet = Set([{ a: 1, b: 2 }]);
-deepSet.getIn([0, 'b'])`}
+  defaultValue={`const obj = { a: 1, b: 2 };
+const deepSet = Set([obj]);
+deepSet.getIn([obj, 'b'])`}
 />
 
 <MemberLabel label="hasIn()" />
