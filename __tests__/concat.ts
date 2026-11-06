@@ -174,6 +174,25 @@ describe('concat', () => {
     ]);
   });
 
+  it('iterates the keys and entries of indexed sequences in order', () => {
+    const a = Seq([1, 2]);
+    const b = Seq([3, 4, 5]).filter(() => true);
+    const c = a.concat(b, [6]);
+
+    expect(Array.from(c.keys())).toEqual([0, 1, 2, 3, 4, 5]);
+    expect(Array.from(c.entries())).toEqual([
+      [0, 1],
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 5],
+      [5, 6],
+    ]);
+    expect(Array.from(c.toKeyedSeq().entries())).toEqual(
+      c.toKeyedSeq().entrySeq().toArray()
+    );
+  });
+
   it('counts from the end of the indexed sequence on negative index', () => {
     const i = List.of(9, 5, 3, 1).map((x) => -x);
     expect(i.get(0)).toBe(-9);
