@@ -17,9 +17,9 @@ import { Map, is } from 'immutable';
 
 const map1 = Map({ a: 1, b: 1, c: 1 });
 const map2 = Map({ a: 1, b: 1, c: 1 });
-assert.equal(map1 !== map2, true);
-assert.equal(Object.is(map1, map2), false);
-assert.equal(is(map1, map2), true);
+console.log(map1 !== map2); // true
+console.log(Object.is(map1, map2)); // false
+console.log(is(map1, map2)); // true
 ```
 
 `is()` compares primitive types like strings and numbers, Immutable.js

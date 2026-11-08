@@ -222,9 +222,9 @@ The `hashCode` of a Collection is used to determine potential equality, and is u
 <Repl
   defaultValue={`const a = Set([ 1, 2, 3 ]);
 const b = Set([ 1, 2, 3 ]);
-assert.notStrictEqual(a, b); // different instances
+console.log({ strictlyEquals: a === b }); // false: different instances
 const set = Set([ a ]);
-assert.equal(set.has(b), true);`}
+console.log({ setHasB: set.has(b) });`}
 />
 
 If two values have the same `hashCode`, they are [not guaranteed to be equal][Hash Collision]. If two values have different `hashCode`s, they must not be equal.
@@ -284,16 +284,19 @@ Returns the value found by following a path of keys or indices through nested Co
   code={`getIn(searchKeyPath: Iterable<unknown>, notSetValue?: unknown): unknown`}
 />
 
+A Set has no indices: the key of each value is the value itself, so the path is made of the values to follow.
+
 <Repl
   defaultValue={`const deepSet = Set([Set([1, 2, 3])]);
-deepSet.getIn([0, 1])`}
+deepSet.getIn([Set([1, 2, 3]), 2])`}
 />
 
-Plain JavaScript Object or Arrays may be nested within an Immutable.js Collection, and getIn() can access those values as well:
+Plain JavaScript Object or Arrays may be nested within an Immutable.js Collection, and getIn() can access those values as well. As they are compared by reference, the path must contain the same instance:
 
 <Repl
-  defaultValue={`const deepSet = Set([{ a: 1, b: 2 }]);
-deepSet.getIn([0, 'b'])`}
+  defaultValue={`const obj = { a: 1, b: 2 };
+const deepSet = Set([obj]);
+deepSet.getIn([obj, 'b'])`}
 />
 
 <MemberLabel label="hasIn()" />

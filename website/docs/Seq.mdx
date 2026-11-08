@@ -347,9 +347,9 @@ import { Seq, Set } from 'immutable';
 
 const a = Seq([1, 2, 3]);
 const b = Seq([1, 2, 3]);
-assert.notStrictEqual(a, b); // different instances
+console.log({ strictlyEquals: a === b }); // false: different instances
 const set = Set([a]);
-assert.equal(set.has(b), true);
+console.log({ setHasB: set.has(b) }); // true
 ```
 
 Note: hashCode() MUST return a Uint32 number. The easiest way to guarantee this is to return `myHash | 0` from a custom implementation.

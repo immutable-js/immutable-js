@@ -99,7 +99,7 @@ function resolveIndex(
         : Math.min(size, index) | 0;
 }
 
-function isNeg(value: number): boolean {
+export function isNeg(value: number): boolean {
   // Account for -0 which is negative, but not less than 0.
   return value < 0 || (value === 0 && 1 / value === -Infinity);
 }

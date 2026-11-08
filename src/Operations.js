@@ -27,6 +27,7 @@ import {
 import {
   NOT_SET,
   ensureSize,
+  isNeg,
   resolveBegin,
   resolveEnd,
   wholeSlice,
@@ -351,16 +352,30 @@ export function filterFactory(collection, predicate, context, useKeys) {
     };
   }
   filterSequence.__iterateUncached = function (fn, reverse) {
+    // Indexed keys are renumbered from 0, so iterating in reverse has to count
+    // down from the filtered size, which is unknown until the filter has run.
+    // size is ignored otherwise, so it can be set to NaN to avoid TS report.
+    const size = reverse && !useKeys ? ensureSize(this) : NaN;
     let iterations = 0;
     collection.__iterate((v, k, c) => {
       if (predicate.call(context, v, k, c)) {
         iterations++;
-        return fn(v, useKeys ? k : iterations - 1, this);
+        let index;
+        if (useKeys) {
+          index = k;
+        } else if (reverse) {
+          index = size - iterations;
+        } else {
+          index = iterations - 1;
+        }
+        return fn(v, index, this);
       }
     }, reverse);
     return iterations;
   };
   filterSequence.__iteratorUncached = function (type, reverse) {
+    // Same as `__iterateUncached` above.
+    const size = reverse && !useKeys ? ensureSize(this) : NaN;
     const iterator = collection.__iterator(ITERATE_ENTRIES, reverse);
     let iterations = 0;
     return new Iterator(() => {
@@ -373,7 +388,15 @@ export function filterFactory(collection, predicate, context, useKeys) {
         const key = entry[0];
         const value = entry[1];
         if (predicate.call(context, value, key, collection)) {
-          return iteratorValue(type, useKeys ? key : iterations++, value, step);
+          let index;
+          if (useKeys) {
+            index = key;
+          } else if (reverse) {
+            index = size - ++iterations;
+          } else {
+            index = iterations++;
+          }
+          return iteratorValue(type, index, value, step);
         }
       }
     });
@@ -424,7 +447,8 @@ export function sliceFactory(collection, begin, end, useKeys) {
   // begin or end can not be resolved if they were provided as negative numbers and
   // this collection's size is unknown. In that case, cache first so there is
   // a known size and these do not resolve to NaN.
-  if (typeof originalSize === 'undefined' && (begin < 0 || end < 0)) {
+  // isNeg also accounts for -0, which `takeLast(0)` passes as begin.
+  if (typeof originalSize === 'undefined' && (isNeg(begin) || isNeg(end))) {
     return sliceFactory(collection.toSeq().cacheResult(), begin, end, useKeys);
   }
 
@@ -796,16 +820,22 @@ export function interposeFactory(collection, separator) {
   const interposedSequence = makeSequence(collection);
   interposedSequence.size = collection.size && collection.size * 2 - 1;
   interposedSequence.__iterateUncached = function (fn, reverse) {
+    // Keys are indices into the interposed sequence, so iterating in reverse
+    // has to count down from its size, which may be unknown until it has run.
+    const size = reverse ? ensureSize(this) : NaN;
     let iterations = 0;
+    const nextKey = () => (reverse ? size - ++iterations : iterations++);
     collection.__iterate(
       (v) =>
-        (!iterations || fn(separator, iterations++, this) !== false) &&
-        fn(v, iterations++, this) !== false,
+        (!iterations || fn(separator, nextKey(), this) !== false) &&
+        fn(v, nextKey(), this) !== false,
       reverse
     );
     return iterations;
   };
   interposedSequence.__iteratorUncached = function (type, reverse) {
+    // Same as `__iterateUncached` above.
+    const size = reverse ? ensureSize(this) : NaN;
     const iterator = collection.__iterator(ITERATE_VALUES, reverse);
     let iterations = 0;
     let step;
@@ -816,9 +846,10 @@ export function interposeFactory(collection, separator) {
           return step;
         }
       }
-      return iterations % 2
-        ? iteratorValue(type, iterations++, separator)
-        : iteratorValue(type, iterations++, step.value, step);
+      const key = reverse ? size - 1 - iterations : iterations;
+      return iterations++ % 2
+        ? iteratorValue(type, key, separator)
+        : iteratorValue(type, key, step.value, step);
     });
   };
   return interposedSequence;
@@ -883,7 +914,7 @@ export function zipWithFactory(keyIter, zipper, iters, zipAll) {
   zipSequence.size = zipAll ? sizes.max() : sizes.min();
   // Note: this a generic base implementation of __iterate in terms of
   // __iterator which may be more generically useful in the future.
-  zipSequence.__iterate = function (fn, reverse) {
+  zipSequence.__iterateUncached = function (fn, reverse) {
     /* generic:
     var iterator = this.__iterator(ITERATE_ENTRIES, reverse);
     var step;

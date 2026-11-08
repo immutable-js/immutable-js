@@ -77,6 +77,7 @@
 }
 
 .rd-repl__out {
+  display: flex;
   border-top: 1px solid var(--border);
   padding: 10px 15px;
   font-family: 'Fira Code', monospace;
@@ -88,9 +89,13 @@
 }
 
 .rd-repl__out-prefix {
+  flex-shrink: 0;
+  white-space: pre;
   color: var(--muted);
 }
 
+/* the output can be multiline (logs + result): keep it next to the prefix */
 .rd-repl__out > div {
-  display: inline;
+  flex: 1;
+  min-width: 0;
 }

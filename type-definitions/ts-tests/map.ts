@@ -158,7 +158,35 @@ test('#delete', () => {
 
   expect(Map<number, number>().delete('a')).type.toRaiseError();
 
-  expect(Map({ a: 1, b: 'b' }).delete('b')).type.toBe<never>();
+  expect(Map({ a: 1, b: 'b' }).delete('b')).type.toBe<MapOf<{ a: number }>>();
+
+  expect(Map({ a: 1, b: 'b' }).delete('b').get('a')).type.toBe<number>();
+
+  expect(Map({ a: 1, b: 'b' }).delete('b').get('b')).type.toRaiseError();
+
+  expect(Map({ a: 1, b: 'b' }).delete('b').delete('a')).type.toBe<
+    MapOf<Record<never, never>>
+  >();
+
+  expect(Map({ a: 1, b: 'b' }).delete('b').toJS()).type.toBe<{ a: number }>();
+
+  expect(Map({ a: 1, b: 'b' }).delete('c')).type.toRaiseError();
+
+  expect(Map<{ a: number; b?: string }>({ a: 1 }).delete('a')).type.toBe<
+    MapOf<{ b?: string | undefined }>
+  >();
+
+  expect(Map({ a: 1, b: 'b' }).delete('b')).type.toBeAssignableTo<
+    Map<'a', number>
+  >();
+
+  const sorted = Map<{ a: string; b?: string }>({ a: 'a' }).sort();
+
+  expect(sorted.delete('b')).type.toBe<typeof sorted>();
+
+  expect(
+    Map<{ a: number; b?: string }>({ a: 1 }).delete('a').set('b', 'b')
+  ).type.toBe<MapOf<{ b?: string | undefined }>>();
 
   expect(
     Map<{ a: number; b?: string }>({ a: 1, b: 'b' }).delete('b')
@@ -191,6 +219,14 @@ test('#remove', () => {
   expect(Map<number, number>().remove(0)).type.toBe<Map<number, number>>();
 
   expect(Map<number, number>().remove('a')).type.toRaiseError();
+
+  expect(Map({ a: 1, b: 'b' }).remove('b')).type.toBe<MapOf<{ a: number }>>();
+
+  expect(
+    Map<{ a: number; b?: string }>({ a: 1, b: 'b' }).remove('b')
+  ).type.toBe<MapOf<{ a: number; b?: string | undefined }>>();
+
+  expect(Map({ a: 1, b: 'b' }).remove('c')).type.toRaiseError();
 });
 
 test('#removeAll', () => {
