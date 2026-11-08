@@ -1648,17 +1648,18 @@ type RecordOf<Values: Object> = RecordInstance<Values> & $ReadOnly<Values>;
 
 // The values of a Record instance.
 type _RecordValues<T, R: RecordInstance<T> | T> = R;
-type RecordValues<R> = _RecordValues<*, R>;
+type RecordValues<R> = _RecordValues<mixed, R>;
 
 declare function isRecord(
   maybeRecord: any
 ): boolean %checks(maybeRecord instanceof RecordInstance);
-declare class Record {
-  static <Values: Object>(spec: Values, name?: string): typeof RecordInstance;
-  constructor<Values: Object>(
+
+declare class Record<Values: Object> {
+  static (spec: Values, name?: string): RecordFactory<Values>;
+  constructor(
     spec: Values,
     name?: string
-  ): typeof RecordInstance;
+  ): RecordFactory<Values>;
 
   static isRecord: typeof isRecord;
 
