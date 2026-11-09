@@ -1644,13 +1644,7 @@
           do {
             step = iterator.next();
             if (step.done) {
-              if (useKeys || type === ITERATE_VALUES) {
-                return step;
-              }
-              if (type === ITERATE_KEYS) {
-                return iteratorValue(type, iterations++, undefined, step);
-              }
-              return iteratorValue(type, iterations++, step.value[1], step);
+              return step;
             }
             var entry = step.value;
             k = entry[0];
@@ -1658,7 +1652,7 @@
             // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- TODO enable eslint here
             skipping && (skipping = predicate.call(context, v, k, this$1$1));
           } while (skipping);
-          return type === ITERATE_ENTRIES ? step : iteratorValue(type, k, v, step);
+          return iteratorValue(type, useKeys ? k : iterations++, v, step);
         });
       };
       return skipSequence;
