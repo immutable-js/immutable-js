@@ -11,11 +11,203 @@ installDevTools(Immutable);
 // hack to get the formatters from immutable-devtools as they are not exported, but they modify the "global" variable
 const immutableFormaters = globalThis.devtoolsFormatters;
 
-describe('normalizeResult', () => {
-  it('should return the correct object', () => {
-    const result = normalizeResult(immutableFormaters, { a: 1, b: 2 });
+const keyStyle = { style: 'color: light-dark( #881391, #D48CE6)' };
+const nullStyle = {
+  style: 'color: light-dark(rgb(119,119,119), rgb(201, 201, 201))',
+};
+const numberBooleanStyle = {
+  style: 'color: light-dark(rgb(28, 128, 28), rgb(50, 200, 50))',
+};
+const listStyle = {
+  style:
+    'list-style-type: none; padding: 0; margin: 0 0 0 12px; font-style: normal; position: relative',
+};
 
-    expect(result).toEqual(JSON.stringify({ a: 1, b: 2 }));
+describe('normalizeResult', () => {
+  it.each([
+    ['a', 'b', 'c'],
+    ['1', 'a', 'b'],
+  ])('renders string arrays as values: %j', (...value) => {
+    expect(normalizeResult(immutableFormaters, value)).toEqual([
+      'span',
+      '[ ',
+      ['object', { object: value[0] }],
+      ', ',
+      ['object', { object: value[1] }],
+      ', ',
+      ['object', { object: value[2] }],
+      ' ]',
+    ]);
+  });
+
+  it('renders a JsonML-looking array as indexed data', () => {
+    expect(
+      normalizeResult(immutableFormaters, ['span', { title: 'data' }, 'text'])
+    ).toEqual([
+      'span',
+      '[',
+      [
+        'ol',
+        listStyle,
+        ['li', ['span', keyStyle, '0: '], ['object', { object: 'span' }]],
+        [
+          'li',
+          ['span', keyStyle, '1: '],
+          [
+            'span',
+            '{ ',
+            ['span', keyStyle, 'title: '],
+            ['object', { object: 'data' }],
+            ' }',
+          ],
+        ],
+        ['li', ['span', keyStyle, '2: '], ['object', { object: 'text' }]],
+      ],
+      ']',
+    ]);
+  });
+
+  it('keeps a plain object-reference array as data', () => {
+    const list = Immutable.List(['a']);
+    expect(
+      normalizeResult(immutableFormaters, ['object', { object: list }])
+    ).toEqual([
+      'span',
+      '[',
+      [
+        'ol',
+        listStyle,
+        ['li', ['span', keyStyle, '0: '], ['object', { object: 'object' }]],
+        [
+          'li',
+          ['span', keyStyle, '1: '],
+          [
+            'span',
+            '{',
+            [
+              'ol',
+              listStyle,
+              [
+                'li',
+                ['span', keyStyle, 'object: '],
+                normalizeResult(immutableFormaters, list),
+              ],
+            ],
+            '}',
+          ],
+        ],
+      ],
+      ']',
+    ]);
+  });
+
+  it('should return the correct primitives', () => {
+    expect(normalizeResult(immutableFormaters, undefined)).toEqual([
+      'span',
+      nullStyle,
+      'undefined',
+    ]);
+    expect(normalizeResult(immutableFormaters, null)).toEqual([
+      'span',
+      nullStyle,
+      'null',
+    ]);
+    expect(normalizeResult(immutableFormaters, true)).toEqual([
+      'span',
+      numberBooleanStyle,
+      'true',
+    ]);
+    expect(normalizeResult(immutableFormaters, 0)).toEqual([
+      'span',
+      numberBooleanStyle,
+      '0',
+    ]);
+    expect(normalizeResult(immutableFormaters, 'a')).toEqual([
+      'object',
+      { object: 'a' },
+    ]);
+  });
+
+  it('should return the correct object', () => {
+    const result = normalizeResult(immutableFormaters, { a: 1, b: true });
+
+    expect(result).toEqual([
+      'span',
+      '{ ',
+      ['span', keyStyle, 'a: '],
+      ['span', numberBooleanStyle, '1'],
+      ', ',
+      ['span', keyStyle, 'b: '],
+      ['span', numberBooleanStyle, 'true'],
+      ' }',
+    ]);
+  });
+
+  it('should return the correct array', () => {
+    expect(normalizeResult(immutableFormaters, [])).toEqual(['span', '[]']);
+
+    expect(normalizeResult(immutableFormaters, ['a', null])).toEqual([
+      'span',
+      '[ ',
+      ['object', { object: 'a' }],
+      ', ',
+      ['span', nullStyle, 'null'],
+      ' ]',
+    ]);
+  });
+
+  it('should return the correct object containing immutable data', () => {
+    const result = normalizeResult(immutableFormaters, {
+      a: Immutable.List(),
+      b: [1],
+    });
+
+    expect(result).toEqual([
+      'span',
+      '{',
+      [
+        'ol',
+        listStyle,
+        [
+          'li',
+          ['span', keyStyle, 'a: '],
+          normalizeResult(immutableFormaters, Immutable.List()),
+        ],
+        [
+          'li',
+          ['span', keyStyle, 'b: '],
+          ['span', '[ ', ['span', numberBooleanStyle, '1'], ' ]'],
+        ],
+      ],
+      '}',
+    ]);
+  });
+
+  it('should return the correct object for a list containing plain objects', () => {
+    const result = normalizeResult(
+      immutableFormaters,
+      Immutable.List([{ a: 1 }])
+    );
+
+    expect(result).toEqual([
+      'span',
+      expect.anything(),
+      [
+        'ol',
+        listStyle,
+        [
+          'li',
+          ['span', { style: 'color: light-dark( #881391, #D48CE6)' }, '0: '],
+          [
+            'span',
+            '{ ',
+            ['span', keyStyle, 'a: '],
+            ['span', numberBooleanStyle, '1'],
+            ' }',
+          ],
+        ],
+      ],
+    ]);
   });
 
   it('should return the correct object for a list', () => {

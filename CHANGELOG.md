@@ -94,6 +94,15 @@ Remove transducersjs compatibility, as `cognitect-labs/transducers-js` has been 
 
 - better types 6.x [2204](https://github.com/immutable-js/immutable-js/pull/2204)
 
+## 5.1.10
+
+- [TypeScript]: on a `MapOf` (a `Map` built from an object), `delete` and `remove` of a required key now give a `MapOf` without that key (`Map({ a: 1, b: 'b' }).delete('b')` is a `MapOf<{ a: number }>`) instead of `never`. Deleting an optional key still keeps the type. [#2312](https://github.com/immutable-js/immutable-js/pull/2312)
+- fix(Seq): Stack overflow when slicing a zipped Sequence of unknown size from the end - by @b84330808 in https://github.com/immutable-js/immutable-js/pull/2311
+- fix(Seq): Incorrect keys of an _interposed_ Sequence when iterated in reverse - by @b84330808 in https://github.com/immutable-js/immutable-js/pull/2310
+- fix(Seq): Incorrect keys of a _filtered_ indexed Seq when iterated in reverse - by @b84330808 in https://github.com/immutable-js/immutable-js/pull/2309
+- fix(Seq): Fix `takeLast(0)` on a Sequence of unknown size - by @b84330808 in https://github.com/immutable-js/immutable-js/pull/2313
+- fix(Seq): `skipWhile` and `skipUntil` on an indexed Seq now renumber iterator keys from 0, consistently with `toArray` and `entrySeq`, and `entries()` no longer throws once exhausted. This also fixes iterating a chained `map`/`filter` and `equals` on such sequences - by @wozhenbang2004 in https://github.com/immutable-js/immutable-js/pull/2319
+
 ## 5.1.9
 
 - fix(List): a `List` grown past 32 elements while all its values are `undefined` no longer reads those values back as `null` (affected `get`, iteration, `toArray`, `equals` and `hashCode`)

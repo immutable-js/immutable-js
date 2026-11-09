@@ -249,6 +249,18 @@ describe('slice', () => {
     expect(sliced.toArray()).toEqual([4, 5]);
   });
 
+  it('treats -0 as negative on a sequence with unknown size', () => {
+    const known = Seq([1, 2, 3]);
+    // A filtered Seq has no known size. Slicing it with a negative index
+    // caches it, so each check below starts from a fresh one.
+    const lazy = () => known.filter(() => true);
+    expect(lazy().size).toBe(undefined);
+
+    expect(lazy().takeLast(0).toArray()).toEqual([]);
+    expect(lazy().slice(-0).toArray()).toEqual([]);
+    expect(lazy().slice(0, -0).toArray()).toEqual(known.slice(0, -0).toArray());
+  });
+
   it('works like Array.prototype.slice', () => {
     fc.assert(
       fc.property(

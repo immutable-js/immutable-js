@@ -18,6 +18,7 @@ import { KeyedSeq, SetSeq, IndexedSeq, ArraySeq } from '../Seq';
 import {
   NOT_SET,
   ensureSize,
+  isNeg,
   wrapIndex,
   wholeSlice,
   resolveBegin,
@@ -298,16 +299,42 @@ export function filterFactory<K, V, C extends CollectionImpl<K, V>>(
     fn,
     reverse
   ) {
+    // Indexed keys are renumbered from 0, so iterating in reverse has to count
+    // down from the filtered size, which is unknown until the filter has run.
+    // size is ignored otherwise, so it can be set to NaN to avoid TS report.
+    const size =
+      reverse && !useKeys
+        ? // TODO [TS-DESIGN] loosely-typed built seq passed as the typed
+          // collection (see MutableSequence)
+          ensureSize(this as unknown as CollectionImpl<unknown, unknown>)
+        : NaN;
     let iterations = 0;
     collection.__iterate((v, k, c) => {
       if (predicate.call(context, v, k, c)) {
         iterations++;
-        return fn(v, useKeys ? k : iterations - 1, this);
+        let index;
+        if (useKeys) {
+          index = k;
+        } else if (reverse) {
+          index = size - iterations;
+        } else {
+          index = iterations - 1;
+        }
+        return fn(v, index, this);
       }
     }, reverse);
     return iterations;
   };
-  filterSequence.__iteratorUncached = function (type, reverse) {
+  filterSequence.__iteratorUncached = function (
+    this: MutableSequence,
+    type,
+    reverse
+  ) {
+    // Same as `__iterateUncached` above.
+    const size =
+      reverse && !useKeys
+        ? ensureSize(this as unknown as CollectionImpl<unknown, unknown>)
+        : NaN;
     const iterator = collection.__iterator(ITERATE_ENTRIES, reverse);
     let iterations = 0;
     // Yields keys, values or entries depending on `type` → element type `unknown`.
@@ -321,8 +348,16 @@ export function filterFactory<K, V, C extends CollectionImpl<K, V>>(
         const key = entry[0];
         const value = entry[1];
         if (predicate.call(context, value, key, collection)) {
+          let index;
+          if (useKeys) {
+            index = key;
+          } else if (reverse) {
+            index = size - ++iterations;
+          } else {
+            index = iterations++;
+          }
           // `step` is reused as the result container (see iteratorValue).
-          return iteratorValue(type, useKeys ? key : iterations++, value, step);
+          return iteratorValue(type, index, value, step);
         }
       }
     });
@@ -371,9 +406,10 @@ export function sliceFactory<C extends CollectionImpl<unknown, unknown>>(
   // begin or end can not be resolved if they were provided as negative numbers
   // and this collection's size is unknown. In that case, cache first so there
   // is a known size and these do not resolve to NaN.
+  // isNeg also accounts for -0, which `takeLast(0)` passes as begin.
   if (
     typeof originalSize === 'undefined' &&
-    ((begin ?? 0) < 0 || (end ?? 0) < 0)
+    (isNeg(begin ?? 0) || isNeg(end ?? 0))
   ) {
     return sliceFactory(
       // TODO [TS-DESIGN] `cacheResult` is a Seq method not on the base type
@@ -591,20 +627,7 @@ export function skipWhileFactory<K, V, C extends CollectionImpl<K, V>>(
       do {
         step = iterator.next();
         if (step.done) {
-          if (useKeys || type === ITERATE_VALUES) {
-            return step;
-          }
-          if (type === ITERATE_KEYS) {
-            return iteratorValue(type, iterations++, undefined, step);
-          }
-          return iteratorValue(
-            type,
-            iterations++,
-            // `step` is done here, so `step.value` is `undefined`; the original
-            // runtime still indexes it as a tuple.
-            (step.value as unknown as [unknown, unknown])[1],
-            step
-          );
+          return step;
         }
         const entry = step.value;
         k = entry[0];
@@ -616,7 +639,7 @@ export function skipWhileFactory<K, V, C extends CollectionImpl<K, V>>(
           (skipping = !!predicate.call(context, v, k, this as unknown as C));
       } while (skipping);
       // `step` is reused as the result container (see iteratorValue).
-      return type === ITERATE_ENTRIES ? step : iteratorValue(type, k, v, step);
+      return iteratorValue(type, useKeys ? k : iterations++, v, step);
     });
   };
   // TODO [TS-DESIGN] dynamic-build boundary (see MutableSequence)
@@ -730,16 +753,32 @@ export function interposeFactory<C extends CollectionImpl<unknown, unknown>>(
     fn,
     reverse
   ) {
+    // Keys are indices into the interposed sequence, so iterating in reverse
+    // has to count down from its size, which may be unknown until it has run.
+    const size = reverse
+      ? // TODO [TS-DESIGN] loosely-typed built seq passed as the typed
+        // collection (see MutableSequence)
+        ensureSize(this as unknown as CollectionImpl<unknown, unknown>)
+      : NaN;
     let iterations = 0;
+    const nextKey = () => (reverse ? size - ++iterations : iterations++);
     collection.__iterate(
       (v) =>
-        (!iterations || fn(separator, iterations++, this) !== false) &&
-        fn(v, iterations++, this) !== false,
+        (!iterations || fn(separator, nextKey(), this) !== false) &&
+        fn(v, nextKey(), this) !== false,
       reverse
     );
     return iterations;
   };
-  interposedSequence.__iteratorUncached = function (type, reverse) {
+  interposedSequence.__iteratorUncached = function (
+    this: MutableSequence,
+    type,
+    reverse
+  ) {
+    // Same as `__iterateUncached` above.
+    const size = reverse
+      ? ensureSize(this as unknown as CollectionImpl<unknown, unknown>)
+      : NaN;
     const iterator = collection.__iterator(ITERATE_VALUES, reverse);
     let iterations = 0;
     let step: IteratorResult<unknown> | undefined;
@@ -751,10 +790,11 @@ export function interposeFactory<C extends CollectionImpl<unknown, unknown>>(
           return step;
         }
       }
+      const key = reverse ? size - 1 - iterations : iterations;
       // `step` is reused as the result container (see iteratorValue).
-      return iterations % 2
-        ? iteratorValue(type, iterations++, separator)
-        : iteratorValue(type, iterations++, step!.value, step);
+      return iterations++ % 2
+        ? iteratorValue(type, key, separator)
+        : iteratorValue(type, key, step!.value, step);
     });
   };
   // TODO [TS-DESIGN] dynamic-build boundary (see MutableSequence)
@@ -872,7 +912,11 @@ export function zipWithFactory(
   zipSequence.size = zipAll ? sizes.max() : sizes.min();
   // Note: this is a generic base implementation of __iterate in terms of
   // __iterator which may be more generically useful in the future.
-  zipSequence.__iterate = function (this: MutableSequence, fn, reverse) {
+  zipSequence.__iterateUncached = function (
+    this: MutableSequence,
+    fn,
+    reverse
+  ) {
     /* generic:
     var iterator = this.__iterator(ITERATE_ENTRIES, reverse);
     var step;
