@@ -24,6 +24,83 @@ const listStyle = {
 };
 
 describe('normalizeResult', () => {
+  it.each([
+    ['a', 'b', 'c'],
+    ['1', 'a', 'b'],
+  ])('renders string arrays as values: %j', (...value) => {
+    expect(normalizeResult(immutableFormaters, value)).toEqual([
+      'span',
+      '[ ',
+      ['object', { object: value[0] }],
+      ', ',
+      ['object', { object: value[1] }],
+      ', ',
+      ['object', { object: value[2] }],
+      ' ]',
+    ]);
+  });
+
+  it('renders a JsonML-looking array as indexed data', () => {
+    expect(
+      normalizeResult(immutableFormaters, ['span', { title: 'data' }, 'text'])
+    ).toEqual([
+      'span',
+      '[',
+      [
+        'ol',
+        listStyle,
+        ['li', ['span', keyStyle, '0: '], ['object', { object: 'span' }]],
+        [
+          'li',
+          ['span', keyStyle, '1: '],
+          [
+            'span',
+            '{ ',
+            ['span', keyStyle, 'title: '],
+            ['object', { object: 'data' }],
+            ' }',
+          ],
+        ],
+        ['li', ['span', keyStyle, '2: '], ['object', { object: 'text' }]],
+      ],
+      ']',
+    ]);
+  });
+
+  it('keeps a plain object-reference array as data', () => {
+    const list = Immutable.List(['a']);
+    expect(
+      normalizeResult(immutableFormaters, ['object', { object: list }])
+    ).toEqual([
+      'span',
+      '[',
+      [
+        'ol',
+        listStyle,
+        ['li', ['span', keyStyle, '0: '], ['object', { object: 'object' }]],
+        [
+          'li',
+          ['span', keyStyle, '1: '],
+          [
+            'span',
+            '{',
+            [
+              'ol',
+              listStyle,
+              [
+                'li',
+                ['span', keyStyle, 'object: '],
+                normalizeResult(immutableFormaters, list),
+              ],
+            ],
+            '}',
+          ],
+        ],
+      ],
+      ']',
+    ]);
+  });
+
   it('should return the correct primitives', () => {
     expect(normalizeResult(immutableFormaters, undefined)).toEqual([
       'span',
