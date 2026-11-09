@@ -19,6 +19,23 @@ describe('skipWhile', () => {
     }
   );
 
+  it('can be iterated after a chained lazy operation', () => {
+    const seq = Seq(['A', 'B', 'C']).skipWhile((value) => value === 'A');
+
+    expect([...seq.map((value) => value.toLowerCase())]).toEqual(['b', 'c']);
+    expect([...seq.filter((value) => value !== 'B').entries()]).toEqual([
+      [0, 'C'],
+    ]);
+  });
+
+  it('is equal to a sequence with the same values', () => {
+    const seq = Seq(['A', 'B', 'C']).skipWhile((value) => value === 'A');
+
+    expect(seq.equals(Seq(['B', 'C']))).toBe(true);
+    expect(Seq(['B', 'C']).equals(seq)).toBe(true);
+    expect(seq.equals(Seq(['B', 'D']))).toBe(false);
+  });
+
   it.each(['keys', 'values', 'entries'] as const)(
     '%s finishes when the input is empty or entirely skipped',
     (method) => {
