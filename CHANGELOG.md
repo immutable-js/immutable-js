@@ -13,6 +13,7 @@ Dates are formatted as YYYY-MM-DD.
 - fix(Seq): Incorrect keys of an _interposed_ Sequence when iterated in reverse - by @b84330808 in https://github.com/immutable-js/immutable-js/pull/2310
 - fix(Seq): Incorrect keys of a _filtered_ indexed Seq when iterated in reverse - by @b84330808 in https://github.com/immutable-js/immutable-js/pull/2309
 - fix(Seq): Fix `takeLast(0)` on a Sequence of unknown size - by @b84330808 in https://github.com/immutable-js/immutable-js/pull/2313
+- fix(Seq): `skipWhile` and `skipUntil` on an indexed Seq now renumber iterator keys from 0, consistently with `toArray` and `entrySeq`, and `entries()` no longer throws once exhausted. This also fixes iterating a chained `map`/`filter` and `equals` on such sequences - by @wozhenbang2004 in https://github.com/immutable-js/immutable-js/pull/2319
 
 ## 5.1.9
 
