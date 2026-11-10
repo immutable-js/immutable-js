@@ -27,7 +27,7 @@ describe('getIn', () => {
     expect(() => Map().getIn('abc')).toThrow(
       'Invalid keyPath: expected Ordered Collection or Array: abc'
     );
-    // TODO: should expect error
+    // @ts-expect-error -- test that runtime does throw
     expect(() => getIn(Map(), 'abc')).toThrow(
       'Invalid keyPath: expected Ordered Collection or Array: abc'
     );
@@ -39,6 +39,7 @@ describe('getIn', () => {
     expect(m.getIn(['a', 'b', 'z'], 123)).toEqual(123);
     expect(m.getIn(['a', 'y', 'z'])).toEqual(undefined);
     expect(m.getIn(['a', 'y', 'z'], 123)).toEqual(123);
+    // @ts-expect-error -- the path is a type error, test that runtime returns not found
     expect(getIn(m, ['a', 'y', 'z'])).toEqual(undefined);
     expect(getIn(m, ['a', 'y', 'z'], 123)).toEqual(123);
   });
@@ -59,9 +60,11 @@ describe('getIn', () => {
     expect(m.getIn(['a', 'b', 'c', 'x'], 123)).toEqual(123);
     expect(m.getIn(['a', 'b', 'd', 'x'])).toEqual(undefined);
     expect(m.getIn(['a', 'b', 'd', 'x'], 123)).toEqual(123);
+    // @ts-expect-error -- the path is a type error, test that runtime returns not found
     expect(getIn(m, ['a', 'b', 'd', 'x'])).toEqual(undefined);
     expect(getIn(m, ['a', 'b', 'd', 'x'], 123)).toEqual(123);
 
+    // @ts-expect-error -- the path is a type error, test that runtime returns not found
     expect(getIn('a', ['length'])).toEqual(undefined);
     expect(getIn(new Date(), ['getDate'])).toEqual(undefined);
   });
@@ -76,8 +79,10 @@ describe('getIn', () => {
       key: { regular: 'jsobj' },
       list: List([Map({ num: 10 })]),
     });
+    // @ts-expect-error -- the path is a type error, test that runtime returns not found
     expect(deep.getIn(['key', 'foo', 'item'])).toBe(undefined);
     expect(deep.getIn(['key', 'foo', 'item'], 'notSet')).toBe('notSet');
+    // @ts-expect-error -- the path is a type error, test that runtime returns not found
     expect(deep.getIn(['list', 0, 'num', 'badKey'])).toBe(undefined);
     expect(deep.getIn(['list', 0, 'num', 'badKey'], 'notSet')).toBe('notSet');
   });
@@ -89,8 +94,10 @@ describe('getIn', () => {
 
   it('deep get returns not found if non-existing path in plain Object', () => {
     const deep = { key: { regular: 'jsobj' }, list: [{ num: 10 }] };
+    // @ts-expect-error -- the path is a type error, test that runtime returns not found
     expect(getIn(deep, ['key', 'foo', 'item'])).toBe(undefined);
     expect(getIn(deep, ['key', 'foo', 'item'], 'notSet')).toBe('notSet');
+    // @ts-expect-error -- the path is a type error, test that runtime returns not found
     expect(getIn(deep, ['list', 0, 'num', 'badKey'])).toBe(undefined);
     expect(getIn(deep, ['list', 0, 'num', 'badKey'], 'notSet')).toBe('notSet');
   });

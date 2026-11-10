@@ -8,6 +8,82 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+#### [TypeScript] `Record#getIn` is typed from the Record's properties, like `MapOf#getIn`
+
+No runtime change. `Record#getIn` also accepts a `notSetValue`, as the runtime always did.
+
+```ts
+const Address = Record({ city: '', zip: 0 });
+const Person = Record({ name: '', address: Address() });
+const person = Person();
+
+person.getIn(['address', 'city']); // was unknown, now string
+person.getIn(['address', 'street']); // was unknown, now a type error: expected one of "city" | "zip"
+person.getIn(['address', 'street'], 'nsv'); // was a type error (one argument expected), now 'nsv'
+```
+
+#### [TypeScript] `Record#update(updater)` is properly typed
+
+```ts
+const point = Record({ x: 0, y: 0 })();
+
+point.update((p) => p.x + p.y); // was a type error (two arguments expected), now number
+```
+
+#### [TypeScript Break] A key path the types can not follow is a type error
+
+For `MapOf#getIn`, `Record#getIn` and the functional `getIn`. Such a path previously gave `never`, which TypeScript accepted silently, and a valid path needed `as const` to give its type.
+
+```ts
+const map = Map({ a: { b: 1 } });
+
+map.getIn(['a', 'b']); // was never (number with `['a', 'b'] as const`), now number without `as const`
+map.getIn(['z']); // was never, now a type error: expected one of "a"
+map.getIn(['a', 'b', 'c']); // was never, now a type error: no key can be read from number
+map.getIn(['z'], 'nsv'); // was never, now 'nsv': with a `notSetValue`, any path is accepted
+```
+
+A path only known at runtime is typed as such, and the result is `unknown`:
+
+```ts
+const path: Array<string> = ['a', 'b'];
+
+map.getIn(path); // was never, now unknown
+map.getIn(List(['a', 'b'])); // was a type error, now unknown
+```
+
+#### [TypeScript] Typed key paths follow a nested Record, a Map with unknown keys and a value that may be missing
+
+The same goes for a nested `List`, `OrderedMap`, `Seq`, `Stack`, plain object or array.
+
+```ts
+const Point = Record({ x: 0 });
+const map = Map({
+  point: Point(),
+  scores: Map<string, number>(),
+  address: null as { city: string } | null,
+});
+
+map.getIn(['point', 'x']); // was never, now number
+map.getIn(['scores', 'math']); // was never, now number
+map.getIn(['address', 'city']); // was never, now string | undefined: `address` may be null
+map.getIn(['address', 'city'], null); // was never, now string | null: the `notSetValue` replaces the undefined
+```
+
+#### [TypeScript] `Record.isRecord` and `isRecord` narrow a union to its Record, like `Map.isMap`
+
+The guard type is `Record<any>` instead of `Record<object>`, which no Record was assignable to.
+
+```ts
+const Point = Record({ x: 0 });
+const value = Point() as RecordOf<{ x: number }> | { x: number };
+
+if (Record.isRecord(value)) {
+  value; // was (RecordOf<{ x: number }> | { x: number }) & Record<object>, now RecordOf<{ x: number }>
+  value.get('x'); // was a type error, now number
+}
+```
+
 ## 5.1.10
 
 - fix(Seq): Incorrect (`NaN`) keys when iterating in reverse an indexed lazy Sequence of unknown size [#2268](https://github.com/immutable-js/immutable-js/pull/2268)

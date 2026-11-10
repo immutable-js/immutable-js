@@ -1,4 +1,4 @@
-import { List, Map, MapOf, Record, RecordOf, Set } from 'immutable';
+import { List, Map, MapOf, Record, RecordOf, Set, isRecord } from 'immutable';
 import { expect, pick, test } from 'tstyche';
 
 test('Factory', () => {
@@ -105,4 +105,190 @@ test('similar properties, but one is optional', () => {
   }
 
   expect<RecordOf<{ id: Id }>>().type.toBeAssignableTo<RecordOf<{ id?: Id }>>();
+});
+
+test('#getIn', () => {
+  const Address = Record({ city: '', zip: 0 });
+  const Person = Record({
+    name: '',
+    address: Address(),
+    tags: List(['a']),
+    scores: Map<string, number>(),
+    settings: Map({ theme: 'dark' }),
+    raw: { nested: { deep: true } },
+  });
+  const person = Person();
+
+  expect(person.getIn(['name'])).type.toBe<string>();
+
+  expect(person.getIn(['name' as const])).type.toBe<string>();
+
+  expect(person.getIn(['name'], 'not set')).type.toBe<string>();
+
+  // through a nested Record
+  expect(person.getIn(['address', 'city'])).type.toBe<string>();
+
+  // a Record method is not one of its properties
+  expect(person.getIn(['address', 'get'])).type.toRaiseError('expected one of');
+
+  expect(person.getIn(['address', 'street'])).type.toRaiseError(
+    'expected one of'
+  );
+
+  // unless a `notSetValue` is given: it is then the result
+  expect(person.getIn(['address', 'street'], 'nsv')).type.toBe<'nsv'>();
+
+  // through a nested List, a Map built from an object, a Map with unknown keys and a plain object
+  expect(person.getIn(['tags', 0])).type.toBe<string>();
+
+  expect(person.getIn(['settings', 'theme'])).type.toBe<string>();
+
+  expect(person.getIn(['scores', 'math'])).type.toBe<number>();
+
+  expect(person.getIn(['raw', 'nested', 'deep'])).type.toBe<boolean>();
+
+  // an invalid path is a type error, like `MapOf#getIn`
+  expect(person.getIn(['unknown'])).type.toRaiseError('expected one of');
+
+  // nothing can be read below a primitive
+  expect(person.getIn(['name', 'length'])).type.toRaiseError(
+    'no key can be read from'
+  );
+
+  expect(person.getIn(['unknown'], 'nsv')).type.toBe<'nsv'>();
+
+  // a path only known at runtime
+  const path: Array<string> = ['name'];
+
+  expect(person.getIn(path)).type.toBe<unknown>();
+
+  expect(person.getIn(List(['name']))).type.toBe<unknown>();
+
+  const readonlyPath: ReadonlyArray<string> = ['name'];
+
+  expect(person.getIn(readonlyPath)).type.toBe<unknown>();
+
+  // an iterable which is neither an array nor an ordered collection is a type error
+  const iterablePath: Iterable<string> = ['name'];
+
+  expect(person.getIn(iterablePath)).type.toRaiseError();
+
+  // a subclass can relay a generic path to `super.getIn`
+  class PersonWithGenericPath extends Person {
+    getIn<P extends ReadonlyArray<PropertyKey>>(keyPath: P): unknown {
+      return super.getIn(keyPath);
+    }
+  }
+
+  expect(new PersonWithGenericPath().getIn(['name'])).type.toBe<unknown>();
+
+  // a key that may be `null` is a type error: the caller has to narrow it
+  const maybeKey = 'city' as string | null;
+
+  expect(person.getIn(['address', maybeKey])).type.toRaiseError();
+
+  // a path given `as const`
+  const constPath = ['address', 'city'] as const;
+
+  expect(person.getIn(constPath)).type.toBe<string>();
+
+  expect(person.getIn(constPath, 'nsv')).type.toBe<string>();
+
+  class PersonClass extends Person {
+    cityName() {
+      return this.getIn(['address', 'city']);
+    }
+  }
+
+  expect(new PersonClass().cityName()).type.toBe<string>();
+});
+
+test('#getIn through a value that may be missing', () => {
+  interface Size {
+    distance: string;
+  }
+
+  const Wallet = Record({ contract: '' });
+
+  const Line = Record<{
+    size?: Size;
+    owner: RecordOf<{ name: string }> | null;
+    // a relation is either an id or the related Record
+    wallet: string | RecordOf<{ contract: string }>;
+  }>({ size: undefined, owner: null, wallet: Wallet() });
+
+  const line = Line();
+
+  expect(line.getIn(['size', 'distance'])).type.toBe<string | undefined>();
+
+  expect(line.getIn(['owner', 'name'])).type.toBe<string | undefined>();
+
+  expect(line.getIn(['wallet', 'contract'])).type.toBe<string | undefined>();
+
+  expect(line.getIn(['wallet'])).type.toBe<
+    string | RecordOf<{ contract: string }>
+  >();
+
+  // with a `notSetValue`, it replaces the `undefined` of a missing value on the way
+  expect(line.getIn(['owner', 'name'], 'nsv')).type.toBe<string | 'nsv'>();
+
+  expect(line.getIn(['wallet', 'contract'], 'nsv')).type.toBe<string | 'nsv'>();
+
+  // the `undefined` of the value itself stays, as the runtime gives it back
+  expect(line.getIn(['size'], 'nsv')).type.toBe<Size | undefined | 'nsv'>();
+});
+
+test('#update', () => {
+  const PointXY = Record({ x: 0, y: 0 });
+  const point = PointXY();
+
+  expect(point.update('x', (x) => x + 1)).type.toBe<typeof point>();
+
+  expect(point.update('x', (x) => String(x))).type.toRaiseError();
+
+  expect(point.update('z', (z) => z)).type.toRaiseError();
+
+  expect(point.update((p) => p.set('x', 1))).type.toBe<typeof point>();
+
+  expect(point.update((p) => p.x + p.y)).type.toBe<number>();
+});
+
+test('Record.isRecord narrows a RecordOf', () => {
+  // the guard type is `Record<any>`, the only Record every Record is assignable to
+  const Point = Record({ x: 0 });
+  const value = Point() as RecordOf<{ x: number }> | { x: number };
+
+  if (Record.isRecord(value)) {
+    expect(value).type.toBe<RecordOf<{ x: number }>>();
+
+    expect(value.get('x')).type.toBe<number>();
+  }
+
+  if (isRecord(value)) {
+    expect(value).type.toBe<RecordOf<{ x: number }>>();
+  }
+
+  class PointClass extends Point {}
+  const instance = new PointClass() as PointClass | { x: number };
+
+  if (Record.isRecord(instance)) {
+    expect(instance).type.toBe<PointClass>();
+  }
+
+  // a Record with an optional property
+  const Line = Record<{ size?: number }>({ size: undefined });
+  const line = Line() as RecordOf<{ size?: number }> | null;
+
+  if (Record.isRecord(line)) {
+    expect(line).type.toBe<RecordOf<{ size?: number }>>();
+  }
+
+  // a Map is not a Record
+  const mapOrRecord = Map({ x: 0 }) as
+    | MapOf<{ x: number }>
+    | RecordOf<{ x: number }>;
+
+  if (Record.isRecord(mapOrRecord)) {
+    expect(mapOrRecord).type.toBe<RecordOf<{ x: number }>>();
+  }
 });

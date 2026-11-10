@@ -640,13 +640,18 @@ declare namespace Immutable {
     get<K extends keyof R>(key: K, notSetValue?: unknown): R[K];
     get<NSV>(key: unknown, notSetValue: NSV): NSV;
 
-    // TODO `<const P extends ...>` can be used after dropping support for TypeScript 4.x
-    // reference: https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-0.html#const-type-parameters
-    // after this change, `as const` assertions can be remove from the type tests
+    /**
+     * The path is typed from the object the Map was built from:
+     * a key it can not follow is a type error, unless `notSetValue` is given.
+     * A path only known at runtime (`Array<string>`, `List`) gives `unknown`.
+     */
     getIn<P extends ReadonlyArray<PropertyKey>>(
-      searchKeyPath: [...P],
-      notSetValue?: unknown
-    ): RetrievePath<R, P>;
+      searchKeyPath: TypedKeyPath<R, P> | OrderedCollection<unknown>
+    ): RetrievePathOrUnknown<R, P>;
+    getIn<P extends ReadonlyArray<PropertyKey>, NSV>(
+      searchKeyPath: readonly [...P] | OrderedCollection<unknown>,
+      notSetValue: NSV
+    ): RetrievePathOrUnknownWithNotSetValue<R, P, NSV>;
 
     set<K extends keyof R>(key: K, value: R[K]): this;
 
@@ -691,45 +696,214 @@ declare namespace Immutable {
   /**
    * @ignore
    * Convert an immutable type to the equivalent plain TS type
-   * - MapOf -> object
-   * - List -> Array
+   * - MapOf, Record -> object
+   * - Collection.Keyed (Map, OrderedMap, Seq.Keyed…) -> object with an index signature
+   * - Collection.Indexed (List, Stack, Seq.Indexed…) -> Array
    */
   type GetNativeType<S> =
-    S extends MapOf<infer T> ? T : S extends List<infer I> ? Array<I> : S;
+    S extends MapOf<infer T>
+      ? T
+      : S extends Record<infer T>
+        ? T
+        : // `toArray()` only: inferring from the whole interface also matches `toJS()`,
+          // whose `DeepCopy` gives a second candidate
+          S extends Collection.Keyed<unknown, unknown>
+          ? S extends { toArray(): Array<[infer K, infer V]> }
+            ? { [key in K & PropertyKey]: V }
+            : never
+          : S extends Collection.Indexed<unknown>
+            ? S extends { toArray(): Array<infer I> }
+              ? { [index: number]: I }
+              : never
+            : S;
 
   /** @ignore */
-  type Head<T extends ReadonlyArray<unknown>> = T extends [
+  type Head<T extends ReadonlyArray<unknown>> = T extends readonly [
     infer H,
-    ...Array<unknown>,
+    ...ReadonlyArray<unknown>,
   ]
     ? H
     : never;
   /** @ignore */
-  type Tail<T extends ReadonlyArray<unknown>> = T extends [unknown, ...infer I]
+  type Tail<T extends ReadonlyArray<unknown>> = T extends readonly [
+    unknown,
+    ...infer I,
+  ]
     ? I
     : Array<never>;
+
+  /** @ignore */
+  type Primitive =
+    | string
+    | number
+    | boolean
+    | symbol
+    | bigint
+    | null
+    | undefined;
+
+  /**
+   * @ignore
+   * A missing value on the way, replaced by `undefined` or `notSetValue`
+   */
+  type NotSet = { readonly '@@__IMMUTABLE_NOT_SET__@@': true };
+
+  /** @ignore */
+  type ReplaceNotSet<T, With> = T extends NotSet ? With : T;
+
+  /**
+   * @ignore
+   * A key known by its type only (`string`…), not its value
+   */
+  type WideKey<K> = string extends K
+    ? true
+    : number extends K
+      ? true
+      : symbol extends K
+        ? true
+        : false;
+
+  /**
+   * @ignore
+   * The keys a path can follow below `R`: any below `unknown`, none below a primitive
+   */
+  type PathKeys<R> = unknown extends R
+    ? PropertyKey
+    : R extends Primitive
+      ? never
+      : keyof GetNativeType<R>;
+
+  /** @ignore */
+  type PathValue<R, K> = R extends Primitive
+    ? never
+    : K extends keyof GetNativeType<R>
+      ? GetNativeType<R>[K]
+      : never;
+
   /** @ignore */
   type RetrievePathReducer<
     T,
     C,
     L extends ReadonlyArray<unknown>,
-    NT = GetNativeType<T>,
-  > =
-    // we can not retrieve a path from a primitive type
-    T extends string | number | boolean | null | undefined
-      ? never
-      : C extends keyof NT
-        ? L extends [] // L extends [] means we are at the end of the path, lets return the current type
-          ? NT[C]
-          : // we are not at the end of the path, lets continue with the next key
-            RetrievePathReducer<NT[C], Head<L>, Tail<L>>
-        : // C is not a "key" of NT, so the path is invalid
-          never;
+  > = unknown extends T
+    ? // `unknown` or `any`: nothing to check below
+      unknown
+    : [T] extends [Primitive]
+      ? // nothing can be read below a primitive
+        never
+      : RetrievePathUnionMember<T, C, L>;
+
+  /**
+   * @ignore
+   * Distributes over a union: `{ a: Sub | null }` gives `NotSet` for `null`
+   */
+  type RetrievePathUnionMember<
+    T,
+    C,
+    L extends ReadonlyArray<unknown>,
+  > = T extends Primitive
+    ? // `null`, an id…: nothing to read there
+      NotSet
+    : RetrievePathStep<GetNativeType<T>, C, L>;
 
   /** @ignore */
-  type RetrievePath<R, P extends ReadonlyArray<unknown>> = P extends []
+  type RetrievePathStep<
+    NT,
+    C,
+    L extends ReadonlyArray<unknown>,
+  > = C extends keyof NT
+    ? L extends readonly [] // end of the path
+      ? NT[C]
+      : // next key
+        RetrievePathReducer<NT[C], Head<L>, Tail<L>>
+    : WideKey<C> extends true
+      ? // a key only known at runtime: nothing to check below
+        unknown
+      : // not a key of NT: the path is invalid
+        never;
+
+  /**
+   * @ignore
+   * `RetrievePath` with `NotSet` where a value on the way may be missing
+   */
+  type RetrievePathRaw<
+    R,
+    P extends ReadonlyArray<unknown>,
+  > = P extends readonly [] ? R : RetrievePathReducer<R, Head<P>, Tail<P>>;
+
+  /** @ignore */
+  type RetrievePath<R, P extends ReadonlyArray<unknown>> = ReplaceNotSet<
+    RetrievePathRaw<R, P>,
+    undefined
+  >;
+
+  /**
+   * @ignore
+   * `unknown` for a path only known at runtime.
+   * `getIn` only: `updateIn` keeps `RetrievePath`, whose `never` accepts any typed updater
+   */
+  type RetrievePathOrUnknown<
+    R,
+    P extends ReadonlyArray<unknown>,
+  > = number extends P['length'] ? unknown : RetrievePath<R, P>;
+
+  /**
+   * @ignore
+   * `notSetValue` where the path finds nothing: on the way, at its end, or for a path `R` can not follow
+   */
+  type RetrievePathOrUnknownWithNotSetValue<
+    R,
+    P extends ReadonlyArray<unknown>,
+    NSV,
+  > = number extends P['length']
+    ? unknown
+    : RetrievePathRaw<R, P> extends infer Raw
+      ? [Raw] extends [never]
+        ? NSV
+        : ReplaceNotSet<Raw, NSV> | (undefined extends Raw ? NSV : never)
+      : never;
+
+  /**
+   * @ignore
+   * `P`, with the first key `R` can not follow replaced by an object naming the expected keys:
+   * a bare key union intersected with the given key gives `never`, and the error message loses the keys
+   */
+  type ExpectedPath<R, P extends ReadonlyArray<unknown>> = unknown extends R
     ? P
-    : RetrievePathReducer<R, Head<P>, Tail<P>>;
+    : P extends readonly [infer K, ...infer Rest]
+      ? [K] extends [PathKeys<R>]
+        ? [K, ...ExpectedPath<PathValue<R, K>, Rest>]
+        : [PathKeys<R>] extends [never]
+          ? // a primitive or an empty object: no key can follow
+            [{ 'no key can be read from': R }, ...Rest]
+          : WideKey<K> extends true
+            ? // a key only known at runtime: nothing to check below
+              P
+            : [{ 'expected one of': PathKeys<R> }, ...Rest]
+      : // an empty path, or an array: nothing to check
+        P;
+
+  /**
+   * @ignore
+   * `unknown` when `R` can follow `P`, otherwise the path expected instead
+   */
+  type ValidatedPath<R, P extends ReadonlyArray<unknown>> =
+    ExpectedPath<R, P> extends P ? unknown : ExpectedPath<R, P>;
+
+  /**
+   * @ignore
+   * `readonly` so that `as const` paths and `ReadonlyArray`s are accepted,
+   * an intersection because TypeScript does not infer `P` through a conditional type
+   */
+  type TypedKeyPath<R, P extends ReadonlyArray<unknown>> = readonly [...P] &
+    ValidatedPath<R, P>;
+
+  /**
+   * @ignore
+   * Functional `getIn` only:
+   * a union of object types in a `MapOf` or `Record` method stops `Map.isMap` from narrowing to `MapOf`
+   */
+  type ArrayLikeKeyPath = ArrayLike<unknown> & { [Symbol.iterator]?: never };
 
   interface Map<K, V> extends Collection.Keyed<K, V> {
     /**
@@ -2233,7 +2407,9 @@ declare namespace Immutable {
     /**
      * True if `maybeRecord` is an instance of a Record.
      */
-    function isRecord(maybeRecord: unknown): maybeRecord is Record<object>;
+    // `Record<any>`, the only Record every Record is assignable to: the guard narrows `RecordOf<T> | T`
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    function isRecord(maybeRecord: unknown): maybeRecord is Record<any>;
 
     /**
      * Records allow passing a second parameter to supply a descriptive name
@@ -2320,7 +2496,19 @@ declare namespace Immutable {
     // Reading deep values
 
     hasIn(keyPath: Iterable<unknown>): boolean;
-    getIn(keyPath: Iterable<unknown>): unknown;
+
+    /**
+     * The path is typed from the Record's properties:
+     * a key it can not follow is a type error, unless `notSetValue` is given.
+     * A path only known at runtime (`Array<string>`, `List`) gives `unknown`.
+     */
+    getIn<P extends ReadonlyArray<PropertyKey>>(
+      keyPath: TypedKeyPath<TProps, P> | OrderedCollection<unknown>
+    ): RetrievePathOrUnknown<TProps, P>;
+    getIn<P extends ReadonlyArray<PropertyKey>, NSV>(
+      keyPath: readonly [...P] | OrderedCollection<unknown>,
+      notSetValue: NSV
+    ): RetrievePathOrUnknownWithNotSetValue<TProps, P, NSV>;
 
     // Value equality
 
@@ -2334,6 +2522,8 @@ declare namespace Immutable {
       key: K,
       updater: (value: TProps[K]) => TProps[K]
     ): this;
+    /** @see `Map#update` */
+    update<R>(updater: (value: this) => R): R;
     merge(
       ...collections: Array<Partial<TProps> | Iterable<[string, unknown]>>
     ): this;
@@ -2392,6 +2582,9 @@ declare namespace Immutable {
      * Note: This method may not be overridden. Objects with custom
      * serialization to plain JS may override toJSON() instead.
      */
+    // not `{ [K in keyof TProps]: DeepCopy<TProps[K]> }` as in `MapOf#toJS`:
+    // a Record whose props refer to the Record itself then gets a circular mapped type,
+    // see https://github.com/immutable-js/immutable-js/issues/1957
     toJS(): DeepCopy<TProps>;
 
     /**
@@ -4726,7 +4919,9 @@ declare namespace Immutable {
   /**
    * True if `maybeRecord` is a Record.
    */
-  function isRecord(maybeRecord: unknown): maybeRecord is Record<object>;
+  // `Record<any>`, the only Record every Record is assignable to: the guard narrows `RecordOf<T> | T`
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function isRecord(maybeRecord: unknown): maybeRecord is Record<any>;
 
   /**
    * Returns the value within the provided collection associated with the
@@ -4894,9 +5089,6 @@ declare namespace Immutable {
     updater: (value: V | NSV) => V
   ): { [key: string]: V };
 
-  // TODO `<const P extends ...>` can be used after dropping support for TypeScript 4.x
-  // reference: https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-0.html#const-type-parameters
-  // after this change, `as const` assertions can be remove from the type tests
   /**
    * Returns the value at the provided key path starting at the provided
    * collection, or notSetValue if the key path is not defined.
@@ -4906,17 +5098,17 @@ declare namespace Immutable {
    */
   function getIn<C, P extends ReadonlyArray<PropertyKey>>(
     object: C,
-    keyPath: [...P]
-  ): RetrievePath<C, P>;
-  function getIn<C, P extends KeyPath<unknown>>(object: C, keyPath: P): unknown;
+    keyPath: TypedKeyPath<C, P> | OrderedCollection<unknown>
+  ): RetrievePathOrUnknown<C, P>;
+  function getIn<C>(object: C, keyPath: ArrayLikeKeyPath): unknown;
   function getIn<C, P extends ReadonlyArray<PropertyKey>, NSV>(
     collection: C,
-    keyPath: [...P],
+    keyPath: readonly [...P] | OrderedCollection<unknown>,
     notSetValue: NSV
-  ): RetrievePath<C, P> extends never ? NSV : RetrievePath<C, P>;
-  function getIn<C, P extends KeyPath<unknown>, NSV>(
+  ): RetrievePathOrUnknownWithNotSetValue<C, P, NSV>;
+  function getIn<C, NSV>(
     object: C,
-    keyPath: P,
+    keyPath: ArrayLikeKeyPath,
     notSetValue: NSV
   ): unknown;
 
