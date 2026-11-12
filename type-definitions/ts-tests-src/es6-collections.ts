@@ -19,7 +19,7 @@ test.skip('immutable.js collections', () => {
   expect(setImmutable.delete('bar')).type.toBe<ImmutableSet<string>>();
 });
 
-test.skip('ES6 collections', () => {
+test('ES6 collections', () => {
   const mapES6: Map<string, number> = new Map<string, number>();
   const setES6: Set<string> = new Set<string>();
 

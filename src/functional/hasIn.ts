@@ -1,7 +1,6 @@
+import type { KeyPath } from '../../type-definitions/immutable';
 import { NOT_SET } from '../TrieUtils';
 import { getIn } from './getIn';
-
-type GetInParameters = Parameters<typeof getIn>;
 
 /**
  * Returns true if the key path is defined in the provided collection.
@@ -10,8 +9,10 @@ type GetInParameters = Parameters<typeof getIn>;
  * work with plain Objects and Arrays.
  */
 export function hasIn(
-  collection: GetInParameters[0],
-  keyPath: GetInParameters[1]
-): boolean {
+  collection: string | boolean | number,
+  keyPath: KeyPath<unknown>
+): never;
+export function hasIn<K>(collection: unknown, keyPath: KeyPath<K>): boolean;
+export function hasIn(collection: unknown, keyPath: KeyPath<unknown>): boolean {
   return getIn(collection, keyPath, NOT_SET) !== NOT_SET;
 }

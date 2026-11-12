@@ -4,47 +4,51 @@
 // collection/method is migrated to TS; un-skip them as migration progresses.
 // Some d.ts-only types (MapOf, RecordOf, DeepCopy) are omitted from imports
 // until they exist in the source. See .agents/commands/migrate-to-ts.md.
+// The source does not emit the public type names (`Seq.Indexed<T>`, …) yet, so
+// the live assertions reference the internal `*Impl` classes imported straight
+// from the source; switch back to the public names once they exist.
 
 import { Collection, List, Map, OrderedMap, Seq, Set } from 'immutable';
 import { expect, test } from 'tstyche';
+import type { IndexedSeqImpl, KeyedSeqImpl } from '../../src/Seq';
 
 // Type-level coverage for shared Collection methods (defined on the
 // Collection.ts classes), exercised through the concrete public types.
 
-test.skip('subset methods keep the collection type (indexed / keyed / set / seq)', () => {
-  expect(List<number>().skipWhile((x) => x < 3)).type.toBe<List<number>>();
-  expect(List<number>().skipUntil((x) => x < 3)).type.toBe<List<number>>();
-  expect(List<number>().takeWhile((x) => x < 3)).type.toBe<List<number>>();
-  expect(List<number>().takeUntil((x) => x < 3)).type.toBe<List<number>>();
-  expect(List<number>().skip(2)).type.toBe<List<number>>();
-  expect(List<number>().skipLast(2)).type.toBe<List<number>>();
-  expect(List<number>().take(2)).type.toBe<List<number>>();
-  expect(List<number>().takeLast(2)).type.toBe<List<number>>();
-  expect(List<number>().butLast()).type.toBe<List<number>>();
-  expect(List<number>().rest()).type.toBe<List<number>>();
-  expect(List<number>().reverse()).type.toBe<List<number>>();
-  expect(List<number>().sort()).type.toBe<List<number>>();
-  expect(List<number>().sortBy((x) => -x)).type.toBe<List<number>>();
-  expect(List<number>().filterNot((x) => x > 1)).type.toBe<List<number>>();
+test('subset methods keep the collection type (indexed / keyed / set / seq)', () => {
+  expect.skip(List<number>().skipWhile((x) => x < 3)).type.toBe<List<number>>();
+  expect.skip(List<number>().skipUntil((x) => x < 3)).type.toBe<List<number>>();
+  expect.skip(List<number>().takeWhile((x) => x < 3)).type.toBe<List<number>>();
+  expect.skip(List<number>().takeUntil((x) => x < 3)).type.toBe<List<number>>();
+  expect.skip(List<number>().skip(2)).type.toBe<List<number>>();
+  expect.skip(List<number>().skipLast(2)).type.toBe<List<number>>();
+  expect.skip(List<number>().take(2)).type.toBe<List<number>>();
+  expect.skip(List<number>().takeLast(2)).type.toBe<List<number>>();
+  expect.skip(List<number>().butLast()).type.toBe<List<number>>();
+  expect.skip(List<number>().rest()).type.toBe<List<number>>();
+  expect.skip(List<number>().reverse()).type.toBe<List<number>>();
+  expect.skip(List<number>().sort()).type.toBe<List<number>>();
+  expect.skip(List<number>().sortBy((x) => -x)).type.toBe<List<number>>();
+  expect.skip(List<number>().filterNot((x) => x > 1)).type.toBe<List<number>>();
 
-  expect(Map<string, number>().skipWhile((v) => v > 1)).type.toBe<
-    Map<string, number>
-  >();
-  expect(Map<string, number>().filterNot((v) => v > 1)).type.toBe<
-    Map<string, number>
-  >();
+  expect
+    .skip(Map<string, number>().skipWhile((v) => v > 1))
+    .type.toBe<Map<string, number>>();
+  expect
+    .skip(Map<string, number>().filterNot((v) => v > 1))
+    .type.toBe<Map<string, number>>();
   // Sorting an unordered Map yields its ordered equivalent.
-  expect(Map<string, number>().sortBy((v) => v)).type.toBe<
-    Map<string, number> & OrderedMap<string, number>
-  >();
+  expect
+    .skip(Map<string, number>().sortBy((v) => v))
+    .type.toBe<Map<string, number> & OrderedMap<string, number>>();
 
-  expect(Set<number>().filterNot((v) => v > 1)).type.toBe<Set<number>>();
+  expect.skip(Set<number>().filterNot((v) => v > 1)).type.toBe<Set<number>>();
 
   expect(Seq.Indexed<number>().skipWhile((x) => x < 1)).type.toBe<
-    Seq.Indexed<number>
+    IndexedSeqImpl<number>
   >();
   expect(Seq.Keyed<string, number>().filterNot((v) => v > 1)).type.toBe<
-    Seq.Keyed<string, number>
+    KeyedSeqImpl<string, number>
   >();
 });
 
@@ -117,10 +121,14 @@ test.skip('indexed search returns number indices', () => {
   expect(List<number>().lastIndexOf(1)).type.toBe<number>();
 });
 
-test.skip('indexed combination keeps the indexed type', () => {
-  expect(List<number>().interpose(0)).type.toBe<List<number>>();
-  expect(List<number>().interleave(List<number>())).type.toBe<List<number>>();
-  expect(Seq.Indexed<number>().interpose(0)).type.toBe<Seq.Indexed<number>>();
+test('indexed combination keeps the indexed type', () => {
+  expect.skip(List<number>().interpose(0)).type.toBe<List<number>>();
+  expect
+    .skip(List<number>().interleave(List<number>()))
+    .type.toBe<List<number>>();
+  expect(Seq.Indexed<number>().interpose(0)).type.toBe<
+    IndexedSeqImpl<number>
+  >();
 });
 
 test.skip('zip family produces tuples and respects arity', () => {

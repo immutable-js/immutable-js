@@ -39,7 +39,7 @@ land on `main`.**
 - **`instanceof` no longer works** on factory functions (`Map()`, `List()`,
   etc.). Use `Map.isMap()`, `List.isList()`, etc. instead.
 - **Empty collections are no longer singletons** (`Map() !== Map()`).
-- **TypeScript < 5.0 dropped** (uses `const` type parameters for `getIn`).
+- **TypeScript < 5.0 dropped.**
 - **transducers-js compatibility removed.**
 
 ---

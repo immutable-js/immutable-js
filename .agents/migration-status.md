@@ -90,21 +90,23 @@ the `_useKeys` indexed-only shortcuts and the keyed-`concat` member type in
 
 ## Source-pass type tests (`type-definitions/ts-tests-src/`)
 
-196 `test.skip` remaining. The goal is to keep this number strictly decreasing: the source's public types must converge on `immutable.d.ts` (which will eventually be generated from the source — see the note in `.agents/commands/migrate-to-ts.md` step 5). Biggest blockers are simply the not-yet-migrated public factories/types:
+199 `test.skip` remaining, and 57 `expect.skip` inside live tests that mix migrated code with a collection still in JS (`getIn` in `functional.ts`, two tests of `collection.ts`, the two tests of `exports.ts`): turn those back into `expect` when the collection they go through is migrated. The typed `getIn`, `Record#update` and `isRecord` tests merged from `main` added 6 `test.skip`, all blocked by the `Map` and `Record` migrations. The goal is to keep these numbers strictly decreasing: the source's public types must converge on `immutable.d.ts` (which will eventually be generated from the source — see the note in `.agents/commands/migrate-to-ts.md` step 5). Biggest blockers are simply the not-yet-migrated public factories/types:
 
-| File                                                           | Skips   | Blocked by                                                                                                                      |
-| -------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `list.ts`                                                      | 34      | `List` migration                                                                                                                |
-| `map.ts`                                                       | 32      | `Map` migration                                                                                                                 |
-| `ordered-map.ts`                                               | 27      | `OrderedMap` migration                                                                                                          |
-| `set.ts`                                                       | 22      | `Set` migration                                                                                                                 |
-| `ordered-set.ts`                                               | 18      | `OrderedSet` migration                                                                                                          |
-| `stack.ts`                                                     | 17      | `Stack` migration                                                                                                               |
-| `collection.ts`                                                | 13      | Concrete public types (`List<number>` as a type, …)                                                                             |
-| `deepCopy.ts` / `covariance.ts` / `record.ts` / `partition.ts` | 7/6/5/5 | `DeepCopy` (d.ts-only), concrete types, `Record` migration                                                                      |
-| others                                                         | ≤2 each | `fromJS` + `MapOf` (d.ts-only), exports (needs ~everything), ES6 collections (`Map`/`Set`), `groupBy` (returns `Map`), `Repeat` |
+| File                                                           | Skips    | Blocked by                                                                                                                                            |
+| -------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `list.ts`                                                      | 34       | `List` migration                                                                                                                                      |
+| `map.ts`                                                       | 33       | `Map` migration                                                                                                                                       |
+| `ordered-map.ts`                                               | 27       | `OrderedMap` migration                                                                                                                                |
+| `set.ts`                                                       | 22       | `Set` migration                                                                                                                                       |
+| `ordered-set.ts`                                               | 18       | `OrderedSet` migration                                                                                                                                |
+| `stack.ts`                                                     | 17       | `Stack` migration                                                                                                                                     |
+| `collection.ts`                                                | 11       | Concrete public types (`List<number>` as a type, …)                                                                                                   |
+| `deepCopy.ts` / `covariance.ts` / `record.ts` / `partition.ts` | 7/6/10/5 | `DeepCopy` (d.ts-only), concrete types, `Record` migration                                                                                            |
+| others                                                         | ≤2 each  | `fromJS` + `MapOf` (d.ts-only), `countBy` and `groupBy` (return `Map`), `reduce` (`List<number>` as a type…), `Repeat`, ES6 collections (`Map`/`Set`) |
 
-`empty.ts`, `range.ts` and `seq.ts` are fully un-skipped; the other active tests are concentrated in `partition.ts` and `functional.ts`.
+`empty.ts`, `range.ts`, `seq.ts`, `functional.ts` and `exports.ts` have no `test.skip` left; the other active tests are in `partition.ts`, `collection.ts` and `es6-collections.ts`.
+
+Known gap found by the live assertions: `flip()` on a keyed Seq is typed `KeyedCollectionImpl<V, K>` in the source, where the d.ts gives `Seq.Keyed<V, K>`, so `flip swaps key and value types` in `collection.ts` stays skipped.
 
 ## JS → TS consistency review (behavioural check)
 

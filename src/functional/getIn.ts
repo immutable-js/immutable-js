@@ -1,4 +1,11 @@
-import type { KeyPath } from '../../type-definitions/immutable';
+import type {
+  ArrayLikeKeyPath,
+  KeyPath,
+  OrderedCollection,
+  RetrievePathOrUnknown,
+  RetrievePathOrUnknownWithNotSetValue,
+  TypedKeyPath,
+} from '../../type-definitions/immutable';
 import { NOT_SET } from '../TrieUtils';
 import coerceKeyPath from '../utils/coerceKeyPath';
 import { get } from './get';
@@ -15,6 +22,24 @@ type Key = GetTypeParameters[1];
  * A functional alternative to `collection.getIn(keypath)` which will also
  * work with plain Objects and Arrays.
  */
+export function getIn<C, P extends ReadonlyArray<object | PropertyKey>>(
+  object: C,
+  keyPath: TypedKeyPath<C, P> | OrderedCollection<unknown>
+): RetrievePathOrUnknown<C, P>;
+export function getIn<C>(
+  object: C,
+  keyPath: ArrayLikeKeyPath | OrderedCollection<unknown>
+): unknown;
+export function getIn<C, P extends ReadonlyArray<object | PropertyKey>, NSV>(
+  collection: C,
+  keyPath: readonly [...P] | OrderedCollection<unknown>,
+  notSetValue: NSV
+): RetrievePathOrUnknownWithNotSetValue<C, P, NSV>;
+export function getIn<C, NSV>(
+  object: C,
+  keyPath: ArrayLikeKeyPath | OrderedCollection<unknown>,
+  notSetValue: NSV
+): unknown;
 export function getIn(
   collection: CollectionType,
   searchKeyPath: KeyPath<Key>,

@@ -3,6 +3,7 @@ import {
   CollectionImpl,
   IndexedCollectionImpl,
 } from './Collection';
+import { keyMapper } from './CollectionHelperMethods';
 import { Iterator } from './Iterator';
 import { List } from './List';
 import { Map } from './Map';
@@ -101,7 +102,10 @@ mixin(IndexedCollectionImpl, {
   },
 
   keySeq() {
-    return Range(0, this.size);
+    // Indexed collections of unknown size cannot build Range(0, undefined).
+    return this.size === undefined
+      ? this.toSeq().map(keyMapper).toIndexedSeq()
+      : Range(0, this.size);
   },
 });
 

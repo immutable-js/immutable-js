@@ -5,7 +5,7 @@
 // Some d.ts-only types (MapOf, RecordOf, DeepCopy) are omitted from imports
 // until they exist in the source. See .agents/commands/migrate-to-ts.md.
 
-import { List, Map, OrderedMap } from 'immutable';
+import { List, Map, OrderedMap, Record as ImmutableRecord } from 'immutable';
 import { expect, pick, test } from 'tstyche';
 
 test.skip('#constructor', () => {
@@ -113,7 +113,146 @@ test.skip('#getIn', () => {
 
   expect(Map({ a: [1] }).getIn(['a', 0])).type.toBe<number>();
 
-  expect(Map({ a: List([1]) }).getIn(['a', 0])).type.toBe<number>();
+  // like with `get`, the index of a List may be missing
+  expect(Map({ a: List([1]) }).getIn(['a', 0])).type.toBe<number | undefined>();
+
+  // a value on the way may be missing
+  expect(
+    Map<{ a: { b: string } | null }>({ a: null }).getIn(['a', 'b'])
+  ).type.toBe<string | undefined>();
+
+  expect(Map<{ a?: { b: string } }>({}).getIn(['a', 'b'])).type.toBe<
+    string | undefined
+  >();
+
+  // a Map with unknown keys on the way: like with `get`, the key may be missing
+  expect(Map({ a: Map<string, number>() }).getIn(['a', 'b'])).type.toBe<
+    number | undefined
+  >();
+
+  expect(Map({ a: Map<string, number>() }).getIn(['a', 'b'], null)).type.toBe<
+    number | null
+  >();
+
+  // a union of objects on the way: only some of them have the key
+  const union = Map({ a: { b: 1 } as { b: number } | { c: string } });
+
+  expect(union.getIn(['a', 'b'])).type.toBe<number | undefined>();
+
+  expect(union.getIn(['a', 'b'], 'nsv')).type.toBe<number | 'nsv'>();
+
+  expect(union.getIn(['a', 'z'])).type.toRaiseError('expected one of');
+
+  // an object as a key, like the key of a `Map<object, V>`: the types do not follow it
+  const objectKey = { id: 1 };
+  const byObject = Map({ a: Map<{ id: number }, string>() });
+
+  expect(byObject.getIn(['a', objectKey])).type.toBe<unknown>();
+
+  expect(byObject.getIn(['a', objectKey], 'nsv')).type.toBe<unknown>();
+
+  // the keys before it are still checked
+  expect(byObject.getIn(['z', objectKey])).type.toRaiseError('expected one of');
+
+  // a `Map<object, V>` that may be missing
+  const maybeByObject = Map({
+    a: null as Map<{ id: number }, string> | null,
+  });
+
+  expect(maybeByObject.getIn(['a', objectKey])).type.toBe<unknown>();
+
+  // it is refused where no key can be an object
+  expect(Map({ a: 1 }).getIn([objectKey])).type.toRaiseError('expected one of');
+
+  expect(Map({ a: List([1]) }).getIn(['a', objectKey])).type.toRaiseError(
+    'expected one of'
+  );
+
+  // `any` is not an object key
+  const anyKey = 'b' as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+
+  expect(Map({ a: { b: 1 } }).getIn(['z', anyKey])).type.toRaiseError(
+    'expected one of'
+  );
+
+  // a generic Map or key: the path can not be checked
+  function genericMap<T extends { a: { b: number } }>(map: MapOf<T>) {
+    return map.getIn(['a', 'b']);
+  }
+
+  expect(genericMap(Map({ a: { b: 1 } }))).type.toBe<number>();
+
+  function nestedGenericMap<T extends { a: { b: number } }>(
+    map: MapOf<{ nested: MapOf<T> }>
+  ) {
+    return map.getIn(['nested', 'a', 'b']);
+  }
+
+  expect(
+    nestedGenericMap(Map({ nested: Map({ a: { b: 1 } }) }))
+  ).type.toBe<number>();
+
+  function genericKey<K extends 'a' | 'b'>(key: K) {
+    return Map({ a: 1, b: 'b' }).getIn([key]);
+  }
+
+  expect(genericKey('a')).type.toBe<number>();
+
+  // a Record on the way: its properties are the keys, not its methods
+  const Point = ImmutableRecord({ x: 0 });
+
+  expect(Map({ p: Point() }).getIn(['p', 'x'])).type.toBe<number>();
+
+  expect(Map({ p: Point() }).getIn(['p', 'get'])).type.toRaiseError(
+    'expected one of'
+  );
+
+  // an invalid path is a type error
+  expect(Map({ a: 4 }).getIn(['b'])).type.toRaiseError('expected one of');
+
+  // nothing can be read below a primitive
+  expect(Map({ a: 4 }).getIn(['a', 'b'])).type.toRaiseError(
+    'no key can be read from'
+  );
+
+  // unless a `notSetValue` is given: it is then the result
+  expect(Map({ a: 4 }).getIn(['b'], 'nsv')).type.toBe<'nsv'>();
+
+  // with a `notSetValue`, it replaces the `undefined` of a missing value on the way
+  expect(
+    Map<{ a: { b: string } | null }>({ a: null }).getIn(['a', 'b'], 'nsv')
+  ).type.toBe<string | 'nsv'>();
+
+  // the `undefined` of the value itself stays, as the runtime gives it back
+  expect(Map<{ a?: { b: string } }>({}).getIn(['a'], 'nsv')).type.toBe<
+    { b: string } | undefined | 'nsv'
+  >();
+
+  // a path only known at runtime
+  const path: Array<string> = ['a'];
+
+  expect(Map({ a: 4 }).getIn(path)).type.toBe<unknown>();
+
+  expect(Map({ a: 4 }).getIn(List(['a']))).type.toBe<unknown>();
+
+  const readonlyPath: ReadonlyArray<string> = ['a'];
+
+  expect(Map({ a: 4 }).getIn(readonlyPath)).type.toBe<unknown>();
+
+  // a path given `as const`
+  const constPath = ['a', 'b'] as const;
+
+  expect(Map({ a: { b: 'x' } }).getIn(constPath)).type.toBe<string>();
+
+  // an iterable which is neither an array nor an ordered collection is a type error
+  const iterablePath: Iterable<string> = ['a'];
+
+  expect(Map({ a: 4 }).getIn(iterablePath)).type.toRaiseError();
+
+  // a key that may be `null` is a type error: the caller has to narrow it
+  const maybeKey = 'b' as string | null;
+
+  expect(Map({ a: { b: 1 } }).getIn(['a', maybeKey])).type.toRaiseError();
 });
 
 test.skip('#set', () => {
@@ -165,7 +304,35 @@ test.skip('#delete', () => {
 
   expect(Map<number, number>().delete('a')).type.toRaiseError();
 
-  expect(Map({ a: 1, b: 'b' }).delete('b')).type.toBe<never>();
+  expect(Map({ a: 1, b: 'b' }).delete('b')).type.toBe<MapOf<{ a: number }>>();
+
+  expect(Map({ a: 1, b: 'b' }).delete('b').get('a')).type.toBe<number>();
+
+  expect(Map({ a: 1, b: 'b' }).delete('b').get('b')).type.toRaiseError();
+
+  expect(Map({ a: 1, b: 'b' }).delete('b').delete('a')).type.toBe<
+    MapOf<Record<never, never>>
+  >();
+
+  expect(Map({ a: 1, b: 'b' }).delete('b').toJS()).type.toBe<{ a: number }>();
+
+  expect(Map({ a: 1, b: 'b' }).delete('c')).type.toRaiseError();
+
+  expect(Map<{ a: number; b?: string }>({ a: 1 }).delete('a')).type.toBe<
+    MapOf<{ b?: string | undefined }>
+  >();
+
+  expect(Map({ a: 1, b: 'b' }).delete('b')).type.toBeAssignableTo<
+    Map<'a', number>
+  >();
+
+  const sorted = Map<{ a: string; b?: string }>({ a: 'a' }).sort();
+
+  expect(sorted.delete('b')).type.toBe<typeof sorted>();
+
+  expect(
+    Map<{ a: number; b?: string }>({ a: 1 }).delete('a').set('b', 'b')
+  ).type.toBe<MapOf<{ b?: string | undefined }>>();
 
   expect(
     Map<{ a: number; b?: string }>({ a: 1, b: 'b' }).delete('b')
@@ -198,6 +365,14 @@ test.skip('#remove', () => {
   expect(Map<number, number>().remove(0)).type.toBe<Map<number, number>>();
 
   expect(Map<number, number>().remove('a')).type.toRaiseError();
+
+  expect(Map({ a: 1, b: 'b' }).remove('b')).type.toBe<MapOf<{ a: number }>>();
+
+  expect(
+    Map<{ a: number; b?: string }>({ a: 1, b: 'b' }).remove('b')
+  ).type.toBe<MapOf<{ a: number; b?: string | undefined }>>();
+
+  expect(Map({ a: 1, b: 'b' }).remove('c')).type.toRaiseError();
 });
 
 test.skip('#removeAll', () => {
@@ -676,4 +851,17 @@ test.skip('#toJSON', () => {
   expect(Map({ a: Map({ b: 'b' }) }).toJSON()).type.toBe<{
     a: MapOf<{ b: string }>;
   }>();
+});
+
+test.skip('Map.isMap narrows a MapOf', () => {
+  // the `getIn` overloads must keep `MapOf` a subtype of `Map`, which a type guard narrows to
+  const value = Map({ firstname: 'a' }) as
+    | MapOf<{ firstname: string }>
+    | { firstname: string };
+
+  if (Map.isMap(value)) {
+    expect(value).type.toBe<MapOf<{ firstname: string }>>();
+
+    expect(value.get('firstname')).type.toBe<string>();
+  }
 });

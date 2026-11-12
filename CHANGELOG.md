@@ -70,13 +70,11 @@ It is now the case for all collections in 6.0.0.
 
 ### [BREAKING][TYPESCRIPT] Drop TS 4 support
 
-We now use [const type parameters](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-0.html#const-type-parameters) for getIn path retrieval.
-
-This feature has been introduced in TS 5.0, which is more than two years old now. This mean that we are dropping support for TS < 5.0.
+TypeScript 5.0 is more than two years old now: we are dropping support for TS < 5.0.
 
 #### Pull request details
 
-- Drop TS 4 support and add const P extends for getIn method types [#2072](https://github.com/immutable-js/immutable-js/pull/2072) by [@jdeniau](https://github.com/jdeniau)
+- Drop TS 4 support [#2072](https://github.com/immutable-js/immutable-js/pull/2072) by [@jdeniau](https://github.com/jdeniau)
 
 ### [BREAKING][TYPESCRIPT] Range return type has changed
 
@@ -94,14 +92,127 @@ Remove transducersjs compatibility, as `cognitect-labs/transducers-js` has been 
 
 - better types 6.x [2204](https://github.com/immutable-js/immutable-js/pull/2204)
 
+## 5.2.0
+
+- Fix keySeq() on a lazy indexed Seq of unknown size in [#2325](https://github.com/immutable-js/immutable-js/pull/2325) by [kevin9327](https://github.com/kevin9327)
+
+#### [TypeScript] `Record#getIn` is typed from the Record's properties, like `MapOf#getIn`
+
+No runtime change. `Record#getIn` also accepts a `notSetValue`, as the runtime always did.
+
+```ts
+const Address = Record({ city: '', zip: 0 });
+const Person = Record({ name: '', address: Address() });
+const person = Person();
+
+person.getIn(['address', 'city']); // was unknown, now string
+person.getIn(['address', 'street']); // was unknown, now a type error: expected one of "city" | "zip"
+person.getIn(['address', 'street'], 'nsv'); // was a type error (one argument expected), now 'nsv'
+```
+
+#### [TypeScript] `Record#update(updater)` is properly typed
+
+```ts
+const point = Record({ x: 0, y: 0 })();
+
+point.update((p) => p.x + p.y); // was a type error (two arguments expected), now number
+```
+
+#### [TypeScript Break] A key path the types can not follow is a type error
+
+For `MapOf#getIn`, `Record#getIn` and the functional `getIn`. Such a path previously gave `never`, which TypeScript accepted silently, and a valid path needed `as const` to give its type.
+
+```ts
+const map = Map({ a: { b: 1 } });
+
+map.getIn(['a', 'b']); // was never (number with `['a', 'b'] as const`), now number without `as const`
+map.getIn(['z']); // was never, now a type error: expected one of "a"
+map.getIn(['a', 'b', 'c']); // was never, now a type error: no key can be read from number
+map.getIn(['z'], 'nsv'); // was never, now 'nsv': with a `notSetValue`, a key the types do not know is accepted
+```
+
+A path only known at runtime is typed as such, and the result is `unknown`:
+
+```ts
+const path: Array<string> = ['a', 'b'];
+
+map.getIn(path); // was never, now unknown
+map.getIn(List(['a', 'b'])); // was a type error, now unknown
+```
+
+The index of a `List`, like the key of a `Map<string, V>`, may be missing: the result includes `undefined`, as with `get`. A plain array follows TypeScript, where `array[0]` is not `undefined`.
+
+```ts
+getIn(List([1, 2, 3]), [0]); // was number, now number | undefined
+getIn(List([1, 2, 3]), [0], 0); // number
+getIn([1, 2, 3], [0]); // number, as before
+```
+
+Two kinds of path are accepted without being checked: a path in a generic function, where the type of the collection or of a key is a type parameter, and what follows an object given as a key of a `Map<object, V>`, whose result is `unknown`. The keys before the object key are checked, and an object key is a type error where no key can be an object, like on a `Record`, a plain object or a `List`.
+
+```ts
+const users = Map<{ id: number }, string>();
+
+getIn(users, [{ id: 1 }]); // unknown, as before
+
+function cityOf<T extends { address: { city: string } }>(person: RecordOf<T>) {
+  return person.getIn(['address', 'city']); // accepted: `T` is not known yet
+}
+```
+
+With TypeScript 4.5 to 4.9, a path in such a generic function is a type error: give a `notSetValue`, or a path typed as `Array<string>`, whose result is `unknown`.
+
+#### [TypeScript] Typed key paths follow a nested Record, a Map with unknown keys and a value that may be missing
+
+The same goes for a nested `List`, `OrderedMap`, `Seq`, `Stack`, plain object or array, and for a union of objects where only some have the key.
+
+```ts
+const Point = Record({ x: 0 });
+const map = Map({
+  point: Point(),
+  scores: Map<string, number>(),
+  address: null as { city: string } | null,
+});
+
+map.getIn(['point', 'x']); // was never, now number
+map.getIn(['scores', 'math']); // was never, now number | undefined: like with `get`, the key may be missing
+map.getIn(['address', 'city']); // was never, now string | undefined: `address` may be null
+map.getIn(['address', 'city'], null); // was never, now string | null: the `notSetValue` replaces the undefined
+```
+
+#### [TypeScript] `Record.isRecord` and `isRecord` narrow a union to its Record, like `Map.isMap`
+
+The guard type is `Record<any>` instead of `Record<object>`, which no Record was assignable to.
+
+```ts
+const Point = Record({ x: 0 });
+const value = Point() as RecordOf<{ x: number }> | { x: number };
+
+if (Record.isRecord(value)) {
+  value; // was (RecordOf<{ x: number }> | { x: number }) & Record<object>, now RecordOf<{ x: number }>
+  value.get('x'); // was a type error, now number
+}
+```
+
+An `unknown` value is narrowed to a Record whose values are `unknown`:
+
+```ts
+declare const value: unknown;
+
+if (Record.isRecord(value)) {
+  value.get('x'); // was a type error, now unknown
+}
+```
+
 ## 5.1.10
 
-- [TypeScript]: on a `MapOf` (a `Map` built from an object), `delete` and `remove` of a required key now give a `MapOf` without that key (`Map({ a: 1, b: 'b' }).delete('b')` is a `MapOf<{ a: number }>`) instead of `never`. Deleting an optional key still keeps the type. [#2312](https://github.com/immutable-js/immutable-js/pull/2312)
+- fix(Seq): Incorrect (`NaN`) keys when iterating in reverse an indexed lazy Sequence of unknown size [#2268](https://github.com/immutable-js/immutable-js/pull/2268)
 - fix(Seq): Stack overflow when slicing a zipped Sequence of unknown size from the end - by @b84330808 in https://github.com/immutable-js/immutable-js/pull/2311
 - fix(Seq): Incorrect keys of an _interposed_ Sequence when iterated in reverse - by @b84330808 in https://github.com/immutable-js/immutable-js/pull/2310
 - fix(Seq): Incorrect keys of a _filtered_ indexed Seq when iterated in reverse - by @b84330808 in https://github.com/immutable-js/immutable-js/pull/2309
 - fix(Seq): Fix `takeLast(0)` on a Sequence of unknown size - by @b84330808 in https://github.com/immutable-js/immutable-js/pull/2313
 - fix(Seq): `skipWhile` and `skipUntil` on an indexed Seq now renumber iterator keys from 0, consistently with `toArray` and `entrySeq`, and `entries()` no longer throws once exhausted. This also fixes iterating a chained `map`/`filter` and `equals` on such sequences - by @wozhenbang2004 in https://github.com/immutable-js/immutable-js/pull/2319
+- [TypeScript]: on a `MapOf` (a `Map` built from an object), `delete` and `remove` of a required key now give a `MapOf` without that key (`Map({ a: 1, b: 'b' }).delete('b')` is a `MapOf<{ a: number }>`) instead of `never`. Deleting an optional key still keeps the type. [#2312](https://github.com/immutable-js/immutable-js/pull/2312)
 
 ## 5.1.9
 
