@@ -16,4 +16,11 @@ describe('remove', () => {
   it('for plain objects', () => {
     expect(remove({ x: 123, y: 456 }, 'x')).toEqual({ y: 456 });
   });
+
+  it('preserves unrelated enumerable symbol properties on plain objects', () => {
+    const metadata = Symbol('metadata');
+    const original = { x: 1, [metadata]: 'keep' };
+    expect(remove(original, 'x')).toEqual({ [metadata]: 'keep' });
+    expect(original[metadata]).toBe('keep');
+  });
 });
