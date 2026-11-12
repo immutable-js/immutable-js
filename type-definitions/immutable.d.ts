@@ -645,10 +645,10 @@ declare namespace Immutable {
      * a key it can not follow is a type error, unless `notSetValue` is given.
      * A path only known at runtime (`Array<string>`, `List`) gives `unknown`.
      */
-    getIn<P extends ReadonlyArray<PropertyKey>>(
+    getIn<P extends ReadonlyArray<object | PropertyKey>>(
       searchKeyPath: TypedKeyPath<R, P> | OrderedCollection<unknown>
     ): RetrievePathOrUnknown<R, P>;
-    getIn<P extends ReadonlyArray<PropertyKey>, NSV>(
+    getIn<P extends ReadonlyArray<object | PropertyKey>, NSV>(
       searchKeyPath: readonly [...P] | OrderedCollection<unknown>,
       notSetValue: NSV
     ): RetrievePathOrUnknownWithNotSetValue<R, P, NSV>;
@@ -703,11 +703,14 @@ declare namespace Immutable {
   type GetNativeType<S> =
     S extends MapOf<infer T>
       ? T
-      : S extends Record<infer T>
-        ? T
-        : // `toArray()` only: inferring from the whole interface also matches `toJS()`,
-          // whose `DeepCopy` gives a second candidate
-          S extends Collection.Keyed<unknown, unknown>
+      : // `toObject()` and `toArray()` only: inferring from the whole interface also matches `toJS()`,
+        // whose `DeepCopy` gives a second candidate
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        S extends Record<any>
+        ? S extends { toObject(): infer T }
+          ? T
+          : never
+        : S extends Collection.Keyed<unknown, unknown>
           ? S extends { toArray(): Array<[infer K, infer V]> }
             ? { [key in K & PropertyKey]: V }
             : never
@@ -834,8 +837,10 @@ declare namespace Immutable {
     : WideKey<C> extends true
       ? // a key only known at runtime: nothing to check below
         unknown
-      : // not a key of NT: nothing to read there, as for one member of `{ a: number } | { b: string }`
-        NotSet;
+      : IsObjectKey<C> extends true
+        ? unknown
+        : // not a key of NT: nothing to read there, as for one member of `{ a: number } | { b: string }`
+          NotSet;
 
   /**
    * @ignore
@@ -892,13 +897,19 @@ declare namespace Immutable {
       ? [...Checked, ...P]
       : [K] extends [PathKeys<R>]
         ? ExpectedPath<PathValue<R, K>, Rest, [...Checked, K]>
-        : [PathKeys<R>] extends [never]
-          ? // a primitive or an empty object: no key can follow
-            [...Checked, { 'no key can be read from': R }, ...Rest]
-          : WideKey<K> extends true
-            ? // a key only known at runtime: nothing to check below
-              [...Checked, ...P]
-            : [...Checked, { 'expected one of': PathKeys<R> }, ...Rest]
+        : [
+              IsObjectKey<K>,
+              true extends HasObjectKey<R> ? true : false,
+            ] extends [true, true]
+          ? // nothing to check below
+            [...Checked, ...P]
+          : [PathKeys<R>] extends [never]
+            ? // a primitive or an empty object: no key can follow
+              [...Checked, { 'no key can be read from': R }, ...Rest]
+            : WideKey<K> extends true
+              ? // a key only known at runtime: nothing to check below
+                [...Checked, ...P]
+              : [...Checked, { 'expected one of': PathKeys<R> }, ...Rest]
     : // an empty path, or an array: nothing to check
       [...Checked, ...P];
 
@@ -929,6 +940,34 @@ declare namespace Immutable {
    * What an `unknown` value is narrowed to: its values stay `unknown`
    */
   type UnknownRecord = Record<{ [key: string]: unknown }>;
+
+  /**
+   * @ignore
+   * An object as a key, like the key of a `Map<object, V>`: the types do not follow it.
+   * `any` is not one
+   */
+  type IsObjectKey<K> = 0 extends 1 & K
+    ? false
+    : [K] extends [never]
+      ? false
+      : [K] extends [object]
+        ? true
+        : false;
+
+  /**
+   * @ignore
+   * A `Map<object, V>`…: the only collections where an object can be a key
+   */
+  type HasObjectKey<R> =
+    R extends Collection.Keyed<unknown, unknown>
+      ? R extends { toArray(): Array<[infer K, unknown]> }
+        ? unknown extends K
+          ? true
+          : [Extract<K, object>] extends [never]
+            ? false
+            : true
+        : false
+      : false;
 
   /**
    * @ignore
@@ -2537,10 +2576,10 @@ declare namespace Immutable {
      * a key it can not follow is a type error, unless `notSetValue` is given.
      * A path only known at runtime (`Array<string>`, `List`) gives `unknown`.
      */
-    getIn<P extends ReadonlyArray<PropertyKey>>(
+    getIn<P extends ReadonlyArray<object | PropertyKey>>(
       keyPath: TypedKeyPath<TProps, P> | OrderedCollection<unknown>
     ): RetrievePathOrUnknown<TProps, P>;
-    getIn<P extends ReadonlyArray<PropertyKey>, NSV>(
+    getIn<P extends ReadonlyArray<object | PropertyKey>, NSV>(
       keyPath: readonly [...P] | OrderedCollection<unknown>,
       notSetValue: NSV
     ): RetrievePathOrUnknownWithNotSetValue<TProps, P, NSV>;
@@ -5134,12 +5173,12 @@ declare namespace Immutable {
    * A functional alternative to `collection.getIn(keypath)` which will also
    * work with plain Objects and Arrays.
    */
-  function getIn<C, P extends ReadonlyArray<PropertyKey>>(
+  function getIn<C, P extends ReadonlyArray<object | PropertyKey>>(
     object: C,
     keyPath: TypedKeyPath<C, P> | OrderedCollection<unknown>
   ): RetrievePathOrUnknown<C, P>;
   function getIn<C>(object: C, keyPath: ArrayLikeKeyPath): unknown;
-  function getIn<C, P extends ReadonlyArray<PropertyKey>, NSV>(
+  function getIn<C, P extends ReadonlyArray<object | PropertyKey>, NSV>(
     collection: C,
     keyPath: readonly [...P] | OrderedCollection<unknown>,
     notSetValue: NSV

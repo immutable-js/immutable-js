@@ -60,9 +60,13 @@ getIn(List([1, 2, 3]), [0], 0); // number
 getIn([1, 2, 3], [0]); // number, as before
 ```
 
-A path in a generic function, where the type of the collection or of a key is a type parameter, is accepted without being checked, as before:
+Two kinds of path are accepted without being checked: a path in a generic function, where the type of the collection or of a key is a type parameter, and what follows an object given as a key of a `Map<object, V>`, whose result is `unknown`. The keys before the object key are checked, and an object key is a type error where no key can be an object, like on a `Record`, a plain object or a `List`.
 
 ```ts
+const users = Map<{ id: number }, string>();
+
+getIn(users, [{ id: 1 }]); // unknown, as before
+
 function cityOf<T extends { address: { city: string } }>(person: RecordOf<T>) {
   return person.getIn(['address', 'city']); // accepted: `T` is not known yet
 }

@@ -149,6 +149,24 @@ test('getIn', () => {
 
   expect(getIn(union, ['x', 'y'], 'nsv')).type.toBe<number | 'nsv'>();
 
+  // an object as a key, like the key of a `Map<object, V>`: the types do not follow it
+  const objectKey = { id: 1 };
+  const byObject = Map<{ id: number }, string>();
+
+  expect(getIn(byObject, [objectKey])).type.toBe<unknown>();
+
+  expect(getIn(byObject, [objectKey], 'nsv')).type.toBe<unknown>();
+
+  expect(getIn({ x: byObject }, ['x', objectKey])).type.toBe<unknown>();
+
+  // the keys before it are still checked
+  expect(getIn({ x: byObject }, ['z', objectKey])).type.toRaiseError(
+    'expected one of'
+  );
+
+  // it is refused where no key can be an object
+  expect(getIn({ x: 1 }, [objectKey])).type.toRaiseError();
+
   // a generic collection or key: the path can not be checked
   function genericCollection<T extends { x: { y: number } }>(collection: T) {
     return getIn(collection, ['x', 'y']);

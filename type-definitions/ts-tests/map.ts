@@ -142,6 +142,38 @@ test('#getIn', () => {
 
   expect(union.getIn(['a', 'z'])).type.toRaiseError('expected one of');
 
+  // an object as a key, like the key of a `Map<object, V>`: the types do not follow it
+  const objectKey = { id: 1 };
+  const byObject = Map({ a: Map<{ id: number }, string>() });
+
+  expect(byObject.getIn(['a', objectKey])).type.toBe<unknown>();
+
+  expect(byObject.getIn(['a', objectKey], 'nsv')).type.toBe<unknown>();
+
+  // the keys before it are still checked
+  expect(byObject.getIn(['z', objectKey])).type.toRaiseError('expected one of');
+
+  // a `Map<object, V>` that may be missing
+  const maybeByObject = Map({
+    a: null as Map<{ id: number }, string> | null,
+  });
+
+  expect(maybeByObject.getIn(['a', objectKey])).type.toBe<unknown>();
+
+  // it is refused where no key can be an object
+  expect(Map({ a: 1 }).getIn([objectKey])).type.toRaiseError('expected one of');
+
+  expect(Map({ a: List([1]) }).getIn(['a', objectKey])).type.toRaiseError(
+    'expected one of'
+  );
+
+  // `any` is not an object key
+  const anyKey = 'b' as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+
+  expect(Map({ a: { b: 1 } }).getIn(['z', anyKey])).type.toRaiseError(
+    'expected one of'
+  );
+
   // a generic Map or key: the path can not be checked
   function genericMap<T extends { a: { b: number } }>(map: MapOf<T>) {
     return map.getIn(['a', 'b']);

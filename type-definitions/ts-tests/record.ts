@@ -1,4 +1,13 @@
-import { List, Map, MapOf, Record, RecordOf, Set, isRecord } from 'immutable';
+import {
+  List,
+  Map,
+  MapOf,
+  Record,
+  RecordOf,
+  Set,
+  getIn,
+  isRecord,
+} from 'immutable';
 import { expect, pick, test } from 'tstyche';
 
 test('Factory', () => {
@@ -192,6 +201,22 @@ test('#getIn', () => {
 
   expect(genericRecord(Record({ a: { b: 1 } })())).type.toBe<number>();
 
+  // an object as a key, like the key of a `Map<object, V>`: the types do not follow it
+  const objectKey = { id: 1 };
+  const ByObject = Record({ users: Map<{ id: number }, string>() });
+
+  expect(ByObject().getIn(['users', objectKey])).type.toBe<unknown>();
+
+  // a `Map<object, V>` that may be missing
+  const MaybeByObject = Record({
+    users: null as Map<{ id: number }, string> | null,
+  });
+
+  expect(MaybeByObject().getIn(['users', objectKey])).type.toBe<unknown>();
+
+  // it is refused where no key can be an object
+  expect(ByObject().getIn([objectKey])).type.toRaiseError('expected one of');
+
   // a key that may be `null` is a type error: the caller has to narrow it
   const maybeKey = 'city' as string | null;
 
@@ -246,6 +271,80 @@ test('#getIn through a value that may be missing', () => {
 
   // the `undefined` of the value itself stays, as the runtime gives it back
   expect(line.getIn(['size'], 'nsv')).type.toBe<Size | undefined | 'nsv'>();
+});
+
+test('getIn through a nested Record', () => {
+  interface User {
+    name: string;
+    job: { title: string };
+    tags: List<string>;
+    boss: RecordOf<{ name: string }> | null;
+  }
+
+  const User = Record<User>({
+    name: '',
+    job: { title: '' },
+    tags: List(),
+    boss: null,
+  });
+  const user = User();
+  const id = 'id' as string;
+
+  // the properties of the nested Record keep their type, whatever holds it
+  const map = Map({
+    one: user,
+    users: Map<string, RecordOf<User>>(),
+    list: List([user]),
+  });
+
+  expect(map.getIn(['one', 'job', 'title'])).type.toBe<string>();
+
+  expect(map.getIn(['one', 'tags', 0])).type.toBe<string | undefined>();
+
+  expect(map.getIn(['one', 'boss', 'name'])).type.toBe<string | undefined>();
+
+  expect(map.getIn(['users', id, 'job', 'title'])).type.toBe<
+    string | undefined
+  >();
+
+  expect(map.getIn(['list', 0, 'job', 'title'])).type.toBe<
+    string | undefined
+  >();
+
+  expect(map.getIn(['one', 'job', 'titl'])).type.toRaiseError(
+    'expected one of'
+  );
+
+  expect(map.getIn(['one', 'boss', 'nam'])).type.toRaiseError(
+    'expected one of'
+  );
+
+  expect(map.getIn(['list', 0, 'job', 'titl'])).type.toRaiseError(
+    'expected one of'
+  );
+
+  // in a Record
+  const Team = Record({ lead: user });
+
+  expect(Team().getIn(['lead', 'job', 'title'])).type.toBe<string>();
+
+  expect(Team().getIn(['lead', 'job', 'titl'])).type.toRaiseError(
+    'expected one of'
+  );
+
+  // with the functional `getIn`
+  expect(getIn({ user }, ['user', 'job', 'title'])).type.toBe<string>();
+
+  expect(getIn({ user }, ['user', 'job', 'titl'])).type.toRaiseError(
+    'expected one of'
+  );
+
+  // a subclass of the Record
+  class UserClass extends User {}
+
+  expect(
+    Map({ user: new UserClass() }).getIn(['user', 'job', 'title'])
+  ).type.toBe<string>();
 });
 
 test('#update', () => {
