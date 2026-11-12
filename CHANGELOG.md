@@ -40,7 +40,7 @@ const map = Map({ a: { b: 1 } });
 map.getIn(['a', 'b']); // was never (number with `['a', 'b'] as const`), now number without `as const`
 map.getIn(['z']); // was never, now a type error: expected one of "a"
 map.getIn(['a', 'b', 'c']); // was never, now a type error: no key can be read from number
-map.getIn(['z'], 'nsv'); // was never, now 'nsv': with a `notSetValue`, any path is accepted
+map.getIn(['z'], 'nsv'); // was never, now 'nsv': with a `notSetValue`, a key the types do not know is accepted
 ```
 
 A path only known at runtime is typed as such, and the result is `unknown`:
@@ -52,9 +52,27 @@ map.getIn(path); // was never, now unknown
 map.getIn(List(['a', 'b'])); // was a type error, now unknown
 ```
 
+The index of a `List`, like the key of a `Map<string, V>`, may be missing: the result includes `undefined`, as with `get`. A plain array follows TypeScript, where `array[0]` is not `undefined`.
+
+```ts
+getIn(List([1, 2, 3]), [0]); // was number, now number | undefined
+getIn(List([1, 2, 3]), [0], 0); // number
+getIn([1, 2, 3], [0]); // number, as before
+```
+
+A path in a generic function, where the type of the collection or of a key is a type parameter, is accepted without being checked, as before:
+
+```ts
+function cityOf<T extends { address: { city: string } }>(person: RecordOf<T>) {
+  return person.getIn(['address', 'city']); // accepted: `T` is not known yet
+}
+```
+
+With TypeScript 4.5 to 4.9, a path in such a generic function is a type error: give a `notSetValue`, or a path typed as `Array<string>`, whose result is `unknown`.
+
 #### [TypeScript] Typed key paths follow a nested Record, a Map with unknown keys and a value that may be missing
 
-The same goes for a nested `List`, `OrderedMap`, `Seq`, `Stack`, plain object or array.
+The same goes for a nested `List`, `OrderedMap`, `Seq`, `Stack`, plain object or array, and for a union of objects where only some have the key.
 
 ```ts
 const Point = Record({ x: 0 });
@@ -65,7 +83,7 @@ const map = Map({
 });
 
 map.getIn(['point', 'x']); // was never, now number
-map.getIn(['scores', 'math']); // was never, now number
+map.getIn(['scores', 'math']); // was never, now number | undefined: like with `get`, the key may be missing
 map.getIn(['address', 'city']); // was never, now string | undefined: `address` may be null
 map.getIn(['address', 'city'], null); // was never, now string | null: the `notSetValue` replaces the undefined
 ```
@@ -81,6 +99,16 @@ const value = Point() as RecordOf<{ x: number }> | { x: number };
 if (Record.isRecord(value)) {
   value; // was (RecordOf<{ x: number }> | { x: number }) & Record<object>, now RecordOf<{ x: number }>
   value.get('x'); // was a type error, now number
+}
+```
+
+An `unknown` value is narrowed to a Record whose values are `unknown`:
+
+```ts
+declare const value: unknown;
+
+if (Record.isRecord(value)) {
+  value.get('x'); // was a type error, now unknown
 }
 ```
 

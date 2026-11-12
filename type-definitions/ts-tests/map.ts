@@ -112,7 +112,8 @@ test('#getIn', () => {
 
   expect(Map({ a: [1] }).getIn(['a', 0])).type.toBe<number>();
 
-  expect(Map({ a: List([1]) }).getIn(['a', 0])).type.toBe<number>();
+  // like with `get`, the index of a List may be missing
+  expect(Map({ a: List([1]) }).getIn(['a', 0])).type.toBe<number | undefined>();
 
   // a value on the way may be missing
   expect(
@@ -123,10 +124,46 @@ test('#getIn', () => {
     string | undefined
   >();
 
-  // a Map with unknown keys on the way
+  // a Map with unknown keys on the way: like with `get`, the key may be missing
+  expect(Map({ a: Map<string, number>() }).getIn(['a', 'b'])).type.toBe<
+    number | undefined
+  >();
+
+  expect(Map({ a: Map<string, number>() }).getIn(['a', 'b'], null)).type.toBe<
+    number | null
+  >();
+
+  // a union of objects on the way: only some of them have the key
+  const union = Map({ a: { b: 1 } as { b: number } | { c: string } });
+
+  expect(union.getIn(['a', 'b'])).type.toBe<number | undefined>();
+
+  expect(union.getIn(['a', 'b'], 'nsv')).type.toBe<number | 'nsv'>();
+
+  expect(union.getIn(['a', 'z'])).type.toRaiseError('expected one of');
+
+  // a generic Map or key: the path can not be checked
+  function genericMap<T extends { a: { b: number } }>(map: MapOf<T>) {
+    return map.getIn(['a', 'b']);
+  }
+
+  expect(genericMap(Map({ a: { b: 1 } }))).type.toBe<number>();
+
+  function nestedGenericMap<T extends { a: { b: number } }>(
+    map: MapOf<{ nested: MapOf<T> }>
+  ) {
+    return map.getIn(['nested', 'a', 'b']);
+  }
+
   expect(
-    Map({ a: Map<string, number>() }).getIn(['a', 'b'])
+    nestedGenericMap(Map({ nested: Map({ a: { b: 1 } }) }))
   ).type.toBe<number>();
+
+  function genericKey<K extends 'a' | 'b'>(key: K) {
+    return Map({ a: 1, b: 'b' }).getIn([key]);
+  }
+
+  expect(genericKey('a')).type.toBe<number>();
 
   // a Record on the way: its properties are the keys, not its methods
   const Point = ImmutableRecord({ x: 0 });

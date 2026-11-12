@@ -804,7 +804,22 @@ declare namespace Immutable {
   > = T extends Primitive
     ? // `null`, an id…: nothing to read there
       NotSet
-    : RetrievePathStep<GetNativeType<T>, C, L>;
+    :
+        | RetrievePathStep<GetNativeType<T>, C, L>
+        | (HasUnknownKeys<T> extends true ? NotSet : never);
+
+  /**
+   * @ignore
+   * A `Map<string, V>`, a `List`…: like with `get`, the key may be missing.
+   * A `MapOf` and a `Record` know their keys, an array follows TypeScript: `array[0]` is not `undefined`
+   */
+  type HasUnknownKeys<T> =
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    T extends MapOf<any> | Record<any>
+      ? false
+      : T extends Collection<unknown, unknown>
+        ? true
+        : false;
 
   /** @ignore */
   type RetrievePathStep<
@@ -819,8 +834,8 @@ declare namespace Immutable {
     : WideKey<C> extends true
       ? // a key only known at runtime: nothing to check below
         unknown
-      : // not a key of NT: the path is invalid
-        never;
+      : // not a key of NT: nothing to read there, as for one member of `{ a: number } | { b: string }`
+        NotSet;
 
   /**
    * @ignore
@@ -868,27 +883,38 @@ declare namespace Immutable {
    * `P`, with the first key `R` can not follow replaced by an object naming the expected keys:
    * a bare key union intersected with the given key gives `never`, and the error message loses the keys
    */
-  type ExpectedPath<R, P extends ReadonlyArray<unknown>> = unknown extends R
-    ? P
-    : P extends readonly [infer K, ...infer Rest]
-      ? [K] extends [PathKeys<R>]
-        ? [K, ...ExpectedPath<PathValue<R, K>, Rest>]
+  type ExpectedPath<
+    R,
+    P extends ReadonlyArray<unknown>,
+    Checked extends ReadonlyArray<unknown> = [],
+  > = P extends readonly [infer K, ...infer Rest]
+    ? unknown extends R
+      ? [...Checked, ...P]
+      : [K] extends [PathKeys<R>]
+        ? ExpectedPath<PathValue<R, K>, Rest, [...Checked, K]>
         : [PathKeys<R>] extends [never]
           ? // a primitive or an empty object: no key can follow
-            [{ 'no key can be read from': R }, ...Rest]
+            [...Checked, { 'no key can be read from': R }, ...Rest]
           : WideKey<K> extends true
             ? // a key only known at runtime: nothing to check below
-              P
-            : [{ 'expected one of': PathKeys<R> }, ...Rest]
-      : // an empty path, or an array: nothing to check
-        P;
+              [...Checked, ...P]
+            : [...Checked, { 'expected one of': PathKeys<R> }, ...Rest]
+    : // an empty path, or an array: nothing to check
+      [...Checked, ...P];
 
   /**
    * @ignore
    * `unknown` when `R` can follow `P`, otherwise the path expected instead
    */
   type ValidatedPath<R, P extends ReadonlyArray<unknown>> =
-    ExpectedPath<R, P> extends P ? unknown : ExpectedPath<R, P>;
+    IsInvalidPath<R, P> extends true ? ExpectedPath<R, P> : unknown;
+
+  /** @ignore */
+  type IsInvalidPath<R, P extends ReadonlyArray<unknown>> = [
+    ExpectedPath<R, P>,
+  ] extends [P]
+    ? false
+    : true;
 
   /**
    * @ignore
@@ -897,6 +923,12 @@ declare namespace Immutable {
    */
   type TypedKeyPath<R, P extends ReadonlyArray<unknown>> = readonly [...P] &
     ValidatedPath<R, P>;
+
+  /**
+   * @ignore
+   * What an `unknown` value is narrowed to: its values stay `unknown`
+   */
+  type UnknownRecord = Record<{ [key: string]: unknown }>;
 
   /**
    * @ignore
@@ -2408,8 +2440,11 @@ declare namespace Immutable {
      * True if `maybeRecord` is an instance of a Record.
      */
     // `Record<any>`, the only Record every Record is assignable to: the guard narrows `RecordOf<T> | T`
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    function isRecord(maybeRecord: unknown): maybeRecord is Record<any>;
+    function isRecord(
+      maybeRecord: object | Primitive
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ): maybeRecord is Record<any>;
+    function isRecord(maybeRecord: unknown): maybeRecord is UnknownRecord;
 
     /**
      * Records allow passing a second parameter to supply a descriptive name
@@ -4920,8 +4955,11 @@ declare namespace Immutable {
    * True if `maybeRecord` is a Record.
    */
   // `Record<any>`, the only Record every Record is assignable to: the guard narrows `RecordOf<T> | T`
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function isRecord(maybeRecord: unknown): maybeRecord is Record<any>;
+  function isRecord(
+    maybeRecord: object | Primitive
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ): maybeRecord is Record<any>;
+  function isRecord(maybeRecord: unknown): maybeRecord is UnknownRecord;
 
   /**
    * Returns the value within the provided collection associated with the

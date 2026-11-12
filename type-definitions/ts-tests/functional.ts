@@ -39,10 +39,13 @@ test('getIn', () => {
 
   expect(getIn([1, 2, 3], [0], 'a')).type.toBe<number>();
 
-  expect(getIn(List([1, 2, 3]), [0])).type.toBe<number>();
+  // like with `get`, the index of a List may be missing
+  expect(getIn(List([1, 2, 3]), [0])).type.toBe<number | undefined>();
+
+  expect(getIn(List([1, 2, 3]), [0], 'nsv')).type.toBe<number | 'nsv'>();
 
   // first parameter type is Array<number> so we can not detect that the number will be invalid
-  expect(getIn(List([1, 2, 3]), [99])).type.toBe<number>();
+  expect(getIn(List([1, 2, 3]), [99])).type.toBe<number | undefined>();
 
   // an invalid path is a type error
   expect(getIn(List([1, 2, 3]), ['a'])).type.toRaiseError('expected one of');
@@ -70,9 +73,9 @@ test('getIn', () => {
 
   expect(getIn(o, ['x'])).type.toBe<List<MapOf<{ y: number }>>>();
 
-  expect(getIn(o, ['x', 0])).type.toBe<MapOf<{ y: number }>>();
+  expect(getIn(o, ['x', 0])).type.toBe<MapOf<{ y: number }> | undefined>();
 
-  expect(getIn(o, ['x', 0, 'y'])).type.toBe<number>();
+  expect(getIn(o, ['x', 0, 'y'])).type.toBe<number | undefined>();
 
   // an empty path gives the value itself back
   expect(getIn({ x: 10, y: 20 }, [])).type.toBe<{ x: number; y: number }>();
@@ -127,15 +130,45 @@ test('getIn', () => {
   expect(getIn({ x: {} as unknown }, ['x', 'y'])).type.toBe<unknown>();
 
   // collections with unknown keys
-  expect(
-    getIn(Map({ x: Map<string, number>() }), ['x', 'y'])
-  ).type.toBe<number>();
+  expect(getIn(Map({ x: Map<string, number>() }), ['x', 'y'])).type.toBe<
+    number | undefined
+  >();
+
+  expect(getIn({ x: OrderedMap<string, number>() }, ['x', 'y'])).type.toBe<
+    number | undefined
+  >();
 
   expect(
-    getIn({ x: OrderedMap<string, number>() }, ['x', 'y'])
-  ).type.toBe<number>();
+    getIn({ x: OrderedMap<string, number>() }, ['x', 'y'], null)
+  ).type.toBe<number | null>();
 
-  expect(getIn({ x: Stack([1]) }, ['x', 0])).type.toBe<number>();
+  // a union of objects on the way: only some of them have the key
+  const union = { x: { y: 1 } as { y: number } | { z: string } };
+
+  expect(getIn(union, ['x', 'y'])).type.toBe<number | undefined>();
+
+  expect(getIn(union, ['x', 'y'], 'nsv')).type.toBe<number | 'nsv'>();
+
+  // a generic collection or key: the path can not be checked
+  function genericCollection<T extends { x: { y: number } }>(collection: T) {
+    return getIn(collection, ['x', 'y']);
+  }
+
+  expect(genericCollection({ x: { y: 1 } })).type.toBe<number>();
+
+  function nestedGenericCollection<T extends { x: { y: number } }>(nested: T) {
+    return getIn({ nested }, ['nested', 'x', 'y']);
+  }
+
+  expect(nestedGenericCollection({ x: { y: 1 } })).type.toBe<number>();
+
+  function genericKey<T extends object>(collection: T, key: keyof T) {
+    return getIn(collection, [key]);
+  }
+
+  expect(genericKey({ x: 1 }, 'x')).type.toBe<number>();
+
+  expect(getIn({ x: Stack([1]) }, ['x', 0])).type.toBe<number | undefined>();
 
   // Record
   const Point = Record({ x: 0, y: 0 });

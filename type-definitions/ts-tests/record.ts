@@ -139,11 +139,14 @@ test('#getIn', () => {
   expect(person.getIn(['address', 'street'], 'nsv')).type.toBe<'nsv'>();
 
   // through a nested List, a Map built from an object, a Map with unknown keys and a plain object
-  expect(person.getIn(['tags', 0])).type.toBe<string>();
+  expect(person.getIn(['tags', 0])).type.toBe<string | undefined>();
 
   expect(person.getIn(['settings', 'theme'])).type.toBe<string>();
 
-  expect(person.getIn(['scores', 'math'])).type.toBe<number>();
+  // like with `get`, the key of a Map with unknown keys may be missing
+  expect(person.getIn(['scores', 'math'])).type.toBe<number | undefined>();
+
+  expect(person.getIn(['scores', 'math'], null)).type.toBe<number | null>();
 
   expect(person.getIn(['raw', 'nested', 'deep'])).type.toBe<boolean>();
 
@@ -181,6 +184,13 @@ test('#getIn', () => {
   }
 
   expect(new PersonWithGenericPath().getIn(['name'])).type.toBe<unknown>();
+
+  // a generic Record: the path can not be checked
+  function genericRecord<T extends { a: { b: number } }>(record: RecordOf<T>) {
+    return record.getIn(['a', 'b']);
+  }
+
+  expect(genericRecord(Record({ a: { b: 1 } })())).type.toBe<number>();
 
   // a key that may be `null` is a type error: the caller has to narrow it
   const maybeKey = 'city' as string | null;
@@ -281,6 +291,19 @@ test('Record.isRecord narrows a RecordOf', () => {
 
   if (Record.isRecord(line)) {
     expect(line).type.toBe<RecordOf<{ size?: number }>>();
+  }
+
+  // the values of an `unknown` value stay `unknown`
+  const unknownValue = Point() as unknown;
+
+  if (Record.isRecord(unknownValue)) {
+    expect(unknownValue.get('x')).type.toBe<unknown>();
+
+    expect(unknownValue.toJS()).type.toBe<{ [x: string]: unknown }>();
+  }
+
+  if (isRecord(unknownValue)) {
+    expect(unknownValue.get('x')).type.toBe<unknown>();
   }
 
   // a Map is not a Record
