@@ -1,4 +1,4 @@
-import type { Collection } from '../../type-definitions/immutable';
+import type { KeyedCollectionImpl } from '../Collection';
 
 export const IS_KEYED_SYMBOL = '@@__IMMUTABLE_KEYED__@@';
 
@@ -15,9 +15,9 @@ export const IS_KEYED_SYMBOL = '@@__IMMUTABLE_KEYED__@@';
  * isKeyed(Stack()); // false
  * ```
  */
-export function isKeyed(
+export function isKeyed<K, V>(
   maybeKeyed: unknown
-): maybeKeyed is Collection.Keyed<unknown, unknown> {
+): maybeKeyed is KeyedCollectionImpl<K, V> {
   return Boolean(
     maybeKeyed &&
       // @ts-expect-error: maybeKeyed is typed as `{}`, need to change in 6.0 to `maybeKeyed && typeof maybeKeyed === 'object' && IS_KEYED_SYMBOL in maybeKeyed`

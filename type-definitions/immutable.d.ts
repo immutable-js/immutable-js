@@ -3215,7 +3215,7 @@ declare namespace Immutable {
    *
    * Note: An Iterator itself will be treated as an object, becoming a `Seq.Keyed`,
    * which is usually not what you want. You should turn your Iterator Object into
-   * an iterable object by defining a Symbol.iterator (or @@iterator) method which
+   * an iterable object by defining a Symbol.iterator method which
    * returns `this`.
    *
    * Note: `Seq` is a conversion function and not a class, and does not use the
@@ -3934,7 +3934,7 @@ declare namespace Immutable {
    *
    * Note: An Iterator itself will be treated as an object, becoming a `Seq.Keyed`,
    * which is usually not what you want. You should turn your Iterator Object into
-   * an iterable object by defining a Symbol.iterator (or @@iterator) method which
+   * an iterable object by defining a Symbol.iterator method which
    * returns `this`.
    *
    * Note: `Collection` is a conversion function and not a class, and does not
@@ -5177,7 +5177,10 @@ declare namespace Immutable {
     object: C,
     keyPath: TypedKeyPath<C, P> | OrderedCollection<unknown>
   ): RetrievePathOrUnknown<C, P>;
-  function getIn<C>(object: C, keyPath: ArrayLikeKeyPath): unknown;
+  function getIn<C>(
+    object: C,
+    keyPath: ArrayLikeKeyPath | OrderedCollection<unknown>
+  ): unknown;
   function getIn<C, P extends ReadonlyArray<object | PropertyKey>, NSV>(
     collection: C,
     keyPath: readonly [...P] | OrderedCollection<unknown>,
@@ -5185,7 +5188,7 @@ declare namespace Immutable {
   ): RetrievePathOrUnknownWithNotSetValue<C, P, NSV>;
   function getIn<C, NSV>(
     object: C,
-    keyPath: ArrayLikeKeyPath,
+    keyPath: ArrayLikeKeyPath | OrderedCollection<unknown>,
     notSetValue: NSV
   ): unknown;
 

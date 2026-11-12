@@ -1,5 +1,5 @@
-import { describe, expect, it, jest } from '@jest/globals';
 import { Seq } from 'immutable';
+import { describe, expect, it, jest } from '@jest/globals';
 
 describe('skipWhile', () => {
   it.each(['skipWhile', 'skipUntil'] as const)(

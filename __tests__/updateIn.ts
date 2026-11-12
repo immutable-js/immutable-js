@@ -1,4 +1,3 @@
-import { describe, expect, it } from '@jest/globals';
 import {
   List,
   Map,
@@ -10,6 +9,7 @@ import {
   setIn,
   updateIn,
 } from 'immutable';
+import { describe, expect, it } from '@jest/globals';
 import invariant from '../src/utils/invariant';
 
 describe('updateIn', () => {
@@ -263,7 +263,7 @@ describe('updateIn', () => {
     let spiedOnID;
     const m2 = m.updateIn(['a', 'b', 'c'], Set(), (id) => (spiedOnID = id));
     expect(m2).toBe(m);
-    expect(spiedOnID).toBe(Set());
+    expect(spiedOnID).toEqual(Set());
   });
 
   it('provides default notSetValue of undefined', () => {

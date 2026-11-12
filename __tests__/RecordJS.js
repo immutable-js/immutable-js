@@ -1,5 +1,5 @@
-import { describe, expect, it } from '@jest/globals';
 import { Record } from 'immutable';
+import { describe, expect, it } from '@jest/globals';
 
 describe('Record', () => {
   it('defines a record factory', () => {
@@ -42,8 +42,8 @@ describe('Record', () => {
     const t = new Alphabet();
     const t2 = t.set('b', 200);
 
-    expect(t instanceof Record).toBe(true);
-    expect(t instanceof Alphabet).toBe(true);
+    expect(Record.isRecord(t)).toBe(true);
+    expect(t).toBeInstanceOf(Alphabet);
     expect(t.soup()).toBe(6);
     expect(t2.soup()).toBe(204);
 

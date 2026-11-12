@@ -1,4 +1,5 @@
-import type { Collection, Record } from '../../type-definitions/immutable';
+import type { Record } from '../../type-definitions/immutable';
+import type { CollectionImpl } from '../Collection';
 import { type PossibleCollection, updateIn } from './updateIn';
 
 type UpdaterFunction<V> = (value: V | undefined) => V | undefined;
@@ -12,12 +13,12 @@ type UpdaterFunctionWithNSV<V, NSV> = (value: V | NSV) => V;
  * work with plain Objects and Arrays as an alternative for
  * `collectionCopy[key] = fn(collection[key])`.
  */
-export function update<K, V, C extends Collection<K, V>>(
+export function update<K, V, C extends CollectionImpl<K, V>>(
   collection: C,
   key: K,
   updater: (value: V | undefined) => V | undefined
 ): C;
-export function update<K, V, C extends Collection<K, V>, NSV>(
+export function update<K, V, C extends CollectionImpl<K, V>, NSV>(
   collection: C,
   key: K,
   notSetValue: NSV,

@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run test:unit*)",
+      "Bash(npm run test:types*)",
+      "Bash(npm run type-check*)",
+      "Bash(npm run lint*)",
+      "Bash(npm run format*)",
+      "Bash(npm run build*)",
+      "Bash(npm test*)",
+      "Bash(npm install*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git add*)",
+      "Bash(git fetch*)",
+      "Bash(git checkout*)",
+      "Bash(git branch*)",
+      "Bash(git show*)",
+      "Bash(git ls-tree*)",
+      "Bash(find src*)",
+      "Bash(grep*)"
+    ]
+  }
+}

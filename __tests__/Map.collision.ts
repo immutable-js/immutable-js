@@ -1,5 +1,5 @@
-import { describe, expect, it } from '@jest/globals';
 import { Map, Set, fromJS, hash, is } from 'immutable';
+import { describe, expect, it } from '@jest/globals';
 
 /**
  * Generates `2 ** rounds` distinct strings that all share the same
