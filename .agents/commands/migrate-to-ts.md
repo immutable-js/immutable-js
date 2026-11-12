@@ -93,6 +93,7 @@ conventions of the immutable-js 6.x branch.
      touches** is migrated (the factory _and_ the methods _and_ the public type
      name it asserts) — so a single collection migration may un-skip a whole
      file, or only part of it.
+   - A test that mixes migrated code with a collection still in JS is live, with `expect.skip(` on the assertions that go through that collection (see `getIn` in `functional.ts`): turn them back into `expect(` once the collection is migrated. `grep -rnE "\.skip\(" type-definitions/ts-tests-src` lists both kinds of skip.
    - If a d.ts-only type was removed from a duplicate's imports (e.g. `MapOf`,
      `RecordOf`, `DeepCopy` — see the header comment in each file), add it back
      once it exists in the source.
