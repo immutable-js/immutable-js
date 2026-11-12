@@ -165,4 +165,15 @@ describe('IndexedSequence', () => {
     expect(indexes.get(2)).toEqual(2);
     expect(indexes.get(-2)).toEqual(3);
   });
+
+  it('keySeq() returns indexes for a lazy indexed Seq of unknown size', () => {
+    const seq = Seq([1, 2, 3]).filter((x) => x > 1);
+    expect(seq.size).toBeUndefined();
+    expect(seq.keySeq().toArray()).toEqual([0, 1]);
+  });
+
+  it('keySeq() still returns a Range when the size is known', () => {
+    const seq = Seq([10, 20, 30]);
+    expect(seq.keySeq().toArray()).toEqual([0, 1, 2]);
+  });
 });
