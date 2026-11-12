@@ -333,6 +333,9 @@ function typesVisitor(source: ts.SourceFile) {
       case ts.SyntaxKind.MethodSignature:
         visitMethodSignature(node as ts.MethodSignature);
         return;
+      case ts.SyntaxKind.TypeAliasDeclaration:
+        // Type aliases are not documented, and the object types they may contain are not interfaces
+        return;
       default:
         ts.forEachChild(node, visit);
     }
