@@ -8,6 +8,10 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+## 5.2.0
+
+- Fix keySeq() on a lazy indexed Seq of unknown size in [#2325](https://github.com/immutable-js/immutable-js/pull/2325) by [kevin9327](https://github.com/kevin9327)
+
 #### [TypeScript] `Record#getIn` is typed from the Record's properties, like `MapOf#getIn`
 
 No runtime change. `Record#getIn` also accepts a `notSetValue`, as the runtime always did.
