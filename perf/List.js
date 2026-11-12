@@ -103,11 +103,8 @@ describe('List', function () {
   });
 
   describe('some', function () {
+    const list = Immutable.Range(0, 100000).toList();
     it('100 000 items', () => {
-      const list = Immutable.List();
-      for (let i = 0; i < 100000; i++) {
-        list.push(i);
-      }
       list.some((item) => item === 50000);
     });
   });
