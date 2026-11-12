@@ -5177,7 +5177,10 @@ declare namespace Immutable {
     object: C,
     keyPath: TypedKeyPath<C, P> | OrderedCollection<unknown>
   ): RetrievePathOrUnknown<C, P>;
-  function getIn<C>(object: C, keyPath: ArrayLikeKeyPath): unknown;
+  function getIn<C>(
+    object: C,
+    keyPath: ArrayLikeKeyPath | OrderedCollection<unknown>
+  ): unknown;
   function getIn<C, P extends ReadonlyArray<object | PropertyKey>, NSV>(
     collection: C,
     keyPath: readonly [...P] | OrderedCollection<unknown>,
@@ -5185,7 +5188,7 @@ declare namespace Immutable {
   ): RetrievePathOrUnknownWithNotSetValue<C, P, NSV>;
   function getIn<C, NSV>(
     object: C,
-    keyPath: ArrayLikeKeyPath,
+    keyPath: ArrayLikeKeyPath | OrderedCollection<unknown>,
     notSetValue: NSV
   ): unknown;
 

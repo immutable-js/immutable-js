@@ -8,6 +8,8 @@ Dates are formatted as YYYY-MM-DD.
 
 ## Unreleased
 
+- [TypeScript] The functional `getIn` accepts a key path typed `KeyPath` again, like the one a wrapper function receives and forwards. It was a type error since 5.2.0; the result is `unknown`, as in 5.1. [#2328](https://github.com/immutable-js/immutable-js/pull/2328) by [@jdeniau](https://github.com/jdeniau)
+
 ## 5.2.0
 
 - Fix keySeq() on a lazy indexed Seq of unknown size in [#2325](https://github.com/immutable-js/immutable-js/pull/2325) by [kevin9327](https://github.com/kevin9327)
