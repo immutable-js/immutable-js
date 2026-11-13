@@ -9,6 +9,7 @@ Dates are formatted as YYYY-MM-DD.
 ## Unreleased
 
 - [TypeScript] The functional `getIn` accepts a key path typed `KeyPath` again, like the one a wrapper function receives and forwards. It was a type error since 5.2.0; the result is `unknown`, as in 5.1. [#2328](https://github.com/immutable-js/immutable-js/pull/2328) by [@jdeniau](https://github.com/jdeniau)
+- [TypeScript] The methods `setIn`, `updateIn`, `mergeIn`, `mergeDeepIn`, `deleteIn`, `removeIn`, the untyped `getIn` and `hasIn`, and the functions `setIn` and `removeIn` type their key path as `KeyPath`, which the functions `hasIn` and `updateIn` already used: an array-like or an ordered Immutable collection, as the runtime accepts. A path typed `KeyPath` is now accepted everywhere. A path typed `Iterable<…>` is now a type error, like an ES6 `Set` or a generator, which throw `Invalid keyPath` at runtime: type it `KeyPath<…>` instead, exported since 5.1.0. [#2328](https://github.com/immutable-js/immutable-js/pull/2328) by [@jdeniau](https://github.com/jdeniau)
 
 ## 5.2.0
 
