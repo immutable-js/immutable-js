@@ -1,4 +1,5 @@
 import {
+  KeyPath,
   List,
   Map,
   MapOf,
@@ -201,6 +202,21 @@ test('getIn', () => {
   expect(
     getIn({ x: { y: 20 } as { y: number } | null }, ['x', 'y'], 'nsv')
   ).type.toBe<number | 'nsv'>();
+});
+
+test('getIn with a path typed `KeyPath`', () => {
+  // what a wrapper function forwards: the path can not be checked
+  function forward<K>(collection: unknown, keyPath: KeyPath<K>) {
+    return getIn(collection, keyPath);
+  }
+
+  expect(forward({ x: 10 }, ['x'])).type.toBe<unknown>();
+
+  function forwardWithNotSetValue<K>(collection: unknown, keyPath: KeyPath<K>) {
+    return getIn(collection, keyPath, 'nsv');
+  }
+
+  expect(forwardWithNotSetValue({ x: 10 }, ['x'])).type.toBe<unknown>();
 });
 
 test('has', () => {
