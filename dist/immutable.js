@@ -6404,7 +6404,7 @@
       return isIndexed(v) ? v.toList() : isKeyed(v) ? v.toMap() : v.toSet();
     }
 
-    var version = "5.2.0";
+    var version = "5.2.1";
 
     /* eslint-disable import/order */
 
