@@ -176,7 +176,8 @@ declare namespace Immutable {
    *
    * KeyPath allowed for `xxxIn` methods
    */
-  export type KeyPath<K> = OrderedCollection<K> | ArrayLike<K>;
+  export type KeyPath<K> = KeyPathCollection<K> | (ArrayLike<K> & object);
+  type KeyPathCollection<K> = Collection.Indexed<K> | OrderedSet<K>;
 
   /**
    * Lists are ordered indexed dense collections, much like a JavaScript
@@ -646,12 +647,19 @@ declare namespace Immutable {
      * A path only known at runtime (`Array<string>`, `List`) gives `unknown`.
      */
     getIn<P extends ReadonlyArray<object | PropertyKey>>(
-      searchKeyPath: TypedKeyPath<R, P> | OrderedCollection<unknown>
+      searchKeyPath: TypedKeyPath<R, P> | KeyPathCollection<unknown>
     ): RetrievePathOrUnknown<R, P>;
     getIn<P extends ReadonlyArray<object | PropertyKey>, NSV>(
-      searchKeyPath: readonly [...P] | OrderedCollection<unknown>,
+      searchKeyPath: readonly [...P] | KeyPathCollection<unknown>,
       notSetValue: NSV
     ): RetrievePathOrUnknownWithNotSetValue<R, P, NSV>;
+    getIn(
+      searchKeyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>
+    ): unknown;
+    getIn<NSV>(
+      searchKeyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>,
+      notSetValue: NSV
+    ): unknown;
 
     set<K extends keyof R>(key: K, value: R[K]): this;
 
@@ -2577,12 +2585,17 @@ declare namespace Immutable {
      * A path only known at runtime (`Array<string>`, `List`) gives `unknown`.
      */
     getIn<P extends ReadonlyArray<object | PropertyKey>>(
-      keyPath: TypedKeyPath<TProps, P> | OrderedCollection<unknown>
+      keyPath: TypedKeyPath<TProps, P> | KeyPathCollection<unknown>
     ): RetrievePathOrUnknown<TProps, P>;
     getIn<P extends ReadonlyArray<object | PropertyKey>, NSV>(
-      keyPath: readonly [...P] | OrderedCollection<unknown>,
+      keyPath: readonly [...P] | KeyPathCollection<unknown>,
       notSetValue: NSV
     ): RetrievePathOrUnknownWithNotSetValue<TProps, P, NSV>;
+    getIn(keyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>): unknown;
+    getIn<NSV>(
+      keyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>,
+      notSetValue: NSV
+    ): unknown;
 
     // Value equality
 
@@ -5175,20 +5188,20 @@ declare namespace Immutable {
    */
   function getIn<C, P extends ReadonlyArray<object | PropertyKey>>(
     object: C,
-    keyPath: TypedKeyPath<C, P> | OrderedCollection<unknown>
+    keyPath: TypedKeyPath<C, P> | KeyPathCollection<unknown>
   ): RetrievePathOrUnknown<C, P>;
   function getIn<C>(
     object: C,
-    keyPath: ArrayLikeKeyPath | OrderedCollection<unknown>
+    keyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>
   ): unknown;
   function getIn<C, P extends ReadonlyArray<object | PropertyKey>, NSV>(
     collection: C,
-    keyPath: readonly [...P] | OrderedCollection<unknown>,
+    keyPath: readonly [...P] | KeyPathCollection<unknown>,
     notSetValue: NSV
   ): RetrievePathOrUnknownWithNotSetValue<C, P, NSV>;
   function getIn<C, NSV>(
     object: C,
-    keyPath: ArrayLikeKeyPath | OrderedCollection<unknown>,
+    keyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>,
     notSetValue: NSV
   ): unknown;
 
@@ -5232,14 +5245,14 @@ declare namespace Immutable {
    * A functional alternative to `collection.updateIn(keypath)` which will also
    * work with plain Objects and Arrays.
    */
-  function updateIn<K extends PropertyKey, V, C extends Collection<K, V>>(
+  function updateIn<K, V, C extends Collection<K, V>>(
     collection: C,
     keyPath: KeyPath<K>,
     updater: (
       value: RetrievePath<C, Array<K>> | undefined
     ) => unknown | undefined
   ): C;
-  function updateIn<K extends PropertyKey, V, C extends Collection<K, V>, NSV>(
+  function updateIn<K, V, C extends Collection<K, V>, NSV>(
     collection: C,
     keyPath: KeyPath<K>,
     notSetValue: NSV,
@@ -5265,45 +5278,36 @@ declare namespace Immutable {
     notSetValue: NSV,
     updater: (value: RetrievePath<C, Array<K>> | NSV) => unknown
   ): C;
-  function updateIn<K extends PropertyKey, V, C extends Array<V>>(
+  function updateIn<K, V, C extends Array<V>>(
     collection: Array<V>,
     keyPath: KeyPath<string | number>,
     updater: (
       value: RetrievePath<C, Array<K>> | undefined
     ) => unknown | undefined
   ): Array<V>;
-  function updateIn<K extends PropertyKey, V, C extends Array<V>, NSV>(
+  function updateIn<K, V, C extends Array<V>, NSV>(
     collection: Array<V>,
     keyPath: KeyPath<K>,
     notSetValue: NSV,
     updater: (value: RetrievePath<C, Array<K>> | NSV) => unknown
   ): Array<V>;
-  function updateIn<K extends PropertyKey, C>(
+  function updateIn<K, C>(
     object: C,
     keyPath: KeyPath<K>,
     updater: (value: RetrievePath<C, Array<K>>) => unknown
   ): C;
-  function updateIn<K extends PropertyKey, C, NSV>(
+  function updateIn<K, C, NSV>(
     object: C,
     keyPath: KeyPath<K>,
     notSetValue: NSV,
     updater: (value: RetrievePath<C, Array<K>> | NSV) => unknown
   ): C;
-  function updateIn<
-    K extends PropertyKey,
-    V,
-    C extends { [key: PropertyKey]: V },
-  >(
+  function updateIn<K, V, C extends { [key: PropertyKey]: V }>(
     collection: C,
     keyPath: KeyPath<K>,
     updater: (value: RetrievePath<C, Array<K>>) => unknown
   ): { [key: PropertyKey]: V };
-  function updateIn<
-    K extends PropertyKey,
-    V,
-    C extends { [key: PropertyKey]: V },
-    NSV,
-  >(
+  function updateIn<K, V, C extends { [key: PropertyKey]: V }, NSV>(
     collection: C,
     keyPath: KeyPath<K>,
     notSetValue: NSV,

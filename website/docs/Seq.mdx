@@ -403,7 +403,7 @@ In case the `Collection` is not empty returns the last element of the `Collectio
 Returns the value found by following a path of keys or indices through nested Collections.
 
 <Signature
-  code={`getIn(searchKeyPath: Iterable<unknown>, notSetValue?: unknown): unknown;`}
+  code={`getIn(searchKeyPath: KeyPath<unknown>, notSetValue?: unknown): unknown;`}
 />
 
 <Repl
@@ -422,7 +422,7 @@ deepData.getIn(['x', 0, 'y'])`}
 
 True if the result of following a path of keys or indices through nested Collections results in a set value.
 
-<Signature code={`hasIn(searchKeyPath: Iterable<unknown>): boolean;`} />
+<Signature code={`hasIn(searchKeyPath: KeyPath<unknown>): boolean;`} />
 
 ## Persistent changes
 

@@ -30,11 +30,11 @@ describe('hasIn', () => {
     expect(() => Map().hasIn({ a: 1, b: 2 })).toThrow(
       'Invalid keyPath: expected Ordered Collection or Array: [object Object]'
     );
-    // TODO: should expect error
+    // @ts-expect-error -- test that runtime does throw
     expect(() => Map().hasIn('abc')).toThrow(
       'Invalid keyPath: expected Ordered Collection or Array: abc'
     );
-    // TODO: should expect error
+    // @ts-expect-error -- test that runtime does throw
     expect(() => hasIn(Map(), 'abc')).toThrow(
       'Invalid keyPath: expected Ordered Collection or Array: abc'
     );

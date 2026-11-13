@@ -222,7 +222,7 @@ When building a new List and the final size is known up front, `setSize` used in
 Returns a new List having set `value` at this `keyPath`. If any keys in `keyPath` do not exist, a new immutable Map will be created at that key.
 
 <Signature
-  code={`setIn(keyPath: Iterable<unknown>, value: unknown): List<T>`}
+  code={`setIn(keyPath: KeyPath<unknown>, value: unknown): List<T>`}
 />
 
 Index numbers are used as keys to determine the path to follow in the List.
@@ -247,7 +247,7 @@ Note: `setIn` can be used in <CodeLink to="withMutations()">withMutations</CodeL
 
 Returns a new List having removed the value at this `keyPath`. If any keys in `keyPath` do not exist, no change will occur.
 
-<Signature code={`deleteIn(keyPath: Iterable<unknown>): List<T>`} />
+<Signature code={`deleteIn(keyPath: KeyPath<unknown>): List<T>`} />
 
 <Repl
   defaultValue={`const list = List([ 0, 1, 2, List([ 3, 4 ])])
@@ -266,8 +266,8 @@ Note: `deleteIn` _cannot_ be safely used in <CodeLink to="withMutations()">withM
 <MemberLabel label="updateIn()" />
 
 <Signature
-  code={`updateIn(keyPath: Iterable<unknown>, notSetValue: unknown, updater: (value: unknown) => unknown): this
-updateIn(keyPath: Iterable<unknown>, updater: (value: unknown) => unknown): this`}
+  code={`updateIn(keyPath: KeyPath<unknown>, notSetValue: unknown, updater: (value: unknown) => unknown): this
+updateIn(keyPath: KeyPath<unknown>, updater: (value: unknown) => unknown): this`}
 />
 
 Note: `updateIn` can be used in <CodeLink to="withMutations()">withMutations</CodeLink>.
@@ -275,7 +275,7 @@ Note: `updateIn` can be used in <CodeLink to="withMutations()">withMutations</Co
 <MemberLabel label="mergeIn()" />
 
 <Signature
-  code={`mergeIn(keyPath: Iterable<unknown>, ...collections: Array<unknown>): this`}
+  code={`mergeIn(keyPath: KeyPath<unknown>, ...collections: Array<unknown>): this`}
 />
 
 Note: `mergeIn` can be used in <CodeLink to="withMutations()">withMutations</CodeLink>.
@@ -283,7 +283,7 @@ Note: `mergeIn` can be used in <CodeLink to="withMutations()">withMutations</Cod
 <MemberLabel label="mergeDeepIn()" />
 
 <Signature
-  code={`mergeDeepIn(keyPath: Iterable<unknown>, ...collections: Array<unknown>): this`}
+  code={`mergeDeepIn(keyPath: KeyPath<unknown>, ...collections: Array<unknown>): this`}
 />
 
 Note: `mergeDeepIn` can be used in <CodeLink to="withMutations()">withMutations</CodeLink>.
@@ -945,7 +945,7 @@ If two values have the same `hashCode`, they are [not guaranteed to be equal][Ha
 Returns the value found by following a path of keys or indices through nested Collections.
 
 <Signature
-  code={`getIn(searchKeyPath: Iterable<unknown>, notSetValue?: unknown): unknown`}
+  code={`getIn(searchKeyPath: KeyPath<unknown>, notSetValue?: unknown): unknown`}
 />
 
 <Repl
@@ -964,7 +964,7 @@ deepData.getIn(['x', 0, 'y'])`}
 
 True if the result of following a path of keys or indices through nested Collections results in a set value.
 
-<Signature code={`hasIn(searchKeyPath: Iterable<unknown>): boolean`} />
+<Signature code={`hasIn(searchKeyPath: KeyPath<unknown>): boolean`} />
 
 ## Conversion to Collections
 

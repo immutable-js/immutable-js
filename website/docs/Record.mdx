@@ -224,12 +224,12 @@ Returns a new instance of this Record type with all values set to their default 
 
 <MemberLabel label="setIn" />
 
-<Signature code={`setIn(keyPath: Iterable, value): this;`} />
+<Signature code={`setIn(keyPath: KeyPath<unknown>, value): this;`} />
 
 <MemberLabel label="updateIn" />
 
 <Signature
-  code={`updateIn(keyPath: Iterable, updater: (value) => unknown): this;`}
+  code={`updateIn(keyPath: KeyPath<unknown>, updater: (value) => unknown): this;`}
 />
 
 <MemberLabel label="mergeIn" />
@@ -244,7 +244,7 @@ Returns a new instance of this Record type with all values set to their default 
 
 <MemberLabel label="deleteIn" alias="removeIn" />
 
-<Signature code={`deleteIn(keyPath: Iterable<unknown>): this;`} />
+<Signature code={`deleteIn(keyPath: KeyPath<unknown>): this;`} />
 
 ## Conversion to JavaScript types
 
