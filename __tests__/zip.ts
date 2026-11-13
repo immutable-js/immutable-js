@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 import fc from 'fast-check';
-import { List, Range, Seq } from 'immutable';
+import { List, Range, Seq, Stack } from 'immutable';
 import { expectToBeDefined } from './ts-utils';
 
 describe('zip', () => {
@@ -91,6 +91,48 @@ describe('zip', () => {
         expect(zipped.size).toBe(shortestLength);
       })
     );
+  });
+
+  it('keeps values aligned when reversed with different sizes', () => {
+    expect(
+      Seq([1, 2, 3])
+        .zip(Seq([4, 5]))
+        .reverse()
+        .toArray()
+    ).toEqual([
+      [2, 5],
+      [1, 4],
+    ]);
+    expect(
+      Seq([1, 2])
+        .zipAll(Seq([3, 4, 5]))
+        .reverse()
+        .toArray()
+    ).toEqual([
+      [undefined, 5],
+      [2, 4],
+      [1, 3],
+    ]);
+  });
+
+  it('zips stacks of different sizes', () => {
+    expect(
+      Stack([1, 2, 3])
+        .zip(Stack([4, 5]))
+        .toArray()
+    ).toEqual([
+      [1, 4],
+      [2, 5],
+    ]);
+    expect(
+      Stack([1, 2])
+        .zipAll(Stack([3, 4, 5]))
+        .toArray()
+    ).toEqual([
+      [1, 3],
+      [2, 4],
+      [undefined, 5],
+    ]);
   });
 
   describe('zipWith', () => {
