@@ -12,11 +12,11 @@ Dates are formatted as YYYY-MM-DD.
 - [TypeScript] `Record#getIn` and `MapOf#getIn` accept a key path the types can not follow, like the functional `getIn`: a forwarded `KeyPath`, an array-like which is not iterable. The result is `unknown`. [#2330](https://github.com/immutable-js/immutable-js/pull/2330) by [@jdeniau](https://github.com/jdeniau)
 - [TypeScript] `KeyPath`, and every key path parameter with it, no longer accepts a path which throws `Invalid keyPath` at runtime: a `string` (write `[key]` instead), or an Immutable `Map`, `Set` or `Seq.Set`. It also refuses an `OrderedMap` and a keyed `Seq`: they do not throw, but their `[key, value]` entries are used as keys, so they never match one. [#2330](https://github.com/immutable-js/immutable-js/pull/2330) by [@jdeniau](https://github.com/jdeniau)
 
-- [TypeScript] A key path can go through a `Set`, whose values are its own keys: `Map({ ids: Set([1, 2]) }).getIn(['ids', 2])` was a type error, it is now `number | undefined`.
+- [TypeScript] A key path can go through a `Set`, whose values are its own keys: `Map({ ids: Set([1, 2]) }).getIn(['ids', 2])` was a type error, it is now `number | undefined`. [#2331](https://github.com/immutable-js/immutable-js/pull/2331) by [@jdeniau](https://github.com/jdeniau)
 
 #### [TypeScript Break] Deep changes are typed from the key path, like `getIn`
 
-For `hasIn`, `setIn`, `updateIn`, `mergeIn`, `mergeDeepIn`, `deleteIn` and `removeIn` on a `MapOf` and a `Record`, and the functions `hasIn`, `setIn`, `updateIn` and `removeIn`. A key the types can not follow is a type error, `setIn` takes the type declared at the end of the path, and the updater of `updateIn` receives and returns it.
+For `hasIn`, `setIn`, `updateIn`, `mergeIn`, `mergeDeepIn`, `deleteIn` and `removeIn` on a `MapOf` and a `Record`, and the functions `hasIn`, `setIn`, `updateIn` and `removeIn`. A key the types can not follow is a type error, `setIn` takes the type declared at the end of the path, and the updater of `updateIn` receives and returns it. [#2331](https://github.com/immutable-js/immutable-js/pull/2331) by [@jdeniau](https://github.com/jdeniau)
 
 ```ts
 const Address = Record({ city: '', zip: 0 });
