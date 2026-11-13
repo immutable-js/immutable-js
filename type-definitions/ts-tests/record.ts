@@ -273,6 +273,71 @@ test('#getIn through a value that may be missing', () => {
   expect(line.getIn(['size'], 'nsv')).type.toBe<Size | undefined | 'nsv'>();
 });
 
+test('deep changes are typed like `getIn`', () => {
+  const Address = Record({ city: '', zip: 0 });
+  const Person = Record({
+    address: Address(),
+    tags: List(['a']),
+    scores: Map<string, number>(),
+  });
+  const person = Person();
+  type Person = typeof person;
+
+  expect(person.hasIn(['address', 'city'])).type.toBe<boolean>();
+  // a path the types know is wrong: the test would always be false
+  expect(person.hasIn(['address', 'citi'])).type.toRaiseError(
+    'expected one of'
+  );
+  // a key only known at runtime keeps the test useful
+  const key = 'citi' as string;
+
+  expect(person.hasIn(['address', key])).type.toBe<boolean>();
+
+  expect(person.setIn(['address', 'city'], 'Lyon')).type.toBe<Person>();
+  expect(person.setIn(['tags', 0], 'b')).type.toBe<Person>();
+  expect(person.setIn(['address', 'citi'], 'Lyon')).type.toRaiseError(
+    'expected one of'
+  );
+  expect(person.setIn(['address', 'city'], 1)).type.toRaiseError();
+  expect(person.setIn(['tags', 0], 1)).type.toRaiseError();
+
+  expect(
+    person.updateIn(['address', 'zip'], (zip) => {
+      expect(zip).type.toBe<number>();
+
+      return zip + 1;
+    })
+  ).type.toBe<Person>();
+  expect(
+    person.updateIn(['address', 'zip'], (zip) => String(zip))
+  ).type.toRaiseError();
+  expect(
+    person.updateIn(['scores', 'math'], 0, (score) => {
+      expect(score).type.toBe<number>();
+
+      return score + 1;
+    })
+  ).type.toBe<Person>();
+
+  expect(person.deleteIn(['tags', 0])).type.toBe<Person>();
+  expect(person.removeIn(['scores', 'math'])).type.toBe<Person>();
+  expect(person.removeIn(['address', 'citi'])).type.toRaiseError(
+    'expected one of'
+  );
+
+  expect(person.mergeIn(['address'], { city: 'Lyon' })).type.toBe<Person>();
+  expect(person.mergeDeepIn(['address'], { city: 'Lyon' })).type.toBe<Person>();
+  expect(person.mergeIn(['adress'], { city: 'Lyon' })).type.toRaiseError(
+    'expected one of'
+  );
+
+  // a path only known at runtime takes any value
+  const path: Array<string> = ['address', 'city'];
+
+  expect(person.setIn(path, 1)).type.toBe<Person>();
+  expect(person.setIn(List(['address', 'city']), 1)).type.toBe<Person>();
+});
+
 test('getIn through a nested Record', () => {
   interface User {
     name: string;

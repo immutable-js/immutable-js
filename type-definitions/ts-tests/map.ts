@@ -3,7 +3,9 @@ import {
   Map,
   MapOf,
   OrderedMap,
+  OrderedSet,
   Record as ImmutableRecord,
+  Set,
 } from 'immutable';
 import { expect, pick, test } from 'tstyche';
 
@@ -254,6 +256,28 @@ test('#getIn', () => {
   expect(Map({ a: { b: 1 } }).getIn(['a', maybeKey])).type.toRaiseError();
 });
 
+test('#getIn through a Set', () => {
+  // a value of a Set is its own key
+  const tags = Map({
+    ids: Set([1, 2]),
+    names: OrderedSet(['a']),
+    users: Set([{ id: 1 }]),
+  });
+
+  expect(tags.getIn(['ids', 2])).type.toBe<number | undefined>();
+  expect(tags.getIn(['names', 'a'])).type.toBe<string | undefined>();
+  expect(tags.getIn(['ids', 'a'])).type.toRaiseError('expected one of');
+  expect(tags.getIn(['ids', 2, 'a'])).type.toRaiseError(
+    'no key can be read from'
+  );
+
+  // an object as a value: the types do not follow it, as for a `Map<object, V>`
+  expect(tags.getIn(['users', { id: 1 }])).type.toBe<unknown>();
+
+  expect(tags.removeIn(['ids', 2])).type.toBe<typeof tags>();
+  expect(tags.hasIn(['names', 'b'])).type.toBe<boolean>();
+});
+
 test('#set', () => {
   expect(Map<number, number>().set(0, 0)).type.toBe<Map<number, number>>();
 
@@ -296,6 +320,27 @@ test('#set', () => {
 
 test('#setIn', () => {
   expect(Map<number, number>().setIn([], 0)).type.toBe<Map<number, number>>();
+
+  // on a `MapOf`, the path and the value are typed, like `getIn`
+  const user = Map({ name: 'a', address: Map({ city: 'b' }) });
+
+  expect(user.setIn(['address', 'city'], 'c')).type.toBe<typeof user>();
+  expect(user.setIn(['address', 'citi'], 'c')).type.toRaiseError(
+    'expected one of'
+  );
+  expect(user.setIn(['address', 'city'], 1)).type.toRaiseError();
+
+  // a value on the way that may be missing still takes the declared type
+  const maybe = Map<{ a: { b: number } | undefined }>({ a: undefined });
+
+  expect(maybe.setIn(['a', 'b'], 1)).type.toBe<typeof maybe>();
+  expect(maybe.setIn(['a', 'b'], 'x')).type.toRaiseError();
+
+  // a path only known at runtime takes any value
+  const path: Array<string> = ['address', 'city'];
+
+  expect(user.setIn(path, 1)).type.toBe<typeof user>();
+  expect(user.setIn(List(['address', 'city']), 1)).type.toBe<typeof user>();
 });
 
 test('#delete', () => {
@@ -358,6 +403,13 @@ test('#deleteAll', () => {
 
 test('#deleteIn', () => {
   expect(Map<number, number>().deleteIn([])).type.toBe<Map<number, number>>();
+
+  const user = Map({ address: Map({ city: 'b' }) });
+
+  expect(user.deleteIn(['address', 'city'])).type.toBe<typeof user>();
+  expect(user.deleteIn(['address', 'citi'])).type.toRaiseError(
+    'expected one of'
+  );
 });
 
 test('#remove', () => {
@@ -382,6 +434,30 @@ test('#removeAll', () => {
 
 test('#removeIn', () => {
   expect(Map<number, number>().removeIn([])).type.toBe<Map<number, number>>();
+
+  const user = Map({ address: Map({ city: 'b' }) });
+
+  expect(user.removeIn(['address', 'city'])).type.toBe<typeof user>();
+  expect(user.removeIn(['address', 'citi'])).type.toRaiseError(
+    'expected one of'
+  );
+});
+
+test('#hasIn', () => {
+  expect(Map<number, number>().hasIn([1])).type.toBe<boolean>();
+
+  const user = Map({ address: Map({ city: 'b' }), tags: List<string>() });
+
+  expect(user.hasIn(['address', 'city'])).type.toBe<boolean>();
+  expect(user.hasIn(['tags', 3])).type.toBe<boolean>();
+
+  // a path the types know is wrong: the test would always be false
+  expect(user.hasIn(['address', 'citi'])).type.toRaiseError('expected one of');
+
+  // a key only known at runtime keeps the test useful
+  const key = 'citi' as string;
+
+  expect(user.hasIn(['address', key])).type.toBe<boolean>();
 });
 
 test('#clear', () => {
@@ -448,6 +524,53 @@ test('#updateIn', () => {
   >();
 
   expect(Map<number, number>().updateIn([], 10)).type.toRaiseError();
+
+  // on a `MapOf`, the updater is typed from the path, like `getIn`
+  const user = Map({
+    address: Map({ zip: 0 }),
+    scores: Map<string, number>(),
+  });
+
+  expect(
+    user.updateIn(['address', 'zip'], (zip) => {
+      expect(zip).type.toBe<number>();
+
+      return zip + 1;
+    })
+  ).type.toBe<typeof user>();
+  expect(
+    user.updateIn(['address', 'zip'], (zip) => String(zip))
+  ).type.toRaiseError();
+  expect(user.updateIn(['address', 'zipp'], (zip) => zip)).type.toRaiseError(
+    'expected one of'
+  );
+
+  // returning `undefined` removes the value
+  expect(
+    user.updateIn(['scores', 'math'], (score) => {
+      expect(score).type.toBe<number | undefined>();
+
+      return undefined;
+    })
+  ).type.toBe<typeof user>();
+  expect(
+    user.updateIn(['scores', 'math'], 0, (score) => {
+      expect(score).type.toBe<number>();
+
+      return score + 1;
+    })
+  ).type.toBe<typeof user>();
+
+  // a path only known at runtime
+  const path: Array<string> = ['address', 'zip'];
+
+  expect(
+    user.updateIn(path, (value) => {
+      expect(value).type.toBe<unknown>();
+
+      return 'x';
+    })
+  ).type.toBe<typeof user>();
 });
 
 test('#map', () => {
@@ -634,6 +757,13 @@ test('#mergeIn', () => {
   expect(Map<number, number>().mergeIn([], [])).type.toBe<
     Map<number, number>
   >();
+
+  const user = Map({ address: Map({ city: 'b' }) });
+
+  expect(user.mergeIn(['address'], { city: 'c' })).type.toBe<typeof user>();
+  expect(user.mergeIn(['adress'], { city: 'c' })).type.toRaiseError(
+    'expected one of'
+  );
 });
 
 test('#mergeWith', () => {
@@ -742,6 +872,13 @@ test('#mergeDeepIn', () => {
   expect(Map<number, number>().mergeDeepIn([], [])).type.toBe<
     Map<number, number>
   >();
+
+  const user = Map({ address: Map({ city: 'b' }) });
+
+  expect(user.mergeDeepIn(['address'], { city: 'c' })).type.toBe<typeof user>();
+  expect(user.mergeDeepIn(['adress'], { city: 'c' })).type.toRaiseError(
+    'expected one of'
+  );
 });
 
 test('#mergeDeepWith', () => {

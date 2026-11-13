@@ -248,11 +248,21 @@ test('hasIn', () => {
   // first parameter type is Array<number> so we can not detect that the number will be invalid
   expect(hasIn(List([1, 2, 3]), [99])).type.toBe<boolean>();
 
-  expect(hasIn(List([1, 2, 3]), ['a' as const])).type.toBe<boolean>();
+  // a path the types know is wrong: the test would always be false
+  expect(hasIn(List([1, 2, 3]), ['a' as const])).type.toRaiseError(
+    'expected one of'
+  );
 
   expect(hasIn({ x: 10, y: 20 }, ['x' as const])).type.toBe<boolean>();
 
-  expect(hasIn({ x: { y: 20 } }, ['z' as const])).type.toBe<boolean>();
+  expect(hasIn({ x: { y: 20 } }, ['z' as const])).type.toRaiseError(
+    'expected one of'
+  );
+
+  // a key only known at runtime keeps the test useful
+  const key = 'z' as string;
+
+  expect(hasIn({ x: { y: 20 } }, ['x', key])).type.toBe<boolean>();
 
   expect(
     hasIn({ x: { y: 20 } }, ['x' as const, 'y' as const])
@@ -268,7 +278,9 @@ test('hasIn', () => {
 
   const o = Map({ x: List([Map({ y: 20 })]) });
 
-  expect(hasIn(o, ['x' as const, 'y' as const])).type.toBe<boolean>();
+  expect(hasIn(o, ['x' as const, 'y' as const])).type.toRaiseError(
+    'expected one of'
+  );
 
   expect(hasIn(o, ['x' as const, 0, 'y' as const])).type.toBe<boolean>();
 });
@@ -323,6 +335,18 @@ test('setIn', () => {
 
   expect(setIn([[1, 2]], [0, 1], 3)).type.toBe<number[][]>();
 
+  // the path and the value are typed, like `getIn`
+  expect(setIn({ x: { y: 20 } }, ['x', 'z'], 30)).type.toRaiseError(
+    'expected one of'
+  );
+  expect(setIn({ x: { y: 20 } }, ['x', 'y'], 'a')).type.toRaiseError();
+  expect(setIn([[1, 2]], [0, 1], 'a')).type.toRaiseError();
+
+  // a path only known at runtime takes any value
+  const path: Array<string> = ['x', 'y'];
+
+  expect(setIn({ x: { y: 20 } }, path, 'a')).type.toBe<{ x: { y: number } }>();
+
   // a string is not a path: the runtime throws `Invalid keyPath`
   expect(setIn({ x: 10 }, 'x', 30)).type.toRaiseError();
 });
@@ -335,6 +359,10 @@ test('removeIn', () => {
   expect(removeIn([[1, 2]], [0, 1])).type.toBe<number[][]>();
 
   expect(removeIn({ x: 10 }, 'x')).type.toRaiseError();
+
+  expect(removeIn({ x: { y: 20 } }, ['x', 'z'])).type.toRaiseError(
+    'expected one of'
+  );
 });
 
 test('updateIn', () => {
@@ -346,11 +374,56 @@ test('updateIn', () => {
 
   expect(updateIn({ x: 10 }, 'x', (v) => v)).type.toRaiseError();
 
+  // the updater is typed from the path, like `getIn`
+  expect(
+    updateIn({ x: { y: 20 } }, ['x', 'y'], (v) => {
+      expect(v).type.toBe<number>();
+
+      return v + 1;
+    })
+  ).type.toBe<{ x: { y: number } }>();
+  expect(
+    updateIn([[1, 2]], [0, 1], (v) => {
+      expect(v).type.toBe<number>();
+
+      return v + 1;
+    })
+  ).type.toBe<number[][]>();
+
+  // returning `undefined` removes the value
+  const scores = { byName: Map<string, number>() };
+
+  expect(
+    updateIn(scores, ['byName', 'a'], (v) => {
+      expect(v).type.toBe<number | undefined>();
+
+      return undefined;
+    })
+  ).type.toBe<{ byName: Map<string, number> }>();
+  expect(
+    updateIn(scores, ['byName', 'a'], 0, (v) => {
+      expect(v).type.toBe<number>();
+
+      return v + 1;
+    })
+  ).type.toBe<{ byName: Map<string, number> }>();
+  expect(updateIn({ x: { y: 20 } }, ['x', 'z'], (v) => v)).type.toRaiseError(
+    'expected one of'
+  );
+  expect(
+    updateIn({ x: { y: 20 } }, ['x', 'y'], (v) => String(v))
+  ).type.toRaiseError();
+
   // a path only known at runtime
-  const path: Array<unknown> = ['x'];
+  const path: KeyPath<unknown> = ['x'];
 
   expect(updateIn({ x: 10 }, path, (v) => v)).type.toBe<{ x: number }>();
   expect(updateIn([[1, 2]], path, (v) => v)).type.toBe<number[][]>();
+
+  // an `Array<unknown>` is refused, so that a typo in a literal path is not accepted untyped
+  const unknowns: Array<unknown> = ['x'];
+
+  expect(updateIn({ x: 10 }, unknowns, (v) => v)).type.toRaiseError();
 
   // an object as a key
   const objectKey = { id: 1 };

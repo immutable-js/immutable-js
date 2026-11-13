@@ -9,6 +9,7 @@ describe('hasIn', () => {
     expect(m.hasIn(['a', 'b', 'z'])).toEqual(false);
     expect(m.hasIn(['a', 'y', 'z'])).toEqual(false);
     expect(hasIn(m, ['a', 'b', 'c'])).toEqual(true);
+    // @ts-expect-error -- the types refuse a path they know is wrong
     expect(hasIn(m, ['a', 'b', 'z'])).toEqual(false);
   });
 
@@ -45,9 +46,13 @@ describe('hasIn', () => {
       key: { regular: 'jsobj' },
       list: List([Map({ num: 10 })]),
     });
+    // @ts-expect-error -- the types refuse a path they know is wrong
     expect(deep.hasIn(['key', 'foo', 'item'])).toBe(false);
+    // @ts-expect-error -- the types refuse a path they know is wrong
     expect(deep.hasIn(['list', 0, 'num', 'badKey'])).toBe(false);
+    // @ts-expect-error -- the types refuse a path they know is wrong
     expect(hasIn(deep, ['key', 'foo', 'item'])).toBe(false);
+    // @ts-expect-error -- the types refuse a path they know is wrong
     expect(hasIn(deep, ['list', 0, 'num', 'badKey'])).toBe(false);
   });
 
@@ -57,7 +62,9 @@ describe('hasIn', () => {
     expect(hasIn(m, ['a', 'b', 'c', 1])).toEqual(true);
     expect(hasIn(m, ['a', 'b', 'c', 2])).toEqual(false);
     expect(hasIn(m, ['a', 'b', 'd'])).toEqual(true);
+    // @ts-expect-error -- the types refuse a path they know is wrong
     expect(hasIn(m, ['a', 'b', 'z'])).toEqual(false);
+    // @ts-expect-error -- the types refuse a path they know is wrong
     expect(hasIn(m, ['a', 'b', 'z'])).toEqual(false);
   });
 });

@@ -663,6 +663,69 @@ declare namespace Immutable {
 
     set<K extends keyof R>(key: K, value: R[K]): this;
 
+    hasIn<P extends ReadonlyArray<object | PropertyKey>>(
+      keyPath: TypedKeyPath<R, P> | KeyPathCollection<unknown>
+    ): boolean;
+    hasIn(keyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>): boolean;
+
+    setIn<P extends ReadonlyArray<object | PropertyKey>>(
+      keyPath: TypedKeyPath<R, P> | KeyPathCollection<unknown>,
+      value: ValueAtPath<R, P>
+    ): this;
+    setIn(
+      keyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>,
+      value: unknown
+    ): this;
+
+    updateIn<P extends ReadonlyArray<object | PropertyKey>>(
+      keyPath: TypedKeyPath<R, P> | KeyPathCollection<unknown>,
+      updater: (
+        value: RetrievePathOrUnknown<R, P>
+      ) => ValueAtPath<R, P> | undefined
+    ): this;
+    updateIn<P extends ReadonlyArray<object | PropertyKey>, NSV>(
+      keyPath: TypedKeyPath<R, P> | KeyPathCollection<unknown>,
+      notSetValue: NSV,
+      updater: (
+        value: RetrievePathOrUnknownWithNotSetValue<R, P, NSV>
+      ) => ValueAtPath<R, P> | NSV
+    ): this;
+    updateIn(
+      keyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>,
+      updater: (value: unknown) => unknown
+    ): this;
+    updateIn(
+      keyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>,
+      notSetValue: unknown,
+      updater: (value: unknown) => unknown
+    ): this;
+
+    mergeIn<P extends ReadonlyArray<object | PropertyKey>>(
+      keyPath: TypedKeyPath<R, P> | KeyPathCollection<unknown>,
+      ...collections: Array<unknown>
+    ): this;
+    mergeIn(
+      keyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>,
+      ...collections: Array<unknown>
+    ): this;
+    mergeDeepIn<P extends ReadonlyArray<object | PropertyKey>>(
+      keyPath: TypedKeyPath<R, P> | KeyPathCollection<unknown>,
+      ...collections: Array<unknown>
+    ): this;
+    mergeDeepIn(
+      keyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>,
+      ...collections: Array<unknown>
+    ): this;
+
+    deleteIn<P extends ReadonlyArray<object | PropertyKey>>(
+      keyPath: TypedKeyPath<R, P> | KeyPathCollection<unknown>
+    ): this;
+    deleteIn(keyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>): this;
+    removeIn<P extends ReadonlyArray<object | PropertyKey>>(
+      keyPath: TypedKeyPath<R, P> | KeyPathCollection<unknown>
+    ): this;
+    removeIn(keyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>): this;
+
     update(updater: (value: this) => this): this;
     update<K extends keyof R>(key: K, updater: (value: R[K]) => R[K]): this;
     update<K extends keyof R, NSV extends R[K]>(
@@ -726,7 +789,12 @@ declare namespace Immutable {
             ? S extends { toArray(): Array<infer I> }
               ? { [index: number]: I }
               : never
-            : S;
+            : S extends Collection.Set<unknown>
+              ? // a value of a Set is its own key
+                S extends { toArray(): Array<infer T> }
+                ? { [key in T & PropertyKey]: T }
+                : never
+              : S;
 
   /** @ignore */
   type Head<T extends ReadonlyArray<unknown>> = T extends readonly [
@@ -852,6 +920,17 @@ declare namespace Immutable {
 
   /**
    * @ignore
+   * What a write at the end of `P` takes: the declared type, even where a value on the way may be missing
+   */
+  type ValueAtPath<
+    R,
+    P extends ReadonlyArray<unknown>,
+  > = number extends P['length']
+    ? unknown
+    : Exclude<RetrievePathRaw<R, P>, NotSet>;
+
+  /**
+   * @ignore
    * `RetrievePath` with `NotSet` where a value on the way may be missing
    */
   type RetrievePathRaw<
@@ -969,13 +1048,20 @@ declare namespace Immutable {
   type HasObjectKey<R> =
     R extends Collection.Keyed<unknown, unknown>
       ? R extends { toArray(): Array<[infer K, unknown]> }
-        ? unknown extends K
-          ? true
-          : [Extract<K, object>] extends [never]
-            ? false
-            : true
+        ? IsOrHasObject<K>
         : false
-      : false;
+      : R extends Collection.Set<unknown>
+        ? R extends { toArray(): Array<infer T> }
+          ? IsOrHasObject<T>
+          : false
+        : false;
+
+  /** @ignore */
+  type IsOrHasObject<K> = unknown extends K
+    ? true
+    : [Extract<K, object>] extends [never]
+      ? false
+      : true;
 
   /**
    * @ignore
@@ -2577,7 +2663,10 @@ declare namespace Immutable {
 
     // Reading deep values
 
-    hasIn(keyPath: KeyPath<unknown>): boolean;
+    hasIn<P extends ReadonlyArray<object | PropertyKey>>(
+      keyPath: TypedKeyPath<TProps, P> | KeyPathCollection<unknown>
+    ): boolean;
+    hasIn(keyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>): boolean;
 
     /**
      * The path is typed from the Record's properties:
@@ -2644,22 +2733,69 @@ declare namespace Immutable {
 
     // Deep persistent changes
 
-    setIn(keyPath: KeyPath<unknown>, value: unknown): this;
+    /**
+     * The path is typed like `getIn`, and the value from the property it leads to.
+     */
+    setIn<P extends ReadonlyArray<object | PropertyKey>>(
+      keyPath: TypedKeyPath<TProps, P> | KeyPathCollection<unknown>,
+      value: ValueAtPath<TProps, P>
+    ): this;
+    setIn(
+      keyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>,
+      value: unknown
+    ): this;
+
+    updateIn<P extends ReadonlyArray<object | PropertyKey>>(
+      keyPath: TypedKeyPath<TProps, P> | KeyPathCollection<unknown>,
+      updater: (
+        value: RetrievePathOrUnknown<TProps, P>
+      ) => ValueAtPath<TProps, P> | undefined
+    ): this;
+    updateIn<P extends ReadonlyArray<object | PropertyKey>, NSV>(
+      keyPath: TypedKeyPath<TProps, P> | KeyPathCollection<unknown>,
+      notSetValue: NSV,
+      updater: (
+        value: RetrievePathOrUnknownWithNotSetValue<TProps, P, NSV>
+      ) => ValueAtPath<TProps, P> | NSV
+    ): this;
     updateIn(
-      keyPath: KeyPath<unknown>,
+      keyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>,
       updater: (value: unknown) => unknown
     ): this;
-    mergeIn(keyPath: KeyPath<unknown>, ...collections: Array<unknown>): this;
+    updateIn(
+      keyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>,
+      notSetValue: unknown,
+      updater: (value: unknown) => unknown
+    ): this;
+
+    mergeIn<P extends ReadonlyArray<object | PropertyKey>>(
+      keyPath: TypedKeyPath<TProps, P> | KeyPathCollection<unknown>,
+      ...collections: Array<unknown>
+    ): this;
+    mergeIn(
+      keyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>,
+      ...collections: Array<unknown>
+    ): this;
+    mergeDeepIn<P extends ReadonlyArray<object | PropertyKey>>(
+      keyPath: TypedKeyPath<TProps, P> | KeyPathCollection<unknown>,
+      ...collections: Array<unknown>
+    ): this;
     mergeDeepIn(
-      keyPath: KeyPath<unknown>,
+      keyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>,
       ...collections: Array<unknown>
     ): this;
 
     /**
      * @alias removeIn
      */
-    deleteIn(keyPath: KeyPath<unknown>): this;
-    removeIn(keyPath: KeyPath<unknown>): this;
+    deleteIn<P extends ReadonlyArray<object | PropertyKey>>(
+      keyPath: TypedKeyPath<TProps, P> | KeyPathCollection<unknown>
+    ): this;
+    deleteIn(keyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>): this;
+    removeIn<P extends ReadonlyArray<object | PropertyKey>>(
+      keyPath: TypedKeyPath<TProps, P> | KeyPathCollection<unknown>
+    ): this;
+    removeIn(keyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>): this;
 
     // Conversion to JavaScript types
 
@@ -5215,7 +5351,14 @@ declare namespace Immutable {
     collection: string | boolean | number,
     keyPath: KeyPath<unknown>
   ): never;
-  function hasIn<K>(collection: unknown, keyPath: KeyPath<K>): boolean;
+  function hasIn<C, P extends ReadonlyArray<object | PropertyKey>>(
+    collection: C,
+    keyPath: TypedKeyPath<C, P> | KeyPathCollection<unknown>
+  ): boolean;
+  function hasIn(
+    collection: unknown,
+    keyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>
+  ): boolean;
 
   /**
    * Returns a copy of the collection with the value at the key path removed.
@@ -5223,7 +5366,14 @@ declare namespace Immutable {
    * A functional alternative to `collection.removeIn(keypath)` which will also
    * work with plain Objects and Arrays.
    */
-  function removeIn<C>(collection: C, keyPath: KeyPath<unknown>): C;
+  function removeIn<C, P extends ReadonlyArray<object | PropertyKey>>(
+    collection: C,
+    keyPath: TypedKeyPath<C, P> | KeyPathCollection<unknown>
+  ): C;
+  function removeIn<C>(
+    collection: C,
+    keyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>
+  ): C;
 
   /**
    * Returns a copy of the collection with the value at the key path set to the
@@ -5232,9 +5382,14 @@ declare namespace Immutable {
    * A functional alternative to `collection.setIn(keypath)` which will also
    * work with plain Objects and Arrays.
    */
+  function setIn<C, P extends ReadonlyArray<object | PropertyKey>>(
+    collection: C,
+    keyPath: TypedKeyPath<C, P> | KeyPathCollection<unknown>,
+    value: ValueAtPath<C, P>
+  ): C;
   function setIn<C>(
     collection: C,
-    keyPath: KeyPath<unknown>,
+    keyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>,
     value: unknown
   ): C;
 
@@ -5245,74 +5400,32 @@ declare namespace Immutable {
    * A functional alternative to `collection.updateIn(keypath)` which will also
    * work with plain Objects and Arrays.
    */
-  function updateIn<K, V, C extends Collection<K, V>>(
+  function updateIn<C, P extends ReadonlyArray<object | PropertyKey>>(
     collection: C,
-    keyPath: KeyPath<K>,
+    keyPath: TypedKeyPath<C, P> | KeyPathCollection<unknown>,
     updater: (
-      value: RetrievePath<C, Array<K>> | undefined
-    ) => unknown | undefined
+      value: RetrievePathOrUnknown<C, P>
+    ) => ValueAtPath<C, P> | undefined
   ): C;
-  function updateIn<K, V, C extends Collection<K, V>, NSV>(
+  function updateIn<C, P extends ReadonlyArray<object | PropertyKey>, NSV>(
     collection: C,
-    keyPath: KeyPath<K>,
+    keyPath: TypedKeyPath<C, P> | KeyPathCollection<unknown>,
     notSetValue: NSV,
-    updater: (value: RetrievePath<C, Array<K>> | NSV) => unknown
-  ): C;
-  function updateIn<
-    TProps extends object,
-    C extends Record<TProps>,
-    K extends keyof TProps,
-  >(
-    record: C,
-    keyPath: KeyPath<K>,
-    updater: (value: RetrievePath<C, Array<K>>) => unknown
-  ): C;
-  function updateIn<
-    TProps extends object,
-    C extends Record<TProps>,
-    K extends keyof TProps,
-    NSV,
-  >(
-    record: C,
-    keyPath: KeyPath<K>,
-    notSetValue: NSV,
-    updater: (value: RetrievePath<C, Array<K>> | NSV) => unknown
-  ): C;
-  function updateIn<K, V, C extends Array<V>>(
-    collection: Array<V>,
-    keyPath: KeyPath<string | number>,
     updater: (
-      value: RetrievePath<C, Array<K>> | undefined
-    ) => unknown | undefined
-  ): Array<V>;
-  function updateIn<K, V, C extends Array<V>, NSV>(
-    collection: Array<V>,
-    keyPath: KeyPath<K>,
-    notSetValue: NSV,
-    updater: (value: RetrievePath<C, Array<K>> | NSV) => unknown
-  ): Array<V>;
-  function updateIn<K, C>(
-    object: C,
-    keyPath: KeyPath<K>,
-    updater: (value: RetrievePath<C, Array<K>>) => unknown
+      value: RetrievePathOrUnknownWithNotSetValue<C, P, NSV>
+    ) => ValueAtPath<C, P> | NSV
   ): C;
-  function updateIn<K, C, NSV>(
-    object: C,
-    keyPath: KeyPath<K>,
-    notSetValue: NSV,
-    updater: (value: RetrievePath<C, Array<K>> | NSV) => unknown
+  function updateIn<C>(
+    collection: C,
+    keyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>,
+    updater: (value: unknown) => unknown
   ): C;
-  function updateIn<K, V, C extends { [key: PropertyKey]: V }>(
+  function updateIn<C>(
     collection: C,
-    keyPath: KeyPath<K>,
-    updater: (value: RetrievePath<C, Array<K>>) => unknown
-  ): { [key: PropertyKey]: V };
-  function updateIn<K, V, C extends { [key: PropertyKey]: V }, NSV>(
-    collection: C,
-    keyPath: KeyPath<K>,
-    notSetValue: NSV,
-    updater: (value: RetrievePath<C, Array<K>> | NSV) => unknown
-  ): { [key: PropertyKey]: V };
+    keyPath: ArrayLikeKeyPath | KeyPathCollection<unknown>,
+    notSetValue: unknown,
+    updater: (value: unknown) => unknown
+  ): C;
 
   /**
    * Returns a copy of the collection with the remaining collections merged in.

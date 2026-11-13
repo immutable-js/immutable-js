@@ -87,7 +87,12 @@ test('#set', () => {
 test('#setIn', () => {
   expect(List<number>().setIn([], 0)).type.toBe<List<number>>();
 
-  expect(setIn(List<number>(), [], 0)).type.toBe<List<number>>();
+  expect(setIn(List<number>(), [0], 1)).type.toBe<List<number>>();
+
+  expect(setIn(List<number>(), [0], 'a')).type.toRaiseError();
+
+  // an empty path replaces the collection itself
+  expect(setIn(List<number>(), [], 0)).type.toRaiseError();
 });
 
 test('#insert', () => {

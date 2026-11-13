@@ -100,7 +100,6 @@ const anyMap = Map<unknown, unknown>();
 const mapOf = Map({ a: { b: 0 } as unknown });
 const record = Record({ a: { b: 0 } as unknown })();
 const obj: { [key: string]: unknown } = {};
-const array: Array<unknown> = [];
 
 declare const tuple: readonly ['a', 'b'];
 declare const strings: Array<string>;
@@ -130,6 +129,8 @@ test('a path the runtime follows is accepted everywhere', () => {
   expect(anyMap.getIn(tuple)).type.not.toRaiseError();
   expect(anyMap.hasIn(tuple)).type.not.toRaiseError();
   expect(mapOf.getIn(tuple)).type.not.toRaiseError();
+  expect(mapOf.setIn(tuple, 0)).type.not.toRaiseError();
+  expect(mapOf.updateIn(tuple, (v) => v)).type.not.toRaiseError();
   expect(record.setIn(tuple, 0)).type.not.toRaiseError();
   expect(record.hasIn(tuple)).type.not.toRaiseError();
   expect(record.getIn(tuple)).type.not.toRaiseError();
@@ -141,7 +142,6 @@ test('a path the runtime follows is accepted everywhere', () => {
   expect(updateIn(anyMap, tuple, (v) => v)).type.not.toRaiseError();
   expect(updateIn(anyMap, tuple, 'nsv', (v) => v)).type.not.toRaiseError();
   expect(updateIn(obj, tuple, (v) => v)).type.not.toRaiseError();
-  expect(updateIn(array, tuple, (v) => v)).type.not.toRaiseError();
   expect(updateIn(record, tuple, (v) => v)).type.not.toRaiseError();
 
   expect(list.setIn(strings, 0)).type.not.toRaiseError();
@@ -150,6 +150,8 @@ test('a path the runtime follows is accepted everywhere', () => {
   expect(anyMap.getIn(strings)).type.not.toRaiseError();
   expect(anyMap.hasIn(strings)).type.not.toRaiseError();
   expect(mapOf.getIn(strings)).type.not.toRaiseError();
+  expect(mapOf.setIn(strings, 0)).type.not.toRaiseError();
+  expect(mapOf.updateIn(strings, (v) => v)).type.not.toRaiseError();
   expect(record.setIn(strings, 0)).type.not.toRaiseError();
   expect(record.hasIn(strings)).type.not.toRaiseError();
   expect(record.getIn(strings)).type.not.toRaiseError();
@@ -161,7 +163,6 @@ test('a path the runtime follows is accepted everywhere', () => {
   expect(updateIn(anyMap, strings, (v) => v)).type.not.toRaiseError();
   expect(updateIn(anyMap, strings, 'nsv', (v) => v)).type.not.toRaiseError();
   expect(updateIn(obj, strings, (v) => v)).type.not.toRaiseError();
-  expect(updateIn(array, strings, (v) => v)).type.not.toRaiseError();
   expect(updateIn(record, strings, (v) => v)).type.not.toRaiseError();
 
   // keys of any type, as in a `Map<object, V>`
@@ -171,6 +172,8 @@ test('a path the runtime follows is accepted everywhere', () => {
   expect(anyMap.getIn(objectKeys)).type.not.toRaiseError();
   expect(anyMap.hasIn(objectKeys)).type.not.toRaiseError();
   expect(mapOf.getIn(objectKeys)).type.not.toRaiseError();
+  expect(mapOf.setIn(objectKeys, 0)).type.not.toRaiseError();
+  expect(mapOf.updateIn(objectKeys, (v) => v)).type.not.toRaiseError();
   expect(record.setIn(objectKeys, 0)).type.not.toRaiseError();
   expect(record.hasIn(objectKeys)).type.not.toRaiseError();
   expect(record.getIn(objectKeys)).type.not.toRaiseError();
@@ -182,7 +185,6 @@ test('a path the runtime follows is accepted everywhere', () => {
   expect(updateIn(anyMap, objectKeys, (v) => v)).type.not.toRaiseError();
   expect(updateIn(anyMap, objectKeys, 'nsv', (v) => v)).type.not.toRaiseError();
   expect(updateIn(obj, objectKeys, (v) => v)).type.not.toRaiseError();
-  expect(updateIn(array, objectKeys, (v) => v)).type.not.toRaiseError();
   expect(updateIn(record, objectKeys, (v) => v)).type.not.toRaiseError();
 
   expect(list.setIn(unknownList, 0)).type.not.toRaiseError();
@@ -191,6 +193,8 @@ test('a path the runtime follows is accepted everywhere', () => {
   expect(anyMap.getIn(unknownList)).type.not.toRaiseError();
   expect(anyMap.hasIn(unknownList)).type.not.toRaiseError();
   expect(mapOf.getIn(unknownList)).type.not.toRaiseError();
+  expect(mapOf.setIn(unknownList, 0)).type.not.toRaiseError();
+  expect(mapOf.updateIn(unknownList, (v) => v)).type.not.toRaiseError();
   expect(record.setIn(unknownList, 0)).type.not.toRaiseError();
   expect(record.hasIn(unknownList)).type.not.toRaiseError();
   expect(record.getIn(unknownList)).type.not.toRaiseError();
@@ -204,7 +208,6 @@ test('a path the runtime follows is accepted everywhere', () => {
     updateIn(anyMap, unknownList, 'nsv', (v) => v)
   ).type.not.toRaiseError();
   expect(updateIn(obj, unknownList, (v) => v)).type.not.toRaiseError();
-  expect(updateIn(array, unknownList, (v) => v)).type.not.toRaiseError();
   expect(updateIn(record, unknownList, (v) => v)).type.not.toRaiseError();
 
   expect(list.setIn(stack, 0)).type.not.toRaiseError();
@@ -213,6 +216,8 @@ test('a path the runtime follows is accepted everywhere', () => {
   expect(anyMap.getIn(stack)).type.not.toRaiseError();
   expect(anyMap.hasIn(stack)).type.not.toRaiseError();
   expect(mapOf.getIn(stack)).type.not.toRaiseError();
+  expect(mapOf.setIn(stack, 0)).type.not.toRaiseError();
+  expect(mapOf.updateIn(stack, (v) => v)).type.not.toRaiseError();
   expect(record.setIn(stack, 0)).type.not.toRaiseError();
   expect(record.hasIn(stack)).type.not.toRaiseError();
   expect(record.getIn(stack)).type.not.toRaiseError();
@@ -224,7 +229,6 @@ test('a path the runtime follows is accepted everywhere', () => {
   expect(updateIn(anyMap, stack, (v) => v)).type.not.toRaiseError();
   expect(updateIn(anyMap, stack, 'nsv', (v) => v)).type.not.toRaiseError();
   expect(updateIn(obj, stack, (v) => v)).type.not.toRaiseError();
-  expect(updateIn(array, stack, (v) => v)).type.not.toRaiseError();
   expect(updateIn(record, stack, (v) => v)).type.not.toRaiseError();
 
   expect(list.setIn(orderedSet, 0)).type.not.toRaiseError();
@@ -233,6 +237,8 @@ test('a path the runtime follows is accepted everywhere', () => {
   expect(anyMap.getIn(orderedSet)).type.not.toRaiseError();
   expect(anyMap.hasIn(orderedSet)).type.not.toRaiseError();
   expect(mapOf.getIn(orderedSet)).type.not.toRaiseError();
+  expect(mapOf.setIn(orderedSet, 0)).type.not.toRaiseError();
+  expect(mapOf.updateIn(orderedSet, (v) => v)).type.not.toRaiseError();
   expect(record.setIn(orderedSet, 0)).type.not.toRaiseError();
   expect(record.hasIn(orderedSet)).type.not.toRaiseError();
   expect(record.getIn(orderedSet)).type.not.toRaiseError();
@@ -244,7 +250,6 @@ test('a path the runtime follows is accepted everywhere', () => {
   expect(updateIn(anyMap, orderedSet, (v) => v)).type.not.toRaiseError();
   expect(updateIn(anyMap, orderedSet, 'nsv', (v) => v)).type.not.toRaiseError();
   expect(updateIn(obj, orderedSet, (v) => v)).type.not.toRaiseError();
-  expect(updateIn(array, orderedSet, (v) => v)).type.not.toRaiseError();
   expect(updateIn(record, orderedSet, (v) => v)).type.not.toRaiseError();
 
   expect(list.setIn(indexedSeq, 0)).type.not.toRaiseError();
@@ -253,6 +258,8 @@ test('a path the runtime follows is accepted everywhere', () => {
   expect(anyMap.getIn(indexedSeq)).type.not.toRaiseError();
   expect(anyMap.hasIn(indexedSeq)).type.not.toRaiseError();
   expect(mapOf.getIn(indexedSeq)).type.not.toRaiseError();
+  expect(mapOf.setIn(indexedSeq, 0)).type.not.toRaiseError();
+  expect(mapOf.updateIn(indexedSeq, (v) => v)).type.not.toRaiseError();
   expect(record.setIn(indexedSeq, 0)).type.not.toRaiseError();
   expect(record.hasIn(indexedSeq)).type.not.toRaiseError();
   expect(record.getIn(indexedSeq)).type.not.toRaiseError();
@@ -264,7 +271,6 @@ test('a path the runtime follows is accepted everywhere', () => {
   expect(updateIn(anyMap, indexedSeq, (v) => v)).type.not.toRaiseError();
   expect(updateIn(anyMap, indexedSeq, 'nsv', (v) => v)).type.not.toRaiseError();
   expect(updateIn(obj, indexedSeq, (v) => v)).type.not.toRaiseError();
-  expect(updateIn(array, indexedSeq, (v) => v)).type.not.toRaiseError();
   expect(updateIn(record, indexedSeq, (v) => v)).type.not.toRaiseError();
 
   // an array-like which is not iterable
@@ -274,6 +280,8 @@ test('a path the runtime follows is accepted everywhere', () => {
   expect(anyMap.getIn(arrayLike)).type.not.toRaiseError();
   expect(anyMap.hasIn(arrayLike)).type.not.toRaiseError();
   expect(mapOf.getIn(arrayLike)).type.not.toRaiseError();
+  expect(mapOf.setIn(arrayLike, 0)).type.not.toRaiseError();
+  expect(mapOf.updateIn(arrayLike, (v) => v)).type.not.toRaiseError();
   expect(record.setIn(arrayLike, 0)).type.not.toRaiseError();
   expect(record.hasIn(arrayLike)).type.not.toRaiseError();
   expect(record.getIn(arrayLike)).type.not.toRaiseError();
@@ -285,7 +293,6 @@ test('a path the runtime follows is accepted everywhere', () => {
   expect(updateIn(anyMap, arrayLike, (v) => v)).type.not.toRaiseError();
   expect(updateIn(anyMap, arrayLike, 'nsv', (v) => v)).type.not.toRaiseError();
   expect(updateIn(obj, arrayLike, (v) => v)).type.not.toRaiseError();
-  expect(updateIn(array, arrayLike, (v) => v)).type.not.toRaiseError();
   expect(updateIn(record, arrayLike, (v) => v)).type.not.toRaiseError();
 
   // what a wrapper function forwards
@@ -295,6 +302,8 @@ test('a path the runtime follows is accepted everywhere', () => {
   expect(anyMap.getIn(forwardedKeyPath)).type.not.toRaiseError();
   expect(anyMap.hasIn(forwardedKeyPath)).type.not.toRaiseError();
   expect(mapOf.getIn(forwardedKeyPath)).type.not.toRaiseError();
+  expect(mapOf.setIn(forwardedKeyPath, 0)).type.not.toRaiseError();
+  expect(mapOf.updateIn(forwardedKeyPath, (v) => v)).type.not.toRaiseError();
   expect(record.setIn(forwardedKeyPath, 0)).type.not.toRaiseError();
   expect(record.hasIn(forwardedKeyPath)).type.not.toRaiseError();
   expect(record.getIn(forwardedKeyPath)).type.not.toRaiseError();
@@ -308,7 +317,6 @@ test('a path the runtime follows is accepted everywhere', () => {
     updateIn(anyMap, forwardedKeyPath, 'nsv', (v) => v)
   ).type.not.toRaiseError();
   expect(updateIn(obj, forwardedKeyPath, (v) => v)).type.not.toRaiseError();
-  expect(updateIn(array, forwardedKeyPath, (v) => v)).type.not.toRaiseError();
   expect(updateIn(record, forwardedKeyPath, (v) => v)).type.not.toRaiseError();
 });
 
@@ -320,6 +328,8 @@ test('a path the runtime throws on is refused everywhere', () => {
   expect(anyMap.getIn(word)).type.toRaiseError();
   expect(anyMap.hasIn(word)).type.toRaiseError();
   expect(mapOf.getIn(word)).type.toRaiseError();
+  expect(mapOf.setIn(word, 0)).type.toRaiseError();
+  expect(mapOf.updateIn(word, (v) => v)).type.toRaiseError();
   expect(record.setIn(word, 0)).type.toRaiseError();
   expect(record.hasIn(word)).type.toRaiseError();
   expect(record.getIn(word)).type.toRaiseError();
@@ -331,7 +341,6 @@ test('a path the runtime throws on is refused everywhere', () => {
   expect(updateIn(anyMap, word, (v) => v)).type.toRaiseError();
   expect(updateIn(anyMap, word, 'nsv', (v) => v)).type.toRaiseError();
   expect(updateIn(obj, word, (v) => v)).type.toRaiseError();
-  expect(updateIn(array, word, (v) => v)).type.toRaiseError();
   expect(updateIn(record, word, (v) => v)).type.toRaiseError();
 
   expect(list.setIn(immutableMap, 0)).type.toRaiseError();
@@ -340,6 +349,8 @@ test('a path the runtime throws on is refused everywhere', () => {
   expect(anyMap.getIn(immutableMap)).type.toRaiseError();
   expect(anyMap.hasIn(immutableMap)).type.toRaiseError();
   expect(mapOf.getIn(immutableMap)).type.toRaiseError();
+  expect(mapOf.setIn(immutableMap, 0)).type.toRaiseError();
+  expect(mapOf.updateIn(immutableMap, (v) => v)).type.toRaiseError();
   expect(record.setIn(immutableMap, 0)).type.toRaiseError();
   expect(record.hasIn(immutableMap)).type.toRaiseError();
   expect(record.getIn(immutableMap)).type.toRaiseError();
@@ -351,7 +362,6 @@ test('a path the runtime throws on is refused everywhere', () => {
   expect(updateIn(anyMap, immutableMap, (v) => v)).type.toRaiseError();
   expect(updateIn(anyMap, immutableMap, 'nsv', (v) => v)).type.toRaiseError();
   expect(updateIn(obj, immutableMap, (v) => v)).type.toRaiseError();
-  expect(updateIn(array, immutableMap, (v) => v)).type.toRaiseError();
   expect(updateIn(record, immutableMap, (v) => v)).type.toRaiseError();
 
   expect(list.setIn(immutableSet, 0)).type.toRaiseError();
@@ -360,6 +370,8 @@ test('a path the runtime throws on is refused everywhere', () => {
   expect(anyMap.getIn(immutableSet)).type.toRaiseError();
   expect(anyMap.hasIn(immutableSet)).type.toRaiseError();
   expect(mapOf.getIn(immutableSet)).type.toRaiseError();
+  expect(mapOf.setIn(immutableSet, 0)).type.toRaiseError();
+  expect(mapOf.updateIn(immutableSet, (v) => v)).type.toRaiseError();
   expect(record.setIn(immutableSet, 0)).type.toRaiseError();
   expect(record.hasIn(immutableSet)).type.toRaiseError();
   expect(record.getIn(immutableSet)).type.toRaiseError();
@@ -371,7 +383,6 @@ test('a path the runtime throws on is refused everywhere', () => {
   expect(updateIn(anyMap, immutableSet, (v) => v)).type.toRaiseError();
   expect(updateIn(anyMap, immutableSet, 'nsv', (v) => v)).type.toRaiseError();
   expect(updateIn(obj, immutableSet, (v) => v)).type.toRaiseError();
-  expect(updateIn(array, immutableSet, (v) => v)).type.toRaiseError();
   expect(updateIn(record, immutableSet, (v) => v)).type.toRaiseError();
 
   expect(list.setIn(setSeq, 0)).type.toRaiseError();
@@ -380,6 +391,8 @@ test('a path the runtime throws on is refused everywhere', () => {
   expect(anyMap.getIn(setSeq)).type.toRaiseError();
   expect(anyMap.hasIn(setSeq)).type.toRaiseError();
   expect(mapOf.getIn(setSeq)).type.toRaiseError();
+  expect(mapOf.setIn(setSeq, 0)).type.toRaiseError();
+  expect(mapOf.updateIn(setSeq, (v) => v)).type.toRaiseError();
   expect(record.setIn(setSeq, 0)).type.toRaiseError();
   expect(record.hasIn(setSeq)).type.toRaiseError();
   expect(record.getIn(setSeq)).type.toRaiseError();
@@ -391,7 +404,6 @@ test('a path the runtime throws on is refused everywhere', () => {
   expect(updateIn(anyMap, setSeq, (v) => v)).type.toRaiseError();
   expect(updateIn(anyMap, setSeq, 'nsv', (v) => v)).type.toRaiseError();
   expect(updateIn(obj, setSeq, (v) => v)).type.toRaiseError();
-  expect(updateIn(array, setSeq, (v) => v)).type.toRaiseError();
   expect(updateIn(record, setSeq, (v) => v)).type.toRaiseError();
 });
 
@@ -402,6 +414,8 @@ test('a keyed collection is refused everywhere, its entries would be used as key
   expect(anyMap.getIn(orderedMap)).type.toRaiseError();
   expect(anyMap.hasIn(orderedMap)).type.toRaiseError();
   expect(mapOf.getIn(orderedMap)).type.toRaiseError();
+  expect(mapOf.setIn(orderedMap, 0)).type.toRaiseError();
+  expect(mapOf.updateIn(orderedMap, (v) => v)).type.toRaiseError();
   expect(record.setIn(orderedMap, 0)).type.toRaiseError();
   expect(record.hasIn(orderedMap)).type.toRaiseError();
   expect(record.getIn(orderedMap)).type.toRaiseError();
@@ -413,7 +427,6 @@ test('a keyed collection is refused everywhere, its entries would be used as key
   expect(updateIn(anyMap, orderedMap, (v) => v)).type.toRaiseError();
   expect(updateIn(anyMap, orderedMap, 'nsv', (v) => v)).type.toRaiseError();
   expect(updateIn(obj, orderedMap, (v) => v)).type.toRaiseError();
-  expect(updateIn(array, orderedMap, (v) => v)).type.toRaiseError();
   expect(updateIn(record, orderedMap, (v) => v)).type.toRaiseError();
 
   expect(list.setIn(keyedSeq, 0)).type.toRaiseError();
@@ -422,6 +435,8 @@ test('a keyed collection is refused everywhere, its entries would be used as key
   expect(anyMap.getIn(keyedSeq)).type.toRaiseError();
   expect(anyMap.hasIn(keyedSeq)).type.toRaiseError();
   expect(mapOf.getIn(keyedSeq)).type.toRaiseError();
+  expect(mapOf.setIn(keyedSeq, 0)).type.toRaiseError();
+  expect(mapOf.updateIn(keyedSeq, (v) => v)).type.toRaiseError();
   expect(record.setIn(keyedSeq, 0)).type.toRaiseError();
   expect(record.hasIn(keyedSeq)).type.toRaiseError();
   expect(record.getIn(keyedSeq)).type.toRaiseError();
@@ -433,30 +448,30 @@ test('a keyed collection is refused everywhere, its entries would be used as key
   expect(updateIn(anyMap, keyedSeq, (v) => v)).type.toRaiseError();
   expect(updateIn(anyMap, keyedSeq, 'nsv', (v) => v)).type.toRaiseError();
   expect(updateIn(obj, keyedSeq, (v) => v)).type.toRaiseError();
-  expect(updateIn(array, keyedSeq, (v) => v)).type.toRaiseError();
   expect(updateIn(record, keyedSeq, (v) => v)).type.toRaiseError();
 });
 
-test('the `getIn` family only refuses `Array<unknown>`, `arguments` and typed arrays', () => {
+test('a typed entry point refuses `Array<unknown>`, `arguments` and typed arrays, so that a typo in a literal path stays an error', () => {
   expect(list.setIn(unknowns, 0)).type.not.toRaiseError();
   expect(anyMap.setIn(unknowns, 0)).type.not.toRaiseError();
   expect(anyMap.updateIn(unknowns, (v) => v)).type.not.toRaiseError();
   expect(anyMap.getIn(unknowns)).type.not.toRaiseError();
   expect(anyMap.hasIn(unknowns)).type.not.toRaiseError();
   expect(mapOf.getIn(unknowns)).type.toRaiseError();
-  expect(record.setIn(unknowns, 0)).type.not.toRaiseError();
-  expect(record.hasIn(unknowns)).type.not.toRaiseError();
+  expect(mapOf.setIn(unknowns, 0)).type.toRaiseError();
+  expect(mapOf.updateIn(unknowns, (v) => v)).type.toRaiseError();
+  expect(record.setIn(unknowns, 0)).type.toRaiseError();
+  expect(record.hasIn(unknowns)).type.toRaiseError();
   expect(record.getIn(unknowns)).type.toRaiseError();
   expect(getIn(anyMap, unknowns)).type.toRaiseError();
   expect(getIn(obj, unknowns)).type.toRaiseError();
-  expect(hasIn(anyMap, unknowns)).type.not.toRaiseError();
-  expect(setIn(anyMap, unknowns, 0)).type.not.toRaiseError();
-  expect(removeIn(anyMap, unknowns)).type.not.toRaiseError();
-  expect(updateIn(anyMap, unknowns, (v) => v)).type.not.toRaiseError();
-  expect(updateIn(anyMap, unknowns, 'nsv', (v) => v)).type.not.toRaiseError();
-  expect(updateIn(obj, unknowns, (v) => v)).type.not.toRaiseError();
-  expect(updateIn(array, unknowns, (v) => v)).type.not.toRaiseError();
-  expect(updateIn(record, unknowns, (v) => v)).type.not.toRaiseError();
+  expect(hasIn(anyMap, unknowns)).type.toRaiseError();
+  expect(setIn(anyMap, unknowns, 0)).type.toRaiseError();
+  expect(removeIn(anyMap, unknowns)).type.toRaiseError();
+  expect(updateIn(anyMap, unknowns, (v) => v)).type.toRaiseError();
+  expect(updateIn(anyMap, unknowns, 'nsv', (v) => v)).type.toRaiseError();
+  expect(updateIn(obj, unknowns, (v) => v)).type.toRaiseError();
+  expect(updateIn(record, unknowns, (v) => v)).type.toRaiseError();
 
   expect(list.setIn(args, 0)).type.not.toRaiseError();
   expect(anyMap.setIn(args, 0)).type.not.toRaiseError();
@@ -464,19 +479,20 @@ test('the `getIn` family only refuses `Array<unknown>`, `arguments` and typed ar
   expect(anyMap.getIn(args)).type.not.toRaiseError();
   expect(anyMap.hasIn(args)).type.not.toRaiseError();
   expect(mapOf.getIn(args)).type.toRaiseError();
-  expect(record.setIn(args, 0)).type.not.toRaiseError();
-  expect(record.hasIn(args)).type.not.toRaiseError();
+  expect(mapOf.setIn(args, 0)).type.toRaiseError();
+  expect(mapOf.updateIn(args, (v) => v)).type.toRaiseError();
+  expect(record.setIn(args, 0)).type.toRaiseError();
+  expect(record.hasIn(args)).type.toRaiseError();
   expect(record.getIn(args)).type.toRaiseError();
   expect(getIn(anyMap, args)).type.toRaiseError();
   expect(getIn(obj, args)).type.toRaiseError();
-  expect(hasIn(anyMap, args)).type.not.toRaiseError();
-  expect(setIn(anyMap, args, 0)).type.not.toRaiseError();
-  expect(removeIn(anyMap, args)).type.not.toRaiseError();
-  expect(updateIn(anyMap, args, (v) => v)).type.not.toRaiseError();
-  expect(updateIn(anyMap, args, 'nsv', (v) => v)).type.not.toRaiseError();
-  expect(updateIn(obj, args, (v) => v)).type.not.toRaiseError();
-  expect(updateIn(array, args, (v) => v)).type.not.toRaiseError();
-  expect(updateIn(record, args, (v) => v)).type.not.toRaiseError();
+  expect(hasIn(anyMap, args)).type.toRaiseError();
+  expect(setIn(anyMap, args, 0)).type.toRaiseError();
+  expect(removeIn(anyMap, args)).type.toRaiseError();
+  expect(updateIn(anyMap, args, (v) => v)).type.toRaiseError();
+  expect(updateIn(anyMap, args, 'nsv', (v) => v)).type.toRaiseError();
+  expect(updateIn(obj, args, (v) => v)).type.toRaiseError();
+  expect(updateIn(record, args, (v) => v)).type.toRaiseError();
 
   expect(list.setIn(bytes, 0)).type.not.toRaiseError();
   expect(anyMap.setIn(bytes, 0)).type.not.toRaiseError();
@@ -484,17 +500,18 @@ test('the `getIn` family only refuses `Array<unknown>`, `arguments` and typed ar
   expect(anyMap.getIn(bytes)).type.not.toRaiseError();
   expect(anyMap.hasIn(bytes)).type.not.toRaiseError();
   expect(mapOf.getIn(bytes)).type.toRaiseError();
-  expect(record.setIn(bytes, 0)).type.not.toRaiseError();
-  expect(record.hasIn(bytes)).type.not.toRaiseError();
+  expect(mapOf.setIn(bytes, 0)).type.toRaiseError();
+  expect(mapOf.updateIn(bytes, (v) => v)).type.toRaiseError();
+  expect(record.setIn(bytes, 0)).type.toRaiseError();
+  expect(record.hasIn(bytes)).type.toRaiseError();
   expect(record.getIn(bytes)).type.toRaiseError();
   expect(getIn(anyMap, bytes)).type.toRaiseError();
   expect(getIn(obj, bytes)).type.toRaiseError();
-  expect(hasIn(anyMap, bytes)).type.not.toRaiseError();
-  expect(setIn(anyMap, bytes, 0)).type.not.toRaiseError();
-  expect(removeIn(anyMap, bytes)).type.not.toRaiseError();
-  expect(updateIn(anyMap, bytes, (v) => v)).type.not.toRaiseError();
-  expect(updateIn(anyMap, bytes, 'nsv', (v) => v)).type.not.toRaiseError();
-  expect(updateIn(obj, bytes, (v) => v)).type.not.toRaiseError();
-  expect(updateIn(array, bytes, (v) => v)).type.not.toRaiseError();
-  expect(updateIn(record, bytes, (v) => v)).type.not.toRaiseError();
+  expect(hasIn(anyMap, bytes)).type.toRaiseError();
+  expect(setIn(anyMap, bytes, 0)).type.toRaiseError();
+  expect(removeIn(anyMap, bytes)).type.toRaiseError();
+  expect(updateIn(anyMap, bytes, (v) => v)).type.toRaiseError();
+  expect(updateIn(anyMap, bytes, 'nsv', (v) => v)).type.toRaiseError();
+  expect(updateIn(obj, bytes, (v) => v)).type.toRaiseError();
+  expect(updateIn(record, bytes, (v) => v)).type.toRaiseError();
 });
