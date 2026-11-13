@@ -587,14 +587,14 @@ Computes and returns the hashed identity for this Collection.
 Returns the value found by following a path of keys or indices through nested Collections.
 
 <Signature
-  code={`getIn(searchKeyPath: Iterable<unknown>, notSetValue?: unknown): unknown`}
+  code={`getIn(searchKeyPath: KeyPath<unknown>, notSetValue?: unknown): unknown`}
 />
 
 <MemberLabel label="hasIn()" />
 
 True if the result of following a path of keys or indices through nested Collections results in a set value.
 
-<Signature code={`hasIn(searchKeyPath: Iterable<unknown>): boolean`} />
+<Signature code={`hasIn(searchKeyPath: KeyPath<unknown>): boolean`} />
 
 ## Conversion to Collections
 

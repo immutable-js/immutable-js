@@ -7,7 +7,7 @@ Returns a copy of the collection with the value at the key path set to the provi
 
 A functional alternative to `collection.setIn(keypath)` which will also work with plain Objects and Arrays.
 
-<Signature code={`setIn(collection: C, keyPath: Iterable, value: any): C;`} />
+<Signature code={`setIn(collection: C, keyPath: KeyPath<unknown>, value: any): C;`} />
 
 <Repl
   defaultValue={`const original = { x: { y: { z: 123 }}}

@@ -283,7 +283,7 @@ Note: `mergeDeepWith` can be used in `withMutations`.
 Returns a new Map having set `value` at this `keyPath`. If any keys in `keyPath` do not exist, a new immutable Map will be created at that key.
 
 <Signature
-  code={`setIn(keyPath: Iterable<unknown>, value: unknown): Map<K, V>`}
+  code={`setIn(keyPath: KeyPath<unknown>, value: unknown): Map<K, V>`}
 />
 
 <Repl defaultValue={`const originalMap = Map({
@@ -321,7 +321,7 @@ Note: `setIn` can be used in `withMutations`.
 
 Returns a new Map having removed the value at this `keyPath`. If any keys in `keyPath` do not exist, no change will occur.
 
-<Signature code={`deleteIn(keyPath: Iterable<unknown>): Map<K, V>`} />
+<Signature code={`deleteIn(keyPath: KeyPath<unknown>): Map<K, V>`} />
 
 Note: `deleteIn` can be used in `withMutations`.
 
@@ -330,7 +330,7 @@ Note: `deleteIn` can be used in `withMutations`.
 Returns a new Map having applied the `updater` to the entry found at the keyPath.
 
 <Signature
-  code={`updateIn(keyPath: Iterable<unknown>, notSetValue: unknown, updater: (value) => unknown): Map<K, V>`}
+  code={`updateIn(keyPath: KeyPath<unknown>, notSetValue: unknown, updater: (value) => unknown): Map<K, V>`}
 />
 
 This is most commonly used to call methods on collections nested within a structure of data. For example, in order to `.push()` onto a nested `List`, `updateIn` and `push` can be used together:
@@ -386,7 +386,7 @@ map.mergeIn(['a', 'b', 'c'], y);
 ```
 
 <Signature
-  code={`mergeIn(keyPath: Iterable<unknown>, ...collections: Array<unknown>): Map<K, V>`}
+  code={`mergeIn(keyPath: KeyPath<unknown>, ...collections: Array<unknown>): Map<K, V>`}
 />
 
 Note: `mergeIn` can be used in `withMutations`.
@@ -401,7 +401,7 @@ map.mergeDeepIn(['a', 'b', 'c'], y);
 ```
 
 <Signature
-  code={`mergeDeepIn(keyPath: Iterable<unknown>, ...collections: Array<unknown>): Map<K, V>`}
+  code={`mergeDeepIn(keyPath: KeyPath<unknown>, ...collections: Array<unknown>): Map<K, V>`}
 />
 
 Note: `mergeDeepIn` can be used in `withMutations`.
@@ -779,7 +779,7 @@ Returns the last value in this collection.
 Returns the value found by following a path of keys or indices through nested Collections.
 
 <Signature
-  code={`getIn(searchKeyPath: Iterable<unknown>, notSetValue?: unknown): unknown`}
+  code={`getIn(searchKeyPath: KeyPath<unknown>, notSetValue?: unknown): unknown`}
 />
 
 <Repl
@@ -798,7 +798,7 @@ deepData.getIn(['x', 'y']) // 123`}
 
 True if the result of following a path of keys or indices through nested Collections results in a set value.
 
-<Signature code={`hasIn(searchKeyPath: Iterable<unknown>): boolean`} />
+<Signature code={`hasIn(searchKeyPath: KeyPath<unknown>): boolean`} />
 
 ## Conversion to Collections
 
