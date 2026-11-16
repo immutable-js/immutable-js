@@ -61,4 +61,14 @@ describe('update', () => {
     // The returned copy (via shallowCopy) should NOT have 'admin' via prototype
     expect(result.admin).toBeUndefined();
   });
+
+  it('preserves unrelated enumerable symbol properties on plain objects', () => {
+    const metadata = Symbol('metadata');
+    const original = { x: 1, [metadata]: 'keep' };
+    expect(update(original, 'x', (v) => (v as number) + 1)).toEqual({
+      x: 2,
+      [metadata]: 'keep',
+    });
+    expect(original[metadata]).toBe('keep');
+  });
 });
