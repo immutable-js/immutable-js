@@ -34,6 +34,11 @@ export class Stack extends IndexedCollection {
   get(index, notSetValue) {
     let head = this._head;
     index = wrapIndex(this, index);
+    // NaN / non-index: wrapIndex returns NaN; `while (head && index--)` would
+    // not advance (NaN is falsy) and incorrectly return the head value (#2291).
+    if (index !== index || index < 0) {
+      return notSetValue;
+    }
     while (head && index--) {
       head = head.next;
     }
