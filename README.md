@@ -120,7 +120,7 @@ require(['./immutable.min.js'], function (Immutable) {
 ### Flow & TypeScript
 
 Use these Immutable collections and sequences as you would use native
-collections in your [Flowtype](https://flowtype.org/) or [TypeScript](https://typescriptlang.org) programs while still taking
+collections in your [Flowtype](https://flow.org/) or [TypeScript](https://typescriptlang.org) programs while still taking
 advantage of type generics, error detection, and auto-complete in your IDE.
 
 Installing `immutable` via npm brings with it type definitions for Flow (v0.55.0 or higher)
@@ -218,7 +218,7 @@ const mapCopy = map; // Look, "copies" are free!
 ```
 
 [React]: https://reactjs.org/
-[Flux]: https://facebook.github.io/flux/docs/in-depth-overview/
+[Flux]: https://github.com/facebookarchive/flux/blob/main/docs/In-Depth-Overview.md
 
 ## JavaScript-first API
 
