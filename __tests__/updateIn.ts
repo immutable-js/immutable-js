@@ -57,18 +57,21 @@ describe('updateIn', () => {
 
   it('deep edit throws if non-editable path', () => {
     const deep = Map({ key: Set([List(['item'])]) });
+    // @ts-expect-error -- the types refuse a path they know is wrong
     expect(() => deep.updateIn(['key', 'foo', 'item'], () => 'newval')).toThrow(
       'Cannot update immutable value without .set() method: Set { List [ "item" ] }'
     );
 
     const deepSeq = Map({ key: Seq([List(['item'])]) });
     expect(() =>
+      // @ts-expect-error -- the types refuse a path they know is wrong
       deepSeq.updateIn(['key', 'foo', 'item'], () => 'newval')
     ).toThrow(
       'Cannot update immutable value without .set() method: Seq [ List [ "item" ] ]'
     );
 
     const nonObj = Map({ key: 123 });
+    // @ts-expect-error -- the types refuse a path they know is wrong
     expect(() => nonObj.updateIn(['key', 'foo'], () => 'newval')).toThrow(
       'Cannot update within non-data-structure value in path ["key"]: 123'
     );
@@ -116,21 +119,19 @@ describe('updateIn', () => {
     // code that works perfectly
     expect(
       updateIn({ 10: { 20: 'a' } }, customArray, (v) =>
-        // @ts-expect-error -- `updateIn` keypath type should be `OrderedCollection<K> | ArrayLike<K>;
         typeof v === 'string' ? v.toUpperCase() : v
       )
     ).toEqual({ 10: { 20: 'A' } });
 
     expect(() =>
       updateIn({ 10: 'a' }, customArray, (v) =>
-        // @ts-expect-error -- `updateIn` keypath type should be `OrderedCollection<K> | ArrayLike<K>;
         typeof v === 'string' ? v.toUpperCase() : v
       )
     ).toThrow('Cannot update within non-data-structure value in path [10]: a');
   });
 
   it('identity with notSetValue is still identity', () => {
-    const m = Map({ a: { b: { c: 10 } } });
+    const m: Map<string, unknown> = Map({ a: { b: { c: 10 } } });
     expect(m.updateIn(['x'], 100, (id) => id)).toEqual(m);
   });
 
@@ -202,6 +203,7 @@ describe('updateIn', () => {
   it('creates new objects if path contains gaps within raw JS', () => {
     const m = { a: { b: { c: 10 } } };
     expect(
+      // @ts-expect-error -- the types refuse a path they know is wrong
       updateIn(
         m,
         ['a', 'b', 'z'],
@@ -231,6 +233,7 @@ describe('updateIn', () => {
 
   it('update with notSetValue when non-existing key in raw JS', () => {
     const m = { a: { b: { c: 10 } } };
+    // @ts-expect-error -- the types refuse a path they know is wrong
     expect(updateIn(m, ['x'], 100, (map: number) => map + 1)).toEqual({
       a: { b: { c: 10 } },
       x: 101,
@@ -302,7 +305,8 @@ describe('updateIn', () => {
     });
 
     it('provides shorthand for updateIn to set a single value in raw JS', () => {
-      const m = setIn({}, ['a', 'b', 'c'], 'X');
+      const empty: { [key: string]: unknown } = {};
+      const m = setIn(empty, ['a', 'b', 'c'], 'X');
       expect(m).toEqual({ a: { b: { c: 'X' } } });
     });
 
@@ -316,7 +320,8 @@ describe('updateIn', () => {
     });
 
     it('can setIn undefined in raw JS', () => {
-      const m = setIn({}, ['a', 'b', 'c'], undefined);
+      const empty: { [key: string]: unknown } = {};
+      const m = setIn(empty, ['a', 'b', 'c'], undefined);
       expect(m).toEqual({ a: { b: { c: undefined } } });
     });
 
@@ -374,6 +379,7 @@ describe('updateIn', () => {
 
     it('returns self for a no-op in raw JS', () => {
       const m = { a: { b: { c: 123 } } };
+      // @ts-expect-error -- the types refuse a path they know is wrong
       expect(removeIn(m, ['a', 'b', 'd'])).toBe(m);
     });
   });
@@ -465,6 +471,7 @@ describe('updateIn', () => {
       type User = { profile: { bio: string }; admin?: boolean };
 
       const obj: User = { profile: { bio: 'Hello' } };
+      // @ts-expect-error -- the types refuse a path they know is wrong
       const result = setIn(obj, ['__proto__', 'admin'], true);
 
       // The returned object should NOT have 'admin' accessible via prototype
@@ -475,6 +482,7 @@ describe('updateIn', () => {
       type User = { profile: { bio: string; admin?: boolean } };
 
       const obj: User = { profile: { bio: 'Hello' } };
+      // @ts-expect-error -- the types refuse a path they know is wrong
       const result = setIn(obj, ['profile', '__proto__', 'admin'], true);
 
       // The nested object should NOT have 'admin' accessible via prototype
@@ -485,6 +493,7 @@ describe('updateIn', () => {
       type User = { profile: { bio: string }; admin?: boolean };
 
       const obj: User = { profile: { bio: 'Hello' } };
+      // @ts-expect-error -- the types refuse a path they know is wrong
       const result = updateIn(obj, ['__proto__', 'admin'], () => true);
 
       // The returned object should NOT have 'admin' accessible via prototype
