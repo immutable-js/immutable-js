@@ -397,7 +397,7 @@ last(): T | undefined`}
 Returns the value found by following a path of keys or indices through nested Collections.
 
 <Signature
-  code={`getIn(searchKeyPath: Iterable<unknown>, notSetValue?: unknown): unknown`}
+  code={`getIn(searchKeyPath: KeyPath<unknown>, notSetValue?: unknown): unknown`}
 />
 
 A Set has no indices: the key of each value is the value itself, so the path is made of the values to follow.
@@ -419,7 +419,7 @@ deepSet.getIn([obj, 'b'])`}
 
 True if the result of following a path of keys or indices through nested Collections results in a set value.
 
-<Signature code={`hasIn(searchKeyPath: Iterable<unknown>): boolean`} />
+<Signature code={`hasIn(searchKeyPath: KeyPath<unknown>): boolean`} />
 
 ## Conversion to Collections
 

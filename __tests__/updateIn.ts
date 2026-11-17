@@ -49,6 +49,7 @@ describe('updateIn', () => {
     expect(() => Map().updateIn({ a: 1, b: 2 }, (x) => x)).toThrow(
       'Invalid keyPath: expected Ordered Collection or Array: [object Object]'
     );
+    // @ts-expect-error -- test that runtime does throw
     expect(() => Map().updateIn('abc', (x) => x)).toThrow(
       'Invalid keyPath: expected Ordered Collection or Array: abc'
     );

@@ -11,8 +11,11 @@ import {
   has,
   hasIn,
   remove,
+  removeIn,
   set,
+  setIn,
   update,
+  updateIn,
 } from 'immutable';
 import { expect, test } from 'tstyche';
 
@@ -311,4 +314,49 @@ test('update', () => {
   expect(
     update({ x: 10, y: 20 }, 'x', (v: string) => v + 'a')
   ).type.toRaiseError();
+});
+
+test('setIn', () => {
+  expect(setIn({ x: { y: 20 } }, ['x', 'y'], 30)).type.toBe<{
+    x: { y: number };
+  }>();
+
+  expect(setIn([[1, 2]], [0, 1], 3)).type.toBe<number[][]>();
+
+  // a string is not a path: the runtime throws `Invalid keyPath`
+  expect(setIn({ x: 10 }, 'x', 30)).type.toRaiseError();
+});
+
+test('removeIn', () => {
+  expect(removeIn({ x: { y: 20 } }, ['x', 'y'])).type.toBe<{
+    x: { y: number };
+  }>();
+
+  expect(removeIn([[1, 2]], [0, 1])).type.toBe<number[][]>();
+
+  expect(removeIn({ x: 10 }, 'x')).type.toRaiseError();
+});
+
+test('updateIn', () => {
+  expect(updateIn({ x: { y: 20 } }, ['x', 'y'], (v) => v)).type.toBe<{
+    x: { y: number };
+  }>();
+
+  expect(updateIn([[1, 2]], [0, 1], (v) => v)).type.toBe<number[][]>();
+
+  expect(updateIn({ x: 10 }, 'x', (v) => v)).type.toRaiseError();
+
+  // a path only known at runtime
+  const path: Array<unknown> = ['x'];
+
+  expect(updateIn({ x: 10 }, path, (v) => v)).type.toBe<{ x: number }>();
+  expect(updateIn([[1, 2]], path, (v) => v)).type.toBe<number[][]>();
+
+  // an object as a key
+  const objectKey = { id: 1 };
+  const byObject = Map([[objectKey, 'a']]);
+
+  expect(updateIn(byObject, [objectKey], (v) => v)).type.toBe<
+    Map<{ id: number }, string>
+  >();
 });
