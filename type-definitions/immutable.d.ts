@@ -87,7 +87,7 @@
  *
  * [ES2015]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/New_in_JavaScript/ECMAScript_6_support_in_Mozilla
  * [TypeScript]: https://www.typescriptlang.org/
- * [Flow]: https://flowtype.org/
+ * [Flow]: https://flow.org/
  * [Iterable]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols
  */
 
