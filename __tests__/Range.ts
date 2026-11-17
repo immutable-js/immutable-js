@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 import fc from 'fast-check';
-import { Range } from 'immutable';
+import { is, Range, Set } from 'immutable';
 
 describe('Range', () => {
   it('fixed range', () => {
@@ -228,6 +228,40 @@ describe('Range', () => {
     expect(Range(0, 3).toString()).toBe('Range [ 0...3 ]');
     expect(Range(0, 10, 2).toString()).toBe('Range [ 0...10 by 2 ]');
     expect(Range(10, 0, -2).toString()).toBe('Range [ 10...0 by -2 ]');
+  });
+
+  it('equals a range with the same values', () => {
+    // both are [0, 3, 6, 9]
+    expect(Range(0, 10, 3).equals(Range(0, 11, 3))).toBe(true);
+    expect(is(Range(0, 10, 3), Range(0, 11, 3))).toBe(true);
+    expect(Set([Range(0, 10, 3), Range(0, 11, 3)]).size).toBe(1);
+    // both are [10, 7, 4, 1]
+    expect(Range(10, 0, 3).equals(Range(10, -1, 3))).toBe(true);
+    // both are [5]
+    expect(Range(5, 6).equals(Range(5, 7, 2))).toBe(true);
+
+    expect(Range(0, 10, 3).equals(Range(0, 13, 3))).toBe(false);
+    expect(Range(0, 10, 3).equals(Range(1, 10, 3))).toBe(false);
+    expect(Range(0, 10, 2).equals(Range(0, 10, 3))).toBe(false);
+    expect(Range(0, Infinity).equals(Range(0, Infinity))).toBe(true);
+    expect(Range(0, Infinity).equals(Range(0, Infinity, 2))).toBe(false);
+  });
+
+  it('equals another range exactly when their values are equal', () => {
+    const ints = [-3, -2, -1, 0, 1, 2, 3];
+    const ranges = ints.flatMap((from) =>
+      ints.flatMap((to) => [1, 2, 3].map((step) => Range(from, to, step)))
+    );
+    const values = ranges.map((r) => r.toList());
+    const mismatches: Array<string> = [];
+    ranges.forEach((r1, i) => {
+      ranges.forEach((r2, j) => {
+        if (r1.equals(r2) !== is(values[i], values[j])) {
+          mismatches.push(`${r1} / ${r2}`);
+        }
+      });
+    });
+    expect(mismatches).toEqual([]);
   });
 
   it('has() checks index existence on a lazy seq of unknown size', () => {
