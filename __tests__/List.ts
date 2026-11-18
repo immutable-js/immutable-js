@@ -1195,6 +1195,23 @@ describe('List', () => {
   });
 
   describe('Iterator', () => {
+    it('stops callback iteration at leaf boundaries in either direction', () => {
+      const list = List(arrayOfSize(1100)).slice(7, -9);
+      for (const collection of [list, list.toSeq().reverse()]) {
+        for (const stop of [0, 24, 25, 31, 32, 1016, 1024]) {
+          const seen: number[] = [];
+          const count = collection.forEach((value, key, iter) => {
+            expect(iter).toBe(collection);
+            expect(key).toBe(seen.length);
+            seen.push(value);
+            return key !== stop;
+          });
+          expect(count).toBe(stop + 1);
+          expect(seen).toEqual(collection.toArray().slice(0, stop + 1));
+        }
+      }
+    });
+
     const pInt = fc.nat(100);
 
     it('iterates through List', () => {

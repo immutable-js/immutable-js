@@ -200,6 +200,41 @@ describe('Map hash collisions', () => {
     expect(removed.get(new Collider(26))).toBe(26);
   });
 
+  it('does not share editable values when collapsing a collision node', () => {
+    // More than eight entries ensures the array map has become a trie.
+    const original = Map<string, number>([
+      ['Aa', 1],
+      ['BB', 2],
+      ...Array.from({ length: 10 }, (_, i): [string, number] => ['key' + i, i]),
+    ]);
+    const updated = original.withMutations((map) => {
+      map.remove('Aa');
+      map.set('BB', 99);
+    });
+    expect(updated.get('BB')).toBe(99);
+    expect(updated.has('Aa')).toBe(false);
+    expect(original.get('Aa')).toBe(1);
+    expect(original.get('BB')).toBe(2);
+  });
+
+  it('keeps string-valued object keys equivalent to strings in indexed buckets', () => {
+    const keys = collisionKeys(6);
+    const wrappers = keys.map((key) => ({ valueOf: () => key }));
+    const map = Map<unknown, number>(wrappers.map((key, i) => [key, i]));
+    keys.forEach((key, i) => expect(map.get(key)).toBe(i));
+    const replaced = map.withMutations((mutable) => {
+      keys.forEach((key, i) => mutable.set(key, i + 1));
+      keys.slice(0, 32).forEach((key) => mutable.remove(key));
+    });
+    expect(replaced.size).toBe(32);
+    wrappers
+      .slice(32)
+      .forEach((key, i) => expect(replaced.get(key)).toBe(i + 33));
+    wrappers.forEach((key, i) => expect(map.get(key)).toBe(i));
+    const strings = Map<unknown, number>(keys.map((key, i) => [key, i]));
+    wrappers.forEach((key, i) => expect(strings.get(key)).toBe(i));
+  });
+
   it('does not degrade for a large flood of colliding keys', () => {
     // A regression guard: with the linear scan this is ~O(n²) and takes seconds
     // for 16384 keys; with the seeded index it is ~linear and near-instant.

@@ -512,7 +512,7 @@ class HashCollisionNode {
     (removed || !exists) && SetRef(didChangeSize);
 
     if (removed && len === 2) {
-      return new ValueNode(ownerID, this.keyHash, entries[idx ^ 1]);
+      return new ValueNode(ownerID, this.keyHash, entries[idx ^ 1].slice());
     }
 
     const newEntries = isEditable ? entries : arrCopy(entries);
