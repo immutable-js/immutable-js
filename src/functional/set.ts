@@ -39,10 +39,6 @@ export function set<K, V, C extends Collection<K, V> | { [key: string]: V }>(
   key: K | string,
   value: V
 ): C {
-  if (isProtoKey(key)) {
-    return collection;
-  }
-
   if (!isDataStructure(collection)) {
     throw new TypeError(
       'Cannot update non-data-structure value: ' + collection
@@ -57,6 +53,10 @@ export function set<K, V, C extends Collection<K, V> | { [key: string]: V }>(
     }
     // @ts-expect-error weird "set" here,
     return collection.set(key, value);
+  }
+  // Immutable collections store these keys; only skip them on plain objects.
+  if (isProtoKey(key)) {
+    return collection;
   }
   // @ts-expect-error mix of key and string here. Probably need a more fine type here
   if (hasOwnProperty.call(collection, key) && value === collection[key]) {
