@@ -1,5 +1,5 @@
-import { describe, expect, it } from '@jest/globals';
-import { Seq } from 'immutable';
+import { describe, expect, it, jest } from '@jest/globals';
+import { List, Seq } from 'immutable';
 
 describe('IndexedSequence', () => {
   it('maintains skipped offset', () => {
@@ -164,6 +164,48 @@ describe('IndexedSequence', () => {
     expect(indexes.get(-0)).toEqual(0);
     expect(indexes.get(2)).toEqual(2);
     expect(indexes.get(-2)).toEqual(3);
+  });
+
+  it('passes resolved indexes to the mapper when reading from the end', () => {
+    const seq = Seq(['A', 'B', 'C']).map((value, index) => value + index);
+
+    expect(seq.toArray()).toEqual(['A0', 'B1', 'C2']);
+    expect(seq.last()).toBe('C2');
+    expect(seq.get(-1)).toBe('C2');
+    expect(seq.get(-2)).toBe('B1');
+    expect(seq.get(-3)).toBe('A0');
+    expect(seq.get(1)).toBe('B1');
+    expect(seq.reverse().get(0)).toBe('C2');
+    expect(seq.reverse().last()).toBe('A0');
+  });
+
+  it('resolves mapped indexes when the source size is unknown', () => {
+    const seq = Seq(['A', 'B', 'C'])
+      .filter((value) => value !== 'B')
+      .map((value, index) => value + index);
+    expect(seq.size).toBeUndefined();
+
+    expect(seq.get(-1)).toBe('C1');
+    expect(seq.get(-2)).toBe('A0');
+    expect(seq.last()).toBe('C1');
+  });
+
+  it('returns the original index in entries read from the end', () => {
+    const entries = List(['A', 'B', 'C']).entrySeq();
+
+    expect(entries.last()).toEqual([2, 'C']);
+    expect(entries.get(-2)).toEqual([1, 'B']);
+  });
+
+  it('does not map out-of-bounds indexes', () => {
+    const mapper = jest.fn((value: string) => value.toLowerCase());
+    const seq = Seq(['A', 'B', 'C']).map(mapper);
+
+    expect(seq.get(-4, 'missing')).toBe('missing');
+    expect(seq.get(-6, 'missing')).toBe('missing');
+    expect(seq.get(3, 'missing')).toBe('missing');
+    expect(Seq.Indexed<string>().map(mapper).last('missing')).toBe('missing');
+    expect(mapper).not.toHaveBeenCalled();
   });
 
   it('keySeq() returns indexes for a lazy indexed Seq of unknown size', () => {

@@ -251,7 +251,12 @@ export function mapFactory(collection, mapper, context) {
     const v = collection.get(key, NOT_SET);
     return v === NOT_SET
       ? notSetValue
-      : mapper.call(context, v, key, collection);
+      : mapper.call(
+          context,
+          v,
+          isIndexed(collection) ? wrapIndex(collection, key) : key,
+          collection
+        );
   };
   mappedSequence.__iterateUncached = function (fn, reverse) {
     return collection.__iterate(

@@ -4,6 +4,16 @@ import { Range, Seq } from 'immutable';
 import invariant from '../src/utils/invariant';
 
 describe('KeyedSeq', () => {
+  it('preserves negative numeric keys passed to a mapper', () => {
+    const seq = Seq.Keyed([
+      [-1, 'A'],
+      [0, 'B'],
+    ]).map((value, key) => value + key);
+
+    expect(seq.get(-1)).toBe('A-1');
+    expect(seq.get(0)).toBe('B0');
+  });
+
   it('iterates equivalently', () => {
     fc.assert(
       fc.property(fc.array(fc.integer()), (ints: Array<number>) => {
