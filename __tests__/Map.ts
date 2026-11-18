@@ -432,6 +432,57 @@ describe('Map', () => {
     );
   });
 
+  it('keeps trie snapshots intact across transient insertions and removals', () => {
+    const entries: Array<[number, number]> = Array.from(
+      { length: 1024 },
+      (_, i) => [i * 32, i]
+    );
+    const original = Map(entries);
+    const originalHash = original.hashCode();
+    const updated = original.withMutations((map) => {
+      // Visit bitmap slots in descending order, forcing interior shifts.
+      for (let i = entries.length - 1; i >= 0; i--) {
+        map.remove(i * 32);
+        map.set(i * 32 + 1, -i);
+      }
+    });
+    expect(original.toArray()).toEqual(Map(entries).toArray());
+    expect(original.hashCode()).toBe(originalHash);
+    expect(updated.size).toBe(entries.length);
+    entries.forEach(([key, value]) => {
+      expect(updated.has(key)).toBe(false);
+      expect(updated.get(key + 1)).toBe(-value);
+    });
+    expect(updated.set(1, -0)).toBe(updated);
+    expect(updated.remove(-1)).toBe(updated);
+    const forward = Array.from(updated.entries());
+    expect(updated.toSeq().reverse().toArray()).toEqual(forward.reverse());
+    let visits = 0;
+    updated.forEach(() => {
+      visits++;
+      return false;
+    });
+    expect(visits).toBe(1);
+  });
+
+  it('iterates trie leaves with falsy keys and values', () => {
+    const keys = [
+      undefined,
+      null,
+      false,
+      0,
+      '',
+      NaN,
+      ...Array.from({ length: 40 }, (_, i) => i + 1),
+    ];
+    const map = Map(keys.map((key) => [key, undefined]));
+    expect(Array.from(map.keys())).toEqual(map.keySeq().toArray());
+    expect(Array.from(map.values())).toEqual(keys.map(() => undefined));
+    expect(Array.from(map.entries())).toEqual(map.toArray());
+    expect(map.toSeq().reverse().toArray()).toEqual(map.toArray().reverse());
+    keys.forEach((key) => expect(map.has(key)).toBe(true));
+  });
+
   it('allows chained mutations', () => {
     const m1 = Map();
     const m2 = m1.set('a', 1);
