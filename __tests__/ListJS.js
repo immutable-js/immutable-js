@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import { List } from 'immutable';
+import { List, Seq } from 'immutable';
 
 const NON_NUMBERS = {
   array: ['not', 'a', 'number'],
@@ -42,6 +42,22 @@ describe('List', () => {
         expect(v2.last()).toBe(undefined);
         expect(v2.butLast().size).toBe(0);
       });
+    });
+  });
+  describe('takeWhile()', () => {
+    // The TypeScript types ask for a boolean, but JS callers (and the docs
+    // example) often return a truthy or falsy value instead.
+    it('stops at the first falsy predicate result', () => {
+      const words = List(['dog', 'frog', 'cat', 'hat', 'god']);
+      expect(words.takeWhile((x) => x.match(/o/))).toEqual(
+        List(['dog', 'frog'])
+      );
+      expect(List([1, 2, 0, 3]).takeWhile((x) => x)).toEqual(List([1, 2]));
+
+      const seq = Seq([1, 2, 0, 3]).takeWhile((x) => x);
+      expect(seq.toArray()).toEqual([1, 2]);
+      expect(Array.from(seq)).toEqual([1, 2]);
+      expect(seq.count()).toBe(2);
     });
   });
 });
