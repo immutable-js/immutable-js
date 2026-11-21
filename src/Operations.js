@@ -34,8 +34,8 @@ import {
   wrapIndex,
 } from './TrieUtils';
 import { isCollection } from './predicates/isCollection';
-import { IS_INDEXED_SYMBOL, isIndexed } from './predicates/isIndexed';
-import { IS_KEYED_SYMBOL, isKeyed } from './predicates/isKeyed';
+import { isIndexed } from './predicates/isIndexed';
+import { isKeyed } from './predicates/isKeyed';
 import { IS_ORDERED_SYMBOL, isOrdered } from './predicates/isOrdered';
 import { isSeq } from './predicates/isSeq';
 
@@ -619,28 +619,28 @@ export function skipWhileFactory(collection, predicate, context, useKeys) {
   return skipSequence;
 }
 
-class ConcatSeq extends Seq {
-  constructor(iterables) {
-    this._wrappedIterables = iterables.flatMap((iterable) => {
-      if (iterable._wrappedIterables) {
-        return iterable._wrappedIterables;
-      }
-      return [iterable];
-    });
-    this.size = this._wrappedIterables.reduce((sum, iterable) => {
+function concatSequenceFactory(collection, iterables) {
+  const concatSequence = makeSequence(collection);
+  concatSequence._wrappedIterables = iterables.flatMap((iterable) => {
+    if (iterable._wrappedIterables) {
+      return iterable._wrappedIterables;
+    }
+    return [iterable];
+  });
+  concatSequence.size = concatSequence._wrappedIterables.reduce(
+    (sum, iterable) => {
       if (sum !== undefined) {
         const size = iterable.size;
         if (size !== undefined) {
           return sum + size;
         }
       }
-    }, 0);
-    this[IS_KEYED_SYMBOL] = this._wrappedIterables[0][IS_KEYED_SYMBOL];
-    this[IS_INDEXED_SYMBOL] = this._wrappedIterables[0][IS_INDEXED_SYMBOL];
-    this[IS_ORDERED_SYMBOL] = this._wrappedIterables[0][IS_ORDERED_SYMBOL];
-  }
+    },
+    0
+  );
+  concatSequence[IS_ORDERED_SYMBOL] = isOrdered(collection);
 
-  __iterateUncached(fn, reverse) {
+  concatSequence.__iterateUncached = function (fn, reverse) {
     if (this._wrappedIterables.length === 0) {
       return;
     }
@@ -679,9 +679,9 @@ class ConcatSeq extends Seq {
       index++;
     }
     return index;
-  }
+  };
 
-  __iteratorUncached(type, reverse) {
+  concatSequence.__iteratorUncached = function (type, reverse) {
     if (this._wrappedIterables.length === 0) {
       return new Iterator(iteratorDone);
     }
@@ -710,7 +710,8 @@ class ConcatSeq extends Seq {
       }
       return next;
     });
-  }
+  };
+  return concatSequence;
 }
 
 export function concatFactory(collection, values) {
@@ -744,7 +745,7 @@ export function concatFactory(collection, values) {
     }
   }
 
-  return new ConcatSeq(iters);
+  return concatSequenceFactory(collection, iters);
 }
 
 export function flattenFactory(collection, depth, useKeys) {
