@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import { List, Seq, Set } from 'immutable';
+import { List, Range, Seq, Set } from 'immutable';
 
 describe('concat', () => {
   it('concats two sequences', () => {
@@ -180,6 +180,53 @@ describe('concat', () => {
     expect(i.get(-1)).toBe(-1);
     expect(i.get(-4)).toBe(-9);
     expect(i.get(-5, 888)).toBe(888);
+  });
+
+  it.each([false, true])(
+    'looks up negative indices after concatenation (unknown size: %s)',
+    (unknownSize) => {
+      const input = Seq([0, 1]);
+      const concat = () =>
+        (unknownSize ? input.filter(() => true) : input).concat([100]);
+
+      expect(concat().get(-1)).toBe(100);
+      expect(concat().get(-3)).toBe(0);
+      expect(concat().get(-4, 'missing')).toBe('missing');
+      expect(concat().has(-1)).toBe(true);
+      expect(concat().has(-3)).toBe(true);
+      expect(concat().has(-4)).toBe(false);
+      expect(concat().first()).toBe(0);
+      expect(concat().last()).toBe(100);
+    }
+  );
+
+  it('looks up the last value after range concatenation and splicing', () => {
+    expect(Range(0, 2).concat([100]).last()).toBe(100);
+    expect(Seq([1, 2]).splice(1, 0, 7).last()).toBe(2);
+  });
+
+  it('keeps an empty indexed sequence indexed when concatenating a set', () => {
+    const seq = Seq.Indexed<number>().concat(Set([10, 20]));
+    expect(seq.get(0)).toBe(10);
+    expect(seq.get(-1)).toBe(20);
+    expect(seq.has(-1)).toBe(true);
+    expect(seq.last()).toBe(20);
+  });
+
+  it('keeps keyed lookups after concatenation', () => {
+    const seq = Seq.Keyed<number, string>([[0, 'first']]).concat([
+      [-1, 'last'],
+    ]);
+    expect(seq.get(-1)).toBe('last');
+    expect(seq.has(-1)).toBe(true);
+    expect(seq.get(1, 'missing')).toBe('missing');
+  });
+
+  it('keeps set lookups after concatenation', () => {
+    const seq = Seq.Set([10]).concat([20]);
+    expect(seq.get(20)).toBe(20);
+    expect(seq.has(20)).toBe(true);
+    expect(seq.get(0, 'missing')).toBe('missing');
   });
 
   it('should iterate on many concatenated sequences', () => {
