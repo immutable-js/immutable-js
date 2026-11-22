@@ -219,4 +219,11 @@ describe('Stack', () => {
     // Pushing an empty Stack onto a Stack return === Stack
     expect(abc.pushAll(Stack())).toBe(abc);
   });
+
+  it('returns notSetValue for NaN indexes instead of the head', () => {
+    const stack = Stack.of('first', 'second');
+    expect(stack.get(NaN)).toBeUndefined();
+    expect(stack.get(Number('invalid'), 'missing')).toBe('missing');
+    expect(stack.get('nope' as unknown as number, 'fallback')).toBe('fallback');
+  });
 });
